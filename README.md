@@ -1,25 +1,11 @@
 # Beamish
 
-**beamish**, *adj.* Shining brightly, radiant.
+Web effects and interface components for AI coding agents.
 
-First recorded in 1530, in John Palsgrave's *Lesclarcissement de la langue
-francoyse*, the earliest French-English dictionary. It glosses the French
-*radieux* as "Beamysshe as the sonne is". Lewis Carroll used it in *Jabberwocky*
-341 years later and seems to have thought he coined it. He did coin *chortle* and
-*galumph*. This one he found.
-
-It is also my surname.
-
----
-
-Beamish is a collection of creative web effects: Three.js scenes, WebGL shaders,
-canvas and CSS motion, plus a small set of interface components in the same
-visual family.
-
-There is nothing to install. Browse [beamish.ink](https://beamish.ink), watch a
-video of an effect, press **Get prompt**, and paste the result into Claude Code
-or Cursor. Your agent fetches two files from this repo and wires them into
-whatever you are already running.
+Three.js scenes, WebGL shaders, text animations and interface components. There
+is nothing to install. Browse [beamish.ink](https://beamish.ink), pick one, press
+**Copy prompt**, and paste the result into Claude Code or Cursor. Your agent
+fetches the source from this repo and writes it into your project.
 
 ## Why a prompt and not a package
 
@@ -87,6 +73,11 @@ million pixels, whichever runs out first. A 600×400 panel at 2× DPR is 960,000
 pixels, so seventeen live demos on one page is enough to start losing them. That
 is why the index page is video posters rather than the wall of running demos it
 looks like.
+
+## The name
+
+*Beamish* is a real English adjective meaning shining brightly, first recorded in
+1530 in John Palsgrave's French-English dictionary. It is also my surname.
 
 ## Licence
 

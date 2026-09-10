@@ -13,22 +13,38 @@ const groups = CATEGORY_ORDER.map(category => ({
 ---
 
 <Base
-  title="Beamish: creative web effects, delivered as a prompt"
-  description="Three.js scenes, WebGL shaders and interface components built for warm paper rather than black. Nothing to install. Copy a prompt, paste it into your agent."
+  title="Beamish: web effects and components for AI agents"
+  description="Three.js scenes, WebGL shaders and interface components. Nothing to install. Copy a prompt, paste it into Claude Code or Cursor, and your agent writes it into your project."
 >
   <section class="px-5 pt-32 pb-16 md:px-8 md:pt-44">
-    <h1 class="max-w-[16ch] text-[clamp(2.6rem,8vw,6rem)] leading-[0.95]">
-      Effects that look like they were printed.
+    <h1 class="max-w-[18ch] text-[clamp(2.4rem,7.5vw,5.5rem)] leading-[0.95]">
+      Web effects and components for your AI agent.
     </h1>
-    <p class="text-l2 mt-8 max-w-[52ch] text-[0.95rem]">
-      Three.js scenes, WebGL shaders and interface components, all built for warm
-      paper rather than the near-black canvas every other library assumes. There
-      is nothing to install. Copy a prompt, paste it into Claude Code or Cursor,
-      and your agent fetches two files and wires them into whatever you are
-      already running.
+    <p class="text-l2 mt-8 max-w-[54ch] text-[1rem]">
+      Three.js scenes, WebGL shaders, text animations and interface components.
+      There is nothing to install. Pick one, press Copy prompt, and paste it into
+      Claude Code or Cursor. Your agent fetches the source and writes it into your
+      project.
     </p>
-    <p class="tag mt-8">
-      {items.length} items · MIT · pinned to a tag, never to main
+
+    <ol class="text-l2 mt-10 grid max-w-[54ch] gap-3 text-[0.9rem]">
+      <li class="border-line flex gap-4 border-t pt-3">
+        <span class="tag flex-none pt-[0.15rem]">01</span>
+        <span>Pick an effect and watch the video.</span>
+      </li>
+      <li class="border-line flex gap-4 border-t pt-3">
+        <span class="tag flex-none pt-[0.15rem]">02</span>
+        <span>Press <span class="text-l1">Copy prompt</span>.</span>
+      </li>
+      <li class="border-line flex gap-4 border-t pt-3">
+        <span class="tag flex-none pt-[0.15rem]">03</span>
+        <span>Paste it into your agent. It handles the rest.</span>
+      </li>
+    </ol>
+
+    <p class="tag mt-10">
+      {items.length} items · MIT · works with Claude Code, Cursor, Copilot,
+      Windsurf
     </p>
   </section>
 
