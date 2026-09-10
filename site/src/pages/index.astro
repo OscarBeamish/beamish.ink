@@ -14,11 +14,18 @@ const groups = CATEGORY_ORDER.map(category => ({
 
 <Base
   title="Beamish: web effects and components for AI agents"
-  description="Three.js scenes, WebGL shaders and interface components. Nothing to install. Copy a prompt, paste it into Claude Code or Cursor, and your agent writes it into your project."
+  description="Three.js scenes, WebGL shaders and interface components. Nothing to install: copy a prompt, paste it into your AI agent, and it writes the code."
 >
   <section class="px-5 pt-32 pb-16 md:px-8 md:pt-44">
-    <h1 class="max-w-[18ch] text-[clamp(2.4rem,7.5vw,5.5rem)] leading-[0.95]">
-      Web effects and components for your AI agent.
+    {/*
+      A two-line lockup rather than one long string. Left to wrap on its own,
+      "components for" put a preposition at the end of a line at every width
+      tested. Each line is now a whole phrase, so the only break left is inside
+      "Effects and components" on the narrowest screens.
+    */}
+    <h1 class="text-[clamp(2.3rem,7vw,5rem)] leading-[0.95]">
+      <span class="block">Effects and components</span>
+      <span class="text-l3 block">for AI agents.</span>
     </h1>
     <p class="text-l2 mt-8 max-w-[54ch] text-[1rem]">
       Three.js scenes, WebGL shaders, text animations and interface components.
@@ -52,9 +59,11 @@ const groups = CATEGORY_ORDER.map(category => ({
     {
       groups.map(group => (
         <div class="mb-16">
-          <div class="border-line mb-6 flex items-baseline justify-between border-b pb-3">
+          {/* The blurb is hidden below 640px. At 390px it collided with the
+              heading, and it is a nicety rather than information. */}
+          <div class="border-line mb-6 flex items-baseline justify-between gap-6 border-b pb-3">
             <h2 class="text-[1.05rem]">{CATEGORY_LABELS[group.category]}</h2>
-            <p class="tag">{CATEGORY_BLURBS[group.category]}</p>
+            <p class="tag hidden text-right sm:block">{CATEGORY_BLURBS[group.category]}</p>
           </div>
           <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {group.items.map(item => (

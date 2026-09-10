@@ -15,7 +15,9 @@
     "record": "tsx tools/recorder/index.ts",
     "build:items": "tsx tools/build-items.ts",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "review": "tsx tools/review/index.ts",
+    "check": "pnpm typecheck && pnpm generate:check && pnpm test && pnpm build && pnpm review"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

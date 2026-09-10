@@ -17,3 +17,4 @@ components/*/demo.bundle.css
 site/public/media/
 site/public/fonts/
 site/.astro/
+tools/review/.shots/
