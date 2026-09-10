@@ -94,7 +94,7 @@ dark-canvas assumption, so most entries here are recasts rather than ports.
 | Blinds | Gradient Blinds, Color Bends | 3 | |
 | Molten | Molten Metal, Evil Eye, Balatro, Dark Veil, Liquid Ether, Ghost Fibers, Iridescence, Pixel Blast, Gradient Waves | 3 | **skip**. Nine near-black shader backdrops with no paper reading |
 
-## Pointer (38 candidates, 1 built)
+## Pointer (38 candidates, 2 built)
 
 | Beamish | React Bits | P | Note |
 | --- | --- | --- | --- |
@@ -179,7 +179,7 @@ backdrops. Codrops publishes cameras, meshes, depth maps and physics every week.
 | --- | --- | --- | --- |
 | Loupe | Mouse-Following Square Lens, Tomoyuki Nakata, Aug 2026 | 1 | Lens distortion and chromatic shift inside a shape that tracks the cursor. **Recast**: a magnifier over letterpress rather than a neon square. Merges with True Focus from the React Bits list |
 | Relight | Relighting Images with Depth Maps, Aug 2026 | 1 | A flat photograph plus a depth map, lit by a lamp that moves. Nothing in React Bits comes close, and it lands on paper without changing anything |
-| Swell | Interactive Wave Propagation Cube Grid, Jul 2026 | 1 | A grid of forms that ripples out from wherever you touch it. Same family as Sundial: matte forms, real shadows, warm paper |
+| Swell | Interactive Wave Propagation Cube Grid, Jul 2026 | 1 | **done** |
 | Threshold | Persistent Page Transitions with WebGPU, Jun 2026 | 2 | Page transitions with a scene that survives navigation. **Recast** to WebGL2: WebGPU is Chrome-only for our purposes |
 | Teletype | Shape-Aware ASCII Renderer, Sep 2026 | 2 | Every cell picks the glyph whose shape fits, not the one whose brightness matches. Far better than the usual luminance ramp. **Recast**: ink on paper, not green on black |
 | Vellum | Infinite Liquid Glass Grid, Sep 2026 | 2 | Reinforces the Vellum entry above. Their glass becomes our translucent paper |
@@ -202,7 +202,7 @@ Codrops adds eight more worth building, three of them P1 and all of them 3D.
 
 Of the React Bits 90: 25 are P1, about 30 are P2, and the rest are P3 or marked skip.
 
-Eight are built. At the rate of the first session, a good item costs most of a
+Nine are built. At the rate of the first session, a good item costs most of a
 day once you count the shader, the option surface, the recipe, the recording and
 the paste-test. Twenty-five P1 items is therefore several weeks, not a sitting.
 

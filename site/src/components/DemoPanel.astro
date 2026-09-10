@@ -82,7 +82,8 @@ const { slug, tier, instruction, oneShot } = Astro.props
     foil: () => import('@items/effects/foil/core'),
     sort: () => import('@items/effects/sort/core'),
     riser: () => import('@items/effects/riser/core'),
-    tilt: () => import('@items/effects/tilt/core')
+    tilt: () => import('@items/effects/tilt/core'),
+    swell: () => import('@items/effects/swell/core')
   }
 
   const COMPONENTS: Record<string, () => Promise<{ mount(el: HTMLElement): Mounted }>> = {
@@ -153,7 +154,12 @@ const { slug, tier, instruction, oneShot } = Astro.props
       const load = EFFECTS[slug]
       if (!load) continue
       const markup = CONTENT[slug]
-      if (markup) stage.innerHTML = markup
+      if (markup) {
+        stage.innerHTML = markup
+        // Marks the stage as holding DOM content, so the centring styles apply
+        // to it and not to a canvas that should fill the panel.
+        stage.setAttribute('data-content', '')
+      }
       const module = await load()
       // A DOM effect wants the element holding the content, not the stage.
       const target = markup ? (stage.firstElementChild as HTMLElement) : stage
