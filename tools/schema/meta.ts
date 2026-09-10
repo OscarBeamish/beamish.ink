@@ -99,6 +99,16 @@ const recordSpec = z.object({
   fps: z.number().int().positive().default(60),
   /** Frame used for poster.jpg, in seconds. */
   posterAt: z.number().min(0).default(2.5),
+  /*
+   * Quality overrides, for the rare item that is pathological for a video codec.
+   * A full-frame halftone at 30fps is nearly all high-frequency detail, so almost
+   * every pixel changes every frame and there is nothing to predict — it encodes
+   * an order of magnitude larger than a scene of smooth shaded forms. Raising
+   * these for such an item is a deliberate trade of quality against a repo where
+   * every media file is committed forever.
+   */
+  crf: z.number().int().min(0).max(63).optional(),
+  webmCrf: z.number().int().min(0).max(63).optional(),
   /** Tier 2 only. */
   interactions: z.array(interactionStep).optional()
 })

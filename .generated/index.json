@@ -592,7 +592,9 @@
     "record": {
       "duration": 5,
       "fps": 30,
-      "posterAt": 2.05
+      "posterAt": 2.05,
+      "crf": 32,
+      "webmCrf": 47
     },
     "group": "effects",
     "intro": "Overprint is a full-bleed background that behaves like a two-colour print rather\nthan like a light source. Two ink plates — a desaturated near-black and a burnt\norange — are screened into halftone dots at different angles, then multiplied\nover the paper colour the way a second pass of ink actually behaves. Over the\nloop the plates slide fractionally out of registration, which is the misprint\nthat makes a risograph look alive.\n\nIt is a single WebGL2 fragment shader on one full-screen triangle. No three.js,\nno textures, no render targets, no dependencies at all.\n\nThe whole thing is designed for a light background. On black it does nothing,\nbecause multiplying ink into black gets you black.\n\nThe defaults are tuned to be looked at — dense, confident, plenty of solid ink.\nIf you are putting text on top of it, that is too much: drop `coverage` to around\n0.2 and raise `period` to 15 or so, and it recedes into a texture you stop\nnoticing. Do that rather than reaching for opacity, which greys the paper and\nloses the thing that makes it look printed."

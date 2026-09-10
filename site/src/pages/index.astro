@@ -1,0 +1,52 @@
+---
+import Base from '../layouts/Base.astro'
+import ItemCard from '../components/ItemCard.astro'
+import { loadCatalogue, CATEGORY_ORDER } from '../lib/catalogue'
+import { CATEGORY_LABELS, CATEGORY_BLURBS } from '../../../tools/schema/meta'
+
+const items = loadCatalogue()
+
+const groups = CATEGORY_ORDER.map(category => ({
+  category,
+  items: items.filter(item => item.category === category)
+})).filter(group => group.items.length > 0)
+---
+
+<Base
+  title="Beamish — creative web effects, delivered as a prompt"
+  description="Three.js scenes, WebGL shaders and UI components designed for warm paper rather than black. Nothing to install: copy a prompt, paste it into your agent."
+>
+  <section class="px-5 pt-32 pb-16 md:px-8 md:pt-44">
+    <h1 class="max-w-[16ch] text-[clamp(2.6rem,8vw,6rem)] leading-[0.95]">
+      Effects that look like they were printed.
+    </h1>
+    <p class="text-l2 mt-8 max-w-[52ch] text-[0.95rem]">
+      Three.js scenes, WebGL shaders and interface components, all designed for
+      warm paper rather than the near-black canvas every other library assumes.
+      There is nothing to install. Copy a prompt, paste it into Claude Code or
+      Cursor, and your agent fetches the source and wires it into whatever you are
+      already running.
+    </p>
+    <p class="tag mt-8">
+      {items.length} items · MIT · pinned to a tag, never to main
+    </p>
+  </section>
+
+  <section id="catalogue" class="px-5 pb-16 md:px-8">
+    {
+      groups.map(group => (
+        <div class="mb-16">
+          <div class="border-line mb-6 flex items-baseline justify-between border-b pb-3">
+            <h2 class="text-[1.05rem]">{CATEGORY_LABELS[group.category]}</h2>
+            <p class="tag">{CATEGORY_BLURBS[group.category]}</p>
+          </div>
+          <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {group.items.map(item => (
+              <ItemCard item={item} />
+            ))}
+          </div>
+        </div>
+      ))
+    }
+  </section>
+</Base>

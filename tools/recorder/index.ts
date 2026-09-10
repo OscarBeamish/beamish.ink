@@ -8,9 +8,9 @@
  * input produces the same bytes.
  *
  * Tier 1 is driven through `renderAtTime`. Tier 2 has no render loop to drive, so
- * it runs under Chromium's virtual time clock instead — which also advances CSS
- * transitions deterministically — while a script from meta.json replays the
- * interaction.
+ * its CSS transitions are paused and scrubbed through the Web Animations API
+ * instead, while a script from meta.json replays the interaction — see
+ * captureTier2.
  */
 
 import { chromium, type Browser, type Page } from 'playwright'
@@ -84,6 +84,20 @@ const CLOCK_STUB = `
   })()
 `
 
+/*
+ * Unlink the contents rather than the directory. On Windows a directory that was
+ * written to a moment ago is routinely still held open — by the indexer, by a
+ * shell sitting in it — and rmdir fails with EBUSY where unlinking does not.
+ * Frames are scratch either way, so a failure here must never fail a recording.
+ */
+async function emptyDir(dir: string) {
+  if (!existsSync(dir)) return
+  await Promise.all(
+    (await readdir(dir)).map(name => rm(path.join(dir, name), { recursive: true, force: true }))
+  )
+  await rm(dir, { recursive: true, force: true }).catch(() => {})
+}
+
 async function openDemo(browser: Browser, item: ItemRef, ratio: Ratio): Promise<Page> {
   const context = await browser.newContext({
     // Half the target in CSS pixels at 2× DPR, so a screenshot lands on the
@@ -93,6 +107,7 @@ async function openDemo(browser: Browser, item: ItemRef, ratio: Ratio): Promise<
     reducedMotion: 'no-preference'
   })
   await context.addInitScript(CLOCK_STUB)
+  await context.addInitScript(ANIMATION_SCRUBBER)
 
   const page = await context.newPage()
   const errors: string[] = []
@@ -179,17 +194,42 @@ async function applyStep(page: Page, step: InteractionStep, ratio: Ratio) {
 }
 
 /*
- * Tier 2 is CSS transitions and React state, neither of which we can step by
- * hand. Chromium's virtual time clock advances both together in fixed budgets
- * and blocks until the page has settled, which is exactly the primitive needed.
+ * Tier 2 is CSS transitions and React state, neither of which can be stepped by
+ * hand the way `renderAtTime` steps a shader.
+ *
+ * Chromium's virtual time clock looks like the answer and is not: with the clock
+ * paused the browser surface never advances, so every screenshot blocks until it
+ * times out, and capturing from the renderer instead loses the device pixel
+ * ratio. Both were tried.
+ *
+ * What works is the Web Animations API. Every CSS transition is a real
+ * `CSSTransition` in `document.getAnimations()`, so they can all be paused and
+ * scrubbed to an exact time — which makes the wall clock irrelevant, leaves
+ * screenshots on the fast path, and is deterministic for the same reason
+ * `renderAtTime` is.
  */
+const ANIMATION_SCRUBBER = `
+  (() => {
+    const born = new WeakMap()
+    window.__beamishScrub = seconds => {
+      for (const animation of document.getAnimations()) {
+        // An animation's own zero is the moment it was created, which is
+        // whichever frame the interaction that triggered it landed on.
+        if (!born.has(animation)) born.set(animation, seconds)
+        try {
+          animation.pause()
+          animation.currentTime = Math.max(0, (seconds - born.get(animation)) * 1000)
+        } catch {
+          // A finished or replaced animation throws on currentTime. Nothing to do.
+        }
+      }
+    }
+  })()
+`
+
 async function captureTier2(page: Page, meta: Meta, dir: string, ratio: Ratio): Promise<number> {
   const total = Math.round(meta.record.duration * meta.record.fps)
-  const stepMs = 1000 / meta.record.fps
   const steps = [...(meta.record.interactions ?? [])].sort((a, b) => a.at - b.at)
-
-  const client = await page.context().newCDPSession(page)
-  await client.send('Emulation.setVirtualTimePolicy', { policy: 'pause' })
 
   let next = 0
   for (let frame = 0; frame < total; frame++) {
@@ -200,19 +240,16 @@ async function captureTier2(page: Page, meta: Meta, dir: string, ratio: Ratio): 
       next += 1
     }
 
-    const expired = new Promise<void>(resolve => {
-      client.once('Emulation.virtualTimeBudgetExpired', () => resolve())
-    })
-    await client.send('Emulation.setVirtualTimePolicy', {
-      policy: 'pauseIfNetworkFetchesPending',
-      budget: stepMs
-    })
-    await expired
-
+    await page.evaluate(
+      ([seconds, ms]) => {
+        window.__setClock?.(ms as number)
+        window.__beamishScrub?.(seconds as number)
+      },
+      [t, t * 1000] as const
+    )
     await page.screenshot({ path: path.join(dir, `${String(frame).padStart(5, '0')}.png`) })
   }
 
-  await client.detach()
   return total
 }
 
@@ -229,7 +266,8 @@ async function ffmpeg(args: string[]) {
   }
 }
 
-async function encode(framesDir: string, outDir: string, ratio: Ratio, fps: number) {
+async function encode(framesDir: string, outDir: string, ratio: Ratio, meta: Meta) {
+  const fps = meta.record.fps
   const pattern = path.join(framesDir, '%05d.png')
   const base = path.join(outDir, ratio.key)
 
@@ -238,7 +276,7 @@ async function encode(framesDir: string, outDir: string, ratio: Ratio, fps: numb
     '-i', pattern,
     '-c:v', 'libx264',
     '-profile:v', 'high',
-    '-crf', '26',
+    '-crf', String(meta.record.crf ?? 26),
     '-preset', 'slow',
     // yuv420p and even dimensions, or Safari and half of social will refuse it.
     '-pix_fmt', 'yuv420p',
@@ -254,7 +292,7 @@ async function encode(framesDir: string, outDir: string, ratio: Ratio, fps: numb
       '-i', pattern,
       '-vf', `scale=${ratio.webmWidth}:${height}:flags=lanczos`,
       '-c:v', 'libvpx-vp9',
-      '-crf', '40',
+      '-crf', String(meta.record.webmCrf ?? 40),
       '-b:v', '0',
       '-row-mt', '1',
       '-deadline', 'good',
@@ -276,7 +314,7 @@ async function poster(framesDir: string, outDir: string, meta: Meta) {
   await ffmpeg([
     '-i', path.join(framesDir, `${String(frame).padStart(5, '0')}.png`),
     '-vf', 'scale=1440:-2',
-    '-q:v', '5',
+    '-q:v', '6',
     path.join(outDir, 'poster.jpg')
   ])
 }
@@ -298,10 +336,8 @@ async function recordItem(browser: Browser, item: ItemRef, only: string[], keepF
       // Empty the directory rather than removing it. On Windows a directory that
       // was recently written to is often still held open by the indexer, and
       // rmdir fails with EBUSY where unlinking the files does not.
+      await emptyDir(framesDir)
       await mkdir(framesDir, { recursive: true })
-      await Promise.all(
-        (await readdir(framesDir)).map(name => rm(path.join(framesDir, name), { force: true }))
-      )
     }
 
     const started = Date.now()
@@ -315,12 +351,12 @@ async function recordItem(browser: Browser, item: ItemRef, only: string[], keepF
       await page.context().close()
     }
 
-    await encode(framesDir, outDir, ratio, meta.record.fps)
+    await encode(framesDir, outDir, ratio, meta)
     if (ratio.key === '16x9') await poster(framesDir, outDir, meta)
 
     const seconds = ((Date.now() - started) / 1000).toFixed(0)
     console.log(`  ${item.slug} ${ratio.key.padEnd(5)} ${frames} frames in ${seconds}s${cached ? ' (cached)' : ''}`)
-    if (!keepFrames) await rm(framesDir, { recursive: true, force: true })
+    if (!keepFrames) await emptyDir(framesDir)
   }
 
   // Budgets are not advisory. Media is committed to the repo, and every
@@ -377,7 +413,7 @@ async function main() {
     for (const item of items) await recordItem(browser, item, only, keepFrames)
   } finally {
     await browser.close()
-    if (!keepFrames) await rm(FRAMES, { recursive: true, force: true })
+    if (!keepFrames) await emptyDir(FRAMES)
   }
 }
 

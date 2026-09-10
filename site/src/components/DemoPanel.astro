@@ -1,0 +1,158 @@
+---
+/*
+ * One live demo, and never more than one on a page.
+ *
+ * Chromium allows 16 WebGL contexts *or* 16 × 1024 × 1024 pixels, whichever
+ * comes first, and forcibly loses the oldest past either. A 600×400 panel at 2×
+ * DPR is 960,000 pixels, so seventeen live panels exhaust the budget. That is why
+ * the index page is video posters and this component exists once per item page.
+ *
+ * Every ambient effect gets a visible pause control: WCAG 2.2.2 Pause, Stop, Hide
+ * is Level A, and it describes every background in this library.
+ */
+
+type Props = {
+  slug: string
+  tier: 1 | 2
+  instruction?: string | undefined
+  oneShot: boolean
+}
+
+const { slug, tier, instruction, oneShot } = Astro.props
+---
+
+<figure class="m-0">
+  <div
+    class="border-line bg-be relative overflow-hidden rounded-[2px] border"
+    data-demo
+    data-slug={slug}
+    data-tier={tier}
+    style="aspect-ratio: 16 / 9"
+  >
+    <div class="absolute inset-0" data-stage></div>
+
+    <div class="absolute right-3 bottom-3 flex gap-2">
+      {
+        oneShot ? (
+          <button
+            type="button"
+            class="border-control text-l1 rounded-full border bg-transparent px-3 py-1.5 text-[0.65rem] tracking-[0.1em] uppercase backdrop-blur-sm"
+            data-replay
+          >
+            Replay
+          </button>
+        ) : (
+          <button
+            type="button"
+            class="border-control text-l1 rounded-full border bg-transparent px-3 py-1.5 text-[0.65rem] tracking-[0.1em] uppercase backdrop-blur-sm"
+            data-toggle
+            aria-pressed="false"
+          >
+            Pause
+          </button>
+        )
+      }
+    </div>
+  </div>
+
+  {
+    /*
+     * Without a line telling people what to do, half of these look broken to
+     * anyone who does not already know to interact. Non-negotiable — and real
+     * DOM rather than burnt into the video, so it survives reduced motion and a
+     * poster that has not loaded.
+     */
+  }
+  <figcaption class="tag mt-3 flex items-center gap-2">
+    <span aria-hidden="true">↳</span>
+    {instruction ?? 'ambient — nothing to do'}
+  </figcaption>
+</figure>
+
+<script>
+  import type { EffectHandle } from '@shared/runtime'
+
+  type Mounted = { stop(): void; start(): void; destroy(): void }
+
+  // Explicit, not glob: five items is a list a person can read, and it keeps the
+  // bundle honest about what each page actually pulls in.
+  const EFFECTS: Record<string, () => Promise<{ default: (el: HTMLElement) => EffectHandle }>> = {
+    overprint: () => import('@items/effects/overprint/core'),
+    sundial: () => import('@items/effects/sundial/core'),
+    foil: () => import('@items/effects/foil/core')
+  }
+
+  const COMPONENTS: Record<string, () => Promise<{ mount(el: HTMLElement): Mounted }>> = {
+    contents: async () => {
+      const [{ Contents }, react, dom, demo] = await Promise.all([
+        import('@items/components/contents/react'),
+        import('react'),
+        import('react-dom/client'),
+        import('../demos/contents')
+      ])
+      return {
+        mount(el) {
+          const root = dom.createRoot(el)
+          root.render(react.createElement(Contents, demo.props))
+          return { start() {}, stop() {}, destroy: () => root.unmount() }
+        }
+      }
+    },
+    ember: async () => {
+      const [{ Ember }, react, dom, demo] = await Promise.all([
+        import('@items/components/ember/react'),
+        import('react'),
+        import('react-dom/client'),
+        import('../demos/ember')
+      ])
+      return {
+        mount(el) {
+          const root = dom.createRoot(el)
+          root.render(demo.render(react.createElement, Ember))
+          return { start() {}, stop() {}, destroy: () => root.unmount() }
+        }
+      }
+    }
+  }
+
+  for (const panel of document.querySelectorAll<HTMLElement>('[data-demo]')) {
+    const slug = panel.dataset['slug'] ?? ''
+    const tier = panel.dataset['tier'] === '2' ? 2 : 1
+    const stage = panel.querySelector<HTMLElement>('[data-stage]')
+    if (!stage) continue
+
+    let handle: Mounted | null = null
+
+    if (tier === 1) {
+      const load = EFFECTS[slug]
+      if (!load) continue
+      const module = await load()
+      const effect = module.default(stage)
+      effect.start()
+      handle = effect
+    } else {
+      const load = COMPONENTS[slug]
+      if (!load) continue
+      handle = (await load()).mount(stage)
+    }
+
+    // One live context per page, released the moment the page goes away, so
+    // navigating between item pages cannot accumulate contexts.
+    addEventListener('pagehide', () => handle?.destroy(), { once: true })
+
+    const toggle = panel.querySelector<HTMLButtonElement>('[data-toggle]')
+    toggle?.addEventListener('click', () => {
+      const paused = toggle.getAttribute('aria-pressed') === 'true'
+      if (paused) handle?.start()
+      else handle?.stop()
+      toggle.setAttribute('aria-pressed', String(!paused))
+      toggle.textContent = paused ? 'Pause' : 'Play'
+    })
+
+    const replay = panel.querySelector<HTMLButtonElement>('[data-replay]')
+    replay?.addEventListener('click', () => {
+      handle?.stop()
+      handle?.start()
+    })
+  }
+</script>

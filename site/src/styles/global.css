@@ -1,0 +1,91 @@
+@import 'tailwindcss';
+
+/* The tokens themselves live in shared/, so the site and every standalone
+   demo.html are provably the same. Never redeclare them here. */
+@import '../../../shared/tokens.css';
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Archivo';
+  src: url('/fonts/archivo-latin.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*
+ * Tailwind v4 reads utilities off these. Everything an item ships must inherit
+ * the host's theme, so nothing in the repo is allowed to hardcode a colour
+ * utility like bg-black — there is nothing here to reach for if you tried.
+ */
+@theme inline {
+  --color-l1: var(--label-1);
+  --color-l2: var(--label-2);
+  --color-l3: var(--label-3);
+  --color-l4: var(--label-4);
+  --color-b1: rgb(var(--background-deep));
+  --color-be: var(--background-elevated);
+  --color-line: var(--line);
+  --color-control: var(--control-line);
+  --color-accent: var(--accent);
+
+  --font-mono: var(--font-mono);
+  --font-display: var(--font-display);
+
+  --ease-66: var(--ease-66);
+  --ease-expo: var(--ease-out-expo);
+}
+
+@layer base {
+  html {
+    /* Lenis drives scroll; the native smooth behaviour fights it. */
+    scroll-behavior: auto;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background: rgb(var(--background-deep));
+    color: var(--label-2);
+    /* Mono is the default face. The display sans is for headings and the few
+       passages of real prose, and nowhere else. */
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--label-1);
+    text-wrap: balance;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--label-1);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  /* Small uppercase mono, used for every label, eyebrow and item of metadata. */
+  .tag {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--label-3);
+  }
+}

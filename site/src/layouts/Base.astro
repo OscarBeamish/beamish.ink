@@ -1,0 +1,99 @@
+---
+import '../styles/global.css'
+
+type Props = {
+  title: string
+  description: string
+  /** Absolute path to an og image, if the page has one. */
+  image?: string | null
+  video?: string | null
+}
+
+const { title, description, image = null, video = null } = Astro.props
+const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink')
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="canonical" href={canonical.href} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical.href} />
+    {image && <meta property="og:image" content={new URL(image, canonical).href} />}
+    {/* The videos are the product, so a shared link should unfurl into one. */}
+    {video && <meta property="og:video" content={new URL(video, canonical).href} />}
+    <meta name="twitter:card" content={video || image ? 'summary_large_image' : 'summary'} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <link
+      rel="preload"
+      href="/fonts/jetbrains-mono-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+  </head>
+
+  <body class="min-h-dvh">
+    <!--
+      mix-blend-mode: difference against white, so the header stays legible over
+      whatever is behind it — including arbitrary shader output. Essential on a
+      site that is mostly full-bleed demo panels.
+    -->
+    <header
+      class="nav-blend fixed inset-x-0 top-0 z-50 flex items-baseline justify-between px-5 py-4 md:px-8"
+    >
+      <a href="/" class="text-[0.95rem] tracking-[-0.01em] no-underline">Beamish</a>
+      <nav class="flex gap-5 text-[0.7rem] tracking-[0.1em] uppercase">
+        <a href="/#catalogue" class="no-underline">Index</a>
+        <a href="/about" class="no-underline">About</a>
+        <a
+          href="https://github.com/oscarbeamish/beamish"
+          class="no-underline"
+          rel="noreferrer"
+          target="_blank">GitHub</a
+        >
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="border-line mt-24 border-t px-5 py-10 md:px-8">
+      <p class="text-l3 max-w-[52ch] text-[0.8rem]">
+        <em>Beamish</em>, adj. — shining brightly; radiant. First recorded in 1530,
+        in John Palsgrave's French–English dictionary, glossing <em>radieux</em> as
+        “Beamysshe as the sonne is”. Lewis Carroll used it in Jabberwocky three
+        centuries later and may have thought he coined it.
+      </p>
+      <p class="text-l3 mt-6 text-[0.7rem] tracking-[0.1em] uppercase">
+        MIT · <a href="https://oscarbeamish.dev">Oscar Beamish</a>
+      </p>
+    </footer>
+
+    <script>
+      // Lenis drives scroll everywhere on the site. Reduced motion gets the
+      // native scroll instead — a smoothed scroll is still motion the user did
+      // not ask for.
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)')
+      if (!reduced.matches) {
+        const { default: Lenis } = await import('lenis')
+        const lenis = new Lenis({ duration: 1.05 })
+        const raf = (time: number) => {
+          lenis.raf(time)
+          requestAnimationFrame(raf)
+        }
+        requestAnimationFrame(raf)
+      }
+    </script>
+  </body>
+</html>

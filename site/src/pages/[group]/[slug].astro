@@ -1,0 +1,132 @@
+---
+import Base from '../../layouts/Base.astro'
+import DemoPanel from '../../components/DemoPanel.astro'
+import PromptButtons from '../../components/PromptButtons.astro'
+import { loadCatalogue, loadMedia, loadPrompts, PIN } from '../../lib/catalogue'
+import { CATEGORY_LABELS } from '../../../../tools/schema/meta'
+
+export function getStaticPaths() {
+  return loadCatalogue().map(item => ({
+    params: { group: item.group, slug: item.slug },
+    props: { item }
+  }))
+}
+
+const { item } = Astro.props
+const { linked, inlined } = loadPrompts(item.slug)
+const media = loadMedia(item)
+
+const options = Object.entries(item.options)
+
+const range = (spec: (typeof options)[number][1]) => {
+  if (spec.type === 'number') {
+    const base = `${spec.min} – ${spec.max}${spec.unit ? ` ${spec.unit}` : ''}`
+    return spec.sensible ? `${base} · good: ${spec.sensible[0]}–${spec.sensible[1]}` : base
+  }
+  if (spec.type === 'enum') return (spec.values ?? []).join(' · ')
+  if (spec.type === 'boolean') return 'true · false'
+  if (spec.type === 'color') return 'css colour'
+  return '—'
+}
+
+const deps = Object.entries(item.peerDependencies)
+---
+
+<Base
+  title={`${item.name} — Beamish`}
+  description={item.description}
+  image={media.poster}
+  video={media.mp4}
+>
+  <article class="px-5 pt-32 pb-8 md:px-8 md:pt-40">
+    <p class="tag">
+      {CATEGORY_LABELS[item.category]} · {item.tier === 1 ? 'effect' : 'component'}
+    </p>
+    <h1 class="mt-3 text-[clamp(2.2rem,7vw,4.5rem)] leading-[0.95]">{item.name}</h1>
+    <p class="text-l2 mt-5 max-w-[52ch] text-[0.95rem]">{item.description}.</p>
+
+    <div class="mt-10 max-w-[1100px]">
+      <DemoPanel
+        slug={item.slug}
+        tier={item.tier}
+        instruction={item.instruction}
+        oneShot={item.oneShot}
+      />
+    </div>
+
+    <div class="mt-10">
+      <PromptButtons slug={item.slug} linked={linked} inlined={inlined} />
+    </div>
+
+    <section class="mt-20 grid gap-12 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <div>
+        <h2 class="border-line border-b pb-3 text-[1.05rem]">Options</h2>
+        <table class="mt-4 w-full border-collapse text-left text-[0.8rem]">
+          <thead>
+            <tr class="tag border-line border-b">
+              <th class="py-2 pr-4 font-normal">Option</th>
+              <th class="py-2 pr-4 font-normal">Default</th>
+              <th class="py-2 font-normal">Range</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              options.map(([name, spec]) => (
+                <tr class="border-line border-b align-top">
+                  <td class="text-l1 py-3 pr-4 whitespace-nowrap">{name}</td>
+                  <td class="text-l2 py-3 pr-4 whitespace-nowrap">{String(spec.default)}</td>
+                  <td class="text-l3 py-3">
+                    <span class="block">{range(spec)}</span>
+                    <span class="text-l2 mt-1 block">{spec.description}</span>
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <aside class="text-[0.8rem]">
+        <h2 class="border-line border-b pb-3 text-[1.05rem]">Needs</h2>
+        <dl class="mt-4 grid gap-4">
+          <div>
+            <dt class="tag">Dependencies</dt>
+            <dd class="text-l2 mt-1">
+              {deps.length === 0 ? 'None at all' : deps.map(([n, v]) => `${n}@${v}`).join(', ')}
+            </dd>
+          </div>
+          <div>
+            <dt class="tag">Browser</dt>
+            <dd class="text-l2 mt-1">
+              {item.browser.webgl === 'none' ? 'No WebGL' : item.browser.webgl.toUpperCase()}
+            </dd>
+          </div>
+          <div>
+            <dt class="tag">Frame budget</dt>
+            <dd class="text-l2 mt-1">~{item.perf.frameBudgetMs} ms · {item.perf.contexts} context</dd>
+          </div>
+          <div>
+            <dt class="tag">Pinned to</dt>
+            <dd class="text-l2 mt-1">{PIN}</dd>
+          </div>
+          {
+            item.credit && (
+              <div>
+                <dt class="tag">Concept credit</dt>
+                <dd class="text-l2 mt-1">
+                  {item.credit.what} — <a href={item.credit.url}>{item.credit.author}</a>
+                </dd>
+              </div>
+            )
+          }
+        </dl>
+
+        <h2 class="border-line mt-10 border-b pb-3 text-[1.05rem]">Notes</h2>
+        <ul class="text-l2 mt-4 grid gap-2">
+          {item.browser.notes.map(note => <li>{note}</li>)}
+          {item.perf.notes.map(note => <li>{note}</li>)}
+        </ul>
+      </aside>
+    </section>
+  </article>
+</Base>

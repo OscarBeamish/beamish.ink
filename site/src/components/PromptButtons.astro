@@ -1,0 +1,82 @@
+---
+/*
+ * The product surface. Two buttons, and neither of them may ever be a dead end:
+ * the first hands the agent pinned URLs to fetch, the second hands it the same
+ * instructions with the source pasted in, for agents with no web access.
+ *
+ * The pills are Ember's own stylesheet, not a copy of it. If the button on this
+ * page and the button in the prompt ever diverge, the site is lying.
+ */
+import '@items/components/ember/styles.css'
+
+type Props = {
+  slug: string
+  linked: string
+  inlined: string
+}
+
+const { slug, linked, inlined } = Astro.props
+
+/*
+ * The prompts contain wiring examples, and those examples contain `</script>`.
+ * Inside a <script> element the parser closes on that sequence wherever it
+ * appears — string literal or not — so it has to be escaped. Nothing else about
+ * the JSON changes, and JSON.parse reads `<\/` as `</`.
+ */
+const embed = (text: string) => JSON.stringify(text).replaceAll('</', '<\\/')
+---
+
+<div class="prompt-buttons flex flex-wrap items-center gap-3" data-slug={slug}>
+  <button type="button" class="beamish-ember beamish-ember--solid" data-copy="linked">
+    <span data-label>Copy prompt</span>
+  </button>
+  <button type="button" class="beamish-ember beamish-ember--quiet" data-copy="inlined">
+    <span data-label>Copy with code inlined</span>
+  </button>
+
+  {/* Kept out of the DOM as text so a stray selection cannot pick up 8kB of markdown. */}
+  <script type="application/json" data-prompt="linked" set:html={embed(linked)} />
+  <script type="application/json" data-prompt="inlined" set:html={embed(inlined)} />
+
+  <p class="text-l3 basis-full text-[0.7rem] tracking-[0.08em] uppercase">
+    Paste into Claude Code, Cursor, or any agent. Pinned to a tag — it will not
+    change under you.
+  </p>
+</div>
+
+<script>
+  const RESET_AFTER = 2200
+
+  document.querySelectorAll<HTMLElement>('.prompt-buttons').forEach(root => {
+    const read = (kind: string) => {
+      const node = root.querySelector<HTMLScriptElement>(`script[data-prompt="${kind}"]`)
+      return node ? (JSON.parse(node.textContent ?? '""') as string) : ''
+    }
+
+    root.querySelectorAll<HTMLButtonElement>('button[data-copy]').forEach(button => {
+      const label = button.querySelector<HTMLElement>('[data-label]')
+      const original = label?.textContent ?? ''
+
+      button.addEventListener('click', async () => {
+        const text = read(button.dataset['copy'] ?? '')
+        if (!text || !label) return
+        try {
+          await navigator.clipboard.writeText(text)
+          label.textContent = 'Copied'
+        } catch {
+          // Clipboard access can be refused outright — in an insecure context,
+          // or by permission. Saying so beats a button that silently does
+          // nothing, which reads as broken.
+          label.textContent = 'Press ⌘C'
+          const range = document.createRange()
+          range.selectNodeContents(button)
+          getSelection()?.removeAllRanges()
+          getSelection()?.addRange(range)
+        }
+        setTimeout(() => {
+          label.textContent = original
+        }, RESET_AFTER)
+      })
+    })
+  })
+</script>

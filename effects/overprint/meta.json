@@ -4,7 +4,15 @@
   "tier": 1,
   "description": "Two ink plates drift out of registration behind a halftone screen",
   "category": "backdrops",
-  "tags": ["shader", "webgl2", "print", "halftone", "paper", "ambient", "no-dependencies"],
+  "tags": [
+    "shader",
+    "webgl2",
+    "print",
+    "halftone",
+    "paper",
+    "ambient",
+    "no-dependencies"
+  ],
   "peerDependencies": {},
   "browser": {
     "webgl": "webgl2",
@@ -47,7 +55,7 @@
     "inkB": {
       "type": "color",
       "default": "#c44400",
-      "description": "Second plate. This is where the colour lives — change this one first."
+      "description": "Second plate. This is where the colour lives \u2014 change this one first."
     },
     "scale": {
       "type": "number",
@@ -55,7 +63,10 @@
       "min": 0.3,
       "max": 6,
       "step": 0.1,
-      "sensible": [1.2, 3],
+      "sensible": [
+        1.2,
+        3
+      ],
       "description": "Size of the ink shapes. Lower is broader and calmer."
     },
     "screen": {
@@ -65,7 +76,10 @@
       "max": 40,
       "step": 0.5,
       "unit": "dots / 100px",
-      "sensible": [5, 14],
+      "sensible": [
+        5,
+        14
+      ],
       "description": "Halftone frequency. Above about 20 the screen stops reading as a screen and starts reading as noise."
     },
     "angleA": {
@@ -84,8 +98,11 @@
       "max": 180,
       "step": 1,
       "unit": "deg",
-      "sensible": [45, 105],
-      "description": "Screen angle of the second plate. Keep it at least 30 degrees from angleA — closer than that and the two screens beat against each other."
+      "sensible": [
+        45,
+        105
+      ],
+      "description": "Screen angle of the second plate. Keep it at least 30 degrees from angleA \u2014 closer than that and the two screens beat against each other."
     },
     "drift": {
       "type": "number",
@@ -94,7 +111,10 @@
       "max": 30,
       "step": 0.5,
       "unit": "px",
-      "sensible": [4, 12],
+      "sensible": [
+        4,
+        12
+      ],
       "description": "Registration error: how far the plates slide apart over a loop. Zero is a clean print and much duller."
     },
     "coverage": {
@@ -103,7 +123,10 @@
       "min": 0.1,
       "max": 0.9,
       "step": 0.01,
-      "sensible": [0.35, 0.6],
+      "sensible": [
+        0.35,
+        0.6
+      ],
       "description": "Ink density. Past 0.7 the plates flood and the paper stops showing through."
     },
     "grain": {
@@ -112,7 +135,7 @@
       "min": 0,
       "max": 1,
       "step": 0.01,
-      "description": "Paper tooth. Static by design — animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent."
+      "description": "Paper tooth. Static by design \u2014 animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent."
     },
     "period": {
       "type": "number",
@@ -121,8 +144,11 @@
       "max": 120,
       "step": 1,
       "unit": "s",
-      "sensible": [5, 25],
-      "description": "Seconds for one full loop. The animation is exactly periodic over this. The default is 5 so that the preview video is a whole cycle; raise it to 15–25 for a page background you want to forget is moving."
+      "sensible": [
+        5,
+        25
+      ],
+      "description": "Seconds for one full loop. The animation is exactly periodic over this. The default is 5 so that the preview video is a whole cycle; raise it to 15\u201325 for a page background you want to forget is moving."
     },
     "reducedMotionTime": {
       "type": "number",
@@ -134,11 +160,13 @@
       "description": "The single frame shown when the user prefers reduced motion. Pick one that composes rather than the frame at zero."
     }
   },
-  "instruction": "ambient — nothing to do",
+  "instruction": "ambient \u2014 nothing to do",
   "oneShot": false,
   "record": {
     "duration": 5,
     "fps": 30,
-    "posterAt": 2.05
+    "posterAt": 2.05,
+    "crf": 32,
+    "webmCrf": 47
   }
 }

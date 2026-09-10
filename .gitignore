@@ -14,3 +14,6 @@ tools/recorder/.frames/
 effects/*/demo.bundle.js
 components/*/demo.bundle.js
 components/*/demo.bundle.css
+site/public/media/
+site/public/fonts/
+site/.astro/

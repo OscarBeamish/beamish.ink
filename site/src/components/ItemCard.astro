@@ -1,0 +1,104 @@
+---
+/*
+ * A card on the wall. Poster by default, video on hover, and never a live
+ * context — the index page cannot host live demos and stay inside the browser's
+ * WebGL budget. See DemoPanel.astro.
+ */
+import { loadMedia, type Item } from '../lib/catalogue'
+import { CATEGORY_LABELS } from '../../../tools/schema/meta'
+
+type Props = { item: Item }
+
+const { item } = Astro.props
+const media = loadMedia(item)
+const href = `/${item.group}/${item.slug}`
+---
+
+<a
+  href={href}
+  class="group border-line bg-be block overflow-hidden rounded-[2px] border no-underline"
+  data-card
+>
+  <div class="relative aspect-video overflow-hidden">
+    {
+      media.poster ? (
+        <img
+          src={media.poster}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          class="absolute inset-0 h-full w-full object-cover"
+          data-poster
+        />
+      ) : (
+        <div class="text-l3 absolute inset-0 grid place-items-center text-[0.7rem] tracking-[0.1em] uppercase">
+          not yet recorded
+        </div>
+      )
+    }
+    {
+      /*
+       * preload="none": twelve cards each preloading a megabyte of video would
+       * cost more than the page. It loads on first hover and not before.
+       */
+      (media.webm || media.mp4) && (
+        <video
+          class="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500"
+          muted
+          loop
+          playsinline
+          preload="none"
+          data-video
+        >
+          {media.webm && <source src={media.webm} type="video/webm" />}
+          {media.mp4 && <source src={media.mp4} type="video/mp4" />}
+        </video>
+      )
+    }
+  </div>
+
+  <div class="border-line flex items-baseline justify-between gap-3 border-t px-4 py-3">
+    <span class="text-l1 text-[0.95rem]">{item.name}</span>
+    <span class="tag">{CATEGORY_LABELS[item.category]}</span>
+  </div>
+  <p class="text-l3 px-4 pb-4 text-[0.78rem] leading-snug">{item.description}</p>
+</a>
+
+<script>
+  /*
+   * Hover plays, leaving pauses and rewinds. Under reduced motion the video is
+   * never started at all — the poster is the whole experience, and it is a
+   * composed frame rather than a blank.
+   */
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)')
+
+  for (const card of document.querySelectorAll<HTMLElement>('[data-card]')) {
+    const video = card.querySelector<HTMLVideoElement>('[data-video]')
+    if (!video) continue
+
+    const play = () => {
+      if (reduced.matches) return
+      video.play().then(
+        () => {
+          video.style.opacity = '1'
+        },
+        () => {
+          // Autoplay can still be refused. Leave the poster showing.
+        }
+      )
+    }
+
+    const stop = () => {
+      video.style.opacity = '0'
+      video.pause()
+      video.currentTime = 0
+    }
+
+    card.addEventListener('pointerenter', play)
+    card.addEventListener('pointerleave', stop)
+    // Keyboard users get the same thing on focus, or the card is a still image
+    // to everyone who does not use a mouse.
+    card.addEventListener('focus', play)
+    card.addEventListener('blur', stop)
+  }
+</script>
