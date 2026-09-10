@@ -73,7 +73,13 @@ export type Pointer = {
 export type PointerKey = { t: number; x: number; y: number }
 
 export type SurfaceContext = {
-  canvas: HTMLCanvasElement
+  /** The element the effect was mounted into. */
+  host: HTMLElement
+  /**
+   * The generated canvas, or null for a `kind: 'dom'` effect. A text treatment
+   * has nothing to draw into and should not be handed a canvas it will not use.
+   */
+  canvas: HTMLCanvasElement | null
   size: Size
 }
 
@@ -117,7 +123,13 @@ export type MountConfig<O> = {
   /** Merged over on every `update()`. */
   defaults: O
   create(): Surface<O>
-  /** Extra classes for the generated canvas. */
+  /**
+   * `canvas` generates a canvas filling the host and watches it for context
+   * loss. `dom` generates nothing and hands the host element straight to the
+   * surface, which is what a text or layout effect wants.
+   */
+  kind?: 'canvas' | 'dom'
+  /** Extra classes for the generated canvas. Ignored when kind is 'dom'. */
   canvasClass?: string
 }
 
@@ -161,12 +173,17 @@ export function mount<O extends BaseOptions>(
 ): EffectHandle {
   let opts: O = { ...config.defaults, ...(userOpts ?? {}) }
 
-  const canvas = document.createElement('canvas')
-  canvas.style.display = 'block'
-  canvas.style.width = '100%'
-  canvas.style.height = '100%'
-  if (config.canvasClass) canvas.className = config.canvasClass
-  el.appendChild(canvas)
+  const kind = config.kind ?? 'canvas'
+
+  let canvas: HTMLCanvasElement | null = null
+  if (kind === 'canvas') {
+    canvas = document.createElement('canvas')
+    canvas.style.display = 'block'
+    canvas.style.width = '100%'
+    canvas.style.height = '100%'
+    if (config.canvasClass) canvas.className = config.canvasClass
+    el.appendChild(canvas)
+  }
 
   let surface: Surface<O> | null = null
   let size: Size = measure()
@@ -203,8 +220,10 @@ export function mount<O extends BaseOptions>(
 
   function applySize() {
     size = measure()
-    if (canvas.width !== size.pixelWidth) canvas.width = size.pixelWidth
-    if (canvas.height !== size.pixelHeight) canvas.height = size.pixelHeight
+    if (canvas) {
+      if (canvas.width !== size.pixelWidth) canvas.width = size.pixelWidth
+      if (canvas.height !== size.pixelHeight) canvas.height = size.pixelHeight
+    }
     surface?.resize(size)
   }
 
@@ -232,7 +251,7 @@ export function mount<O extends BaseOptions>(
   function ensureSurface() {
     if (surface || destroyed) return
     surface = config.create()
-    surface.setup({ canvas, size })
+    surface.setup({ host: el, canvas, size })
     surface.resize(size)
   }
 
@@ -276,8 +295,9 @@ export function mount<O extends BaseOptions>(
     if (visible) start()
   }
 
-  canvas.addEventListener('webglcontextlost', onLost as EventListener, false)
-  canvas.addEventListener('webglcontextrestored', onRestored, false)
+  // Only a canvas can lose a GL context. A DOM effect has nothing to listen for.
+  canvas?.addEventListener('webglcontextlost', onLost as EventListener, false)
+  canvas?.addEventListener('webglcontextrestored', onRestored, false)
 
   // --- pointer -----------------------------------------------------------
 
@@ -379,8 +399,8 @@ export function mount<O extends BaseOptions>(
       resizeObserver.disconnect()
       el.removeEventListener('pointermove', onPointerMove)
       el.removeEventListener('pointerleave', onPointerLeave)
-      canvas.removeEventListener('webglcontextlost', onLost as EventListener)
-      canvas.removeEventListener('webglcontextrestored', onRestored)
+      canvas?.removeEventListener('webglcontextlost', onLost as EventListener)
+      canvas?.removeEventListener('webglcontextrestored', onRestored)
 
       const gl = surface?.context?.() ?? null
       surface?.teardown()
@@ -391,7 +411,7 @@ export function mount<O extends BaseOptions>(
       // navigates between demos will hit it otherwise.
       gl?.getExtension('WEBGL_lose_context')?.loseContext()
 
-      canvas.remove()
+      canvas?.remove()
     }
   }
 
@@ -688,7 +708,8 @@ class OverprintSurface implements Surface<OverprintOptions> {
   private locations = new Map<UniformName, WebGLUniformLocation | null>()
   private size = { pixelWidth: 1, pixelHeight: 1, dpr: 1 }
 
-  setup(ctx: { canvas: HTMLCanvasElement }): void {
+  setup(ctx: { canvas: HTMLCanvasElement | null }): void {
+    if (!ctx.canvas) throw new Error('Overprint needs a canvas')
     const gl = ctx.canvas.getContext('webgl2', {
       alpha: false,
       antialias: false,

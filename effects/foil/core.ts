@@ -278,7 +278,8 @@ class FoilSurface implements Surface<FoilOptions> {
   private locations = new Map<UniformName, WebGLUniformLocation | null>()
   private size = { pixelWidth: 1, pixelHeight: 1, dpr: 1 }
 
-  setup(ctx: { canvas: HTMLCanvasElement }): void {
+  setup(ctx: { canvas: HTMLCanvasElement | null }): void {
+    if (!ctx.canvas) throw new Error('Foil needs a canvas')
     const gl = ctx.canvas.getContext('webgl2', {
       alpha: false,
       antialias: false,

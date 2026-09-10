@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Riser: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        place-content: center;
+        padding: 0 6vw;
+        box-sizing: border-box;
+      }
+      #list {
+        display: grid;
+        gap: 0;
+        width: min(52rem, 88vw);
+      }
+      #list div {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 2rem;
+        padding: 1.1rem 0;
+        border-top: 1px solid var(--label-4);
+        font-size: clamp(1.1rem, 3vw, 1.9rem);
+        letter-spacing: -0.02em;
+      }
+      #list span {
+        font-size: 0.7rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--label-3);
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+    -->
+    <div id="stage">
+      <div id="list">
+        <div>Overprint<span>shader</span></div>
+        <div>Sundial<span>three</span></div>
+        <div>Foil<span>pointer</span></div>
+        <div>Sort<span>type</span></div>
+        <div>Riser<span>reveal</span></div>
+        <div>Tilt<span>surface</span></div>
+      </div>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const handle = window.Beamish.create(document.getElementById('list'))
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      window.__beamish = handle
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
+    </script>
+  </body>
+</html>

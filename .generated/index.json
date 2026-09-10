@@ -600,6 +600,303 @@
     "intro": "Overprint is a full-bleed background that behaves like a two-colour print. Two\nink plates, a desaturated near-black and a burnt orange, are screened into\nhalftone dots at different angles and multiplied over the paper colour. That is\nwhat a second pass of ink does to the first. Over the loop the plates slide\nfractionally out of registration, which is the misprint that makes a risograph\nlook alive.\n\nIt is one WebGL2 fragment shader on one full-screen triangle. No three.js, no\ntextures, no render targets, no npm dependencies.\n\nIt needs a light background. Multiplying ink into black gets you black.\n\nThe defaults are tuned to be looked at: dense, plenty of solid ink. If you are\nputting text on top, that is too much. Drop `coverage` to about 0.2 and raise\n`period` to 15. Do not reach for opacity instead. Opacity greys the paper and\nloses the thing that makes it look printed."
   },
   {
+    "name": "Riser",
+    "slug": "riser",
+    "tier": 1,
+    "description": "Children arrive on a stagger, held until the container is on screen",
+    "category": "reveals",
+    "tags": [
+      "scroll",
+      "reveal",
+      "stagger",
+      "dom",
+      "no-dependencies"
+    ],
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "No canvas and no WebGL. It moves the children already in the element",
+        "No IntersectionObserver of its own: the runtime already holds the loop until the element is on screen",
+        "destroy() clears every style it set, leaving the children as they were found"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.3,
+      "contexts": 0,
+      "notes": [
+        "One transform and one opacity per child, composited",
+        "Nothing here reads layout, so it cannot cause a synchronous reflow"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/riser/core.ts",
+        "to": "src/beamish/effects/riser/core.ts",
+        "role": "core"
+      }
+    ],
+    "options": {
+      "select": {
+        "type": "string",
+        "default": "",
+        "description": "CSS selector for the children to animate, scoped to the container. Empty means every direct child, which is what you want most of the time."
+      },
+      "order": {
+        "type": "enum",
+        "default": "forward",
+        "description": "The order children arrive in. `centre` starts in the middle and works outwards, which suits a row of three or five.",
+        "values": [
+          "forward",
+          "reverse",
+          "centre"
+        ]
+      },
+      "stagger": {
+        "type": "number",
+        "default": 90,
+        "description": "Milliseconds between one child and the next. Past about 150 a list of eight takes over a second to finish and people start scrolling away from it.",
+        "min": 0,
+        "max": 400,
+        "step": 5,
+        "unit": "ms",
+        "sensible": [
+          60,
+          140
+        ]
+      },
+      "duration": {
+        "type": "number",
+        "default": 900,
+        "description": "Milliseconds each child takes on its own.",
+        "min": 100,
+        "max": 3000,
+        "step": 10,
+        "unit": "ms",
+        "sensible": [
+          600,
+          1100
+        ]
+      },
+      "rise": {
+        "type": "number",
+        "default": 34,
+        "description": "How far each child travels. Negative falls from above. Large values read as a page that has not finished loading.",
+        "min": -120,
+        "max": 120,
+        "step": 1,
+        "unit": "px",
+        "sensible": [
+          20,
+          50
+        ]
+      },
+      "scale": {
+        "type": "number",
+        "default": 1,
+        "description": "Scale each child starts at. 1 is no scaling. Anything below 0.9 makes text resample and look soft on the way in.",
+        "min": 0.5,
+        "max": 1.5,
+        "step": 0.01,
+        "sensible": [
+          0.94,
+          1.06
+        ]
+      },
+      "blur": {
+        "type": "number",
+        "default": 0,
+        "description": "Blur each child starts at. Off by default: on a card with an image inside, a blur costs far more than the transform does.",
+        "min": 0,
+        "max": 20,
+        "step": 0.5,
+        "sensible": [
+          0,
+          6
+        ]
+      },
+      "reducedMotionTime": {
+        "type": "number",
+        "default": 999,
+        "description": "The single frame shown when the user prefers reduced motion. For a one-shot reveal this should be a time after the animation has finished, so the content simply appears.",
+        "min": 0,
+        "max": 9999,
+        "step": 1,
+        "unit": "s"
+      }
+    },
+    "instruction": "press replay to bring them in again",
+    "oneShot": true,
+    "record": {
+      "duration": 4,
+      "fps": 30,
+      "posterAt": 1.3
+    },
+    "group": "effects",
+    "intro": "Riser brings a container's children in on a stagger. It is the plainest thing in\nthis library and the one most pages actually need.\n\nThere is no canvas, no WebGL and no npm dependency. It takes a container, finds\nthe children, and moves them.\n\nThere is no `IntersectionObserver` in it either, which is the part worth knowing.\nThe runtime already has one: it holds the loop until the element is on screen. So\ncalling `start()` on mount gives you a scroll-triggered reveal, and adding your\nown observer on top would only fight it.\n\n`destroy()` clears every style it set. The children are left as they were found."
+  },
+  {
+    "name": "Sort",
+    "slug": "sort",
+    "tier": 1,
+    "description": "Type set one character at a time, in the order you choose",
+    "category": "type",
+    "tags": [
+      "text",
+      "reveal",
+      "stagger",
+      "dom",
+      "accessible",
+      "no-dependencies"
+    ],
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "No canvas and no WebGL. It splits the text already in the element and animates the pieces",
+        "The original string stays in the accessibility tree as one label, so a screen reader does not read sixty separate characters",
+        "destroy() puts the original text back, leaving the element as it was found"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.6,
+      "contexts": 0,
+      "notes": [
+        "One transform and one opacity per piece, composited",
+        "The blur is dropped the moment a piece lands, because a permanent blur(0px) keeps every piece on its own layer"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/sort/core.ts",
+        "to": "src/beamish/effects/sort/core.ts",
+        "role": "core"
+      }
+    ],
+    "options": {
+      "split": {
+        "type": "enum",
+        "default": "char",
+        "description": "What each animated piece is. Characters are grouped inside their word so the text still wraps.",
+        "values": [
+          "char",
+          "word",
+          "line"
+        ]
+      },
+      "order": {
+        "type": "enum",
+        "default": "forward",
+        "description": "The order pieces arrive in. `centre` starts in the middle and works outwards. `random` keeps every piece in its place in the sentence and only changes its turn.",
+        "values": [
+          "forward",
+          "reverse",
+          "centre",
+          "random"
+        ]
+      },
+      "stagger": {
+        "type": "number",
+        "default": 26,
+        "description": "Milliseconds between one piece and the next. On a long heading this multiplies fast: 40ms across 60 characters is a two and a half second wait.",
+        "min": 0,
+        "max": 200,
+        "step": 1,
+        "unit": "ms",
+        "sensible": [
+          15,
+          45
+        ]
+      },
+      "duration": {
+        "type": "number",
+        "default": 720,
+        "description": "Milliseconds each piece takes on its own.",
+        "min": 100,
+        "max": 3000,
+        "step": 10,
+        "unit": "ms",
+        "sensible": [
+          500,
+          900
+        ]
+      },
+      "rise": {
+        "type": "number",
+        "default": 22,
+        "description": "How far each piece travels. Negative falls from above instead of rising from below.",
+        "min": -80,
+        "max": 80,
+        "step": 1,
+        "unit": "px",
+        "sensible": [
+          12,
+          34
+        ]
+      },
+      "blur": {
+        "type": "number",
+        "default": 5,
+        "description": "Blur each piece starts at. Zero is cheaper and often better at small sizes, where the blur just reads as a smudge.",
+        "min": 0,
+        "max": 20,
+        "step": 0.5,
+        "sensible": [
+          0,
+          8
+        ]
+      },
+      "scale": {
+        "type": "number",
+        "default": 1,
+        "description": "Scale each piece starts at. 1 is no scaling, which is usually right for text.",
+        "min": 0.4,
+        "max": 1.6,
+        "step": 0.01,
+        "sensible": [
+          0.9,
+          1.1
+        ]
+      },
+      "seed": {
+        "type": "number",
+        "default": 7,
+        "description": "Seed for the random order. The same seed always gives the same order, so a recorded video and a live page match.",
+        "min": 0,
+        "max": 9999,
+        "step": 1
+      },
+      "reducedMotionTime": {
+        "type": "number",
+        "default": 999,
+        "description": "The single frame shown when the user prefers reduced motion. For a one-shot reveal this should be a time after the animation has finished, so the text simply appears.",
+        "min": 0,
+        "max": 9999,
+        "step": 1,
+        "unit": "s"
+      }
+    },
+    "instruction": "press replay to set it again",
+    "oneShot": true,
+    "record": {
+      "duration": 4,
+      "fps": 30,
+      "posterAt": 1.2
+    },
+    "group": "effects",
+    "intro": "Sort sets type one piece at a time. A sort is a single piece of metal type, and\nthat is what each animated fragment here is: a character, a word or a whole line,\narriving on a stagger.\n\nIt takes an element that already contains text, splits it, and animates the\npieces. There is no canvas, no WebGL and no npm dependency.\n\nTwo things it does that most text-splitters do not. Characters are grouped inside\ntheir word, so the text still wraps at the right places. And the original string\nstays in the accessibility tree as one label, so a screen reader reads a sentence\nrather than sixty separate characters.\n\n`destroy()` puts the original text back. The element is left as it was found."
+  },
+  {
     "name": "Sundial",
     "slug": "sundial",
     "tier": 1,

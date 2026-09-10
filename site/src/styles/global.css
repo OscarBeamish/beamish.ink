@@ -89,3 +89,47 @@
     color: var(--label-3);
   }
 }
+
+@layer components {
+  /*
+   * Content for the DOM effect panels. A shader fills its own stage; Sort and
+   * Riser animate whatever is put in front of them, so the panel has to provide
+   * something worth animating.
+   */
+  [data-stage] {
+    display: grid;
+    place-content: center;
+    padding: 0 6%;
+  }
+
+  .demo-heading {
+    margin: 0;
+    max-width: 18ch;
+    font-size: clamp(1.5rem, 4.5vw, 3.2rem);
+    line-height: 1;
+    text-align: center;
+  }
+
+  .demo-list {
+    width: min(34rem, 80%);
+  }
+
+  .demo-list div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--label-4);
+    font-size: clamp(0.95rem, 2.2vw, 1.4rem);
+    letter-spacing: -0.02em;
+    color: var(--label-1);
+  }
+
+  .demo-list div span:last-child {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--label-3);
+  }
+}

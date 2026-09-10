@@ -109,7 +109,8 @@ class SundialSurface implements Surface<SundialOptions> {
   private meshes: THREE.Mesh[] = []
   private aspect = 1
 
-  setup(ctx: { canvas: HTMLCanvasElement }): void {
+  setup(ctx: { canvas: HTMLCanvasElement | null }): void {
+    if (!ctx.canvas) throw new Error('Sundial needs a canvas')
     const renderer = new THREE.WebGLRenderer({
       canvas: ctx.canvas,
       antialias: true,
