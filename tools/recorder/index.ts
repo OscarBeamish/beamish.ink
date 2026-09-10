@@ -119,6 +119,23 @@ async function captureTier1(page: Page, meta: Meta, dir: string): Promise<number
   const ready = await page.evaluate(() => typeof window.__beamish?.renderAtTime === 'function')
   if (!ready) throw new Error('demo.html did not expose window.__beamish.renderAtTime')
 
+  /*
+   * A pointer-driven effect has nothing to show if nothing moves the pointer.
+   * Rather than synthesising mouse events — which the effect would sample at
+   * whatever moment the frame happened to land — the scripted path from meta.json
+   * is handed to the runtime, which samples it at exactly the time being drawn.
+   * Same contract, no extra API, and deterministic by construction.
+   */
+  if (meta.cursor) {
+    await page.evaluate(
+      cursor => window.__beamish.update({
+        pointerPath: cursor.keys,
+        pointerPathDuration: cursor.duration
+      }),
+      meta.cursor
+    )
+  }
+
   for (let frame = 0; frame < total; frame++) {
     // The last frame is deliberately excluded: at t = duration the effect is back
     // where it started, so including it would repeat frame zero and the loop

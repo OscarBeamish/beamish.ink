@@ -4,6 +4,7 @@ declare global {
     __setClock?: (ms: number) => void
     __beamish: {
       renderAtTime(t: number): void
+      update(opts: Record<string, unknown>): void
       start(): void
       stop(): void
       destroy(): void

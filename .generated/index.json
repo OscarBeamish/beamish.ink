@@ -1,5 +1,227 @@
 [
   {
+    "name": "Foil",
+    "slug": "foil",
+    "tier": 1,
+    "description": "A hot-foil stamp on paper, raked by the light your cursor carries",
+    "category": "pointer",
+    "tags": [
+      "shader",
+      "webgl2",
+      "pointer",
+      "specular",
+      "print",
+      "paper",
+      "no-dependencies"
+    ],
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "WebGL2 for gl_VertexID; there is no WebGL1 fallback and none is planned",
+        "Pointer-driven, but never pointer-dependent — with no cursor the light orbits on its own, so it works on touch and under reduced motion"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 2.2,
+      "contexts": 1,
+      "notes": [
+        "Five evaluations of the height field per pixel: one for the mask, four for the gradient",
+        "No render targets, no textures, no allocations per frame"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/foil/core.ts",
+        "to": "src/beamish/effects/foil/core.ts",
+        "role": "core"
+      }
+    ],
+    "options": {
+      "paper": {
+        "type": "color",
+        "default": "#fbfaf4",
+        "description": "The paper the stamp is pressed into. Match it to your page background or the panel reads as a pasted-in rectangle."
+      },
+      "foilLow": {
+        "type": "color",
+        "default": "#7a3410",
+        "description": "The foil where the light does not reach. Metal takes almost all its colour from the highlight, so this wants to be genuinely dark."
+      },
+      "foilHigh": {
+        "type": "color",
+        "default": "#f0b070",
+        "description": "The foil at the highlight. Copper by default; a pale grey here gives silver, a yellow gives gold."
+      },
+      "spokes": {
+        "type": "number",
+        "default": 12,
+        "description": "Points on the rosette. Above about 24 the petals are narrower than the relief and it turns into a disc.",
+        "min": 3,
+        "max": 40,
+        "step": 1,
+        "sensible": [
+          8,
+          18
+        ]
+      },
+      "scale": {
+        "type": "number",
+        "default": 0.86,
+        "description": "Size of the stamp relative to the shorter side of the element.",
+        "min": 0.3,
+        "max": 1.6,
+        "step": 0.01,
+        "sensible": [
+          0.7,
+          1.1
+        ]
+      },
+      "relief": {
+        "type": "number",
+        "default": 0.38,
+        "description": "Depth of the brushed relief. At zero the foil is a flat shape that changes brightness, which reads as plastic rather than metal.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.35,
+          0.7
+        ]
+      },
+      "sharpness": {
+        "type": "number",
+        "default": 0.42,
+        "description": "How tight the highlight is. High is a mirror finish, low is a brushed one.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.3,
+          0.65
+        ]
+      },
+      "iridescence": {
+        "type": "number",
+        "default": 0.3,
+        "description": "Spectral shift at grazing angles. Past about 0.6 it stops being a foil and becomes a hologram.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.15,
+          0.45
+        ]
+      },
+      "lightHeight": {
+        "type": "number",
+        "default": 0.42,
+        "description": "How far above the surface the cursor's light sits. Low is a hard raking light that sweeps a narrow band; high floods the whole stamp at once.",
+        "min": 0.05,
+        "max": 2,
+        "step": 0.01,
+        "sensible": [
+          0.3,
+          0.7
+        ]
+      },
+      "grain": {
+        "type": "number",
+        "default": 0.3,
+        "description": "Paper tooth. Static by design — animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "period": {
+        "type": "number",
+        "default": 5,
+        "description": "Seconds for one orbit of the idle light — the motion used when no pointer is present. Exactly periodic, so the loop has no seam.",
+        "min": 2,
+        "max": 60,
+        "step": 1,
+        "unit": "s",
+        "sensible": [
+          5,
+          20
+        ]
+      },
+      "reducedMotionTime": {
+        "type": "number",
+        "default": 0.9,
+        "description": "The single frame shown when the user prefers reduced motion. Pick a light angle where the relief is legible.",
+        "min": 0,
+        "max": 60,
+        "step": 0.1,
+        "unit": "s"
+      }
+    },
+    "instruction": "move the cursor — it carries the light",
+    "oneShot": false,
+    "cursor": {
+      "duration": 5,
+      "keys": [
+        {
+          "t": 0,
+          "x": 0.86,
+          "y": 0.5
+        },
+        {
+          "t": 0.625,
+          "x": 0.755,
+          "y": 0.641
+        },
+        {
+          "t": 1.25,
+          "x": 0.5,
+          "y": 0.7
+        },
+        {
+          "t": 1.875,
+          "x": 0.245,
+          "y": 0.641
+        },
+        {
+          "t": 2.5,
+          "x": 0.14,
+          "y": 0.5
+        },
+        {
+          "t": 3.125,
+          "x": 0.245,
+          "y": 0.359
+        },
+        {
+          "t": 3.75,
+          "x": 0.5,
+          "y": 0.3
+        },
+        {
+          "t": 4.375,
+          "x": 0.755,
+          "y": 0.359
+        },
+        {
+          "t": 5,
+          "x": 0.86,
+          "y": 0.5
+        }
+      ]
+    },
+    "record": {
+      "duration": 5,
+      "fps": 30,
+      "posterAt": 1.6
+    },
+    "group": "effects",
+    "intro": "Foil is a hot-foil stamp pressed into paper, and your cursor is the light. Move\nit and the highlight rakes across the relief exactly the way tilting a real\nfoil-stamped card does — a narrow band of brightness travelling over a brushed\nsurface, picking up a little colour at the grazing edges.\n\nThere is no image and no texture. The stamp is a signed-distance rosette with a\nbrushed relief written into its height field; the light is a point source sitting\njust above the surface at the cursor. Everything you see is that height field,\nits gradient, and one specular term. WebGL2, one full-screen triangle, no\ndependencies.\n\nIt is pointer-driven but never pointer-dependent. With no cursor — on touch, or\nbefore anyone has moved the mouse — the light takes a slow closed orbit of its\nown, so the panel is alive on arrival and the loop still has no seam."
+  },
+  {
     "name": "Overprint",
     "slug": "overprint",
     "tier": 1,
