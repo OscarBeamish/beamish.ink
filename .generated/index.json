@@ -1,5 +1,209 @@
 [
   {
+    "name": "Contents",
+    "slug": "contents",
+    "tier": 2,
+    "description": "A full-viewport index that opens as a real dialog and cascades in",
+    "category": "navigation",
+    "tags": [
+      "nav",
+      "menu",
+      "overlay",
+      "dialog",
+      "accessible",
+      "react",
+      "vue",
+      "no-dependencies"
+    ],
+    "peerDependencies": {
+      "react": ">=18"
+    },
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "Uses <dialog>.showModal(), so the focus trap, Escape, top layer and focus restoration are the browser's",
+        "The fade uses transition-behavior: allow-discrete and @starting-style; where those are unsupported the overlay appears instantly, which is a graceful loss",
+        "No focus-trap library, no portal, no scroll-lock package"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.2,
+      "contexts": 0,
+      "notes": [
+        "The stagger is one transition-delay per row, composited",
+        "No JavaScript runs per frame"
+      ]
+    },
+    "files": [
+      {
+        "from": "components/contents/react.tsx",
+        "to": "src/beamish/components/contents/react.tsx",
+        "role": "component"
+      },
+      {
+        "from": "components/contents/styles.css",
+        "to": "src/beamish/components/contents/styles.css",
+        "role": "style"
+      },
+      {
+        "from": "components/contents/vue.ts",
+        "to": "src/beamish/components/contents/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "label": {
+        "type": "string",
+        "default": "Index",
+        "description": "The trigger's text, and the dialog's accessible name. Keep it a noun — it is read out as the name of the whole overlay."
+      },
+      "closeLabel": {
+        "type": "string",
+        "default": "Close",
+        "description": "Text on the close control. There is a visible one as well as Escape, because Escape is not discoverable."
+      },
+      "open": {
+        "type": "boolean",
+        "default": false,
+        "description": "Pass it to control the overlay yourself and listen to onOpenChange. Leave it undefined and the component keeps its own state, which is what you want unless a route change needs to close it."
+      }
+    },
+    "instruction": "open it, then try Escape and Tab",
+    "oneShot": false,
+    "record": {
+      "duration": 5,
+      "fps": 30,
+      "posterAt": 2.6,
+      "interactions": [
+        {
+          "at": 0.5,
+          "action": "hover",
+          "target": ".beamish-contents__trigger"
+        },
+        {
+          "at": 1.2,
+          "action": "click",
+          "target": ".beamish-contents__trigger"
+        },
+        {
+          "at": 2.9,
+          "action": "hover",
+          "target": ".beamish-contents__list a"
+        },
+        {
+          "at": 4.1,
+          "action": "key",
+          "key": "Escape"
+        }
+      ]
+    },
+    "group": "components",
+    "intro": "Contents is a full-viewport index: a small trigger, and an overlay that takes the\nwhole screen and lists everything in mono with hairline rules between the rows.\nThe rows cascade in on a 26ms stagger counted across every section, so the reveal\nreads as one movement down the page rather than several.\n\nThe overlay is a real `<dialog>` opened with `showModal()`. That is worth saying\nplainly, because it is the whole design: the browser then provides the focus\ntrap, Escape, the top layer, inerting the rest of the page, and returning focus\nto the trigger on close. Every one of those is something hand-rolled menus get\nsubtly wrong, and none of them is our code. There is no focus-trap library, no\nportal and no scroll-lock package.\n\nWhat is left is layout, type, and one transition."
+  },
+  {
+    "name": "Ember",
+    "slug": "ember",
+    "tier": 2,
+    "description": "The action pill: mono, uppercase, with a slow band of light crossing it",
+    "category": "navigation",
+    "tags": [
+      "button",
+      "link",
+      "cta",
+      "accessible",
+      "react",
+      "vue",
+      "no-dependencies"
+    ],
+    "peerDependencies": {
+      "react": ">=18"
+    },
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "Uses color-mix(); Chrome 111+, Safari 16.2+, Firefox 113+. Older browsers get the base colour with no hover shift, which is a graceful loss",
+        "No JavaScript animation at all — the motion is two CSS transitions"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.1,
+      "contexts": 0,
+      "notes": [
+        "Composited transform and opacity only; nothing here triggers layout"
+      ]
+    },
+    "files": [
+      {
+        "from": "components/ember/react.tsx",
+        "to": "src/beamish/components/ember/react.tsx",
+        "role": "component"
+      },
+      {
+        "from": "components/ember/styles.css",
+        "to": "src/beamish/components/ember/styles.css",
+        "role": "style"
+      },
+      {
+        "from": "components/ember/vue.ts",
+        "to": "src/beamish/components/ember/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "tone": {
+        "type": "enum",
+        "default": "solid",
+        "description": "`solid` is the accent pill and is for the one action on the page that matters. `quiet` is the outlined secondary. If a screen has two solid Embers on it, one of them is wrong.",
+        "values": [
+          "solid",
+          "quiet"
+        ]
+      },
+      "href": {
+        "type": "string",
+        "default": "",
+        "description": "Given an href it renders an <a>; without one it renders a <button type=\"button\">. Do not fake a link with a click handler — keyboard users and screen readers both notice."
+      },
+      "disabled": {
+        "type": "boolean",
+        "default": false,
+        "description": "Button form only. An anchor cannot be disabled, so the anchor form sets aria-disabled instead and you must stop the navigation yourself."
+      }
+    },
+    "instruction": "hover, then tab to it",
+    "oneShot": false,
+    "record": {
+      "duration": 5,
+      "fps": 30,
+      "posterAt": 1.2,
+      "interactions": [
+        {
+          "at": 0.4,
+          "action": "hover",
+          "target": "#solid .beamish-ember"
+        },
+        {
+          "at": 1.8,
+          "action": "click",
+          "target": "#solid .beamish-ember"
+        },
+        {
+          "at": 2.4,
+          "action": "hover",
+          "target": "#quiet .beamish-ember"
+        },
+        {
+          "at": 3.8,
+          "action": "move",
+          "x": 0.5,
+          "y": 0.92
+        }
+      ]
+    },
+    "group": "components",
+    "intro": "Ember is the action pill: mono, uppercase, 100px radius, with a single slow band\nof light crossing its face on hover. It is the one piece of the library that is\ndeliberately ordinary — a button that does not surprise anyone — because the\nsurprising things are meant to be the effects, and the button is meant to be the\nthing you press to get one.\n\nTwo tones. `solid` is the accent pill and belongs to the single most important\naction on a screen. `quiet` is the outlined secondary. If a page has two solid\nEmbers on it, one of them is wrong.\n\nIt renders a `<button>` by default and an `<a>` when given an `href`, because a\nthing that navigates should be a link and a thing that acts should be a button.\nThere is no `as` prop and no polymorphic generic: the distinction is small enough\nto make by hand and important enough not to get wrong.\n\nThe hover state *darkens*. The accent sits near the top of its range already, and\nlifting it drops white lettering below 4.5:1 — the direction most libraries go is\nthe one that fails."
+  },
+  {
     "name": "Foil",
     "slug": "foil",
     "tier": 1,

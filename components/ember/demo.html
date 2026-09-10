@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ember — Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <link rel="stylesheet" href="./demo.bundle.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 1.25rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the component can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+    -->
+    <div id="stage">
+      <div id="solid"></div>
+      <div id="quiet"></div>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      window.Beamish.mount(document.getElementById('solid'), {
+        children: 'Get prompt',
+        tone: 'solid'
+      })
+      window.Beamish.mount(document.getElementById('quiet'), {
+        children: 'View source',
+        tone: 'quiet'
+      })
+    </script>
+  </body>
+</html>

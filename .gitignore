@@ -13,3 +13,4 @@ tools/recorder/.frames/
 # compiled demo bundles (built by `pnpm build:items`, regenerated on demand)
 effects/*/demo.bundle.js
 components/*/demo.bundle.js
+components/*/demo.bundle.css

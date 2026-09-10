@@ -304,8 +304,13 @@ as the second argument${meta.tier === 2 ? '' : ' to the create function'}; anyth
 
 ${optionTable(meta)}`)
 
+  // Tier 2 is where semantics, focus and keyboard live, and an agent wiring a nav
+  // into someone's app will get all three wrong unless told plainly.
+  const a11y = section(item, 'Accessibility')
+  if (a11y) parts.push(`## 5. Accessibility — do not skip this\n\n${a11y}`)
+
   const cleanup = section(item, 'Cleanup and SSR')
-  if (cleanup) parts.push(`## 5. Cleanup and SSR\n\n${cleanup}`)
+  if (cleanup) parts.push(`## ${a11y ? 6 : 5}. Cleanup and SSR\n\n${cleanup}`)
 
   const pausing = section(item, 'Pausing')
   const reduced = section(item, 'Reduced motion')

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Contents — Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <link rel="stylesheet" href="./demo.bundle.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        place-items: center;
+      }
+      /* Something behind the overlay, so the backdrop has work to do. */
+      .page {
+        text-align: center;
+        display: grid;
+        gap: 1.5rem;
+        justify-items: center;
+      }
+      .page h1 {
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 7vw, 4.5rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        margin: 0;
+      }
+      .page p {
+        margin: 0;
+        color: var(--label-3);
+        font-size: 0.85rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the component can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+    -->
+    <div id="stage">
+      <div class="page">
+        <h1>Beamish</h1>
+        <p>Shining brightly; radiant</p>
+        <div id="mount"></div>
+      </div>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      window.Beamish.mount(document.getElementById('mount'), {
+        label: 'Index',
+        sections: [
+          {
+            title: 'Backdrops',
+            items: [
+              { label: 'Overprint', href: '#overprint', meta: 'shader' },
+              { label: 'Sundial', href: '#sundial', meta: 'three' }
+            ]
+          },
+          {
+            title: 'Pointer',
+            items: [{ label: 'Foil', href: '#foil', meta: 'shader' }]
+          },
+          {
+            title: 'Navigation',
+            items: [
+              { label: 'Contents', href: '#contents', meta: 'react · vue' },
+              { label: 'Ember', href: '#ember', meta: 'react · vue' }
+            ]
+          }
+        ]
+      })
+    </script>
+  </body>
+</html>
