@@ -180,3 +180,24 @@
     color: var(--label-3);
   }
 }
+
+@layer components {
+  /* The Magnet panel. The dashed outline is demo furniture showing where the
+     button sits at rest, so the displacement reads in a still frame. */
+  .demo-magnet {
+    display: grid;
+    place-items: center;
+  }
+
+  .demo-magnet__rest {
+    grid-area: 1 / 1;
+    width: 11.4rem;
+    height: 3.2rem;
+    border: 1px dashed var(--label-4);
+    border-radius: 100px;
+  }
+
+  .demo-magnet .beamish-ember {
+    grid-area: 1 / 1;
+  }
+}

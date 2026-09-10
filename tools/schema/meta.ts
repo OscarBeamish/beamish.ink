@@ -69,10 +69,15 @@ const fileSpec = z.object({
   role: z.enum(['core', 'runtime', 'shader', 'adapter', 'style', 'component'])
 })
 
+/*
+ * 0 to 1 is across the element, but an effect using pointerScope: 'window' reacts
+ * to a cursor that has not arrived yet, so its path has to be able to sit
+ * outside. The wider bounds still catch a decimal point in the wrong place.
+ */
 const pointerKey = z.object({
   t: z.number().min(0),
-  x: z.number().min(0).max(1),
-  y: z.number().min(0).max(1)
+  x: z.number().min(-4).max(5),
+  y: z.number().min(-4).max(5)
 })
 
 /**

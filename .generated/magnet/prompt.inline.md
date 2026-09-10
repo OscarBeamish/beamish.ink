@@ -1,7 +1,7 @@
-You are adding **Sort** from Beamish to this project.
+You are adding **Magnet** from Beamish to this project.
 
-> Type set one character at a time, in the order you choose. Type · effect · MIT.
-> https://beamish.ink/effects/sort
+> An element that leans towards the cursor before the cursor arrives. Pointer · effect · MIT.
+> https://beamish.ink/effects/magnet
 
 Beamish is not a package and there is nothing to install from npm. The source
 lives in a public repo; you fetch the files, put them in this project, and wire
@@ -13,9 +13,9 @@ Assume you have not seen this library before. Everything you need is below.
 ## What it needs
 
 - **npm dependencies:** None. This file has no npm dependencies at all.
-- No canvas and no WebGL. It splits the text already in the element and animates the pieces
-- The original string stays in the accessibility tree as one label, so a screen reader does not read sixty separate characters
-- destroy() puts the original text back, leaving the element as it was found
+- No canvas and no WebGL. One CSS transform
+- Reads the pointer at window scope, because the point is reacting to a cursor that is still outside the element
+- The easing is a CSS transition rather than a per-frame spring, so nothing integrates and renderAtTime stays pure
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -443,321 +443,231 @@ export function mount<O extends BaseOptions>(
 }
 ```
 
-**`src/beamish/effects/sort/core.ts`**
+**`src/beamish/effects/magnet/core.ts`**
 
 ```ts
 /*
- * Sort: Beamish
- * https://beamish.ink/effects/sort
+ * Magnet: Beamish
+ * https://beamish.ink/effects/magnet
  *
- * Per-character reveal. A sort is one piece of metal type, and this sets them one
- * at a time.
+ * An element that leans towards the cursor before the cursor arrives, and lets
+ * go once it has passed. No canvas, no WebGL, no dependencies.
  *
- * No canvas and no dependencies. It takes an element that already contains text,
- * splits it, and animates the pieces. The original text stays in the accessibility
- * tree as a single string, because a screen reader handed sixty one-character
- * spans reads out sixty characters.
+ * It reads the pointer at window scope, because the whole point is reacting to a
+ * cursor that is still outside the element. The runtime reports element-relative
+ * coordinates that go past 0 and 1, so "how far outside" is a number rather than
+ * a guess.
+ *
+ * Easing is a CSS transition rather than a per-frame spring, which keeps
+ * `renderAtTime` pure in `t` and lets the recorder scrub the smoothing.
  */
 
-import { mount, type BaseOptions, type EffectHandle, type Surface } from '../../shared/runtime'
+import { mount, type BaseOptions, type EffectHandle, type Pointer, type Surface } from '../../shared/runtime'
 
-export type SortSplit = 'char' | 'word' | 'line'
-export type SortOrder = 'forward' | 'reverse' | 'centre' | 'random'
-
-export type SortOptions = BaseOptions & {
-  /** What each animated piece is. */
-  split: SortSplit
-  /** The order pieces arrive in. */
-  order: SortOrder
-  /** Milliseconds between one piece and the next. */
-  stagger: number
-  /** Milliseconds each piece takes on its own. */
-  duration: number
-  /** How far each piece travels, in pixels. Negative falls from above. */
-  rise: number
-  /** Blur each piece starts at, in pixels. Zero is cheaper and often better. */
-  blur: number
-  /** Scale each piece starts at. 1 is no scaling. */
+export type MagnetOptions = BaseOptions & {
+  /**
+   * How far outside the element the pull starts, as a multiple of its own size.
+   * 1 means one element-width of empty space around it.
+   */
+  reach: number
+  /** How far the element travels towards the cursor, as a fraction of the gap. */
+  strength: number
+  /** Cap on the travel in pixels, whatever the strength works out to. */
+  maxShift: number
+  /** Scale at full pull. 1 is no growth. */
   scale: number
-  /** Seed for the random order. The same seed always gives the same order. */
-  seed: number
+  /** Degrees of lean at full pull. Zero keeps it upright. */
+  rotate: number
+  /** Milliseconds to follow the cursor, and to let go. */
+  ease: number
 }
 
 /*
  * Kept in step with meta.json by `pnpm generate`, which fails if the two drift.
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
-export const sortDefaults: SortOptions = {
-  split: 'char',
-  order: 'forward',
-  stagger: 26,
-  duration: 720,
-  rise: 22,
-  blur: 5,
-  scale: 1,
-  seed: 7,
-  reducedMotionTime: 999
+export const magnetDefaults: MagnetOptions = {
+  reach: 1.1,
+  strength: 0.34,
+  maxShift: 26,
+  scale: 1.04,
+  rotate: 0,
+  ease: 420,
+  pointerScope: 'window',
+  reducedMotionTime: 0
 }
 
-const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n)
-
-/** The one easing this library uses for arrivals. Matches --ease-out-expo. */
-const easeOutExpo = (k: number) => (k >= 1 ? 1 : 1 - Math.pow(2, -10 * k))
-
-/** Mulberry32. Small, fast, and identical across browsers for a given seed. */
-function seeded(seed: number) {
-  let a = seed >>> 0
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0
-    let t = Math.imul(a ^ (a >>> 15), 1 | a)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
-
-function orderFor(mode: SortOrder, count: number, seed: number): number[] {
-  const indices = Array.from({ length: count }, (_, i) => i)
-  if (mode === 'forward') return indices
-  if (mode === 'reverse') return indices.map(i => count - 1 - i)
-  if (mode === 'centre') {
-    const middle = (count - 1) / 2
-    return indices.map(i => Math.round(Math.abs(i - middle)))
-  }
-  // Random: a shuffled rank per piece, not a shuffled list, so each piece keeps
-  // its place in the sentence and only its turn changes.
-  const random = seeded(seed)
-  const ranks = indices.slice()
-  for (let i = ranks.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1))
-    ;[ranks[i], ranks[j]] = [ranks[j]!, ranks[i]!]
-  }
-  return ranks
-}
-
-class SortSurface implements Surface<SortOptions> {
+class MagnetSurface implements Surface<MagnetOptions> {
   private host: HTMLElement | null = null
-  private original = ''
-  private pieces: HTMLElement[] = []
-  private ranks: number[] = []
-  private builtFor: SortSplit | null = null
 
   setup(ctx: { host: HTMLElement }): void {
     this.host = ctx.host
-    this.original = (ctx.host.textContent ?? '').replace(/\s+/g, ' ').trim()
-  }
-
-  /*
-   * Splitting is destructive, so it happens once per split mode rather than once
-   * per frame, and the original string is kept for teardown.
-   */
-  private build(split: SortSplit): void {
-    const host = this.host
-    if (!host || this.builtFor === split) return
-
-    host.textContent = ''
-    this.pieces = []
-
-    // The text a screen reader gets: one string, unchanged, out of sight.
-    const label = document.createElement('span')
-    label.textContent = this.original
-    label.style.cssText =
-      'position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0'
-
-    const visual = document.createElement('span')
-    visual.setAttribute('aria-hidden', 'true')
-
-    const makePiece = (text: string) => {
-      const piece = document.createElement('span')
-      piece.textContent = text
-      piece.style.display = 'inline-block'
-      piece.style.willChange = 'transform, opacity'
-      this.pieces.push(piece)
-      return piece
-    }
-
-    if (split === 'line') {
-      visual.append(makePiece(this.original))
-    } else {
-      const words = this.original.split(' ')
-      words.forEach((word, index) => {
-        // Words stay whole so the text still wraps. Characters are animated
-        // inside them, which is the only way to split type without breaking
-        // line breaking.
-        const wrapper = document.createElement('span')
-        wrapper.style.display = 'inline-block'
-        wrapper.style.whiteSpace = 'nowrap'
-        if (split === 'word') {
-          wrapper.append(makePiece(word))
-        } else {
-          for (const character of Array.from(word)) wrapper.append(makePiece(character))
-        }
-        visual.append(wrapper)
-        if (index < words.length - 1) visual.append(document.createTextNode(' '))
-      })
-    }
-
-    host.append(label, visual)
-    this.builtFor = split
+    ctx.host.style.willChange = 'transform'
   }
 
   resize(): void {}
 
-  render(t: number, opts: SortOptions): void {
-    this.build(opts.split)
-    if (this.pieces.length === 0) return
+  render(_t: number, opts: MagnetOptions, pointer: Pointer): void {
+    const host = this.host
+    if (!host) return
 
-    if (this.ranks.length !== this.pieces.length) {
-      this.ranks = orderFor(opts.order, this.pieces.length, opts.seed)
+    const ease = `${Math.max(opts.ease, 0)}ms var(--ease-out-expo, cubic-bezier(0.22, 1, 0.36, 1))`
+    host.style.transition = `transform ${ease}`
+
+    if (!pointer.active) {
+      host.style.transform = ''
+      return
     }
 
-    const stagger = opts.stagger / 1000
-    const duration = Math.max(opts.duration, 1) / 1000
+    // Distance from the element's centre, in element widths and heights. Zero is
+    // dead centre, 0.5 is the edge, 1.5 is one full element outside it.
+    const dx = pointer.x - 0.5
+    const dy = pointer.y - 0.5
+    const distance = Math.hypot(dx, dy)
 
-    for (let i = 0; i < this.pieces.length; i++) {
-      const piece = this.pieces[i]!
-      const progress = easeOutExpo(clamp01((t - this.ranks[i]! * stagger) / duration))
-      const remaining = 1 - progress
-
-      piece.style.opacity = String(progress)
-      const shift = remaining * opts.rise
-      const scale = 1 - remaining * (1 - opts.scale)
-      piece.style.transform =
-        scale === 1 ? `translateY(${shift}px)` : `translateY(${shift}px) scale(${scale})`
-      // Dropping the filter entirely once a piece has landed matters: a
-      // permanent blur(0px) still forces every one of them onto its own layer.
-      piece.style.filter = opts.blur > 0 && remaining > 0.01 ? `blur(${remaining * opts.blur}px)` : ''
+    // The pull starts at the edge of the reach and rises to full at the centre.
+    const edge = 0.5 + Math.max(opts.reach, 0)
+    const pull = Math.max(0, 1 - distance / edge)
+    if (pull <= 0) {
+      host.style.transform = ''
+      return
     }
+
+    // Eased so the element does not twitch the instant the cursor enters range.
+    const strength = pull * pull * opts.strength
+    const rect = host.getBoundingClientRect()
+    const shiftX = Math.max(
+      -opts.maxShift,
+      Math.min(opts.maxShift, dx * rect.width * strength)
+    )
+    const shiftY = Math.max(
+      -opts.maxShift,
+      Math.min(opts.maxShift, dy * rect.height * strength)
+    )
+
+    const scale = 1 + (opts.scale - 1) * pull
+    const lean = opts.rotate === 0 ? '' : ` rotate(${dx * opts.rotate * pull * 2}deg)`
+    host.style.transform = `translate(${shiftX}px, ${shiftY}px) scale(${scale})${lean}`
   }
 
   teardown(): void {
-    if (this.host && this.original) this.host.textContent = this.original
-    this.pieces = []
-    this.ranks = []
-    this.builtFor = null
+    if (this.host) {
+      this.host.style.transform = ''
+      this.host.style.transition = ''
+      this.host.style.willChange = ''
+    }
     this.host = null
   }
 }
 
 /**
- * Mount Sort into `el`. The element must already contain the text.
+ * Mount Magnet onto `el`. The element itself is what moves, so put it on the
+ * button, not on a wrapper around the button.
  *
  * ```ts
- * const sort = createSort(document.querySelector('h1')!)
- * sort.start()
+ * const magnet = createMagnet(document.querySelector('.cta')!)
+ * magnet.start()
  * // …later
- * sort.destroy()
+ * magnet.destroy()
  * ```
- *
- * `destroy()` puts the original text back, so the element is left exactly as it
- * was found.
  */
-export function createSort(el: HTMLElement, opts: Partial<SortOptions> = {}): EffectHandle {
-  return mount<SortOptions>(el, opts, {
-    defaults: sortDefaults,
+export function createMagnet(el: HTMLElement, opts: Partial<MagnetOptions> = {}): EffectHandle {
+  return mount<MagnetOptions>(el, opts, {
+    defaults: magnetDefaults,
     kind: 'dom',
-    create: () => new SortSurface()
+    create: () => new MagnetSurface()
   })
 }
 
-export default createSort
+export default createMagnet
 ```
 
 ## 2. What it is
 
-Sort sets type one piece at a time. A sort is a single piece of metal type, and
-that is what each animated fragment here is: a character, a word or a whole line,
-arriving on a stagger.
+Magnet leans an element towards the cursor before the cursor gets there, and lets
+go once it has passed. One CSS transform. No canvas, no WebGL, no npm dependency.
 
-It takes an element that already contains text, splits it, and animates the
-pieces. There is no canvas, no WebGL and no npm dependency.
+It reads the pointer at window scope rather than element scope, because the whole
+point is reacting to a cursor that is still outside. The runtime reports
+element-relative coordinates that go past 0 and 1, so "one and a half element
+widths away, up and to the right" is a number rather than a guess.
 
-Two things it does that most text-splitters do not. Characters are grouped inside
-their word, so the text still wraps at the right places. And the original string
-stays in the accessibility tree as one label, so a screen reader reads a sentence
-rather than sixty separate characters.
+The easing is a CSS transition, not a per-frame spring. Nothing integrates
+against the previous frame, so `renderAtTime` stays pure and the recorder can
+scrub it. The release is what people actually notice, and a transition handles
+the release better than most springs do.
 
-`destroy()` puts the original text back. The element is left as it was found.
+`destroy()` clears every style it set.
 
 ## 3. Wire it in
 
-**Plain HTML.** The text must already be in the element. Sort splits what it
-finds.
+**Plain HTML.** Mount it on the element that should move, not on a wrapper.
 
 ```html
-<h1 id="headline">Come to my arms, my beamish boy</h1>
+<button class="cta">Get prompt</button>
 
 <script type="module">
-  import { createSort } from './beamish/effects/sort/core.js'
+  import { createMagnet } from './beamish/effects/magnet/core.js'
 
-  const sort = createSort(document.querySelector('#headline'))
-  sort.start()
+  const magnet = createMagnet(document.querySelector('.cta'))
+  magnet.start()
 </script>
 ```
 
-**React.** Render the text as children, then split it in an effect. Do not build
-the spans in JSX: React will fight the DOM changes on the next render.
+**React.**
 
 ```tsx
 import { useEffect, useRef } from 'react'
-import { createSort } from '@/beamish/effects/sort/core'
+import { createMagnet } from '@/beamish/effects/magnet/core'
 
-export function Headline({ children }: { children: string }) {
-  const host = useRef<HTMLHeadingElement>(null)
+export function Cta({ children }: { children: React.ReactNode }) {
+  const host = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     if (!host.current) return
-    const sort = createSort(host.current, { split: 'char', stagger: 26 })
-    sort.start()
-    return () => sort.destroy()
-  }, [children])
+    const magnet = createMagnet(host.current, { strength: 0.34 })
+    magnet.start()
+    return () => magnet.destroy()
+  }, [])
 
-  return <h1 ref={host}>{children}</h1>
+  return <button ref={host}>{children}</button>
 }
 ```
 
-The dependency on `children` is deliberate here, unlike the WebGL effects. If the
-text changes, the split has to be rebuilt.
+Do not put option values in the dependency array. Call `update()` instead.
 
 **Vue.**
 
 ```vue
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
-import { createSort } from '@/beamish/effects/sort/core'
+import { createMagnet } from '@/beamish/effects/magnet/core'
 import type { EffectHandle } from '@/beamish/shared/runtime'
 
 const host = ref<HTMLElement | null>(null)
-let sort: EffectHandle | null = null
+let magnet: EffectHandle | null = null
 
 onMounted(() => {
   if (!host.value) return
-  sort = createSort(host.value)
-  sort.start()
+  magnet = createMagnet(host.value)
+  magnet.start()
 })
 
-onBeforeUnmount(() => sort?.destroy())
+onBeforeUnmount(() => magnet?.destroy())
 </script>
 
 <template>
-  <h1 ref="host">Come to my arms, my beamish boy</h1>
+  <button ref="host"><slot /></button>
 </template>
 ```
 
 **Astro.** Nothing extra is required. The core is a standard ES module and works
 from a plain `<script>` in the page.
 
-**Replaying it.** Sort runs once from `t = 0`. To play it again, reset the clock
-and start:
-
-```ts
-sort.stop()
-sort.renderAtTime(0)
-sort.start()
-```
-
-**Revealing on scroll.** Do not add an `IntersectionObserver`. The runtime
-already has one: it holds the loop until the element is on screen, so calling
-`start()` on mount gives you a scroll-triggered reveal with no extra code.
+**Several of them.** One instance per element. Each holds a window-scoped
+`pointermove` listener, so a page with thirty magnets has thirty listeners
+running on every mouse move. That is fine for a handful of buttons and wrong for
+a grid of cards; for a grid, mount one Magnet on the grid itself.
 
 ## 4. Options
 
@@ -766,58 +676,49 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `split` | enum | `char` | `char` · `word` · `line` | What each animated piece is. Characters are grouped inside their word so the text still wraps. |
-| `order` | enum | `forward` | `forward` · `reverse` · `centre` · `random` | The order pieces arrive in. `centre` starts in the middle and works outwards. `random` keeps every piece in its place in the sentence and only changes its turn. |
-| `stagger` | number | `26` | 0 to 200 ms (looks right between 15 and 45) | Milliseconds between one piece and the next. On a long heading this multiplies fast: 40ms across 60 characters is a two and a half second wait. |
-| `duration` | number | `720` | 100 to 3000 ms (looks right between 500 and 900) | Milliseconds each piece takes on its own. |
-| `rise` | number | `22` | -80 to 80 px (looks right between 12 and 34) | How far each piece travels. Negative falls from above instead of rising from below. |
-| `blur` | number | `5` | 0 to 20 (looks right between 0 and 8) | Blur each piece starts at. Zero is cheaper and often better at small sizes, where the blur just reads as a smudge. |
-| `scale` | number | `1` | 0.4 to 1.6 (looks right between 0.9 and 1.1) | Scale each piece starts at. 1 is no scaling, which is usually right for text. |
-| `seed` | number | `7` | 0 to 9999 | Seed for the random order. The same seed always gives the same order, so a recorded video and a live page match. |
-| `reducedMotionTime` | number | `999` | 0 to 9999 s | The single frame shown when the user prefers reduced motion. For a one-shot reveal this should be a time after the animation has finished, so the text simply appears. |
+| `reach` | number | `1.1` | 0 to 4 (looks right between 0.6 and 1.6) | How far outside the element the pull starts, as a multiple of its own size. 1 is one element-width of empty space around it. Large values on a small button make it twitch at things happening on the other side of the page. |
+| `strength` | number | `0.34` | 0 to 1 (looks right between 0.2 and 0.5) | How far the element travels towards the cursor, as a fraction of the gap. Above 0.6 the cursor can never catch it, which is funny once and annoying afterwards. |
+| `maxShift` | number | `26` | 0 to 120 px (looks right between 15 and 40) | Cap on the travel, whatever the strength works out to. This is what stops a wide element sliding out of its own layout. |
+| `scale` | number | `1.04` | 0.9 to 1.4 (looks right between 1 and 1.08) | Scale at full pull. 1 is no growth. |
+| `rotate` | number | `0` | 0 to 20 deg (looks right between 0 and 6) | Degrees of lean at full pull, following the cursor left and right. Off by default: on text it reads as a wobble rather than a lean. |
+| `ease` | number | `420` | 0 to 1500 ms (looks right between 280 and 600) | How long it takes to follow the cursor, and to let go. Low is a rubber band; high is treacle. The release matters more than the catch. |
+| `reducedMotionTime` | number | `0` | 0 to 60 s | The single frame shown when the user prefers reduced motion. At rest there is no pointer, so this draws the element unmoved, which is the right answer. |
 
-## 5. Accessibility. Do not skip this
+## 5. Cleanup and SSR
 
-The split version is marked `aria-hidden`, and a visually hidden copy of the
-original string sits alongside it. A screen reader reads the sentence. This is
-the part most text-splitting libraries get wrong, and the symptom is a screen
-reader spelling a headline out letter by letter.
+`destroy()` clears the transform, transition and `will-change`, removes the
+window listener, cancels the RAF and disconnects both observers.
 
-Do not put an `aria-label` on the element as well. Two labels is worse than none.
+The window listener is the one worth being careful about. An element that unmounts
+without `destroy()` leaves a `pointermove` handler running for the life of the
+page, holding a reference to a node that is no longer in the document.
 
-## 6. Cleanup and SSR
-
-`destroy()` restores the original text, cancels the RAF, disconnects both
-observers and removes every listener. There is no GPU resource to release.
-
-The text renders on the server as ordinary text, and stays readable if the
-JavaScript never arrives. Splitting only happens on the first frame. Call
-`createSort` from `useEffect`, `onMounted`, or a `client:*` island.
+The element renders on the server as ordinary markup and behaves completely
+normally without JavaScript. Call `createMagnet` from `useEffect`, `onMounted`,
+or a `client:*` island.
 
 ## 6. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
-the loop never starts and one frame is drawn instead, the one at
-`reducedMotionTime`.
+the loop never starts and one frame is drawn at `reducedMotionTime`, which is 0.
 
-For a one-shot reveal that default is 999, which is any time after the animation
-has finished. The text simply appears, fully set, which is the correct outcome.
-Do not set it to 0: that leaves the headline invisible.
+At `t = 0` there is no pointer, so the element draws unmoved. That is the right
+answer: the button is still a button, it simply does not chase anything.
 
 ## 7. The three mistakes most likely to be made here
 
-1. **Building the spans in JSX or a template.** React and Vue will overwrite the
-   DOM on the next render and the animation stops mid-way. Pass plain text as
-   children and let `createSort` do the splitting inside an effect.
+1. **Putting it on a large element.** Magnet moves the whole element, and on a
+   full-width bar that means shunting the layout sideways. It is for buttons,
+   icons and small marks. `maxShift` caps the damage but does not make it a good
+   idea.
 
-2. **Leaving `stagger` at 26ms on a long heading.** It multiplies. Sixty
-   characters at 40ms is a two and a half second wait before the last one lands,
-   which reads as a broken page rather than a reveal. Above about 40 characters,
-   switch `split` to `word`.
+2. **Raising `strength` past about 0.6.** The element then outruns the cursor and
+   can never be clicked, which is funny exactly once. If you want more presence,
+   raise `scale` or `reach` instead.
 
-3. **Setting `reducedMotionTime` to 0.** That is the frame before anything has
-   arrived, so the text stays invisible for anyone who has asked for less motion.
-   It wants to be a time after the animation ends.
+3. **Mounting one per card in a grid.** Each instance adds a window-scoped
+   `pointermove` listener. Thirty of them fire thirty times per mouse move. Mount
+   one on the grid and move the grid, or use a hover state instead.
 
 ---
 

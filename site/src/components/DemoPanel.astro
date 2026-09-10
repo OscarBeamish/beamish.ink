@@ -1,4 +1,5 @@
 ---
+import '@items/components/ember/styles.css'
 /*
  * One live demo, and never more than one on a page.
  *
@@ -83,7 +84,8 @@ const { slug, tier, instruction, oneShot } = Astro.props
     sort: () => import('@items/effects/sort/core'),
     riser: () => import('@items/effects/riser/core'),
     tilt: () => import('@items/effects/tilt/core'),
-    swell: () => import('@items/effects/swell/core')
+    swell: () => import('@items/effects/swell/core'),
+    magnet: () => import('@items/effects/magnet/core')
   }
 
   const COMPONENTS: Record<string, () => Promise<{ mount(el: HTMLElement): Mounted }>> = {
@@ -132,6 +134,10 @@ const { slug, tier, instruction, oneShot } = Astro.props
       <div><span>Sort</span><span>type</span></div>
       <div><span>Riser</span><span>reveal</span></div>
     </div>`,
+    magnet: `<div class="demo-magnet">
+      <div class="demo-magnet__rest" aria-hidden="true"></div>
+      <button type="button" class="beamish-ember beamish-ember--solid">Get prompt</button>
+    </div>`,
     tilt: `<article class="demo-card">
       <div class="demo-card__mark"></div>
       <div>
@@ -141,6 +147,9 @@ const { slug, tier, instruction, oneShot } = Astro.props
       <p class="demo-card__note">John Palsgrave, 1530.</p>
     </article>`
   }
+
+  /* Where inside the injected markup the effect actually mounts. */
+  const MOUNT_ON: Record<string, string> = { magnet: '.beamish-ember' }
 
   for (const panel of document.querySelectorAll<HTMLElement>('[data-demo]')) {
     const slug = panel.dataset['slug'] ?? ''
@@ -162,7 +171,10 @@ const { slug, tier, instruction, oneShot } = Astro.props
       }
       const module = await load()
       // A DOM effect wants the element holding the content, not the stage.
-      const target = markup ? (stage.firstElementChild as HTMLElement) : stage
+      const inner = MOUNT_ON[slug]
+      const target = markup
+        ? ((inner ? stage.querySelector<HTMLElement>(inner) : stage.firstElementChild) as HTMLElement)
+        : stage
       const effect = module.default(target)
       effect.start()
       handle = effect

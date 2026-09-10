@@ -62,7 +62,13 @@ export type Size = {
 }
 
 export type Pointer = {
-  /** 0 to 1 across the element, origin top-left. Centre until first move. */
+  /**
+   * 0 to 1 across the element, origin top-left. Centre until first move.
+   *
+   * Under `pointerScope: 'window'` this is not clamped: 1.4 means the cursor is
+   * 40% of the element's width past its right edge. An effect that reaches
+   * beyond its own box needs to know how far.
+   */
   x: number
   y: number
   /** False until the pointer has entered, so effects can idle sensibly. */
@@ -117,6 +123,15 @@ export type BaseOptions = {
   maxDpr?: number
   /** Set false to opt out of pausing when scrolled offscreen. */
   pauseWhenOffscreen?: boolean
+  /**
+   * Where the pointer is read from.
+   *
+   * `element` fires only while the cursor is over the host and reports 0 to 1.
+   * `window` follows the cursor everywhere and reports element-relative
+   * coordinates that go outside 0 to 1, which is what an effect needs if it
+   * reacts to a cursor that has not arrived yet.
+   */
+  pointerScope?: 'element' | 'window'
 }
 
 export type MountConfig<O> = {
@@ -301,11 +316,18 @@ export function mount<O extends BaseOptions>(
 
   // --- pointer -----------------------------------------------------------
 
+  const windowScope = opts.pointerScope === 'window'
+
   const onPointerMove = (event: PointerEvent) => {
     const rect = el.getBoundingClientRect()
     if (rect.width === 0 || rect.height === 0) return
-    pointer.x = clamp01((event.clientX - rect.left) / rect.width)
-    pointer.y = clamp01((event.clientY - rect.top) / rect.height)
+    const x = (event.clientX - rect.left) / rect.width
+    const y = (event.clientY - rect.top) / rect.height
+    // Window scope reports unclamped coordinates on purpose. An effect that
+    // reaches past its own edge has to know how far past, and clamping would
+    // pin it to the border instead.
+    pointer.x = windowScope ? x : clamp01(x)
+    pointer.y = windowScope ? y : clamp01(y)
     pointer.active = true
   }
 
@@ -313,8 +335,10 @@ export function mount<O extends BaseOptions>(
     pointer.active = false
   }
 
-  el.addEventListener('pointermove', onPointerMove)
-  el.addEventListener('pointerleave', onPointerLeave)
+  const pointerTarget: EventTarget = windowScope ? window : el
+  pointerTarget.addEventListener('pointermove', onPointerMove as EventListener)
+  // Only element scope has a leave: the window one is never left.
+  if (!windowScope) el.addEventListener('pointerleave', onPointerLeave)
 
   // --- visibility and viewport -------------------------------------------
 
@@ -397,7 +421,7 @@ export function mount<O extends BaseOptions>(
       document.removeEventListener('visibilitychange', onVisibilityChange)
       intersectionObserver?.disconnect()
       resizeObserver.disconnect()
-      el.removeEventListener('pointermove', onPointerMove)
+      pointerTarget.removeEventListener('pointermove', onPointerMove as EventListener)
       el.removeEventListener('pointerleave', onPointerLeave)
       canvas?.removeEventListener('webglcontextlost', onLost as EventListener)
       canvas?.removeEventListener('webglcontextrestored', onRestored)

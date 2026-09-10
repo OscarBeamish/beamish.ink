@@ -94,13 +94,13 @@ dark-canvas assumption, so most entries here are recasts rather than ports.
 | Blinds | Gradient Blinds, Color Bends | 3 | |
 | Molten | Molten Metal, Evil Eye, Balatro, Dark Veil, Liquid Ether, Ghost Fibers, Iridescence, Pixel Blast, Gradient Waves | 3 | **skip**. Nine near-black shader backdrops with no paper reading |
 
-## Pointer (38 candidates, 2 built)
+## Pointer (38 candidates, 3 built)
 
 | Beamish | React Bits | P | Note |
 | --- | --- | --- | --- |
 | Foil | Metallic Paint | 1 | **done** |
 | Spark | Click Spark | 1 | Cheap, popular, and genuinely useful |
-| Magnet | Magnet | 1 | |
+| Magnet | Magnet | 1 | **done** |
 | Filings | Magnet Lines | 1 | Iron filings around a magnet |
 | Trail | Image Trail, Pixel Trail | 1 | Two of theirs, one of ours |
 | Splash | Splash Cursor | 2 | Fluid sim. The most expensive item in this table |
@@ -202,7 +202,7 @@ Codrops adds eight more worth building, three of them P1 and all of them 3D.
 
 Of the React Bits 90: 25 are P1, about 30 are P2, and the rest are P3 or marked skip.
 
-Nine are built. At the rate of the first session, a good item costs most of a
+Ten are built. At the rate of the first session, a good item costs most of a
 day once you count the shader, the option surface, the recipe, the recording and
 the paste-test. Twenty-five P1 items is therefore several weeks, not a sitting.
 
