@@ -5,7 +5,10 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
-## Unreleased
+## v0.1.0 — 10 September 2026
+
+The first tag, and therefore the first pin any prompt can point at. Repo still
+private; nothing here has been published.
 
 ### Added
 
