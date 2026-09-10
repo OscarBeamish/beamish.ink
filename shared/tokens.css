@@ -1,0 +1,61 @@
+/*
+ * Beamish design tokens.
+ *
+ * Lifted from oscarbeamish.dev. Single source of truth: imported by the site and
+ * linked directly by every item's demo.html, so recorded video and the live site
+ * are the same pixels.
+ *
+ * Two ink channels, deliberately kept apart. --label is pure black and is used
+ * only for the strongest text. --label-d is desaturated and carries every alpha
+ * step below it; that separation is what stops mid-tone text going muddy on warm
+ * paper. Contrast ratios in the comments are against --background-deep.
+ */
+
+:root {
+  --label: 0, 0, 0;                          /* pure, strongest text only */
+  --label-d: 54, 54, 48;                     /* desaturated, every alpha step below */
+  --background-deep: 251, 250, 244;          /* warm paper */
+  --background-elevated: #efede7;            /* panels, demo surrounds */
+  --line: rgba(var(--label-d), 0.1);         /* 1.19:1 — dividers only */
+  --control-line: rgba(var(--label-d), 0.7); /* 4.71:1 — pressable edges */
+  --accent: #c44400;                         /* white on it = 5.03:1 */
+  --selection-bg: #c44400;
+
+  --label-1: rgba(var(--label), 1);          /* 20.08:1 */
+  --label-2: rgba(var(--label-d), 0.78);     /* 5.95:1 */
+  --label-3: rgba(var(--label-d), 0.7);      /* 4.71:1 */
+  --label-4: rgba(var(--label-d), 0.16);     /* 1.33:1 — NEVER text */
+
+  --ease-66: cubic-bezier(0.66, 0, 0.01, 1);
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Mono is the default face. The display sans is for headings and real prose
+     only — see AGENTS.md. */
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+}
+
+::selection {
+  background: var(--selection-bg);
+  color: rgb(var(--background-deep));
+}
+
+/*
+ * Header treatment. mix-blend-mode: difference against white inverts whatever is
+ * behind it, so the header stays legible over arbitrary shader output. Essential
+ * on a page that is mostly full-bleed demo panels.
+ */
+.nav-blend {
+  mix-blend-mode: difference;
+  color: #fff;
+}
+
+/*
+ * React Three Fiber writes inline `pointer-events: auto` onto its wrapper divs,
+ * which steals wheel events from Lenis. Wrap any GL canvas that should not take
+ * pointer input in .gl-layer.
+ */
+.gl-layer,
+.gl-layer * {
+  pointer-events: none !important;
+}

@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+
+# recorder scratch — frames are intermediate, media/ is committed
+tools/recorder/.frames/
+
+# compiled demo bundles (built by `pnpm build:items`, regenerated on demand)
+effects/*/demo.bundle.js
+components/*/demo.bundle.js
