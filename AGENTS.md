@@ -126,12 +126,18 @@ abstraction is wrong. Stop and say so.
 
 ## Licence boundary
 
-React Bits is MIT plus Commons Clause, not MIT. Read their repo for structure and
-ideas. Never copy a file, a function or a shader from it. Write every
-implementation here from scratch.
+Write every implementation from scratch. Concepts are fair game. Where an effect
+is recognisably derived from a specific published demo, credit it in `meta.json`
+with the author's name and a link.
 
-Effect concepts are fair game. Where an effect is recognisably derived from a
-specific published demo, credit it in `meta.json`.
+React Bits is MIT plus Commons Clause, not MIT. Read their repo for structure and
+ideas. Never copy a file, a function or a shader from it. The Commons Clause
+would travel with anything taken and attach itself to this library.
+
+Codrops demos are plain MIT, so adapting them with the notice retained would be
+legal. Do not. A file carrying a third-party copyright notice breaks the promise
+every prompt makes, which is that this is the reader's code with nothing to
+track.
 
 ## Conventions
 

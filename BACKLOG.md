@@ -162,12 +162,45 @@ Cards, panels, images.
 
 ---
 
+## Codrops
+
+A different source and a different licence. Codrops demos are plain MIT, not MIT
+plus Commons Clause, so adapting their code with the copyright notice retained
+would be legal. We are still writing from scratch, because a file carrying a
+third-party notice complicates the one thing every prompt promises: this is your
+code, in your repo, with nothing to update. Concepts and credit only, same as
+everywhere else.
+
+The reason to mine Codrops is that it is almost entirely real 3D, which is the
+one axis React Bits has nothing on. Their WebGL entries are full-bleed 2D
+backdrops. Codrops publishes cameras, meshes, depth maps and physics every week.
+
+| Beamish | Source | P | Note |
+| --- | --- | --- | --- |
+| Loupe | Mouse-Following Square Lens, Tomoyuki Nakata, Aug 2026 | 1 | Lens distortion and chromatic shift inside a shape that tracks the cursor. **Recast**: a magnifier over letterpress rather than a neon square. Merges with True Focus from the React Bits list |
+| Relight | Relighting Images with Depth Maps, Aug 2026 | 1 | A flat photograph plus a depth map, lit by a lamp that moves. Nothing in React Bits comes close, and it lands on paper without changing anything |
+| Swell | Interactive Wave Propagation Cube Grid, Jul 2026 | 1 | A grid of forms that ripples out from wherever you touch it. Same family as Sundial: matte forms, real shadows, warm paper |
+| Threshold | Persistent Page Transitions with WebGPU, Jun 2026 | 2 | Page transitions with a scene that survives navigation. **Recast** to WebGL2: WebGPU is Chrome-only for our purposes |
+| Teletype | Shape-Aware ASCII Renderer, Sep 2026 | 2 | Every cell picks the glyph whose shape fits, not the one whose brightness matches. Far better than the usual luminance ramp. **Recast**: ink on paper, not green on black |
+| Vellum | Infinite Liquid Glass Grid, Sep 2026 | 2 | Reinforces the Vellum entry above. Their glass becomes our translucent paper |
+| Facet | Procedural Geometry with Three.js and WebGPU, Aug 2026 | 3 | Surface picking and live procedural geometry. WebGPU, so it waits |
+| Vitrine | Scroll-Driven 3D Gallery on a Blender Camera Path, Jul 2026 | 3 | Needs an authored camera path and a model, which is a different kind of maintenance |
+| skip | Real-Time Datamosh, Sep 2026 | 3 | **skip**. Codec glitch aesthetics, dark by nature, and nothing to do with paper |
+| skip | Real-Time 3D Face Mask with MediaPipe, Sep 2026 | 3 | **skip**. Needs a camera permission and a 3MB model |
+
+Credit goes in the effect's `meta.json` and on its page, naming the author and
+linking the article.
+
+---
+
 ## What the numbers actually are
 
-171 of theirs collapse to roughly 90 of ours, because they ship four cursor
+171 React Bits items collapse to roughly 90 of ours, because they ship four cursor
 glows and five light-ray backdrops as separate entries and we would not.
 
-Of those 90: 25 are P1, about 30 are P2, and the rest are P3 or marked skip.
+Codrops adds eight more worth building, three of them P1 and all of them 3D.
+
+Of the React Bits 90: 25 are P1, about 30 are P2, and the rest are P3 or marked skip.
 
 Eight are built. At the rate of the first session, a good item costs most of a
 day once you count the shader, the option surface, the recipe, the recording and
