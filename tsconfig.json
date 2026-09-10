@@ -20,6 +20,6 @@
     "types": ["node"],
     "jsx": "react-jsx"
   },
-  "include": ["shared/**/*.ts", "effects/**/*.ts", "effects/**/*.tsx", "components/**/*.ts", "components/**/*.tsx", "tools/**/*.ts"],
+  "include": ["tools/**/*.d.ts", "shared/**/*.ts", "effects/**/*.ts", "effects/**/*.tsx", "components/**/*.ts", "components/**/*.tsx", "tools/**/*.ts"],
   "exclude": ["node_modules", "site", "**/dist", "reference"]
 }

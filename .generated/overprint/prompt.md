@@ -149,7 +149,7 @@ as the second argument to the create function; anything omitted takes its defaul
 | `angleA` | number | `15` | 0 – 180 deg | Screen angle of the first plate. |
 | `angleB` | number | `75` | 0 – 180 deg (looks right between 45 and 105) | Screen angle of the second plate. Keep it at least 30 degrees from angleA — closer than that and the two screens beat against each other. |
 | `drift` | number | `5` | 0 – 30 px (looks right between 4 and 12) | Registration error: how far the plates slide apart over a loop. Zero is a clean print and much duller. |
-| `coverage` | number | `0.42` | 0.1 – 0.9 (looks right between 0.35 and 0.6) | Ink density. Past 0.7 the plates flood and the paper stops showing through. |
+| `coverage` | number | `0.32` | 0.1 – 0.9 (looks right between 0.35 and 0.6) | Ink density. Past 0.7 the plates flood and the paper stops showing through. |
 | `grain` | number | `0.35` | 0 – 1 | Paper tooth. Static by design — animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent. |
 | `period` | number | `5` | 2 – 120 s (looks right between 5 and 25) | Seconds for one full loop. The animation is exactly periodic over this. The default is 5 so that the preview video is a whole cycle; raise it to 15–25 for a page background you want to forget is moving. |
 | `reducedMotionTime` | number | `1.4` | 0 – 120 s | The single frame shown when the user prefers reduced motion. Pick one that composes rather than the frame at zero. |

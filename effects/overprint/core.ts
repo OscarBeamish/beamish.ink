@@ -54,7 +54,7 @@ export const overprintDefaults: OverprintOptions = {
   angleA: 15,
   angleB: 75,
   drift: 5,
-  coverage: 0.42,
+  coverage: 0.32,
   grain: 0.35,
   period: 5,
   reducedMotionTime: 1.4
@@ -169,7 +169,12 @@ float halftone(vec2 cssPx, float angle, float value, float freq) {
 float tone(float raw, float coverage) {
   float v = clamp(raw * 1.7 + 0.5, 0.0, 1.0);
   float edge = 1.0 - coverage;
-  return smoothstep(edge - 0.30, edge + 0.30, v);
+  float t = smoothstep(edge - 0.30, edge + 0.30, v);
+  // Clean the toe. Without this the highlights keep a haze of sub-pixel dots
+  // that reads as dirt on the paper rather than as a light tone — and, being
+  // fine unpredictable detail, costs more in the encoded video than the entire
+  // rest of the frame.
+  return t * smoothstep(0.03, 0.11, t);
 }
 
 void main() {
@@ -211,7 +216,11 @@ void main() {
 
   // Static tooth, not animated film grain. Animated grain flickers, and a
   // flicker this fine is exactly what WCAG 2.3.1 is about.
-  float tooth = hash12(floor(cssPx)) - 0.5;
+  //
+  // Two-pixel blocks rather than one. At 2x DPR a one-pixel grain is below what
+  // the eye resolves anyway, and it is the single most expensive thing in the
+  // frame for a video codec — pure noise, no structure to predict.
+  float tooth = hash12(floor(cssPx * 0.5)) - 0.5;
   col += tooth * 0.055 * u_grain;
 
   fragColor = vec4(clamp(col, 0.0, 1.0), 1.0);

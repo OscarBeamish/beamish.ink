@@ -1,0 +1,128 @@
+{
+  "name": "Sundial",
+  "slug": "sundial",
+  "tier": 1,
+  "description": "Matte forms on paper, and one sun making a full circuit of them",
+  "category": "backdrops",
+  "tags": ["three", "3d", "scene", "shadows", "light", "paper", "hero", "ambient"],
+  "peerDependencies": {
+    "three": ">=0.160.0"
+  },
+  "browser": {
+    "webgl": "webgl1",
+    "notes": [
+      "three.js must already be a dependency of the project — it is not bundled",
+      "A 2048² shadow map is allocated; on a very old integrated GPU drop it to 1024",
+      "Falls back to a still frame under prefers-reduced-motion, handled in the runtime"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 5.5,
+    "contexts": 1,
+    "notes": [
+      "Seven meshes and one ground plane, drawn twice: once for the shadow map, once for the frame",
+      "The shadow map is the cost, not the geometry"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/sundial/core.ts",
+      "to": "src/beamish/effects/sundial/core.ts",
+      "role": "core"
+    }
+  ],
+  "options": {
+    "paper": {
+      "type": "color",
+      "default": "#fbfaf4",
+      "description": "The paper the forms stand on. Match it to your page background or the panel reads as a pasted-in rectangle."
+    },
+    "stone": {
+      "type": "color",
+      "default": "#f5f2e9",
+      "description": "The forms. Slightly lighter than the paper is what makes them read as objects standing on it rather than holes cut in it."
+    },
+    "accent": {
+      "type": "color",
+      "default": "#c44400",
+      "description": "One form carries colour. This is the obvious place to put your own brand colour."
+    },
+    "elevation": {
+      "type": "number",
+      "default": 30,
+      "min": 8,
+      "max": 80,
+      "step": 1,
+      "unit": "deg",
+      "sensible": [22, 45],
+      "description": "How high the sun sits. Low is long dramatic shadows; above about 60 the shadows disappear under the objects and the whole thing goes flat."
+    },
+    "softness": {
+      "type": "number",
+      "default": 0.68,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [0.35, 0.75],
+      "description": "Shadow edge softness. Zero is a hard midday edge, one is heavy overcast."
+    },
+    "shadow": {
+      "type": "number",
+      "default": 0.3,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [0.18, 0.45],
+      "description": "How dark the shadows fall on the paper. The paper itself is never lit — it stays exactly the colour you set — so this is the only thing drawn on it."
+    },
+    "zoom": {
+      "type": "number",
+      "default": 0.66,
+      "min": 0.3,
+      "max": 1.6,
+      "step": 0.01,
+      "sensible": [0.6, 1],
+      "description": "How much of the frame the group fills."
+    },
+    "tilt": {
+      "type": "number",
+      "default": 0.52,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [0.2, 0.55],
+      "description": "Camera height. Zero is eye level with the paper, one looks straight down. Around 0.35 is a table seen from a chair."
+    },
+    "period": {
+      "type": "number",
+      "default": 5,
+      "min": 2,
+      "max": 120,
+      "step": 1,
+      "unit": "s",
+      "sensible": [5, 30],
+      "description": "Seconds for one full circuit of the sun. The default is 5 so the preview video is a whole cycle; 20–30 is right for something you leave running behind a page."
+    },
+    "reducedMotionTime": {
+      "type": "number",
+      "default": 1.1,
+      "min": 0,
+      "max": 120,
+      "step": 0.1,
+      "unit": "s",
+      "description": "The single frame shown when the user prefers reduced motion. Pick a sun angle that composes — the still is the whole effect for those users."
+    }
+  },
+  "instruction": "ambient — watch the shadows come round",
+  "oneShot": false,
+  "record": {
+    "duration": 5,
+    "fps": 30,
+    "posterAt": 1.1
+  }
+}

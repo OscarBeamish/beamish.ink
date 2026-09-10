@@ -120,7 +120,7 @@
       },
       "coverage": {
         "type": "number",
-        "default": 0.42,
+        "default": 0.32,
         "description": "Ink density. Past 0.7 the plates flood and the paper stops showing through.",
         "min": 0.1,
         "max": 0.9,
@@ -165,10 +165,167 @@
     "oneShot": false,
     "record": {
       "duration": 5,
-      "fps": 60,
+      "fps": 30,
       "posterAt": 2.05
     },
     "group": "effects",
     "intro": "Overprint is a full-bleed background that behaves like a two-colour print rather\nthan like a light source. Two ink plates — a desaturated near-black and a burnt\norange — are screened into halftone dots at different angles, then multiplied\nover the paper colour the way a second pass of ink actually behaves. Over the\nloop the plates slide fractionally out of registration, which is the misprint\nthat makes a risograph look alive.\n\nIt is a single WebGL2 fragment shader on one full-screen triangle. No three.js,\nno textures, no render targets, no dependencies at all.\n\nThe whole thing is designed for a light background. On black it does nothing,\nbecause multiplying ink into black gets you black.\n\nThe defaults are tuned to be looked at — dense, confident, plenty of solid ink.\nIf you are putting text on top of it, that is too much: drop `coverage` to around\n0.2 and raise `period` to 15 or so, and it recedes into a texture you stop\nnoticing. Do that rather than reaching for opacity, which greys the paper and\nloses the thing that makes it look printed."
+  },
+  {
+    "name": "Sundial",
+    "slug": "sundial",
+    "tier": 1,
+    "description": "Matte forms on paper, and one sun making a full circuit of them",
+    "category": "backdrops",
+    "tags": [
+      "three",
+      "3d",
+      "scene",
+      "shadows",
+      "light",
+      "paper",
+      "hero",
+      "ambient"
+    ],
+    "peerDependencies": {
+      "three": ">=0.160.0"
+    },
+    "browser": {
+      "webgl": "webgl1",
+      "notes": [
+        "three.js must already be a dependency of the project — it is not bundled",
+        "A 2048² shadow map is allocated; on a very old integrated GPU drop it to 1024",
+        "Falls back to a still frame under prefers-reduced-motion, handled in the runtime"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 5.5,
+      "contexts": 1,
+      "notes": [
+        "Seven meshes and one ground plane, drawn twice: once for the shadow map, once for the frame",
+        "The shadow map is the cost, not the geometry"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/sundial/core.ts",
+        "to": "src/beamish/effects/sundial/core.ts",
+        "role": "core"
+      }
+    ],
+    "options": {
+      "paper": {
+        "type": "color",
+        "default": "#fbfaf4",
+        "description": "The paper the forms stand on. Match it to your page background or the panel reads as a pasted-in rectangle."
+      },
+      "stone": {
+        "type": "color",
+        "default": "#f5f2e9",
+        "description": "The forms. Slightly lighter than the paper is what makes them read as objects standing on it rather than holes cut in it."
+      },
+      "accent": {
+        "type": "color",
+        "default": "#c44400",
+        "description": "One form carries colour. This is the obvious place to put your own brand colour."
+      },
+      "elevation": {
+        "type": "number",
+        "default": 30,
+        "description": "How high the sun sits. Low is long dramatic shadows; above about 60 the shadows disappear under the objects and the whole thing goes flat.",
+        "min": 8,
+        "max": 80,
+        "step": 1,
+        "unit": "deg",
+        "sensible": [
+          22,
+          45
+        ]
+      },
+      "softness": {
+        "type": "number",
+        "default": 0.68,
+        "description": "Shadow edge softness. Zero is a hard midday edge, one is heavy overcast.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.35,
+          0.75
+        ]
+      },
+      "shadow": {
+        "type": "number",
+        "default": 0.3,
+        "description": "How dark the shadows fall on the paper. The paper itself is never lit — it stays exactly the colour you set — so this is the only thing drawn on it.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.18,
+          0.45
+        ]
+      },
+      "zoom": {
+        "type": "number",
+        "default": 0.66,
+        "description": "How much of the frame the group fills.",
+        "min": 0.3,
+        "max": 1.6,
+        "step": 0.01,
+        "sensible": [
+          0.6,
+          1
+        ]
+      },
+      "tilt": {
+        "type": "number",
+        "default": 0.52,
+        "description": "Camera height. Zero is eye level with the paper, one looks straight down. Around 0.35 is a table seen from a chair.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.2,
+          0.55
+        ]
+      },
+      "period": {
+        "type": "number",
+        "default": 5,
+        "description": "Seconds for one full circuit of the sun. The default is 5 so the preview video is a whole cycle; 20–30 is right for something you leave running behind a page.",
+        "min": 2,
+        "max": 120,
+        "step": 1,
+        "unit": "s",
+        "sensible": [
+          5,
+          30
+        ]
+      },
+      "reducedMotionTime": {
+        "type": "number",
+        "default": 1.1,
+        "description": "The single frame shown when the user prefers reduced motion. Pick a sun angle that composes — the still is the whole effect for those users.",
+        "min": 0,
+        "max": 120,
+        "step": 0.1,
+        "unit": "s"
+      }
+    },
+    "instruction": "ambient — watch the shadows come round",
+    "oneShot": false,
+    "record": {
+      "duration": 5,
+      "fps": 30,
+      "posterAt": 1.1
+    },
+    "group": "effects",
+    "intro": "Sundial is a still life: seven matte forms standing on paper, lit by a single sun\nthat makes one complete circuit over the loop. The forms never move. The subject\nis the shadows — they lengthen, swing round, cross each other and arrive back\nexactly where they started.\n\nIt is a real three.js scene. A perspective camera, seven meshes, standard\nmaterials, a directional light with a shadow map, and a bounce light standing in\nfor light coming back off the paper. Not a full-bleed shader pretending to be\nthree-dimensional.\n\nThe paper is never lit. It is the scene background, and the ground plane is a\n`ShadowMaterial` that draws nothing but the shadow. That is why the paper comes\nout exactly the colour you asked for instead of the warm grey a lit plane gives\nyou at a grazing sun angle.\n\nBecause the forms sit in the middle and the sun keeps the edges clear, there is\nroom for a headline over the top of it. That is what it is for."
   }
 ]
