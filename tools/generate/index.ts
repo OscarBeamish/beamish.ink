@@ -1,5 +1,5 @@
 /*
- * pnpm generate — rebuilds everything derived from meta.json + recipe.md.
+ * pnpm generate rebuilds everything derived from meta.json and recipe.md.
  *
  *   1. validates every meta.json against tools/schema
  *   2. syncs shader sources into the core.ts blocks that publish them
@@ -118,8 +118,8 @@ async function syncShaders(item: Item): Promise<{ file: string; contents: string
     replacements.push(
       readFile(path.join(item.dir, rel), 'utf8').then(text => {
         // The shader becomes a template literal, so backticks and interpolation
-        // openers in GLSL comments have to be escaped rather than banned —
-        // prose in comments is worth more than the inconvenience.
+        // openers in GLSL comments have to be escaped rather than banned.
+        // Prose in comments is worth more than the inconvenience.
         sources.set(rel, text.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${'))
       })
     )
@@ -141,8 +141,8 @@ async function syncShaders(item: Item): Promise<{ file: string; contents: string
 /*
  * The defaults exist twice: in meta.json, which the prompt and prop table are
  * built from, and in core.ts, so the published file stands alone. That is the one
- * duplication in the repo and it is deliberate — but it has to be checked, or the
- * prompt will confidently document a number the code does not use.
+ * duplication in the repo and it is deliberate, but it has to be checked, or
+ * the prompt will confidently document a number the code does not use.
  */
 const DEFAULTS_BLOCK = /export const \w+Defaults[^=]*=\s*\{([\s\S]*?)\n\}/
 const DEFAULT_ENTRY = /^\s*(\w+):\s*(.+?),?\s*$/
@@ -185,13 +185,13 @@ const rawUrl = (pin: string, repoPath: string) =>
 
 function formatRange(spec: OptionSpec): string {
   if (spec.type === 'number') {
-    const range = `${spec.min} – ${spec.max}${spec.unit ? ` ${spec.unit}` : ''}`
+    const range = `${spec.min} to ${spec.max}${spec.unit ? ` ${spec.unit}` : ''}`
     return spec.sensible ? `${range} (looks right between ${spec.sensible[0]} and ${spec.sensible[1]})` : range
   }
   if (spec.type === 'enum') return (spec.values ?? []).map(v => `\`${v}\``).join(' · ')
   if (spec.type === 'boolean') return '`true` · `false`'
   if (spec.type === 'color') return 'any CSS hex'
-  return '—'
+  return 'any value'
 }
 
 function optionTable(meta: Meta): string {
@@ -223,7 +223,7 @@ function header(item: Item, pin: string): string {
     meta.browser.webgl === 'none'
       ? null
       : meta.browser.webgl === 'webgl2'
-        ? 'WebGL2 — there is no WebGL1 fallback'
+        ? 'WebGL2. There is no WebGL1 fallback'
         : 'WebGL1 or better'
 
   const requirements = [
@@ -241,7 +241,7 @@ function header(item: Item, pin: string): string {
 
 Beamish is not a package and there is nothing to install from npm. The source
 lives in a public repo; you fetch the files, put them in this project, and wire
-them in. Adapt them to whatever this project already uses — that is the point of
+them in. Adapt them to whatever this project already uses. That is the point of
 shipping it this way.
 
 Assume you have not seen this library before. Everything you need is below.
@@ -258,7 +258,7 @@ function body(item: Item, pin: string, inline: boolean, sources: Map<string, str
   const { meta } = item
   const parts: string[] = []
 
-  // 1 — the files
+  // Step 1: the files
   if (inline) {
     const blocks = requiredFiles(meta).map(file => {
       const lang = file.to.endsWith('.tsx') ? 'tsx' : file.to.endsWith('.ts') ? 'ts' : 'text'
@@ -268,7 +268,7 @@ function body(item: Item, pin: string, inline: boolean, sources: Map<string, str
 
 The full source is inlined below because you may not be able to fetch URLs.
 Create each file at the path given, verbatim. Adjust the paths to match this
-project's conventions, but keep them in the same relative arrangement — the
+project's conventions, but keep them in the same relative arrangement. The
 import between them is relative.
 
 ${blocks.join('\n\n')}`)
@@ -279,16 +279,16 @@ ${blocks.join('\n\n')}`)
     parts.push(`## 1. Fetch these files
 
 Fetch each URL and save it at the path given. Adjust the paths to match this
-project's conventions, but keep them in the same relative arrangement — the
+project's conventions, but keep them in the same relative arrangement. The
 import between them is relative.
 
 | Save as | Fetch from |
 | --- | --- |
 ${rows.join('\n')}
 
-If you cannot fetch URLs, say so rather than writing the file from memory — there
-is a version of this prompt with the source inlined, and guessing at a shader
-produces something that compiles and looks wrong.`)
+If you cannot fetch these URLs, say so. Do not write the file from memory. There
+is a version of this prompt with the source inlined, and a guessed shader
+compiles and looks wrong.`)
   }
 
   const what = section(item, 'What it is')
@@ -307,7 +307,7 @@ ${optionTable(meta)}`)
   // Tier 2 is where semantics, focus and keyboard live, and an agent wiring a nav
   // into someone's app will get all three wrong unless told plainly.
   const a11y = section(item, 'Accessibility')
-  if (a11y) parts.push(`## 5. Accessibility — do not skip this\n\n${a11y}`)
+  if (a11y) parts.push(`## 5. Accessibility. Do not skip this\n\n${a11y}`)
 
   const cleanup = section(item, 'Cleanup and SSR')
   if (cleanup) parts.push(`## ${a11y ? 6 : 5}. Cleanup and SSR\n\n${cleanup}`)
@@ -338,8 +338,8 @@ ${adapters.map(file => `- ${rawUrl(pin, file.from)}`).join('\n')}`)
   if (meta.credit) {
     parts.push(`---
 
-Concept credit: ${meta.credit.what} — ${meta.credit.author}, ${meta.credit.url}. The
-implementation here is written from scratch.`)
+Concept credit: ${meta.credit.what}, by ${meta.credit.author}, ${meta.credit.url}.
+The implementation here is written from scratch.`)
   }
 
   parts.push(`---
@@ -428,7 +428,7 @@ async function generate(check: boolean, pin: string) {
       console.error(`\n${stale} generated file(s) are stale. Run \`pnpm generate\`.`)
       process.exit(1)
     }
-    console.log(`generate:check — ${items.length} item(s), everything current`)
+    console.log(`generate:check: ${items.length} item(s), everything current`)
     return
   }
 

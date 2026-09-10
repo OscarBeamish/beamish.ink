@@ -1,5 +1,5 @@
 /*
- * Vue adapter for Foil. Thin on purpose — it wires a ref to the core and nothing
+ * Vue adapter for Foil. Thin on purpose. It wires a ref to the core and nothing
  * else. If you find yourself adding logic here, it belongs in core.ts.
  */
 

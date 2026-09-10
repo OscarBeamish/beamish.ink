@@ -1,11 +1,11 @@
 /*
- * Ember — Beamish
+ * Ember: Beamish
  * https://beamish.ink/components/ember
  *
  * The action pill: mono, uppercase, 100px radius, with a slow band of light
  * crossing it on hover. Renders a <button> by default and an <a> when given an
  * href, because a thing that navigates should be a link and a thing that acts
- * should be a button — and the difference matters to anyone using a keyboard or
+ * should be a button. The difference matters to anyone using a keyboard or
  * a screen reader.
  */
 

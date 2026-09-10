@@ -1,5 +1,5 @@
 /*
- * Ember — Beamish
+ * Ember: Beamish
  * https://beamish.ink/components/ember
  *
  * Vue build of the action pill. Same markup rules as the React one: a <button>

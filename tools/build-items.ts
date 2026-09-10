@@ -1,7 +1,7 @@
 /*
  * Builds each item's demo.bundle.js.
  *
- * demo.html has no build step of its own by design — it has to be openable from
+ * demo.html has no build step of its own by design. It has to be openable from
  * disk and screenshot-able by the recorder without a dev server in the way. That
  * means the TypeScript has to be compiled to a plain script first, which is this.
  *
@@ -38,7 +38,7 @@ export async function listItems(): Promise<ItemRef[]> {
 
 /**
  * Tier 1 exposes the imperative handle directly. Tier 2 is a React component, so
- * the bundle exposes a mount/unmount pair over a root instead — same shape of
+ * the bundle exposes a mount/unmount pair over a root instead. Same shape of
  * contract for the recorder, different thing underneath. This is the one place
  * the two tiers are deliberately bridged, and it is a build detail, not runtime.
  */
@@ -80,7 +80,7 @@ export async function buildItem(item: ItemRef): Promise<void> {
     format: 'iife',
     target: 'es2022',
     platform: 'browser',
-    // Demos are for looking at, not shipping — readable output makes a broken
+    // Demos are for looking at, not shipping. Readable output makes a broken
     // shader far quicker to diagnose in devtools.
     minify: false,
     logLevel: 'silent',

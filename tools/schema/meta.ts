@@ -2,7 +2,7 @@
  * The meta.json contract.
  *
  * meta.json is the single source of truth for an item. Prompts, docs pages, the
- * site index and prop tables are all generated from it plus recipe.md — nothing
+ * site index and prop tables are all generated from it plus recipe.md. Nothing
  * is maintained twice. `pnpm generate:check` fails if generated output is stale.
  *
  * Validated here at build time so a typo in a slug fails the build rather than
@@ -16,8 +16,8 @@ const slug = z
   .regex(/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/, 'slug must be kebab-case')
 
 /**
- * One tweakable option. This is a JSON Schema in all but name — it carries type,
- * default and range — but it is shaped for the two things we actually generate
+ * One tweakable option. This is a JSON Schema in all but name. It carries type,
+ * default and range, but it is shaped for the two things we actually generate
  * from it: a prop table and a prompt section that tells an agent what a sensible
  * value looks like. A bare JSON Schema cannot express "sensible", and an agent
  * handed a bare `number` will pick 1000.
@@ -84,7 +84,7 @@ const interactionStep = z.object({
   action: z.enum(['move', 'click', 'hover', 'key', 'scroll', 'wait']),
   /** CSS selector, for actions that target an element. */
   target: z.string().optional(),
-  /** 0–1 viewport coordinates, for `move`. */
+  /** 0 to 1 viewport coordinates, for `move`. */
   x: z.number().min(0).max(1).optional(),
   y: z.number().min(0).max(1).optional(),
   /** Key name for `key`, e.g. "Escape" or "ArrowDown". */
@@ -94,7 +94,7 @@ const interactionStep = z.object({
 })
 
 const recordSpec = z.object({
-  /** Seconds. The loop must be seamless across this span. */
+  /** Seconds. The loop must close cleanly across this span. */
   duration: z.number().positive().default(5),
   fps: z.number().int().positive().default(60),
   /** Frame used for poster.jpg, in seconds. */
@@ -102,7 +102,7 @@ const recordSpec = z.object({
   /*
    * Quality overrides, for the rare item that is pathological for a video codec.
    * A full-frame halftone at 30fps is nearly all high-frequency detail, so almost
-   * every pixel changes every frame and there is nothing to predict — it encodes
+   * every pixel changes every frame and there is nothing to predict. It encodes
    * an order of magnitude larger than a scene of smooth shaded forms. Raising
    * these for such an item is a deliberate trade of quality against a repo where
    * every media file is committed forever.
@@ -114,7 +114,7 @@ const recordSpec = z.object({
 })
 
 const creditSpec = z.object({
-  /** Where the *concept* came from. Never the code — every line here is ours. */
+  /** Where the *concept* came from. Never the code. Every line here is ours. */
   what: z.string().min(1),
   author: z.string().min(1),
   url: z.string().url()
@@ -149,7 +149,7 @@ export const metaSchema = z
     perf: z.object({
       /** Rough draw cost at 1280×720, 2× DPR, on integrated graphics. */
       frameBudgetMs: z.number().positive(),
-      /** Live WebGL contexts this item holds. Always 1 or 0 — see AGENTS.md. */
+      /** Live WebGL contexts this item holds. Always 1 or 0. See AGENTS.md. */
       contexts: z.number().int().min(0).max(1),
       notes: z.array(z.string()).default([])
     }),
@@ -183,7 +183,7 @@ export const metaSchema = z
     if (value.tier === 2 && !value.record.interactions?.length) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'tier 2 items are recorded by replaying interactions — none declared'
+        message: 'tier 2 items are recorded by replaying interactions, and none are declared'
       })
     }
     if (value.category === 'pointer' && value.tier === 1 && !value.cursor) {
@@ -193,8 +193,8 @@ export const metaSchema = z
       })
     }
     /*
-     * A recording is only seamless if it spans a whole number of loops. An item
-     * with a 20s period recorded for 5s cuts mid-cycle and the video jumps —
+     * A recording only loops cleanly if it spans a whole number of cycles. An item
+     * with a 20s period recorded for 5s cuts mid-cycle and the video jumps,
      * which is the kind of thing nobody notices until it is on the homepage.
      */
     const period = value.options['period']
@@ -203,7 +203,7 @@ export const metaSchema = z
       if (!Number.isInteger(Number(loops.toFixed(6)))) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `record.duration (${value.record.duration}s) is not a whole number of loops at the default period (${period.default}s), so the video will not loop seamlessly`
+          message: `record.duration (${value.record.duration}s) is not a whole number of loops at the default period (${period.default}s), so the video will jump once per cycle`
         })
       }
     }

@@ -1,5 +1,5 @@
 /*
- * Ember — Beamish
+ * Ember: Beamish
  *
  * Every custom property has a fallback, so the component looks right dropped into
  * a project that has never heard of Beamish tokens. If the tokens are present it
@@ -77,7 +77,7 @@
 /* --- the catch ---------------------------------------------------------- */
 
 /*
- * A single band of light crossing the face on hover — the ember of the name. It
+ * A single band of light crossing the face on hover, the ember of the name. It
  * is deliberately slow and low-contrast: a fast bright sweep on a button reads as
  * a discount code, not as a piece of design.
  */

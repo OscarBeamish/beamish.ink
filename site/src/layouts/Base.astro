@@ -45,7 +45,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
   <body class="min-h-dvh">
     <!--
       mix-blend-mode: difference against white, so the header stays legible over
-      whatever is behind it — including arbitrary shader output. Essential on a
+      whatever is behind it, including arbitrary shader output. Essential on a
       site that is mostly full-bleed demo panels.
     -->
     <header
@@ -70,10 +70,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
 
     <footer class="border-line mt-24 border-t px-5 py-10 md:px-8">
       <p class="text-l3 max-w-[52ch] text-[0.8rem]">
-        <em>Beamish</em>, adj. — shining brightly; radiant. First recorded in 1530,
-        in John Palsgrave's French–English dictionary, glossing <em>radieux</em> as
-        “Beamysshe as the sonne is”. Lewis Carroll used it in Jabberwocky three
-        centuries later and may have thought he coined it.
+        <em>Beamish</em>, adj. Shining brightly, radiant. First recorded in 1530,
+        in John Palsgrave's French-English dictionary, glossing <em>radieux</em> as
+        “Beamysshe as the sonne is”. Lewis Carroll borrowed it 341 years later for
+        Jabberwocky, under the impression that he had made it up.
       </p>
       <p class="text-l3 mt-6 text-[0.7rem] tracking-[0.1em] uppercase">
         MIT · <a href="https://oscarbeamish.dev">Oscar Beamish</a>
@@ -82,8 +82,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
 
     <script>
       // Lenis drives scroll everywhere on the site. Reduced motion gets the
-      // native scroll instead — a smoothed scroll is still motion the user did
-      // not ask for.
+      // native scroll instead. A smoothed scroll is still motion the user did not
+      // ask for.
       const reduced = matchMedia('(prefers-reduced-motion: reduce)')
       if (!reduced.matches) {
         const { default: Lenis } = await import('lenis')

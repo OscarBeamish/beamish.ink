@@ -1,5 +1,5 @@
 /*
- * Contents — Beamish
+ * Contents: Beamish
  * https://beamish.ink/components/contents
  *
  * Vue build of the full-viewport index. Same decision as the React one: the

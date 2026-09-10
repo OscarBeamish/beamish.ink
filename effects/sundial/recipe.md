@@ -1,26 +1,26 @@
 ## What it is
 
-Sundial is a still life: seven matte forms standing on paper, lit by a single sun
-that makes one complete circuit over the loop. The forms never move. The subject
-is the shadows — they lengthen, swing round, cross each other and arrive back
-exactly where they started.
+Sundial is a still life. Seven matte forms stand on paper, lit by one sun that
+makes a complete circuit over the loop. The forms never move. The shadows are the
+subject: they lengthen, swing round, cross each other, and arrive back exactly
+where they started.
 
 It is a real three.js scene. A perspective camera, seven meshes, standard
-materials, a directional light with a shadow map, and a bounce light standing in
-for light coming back off the paper. Not a full-bleed shader pretending to be
+materials, a directional light with a shadow map, and a dim bounce light standing
+in for light coming back off the paper. Not a full-bleed shader pretending to be
 three-dimensional.
 
 The paper is never lit. It is the scene background, and the ground plane is a
-`ShadowMaterial` that draws nothing but the shadow. That is why the paper comes
-out exactly the colour you asked for instead of the warm grey a lit plane gives
-you at a grazing sun angle.
+`ShadowMaterial` that draws nothing but the shadow. A lit plane picks up the sun
+at a grazing angle and lands around 85% of its own colour, which on warm paper is
+a warm grey. This way the paper comes out the colour you asked for.
 
-Because the forms sit in the middle and the sun keeps the edges clear, there is
-room for a headline over the top of it. That is what it is for.
+The forms sit in the middle and the sun keeps the edges clear, so there is room
+for a headline over the top. That is what it is for.
 
 ## Wiring
 
-**Plain HTML.** three.js must already be available to your build — this file
+**Plain HTML.** three.js must already be available to your build. This file
 imports it and does not bundle it.
 
 ```html
@@ -36,9 +36,9 @@ imports it and does not bundle it.
 </script>
 ```
 
-**React.** Start in an effect, destroy in its cleanup. In StrictMode the effect
-runs twice in development; that is fine, because `destroy()` fully releases the
-context — which is exactly the case StrictMode exists to catch.
+**React.** Start in an effect. Destroy in its cleanup. StrictMode runs the effect
+twice in development. That is fine, because `destroy()` fully releases the
+context, which is the case StrictMode exists to catch.
 
 ```tsx
 import { useEffect, useRef } from 'react'
@@ -58,7 +58,7 @@ export function Hero() {
 }
 ```
 
-Do not put option values in the dependency array — that tears the WebGL context
+Do not put option values in the dependency array. That tears the WebGL context
 down and rebuilds the whole scene on every keystroke. Call `update()` instead:
 
 ```tsx
@@ -92,20 +92,21 @@ onBeforeUnmount(() => sundial?.destroy())
 </template>
 ```
 
-**Astro.** Nothing special is needed. Use the React or Vue file as an island with
-`client:visible`, or call `createSundial` from a plain `<script>` in the page —
-the core is a standard ES module.
+**Astro.** Nothing extra is required. Use the React or Vue file as an island with
+`client:visible`, or call `createSundial` from a plain `<script>` in the page. The
+core is a standard ES module.
 
 ## Cleanup and SSR
 
-`destroy()` disposes every geometry, material and shadow map, disposes the
-three.js renderer, then releases the WebGL context itself. Call it. A page that
-mounts and unmounts scenes without destroying them will hit the browser's context
-limit — sixteen contexts *or* sixteen million pixels, whichever comes first — and
-the browser starts killing the oldest one.
+Call `destroy()`. It disposes every geometry, material and shadow map, disposes
+the three.js renderer, then releases the WebGL context itself.
 
-None of this can run on the server. `createSundial` touches `document` and
-`matchMedia` at call time, so it must be inside `useEffect`, `onMounted`, or a
+A page that mounts and unmounts scenes without destroying them will hit the
+browser's context limit, which is 16 contexts or 16,777,216 pixels, whichever
+runs out first. Past that the browser starts killing the oldest context.
+
+None of this runs on the server. `createSundial` touches `document` and
+`matchMedia` at call time. Put the call inside `useEffect`, `onMounted`, or a
 `client:*` island. Next.js App Router needs `'use client'` at the top of the
 component file.
 
@@ -114,20 +115,21 @@ is hidden, so the shadow map is not being redrawn behind a modal.
 
 ## Pausing
 
-WCAG 2.2.2 is Level A and it applies to this: content that moves for more than
-five seconds must be pausable. `stop()` and `start()` are on the handle for
-exactly that reason. Surface them as a real control in your own build — a small
-button in the corner is enough — rather than assuming reduced motion covers it.
-It does not; plenty of people who need a pause button have not set that
-preference.
+WCAG 2.2.2 is Level A and it applies here. Content that moves for more than five
+seconds must be pausable. `stop()` and `start()` are on the handle for that.
+Surface them as a real control in your own build. A small button in the corner is
+enough.
+
+Reduced motion does not cover this. Plenty of people who need a pause button have
+not set that preference.
 
 ## Reduced motion
 
-Handled in the runtime, with a live `matchMedia` listener so toggling the OS
+Handled in the runtime with a live `matchMedia` listener, so changing the OS
 setting mid-session takes effect without a reload. Under reduced motion the loop
-never starts and a single frame is drawn instead — the one at `reducedMotionTime`.
+never starts and one frame is drawn instead, the one at `reducedMotionTime`.
 
-This effect degrades better than most: one frame of it is a photograph, which is
+This effect degrades better than most. One frame of it is a photograph, which is
 a perfectly good thing for a hero to be. Choose a sun angle where the shadows
 rake across the composition rather than hiding behind the forms.
 
@@ -135,15 +137,14 @@ rake across the composition rather than hiding behind the forms.
 
 1. **Not installing three.js, or installing a version older than 0.160.** This
    file imports `three` and does not bundle it. `ShadowMaterial`, `SRGBColorSpace`
-   and the current light-intensity model all need a reasonably recent version; on
-   an old one the scene renders about twice as dark and nothing obviously errors.
+   and the current light-intensity model all need a recent version. On an old one
+   the scene renders about twice as dark and nothing obviously errors.
 
 2. **Mounting into an element with no height.** The canvas is `width: 100%;
-   height: 100%`, so a `<div>` with no content and no CSS height is zero pixels
-   tall and you get nothing. Give the host an `aspect-ratio` or an explicit
-   height.
+   height: 100%`. A `<div>` with no content and no CSS height is zero pixels tall
+   and renders nothing. Give the host an `aspect-ratio` or an explicit height.
 
-3. **Raising `elevation` to "see it better".** Above about 60 degrees the sun is
-   nearly overhead, the shadows vanish underneath the forms, and the whole scene
-   goes flat and dull. If it looks too dark, raise `shadow` towards 0.2 or lighten
-   `stone` — do not move the sun up.
+3. **Raising `elevation` to see it better.** Above about 60 degrees the sun is
+   nearly overhead, the shadows vanish underneath the forms, and the scene goes
+   flat. If it looks too dark, lower `shadow` towards 0.2 or lighten `stone`. Do
+   not move the sun up.

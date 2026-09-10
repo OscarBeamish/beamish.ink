@@ -1,6 +1,6 @@
 /*
  * Everything the site knows about an item comes from here, and everything here
- * comes from .generated — which comes from meta.json and recipe.md. Nothing on a
+ * comes from .generated, which comes from meta.json and recipe.md. Nothing on a
  * page is hand-maintained a second time.
  */
 
@@ -23,7 +23,7 @@ export type Item = Meta & {
  *
  * The release order is generate → tag → build, so the generator cannot know the
  * tag; it writes {{PIN}} and this resolves it. A build with no tags at all falls
- * back to the commit SHA, which is still immutable — the one thing a prompt URL
+ * back to the commit SHA, which is still immutable. The one thing a prompt URL
  * must never be is `main`.
  */
 export function resolvePin(): string {
@@ -48,7 +48,7 @@ export const PIN = resolvePin()
 export function loadCatalogue(): Item[] {
   const indexPath = path.join(GENERATED, 'index.json')
   if (!existsSync(indexPath)) {
-    throw new Error('.generated/index.json is missing — run `pnpm generate` first')
+    throw new Error('.generated/index.json is missing. Run `pnpm generate` first')
   }
   return JSON.parse(readFileSync(indexPath, 'utf8')) as Item[]
 }
@@ -57,7 +57,7 @@ export function loadCatalogue(): Item[] {
 export function loadPrompts(slug: string): { linked: string; inlined: string } {
   const read = (name: string) => {
     const file = path.join(GENERATED, slug, name)
-    if (!existsSync(file)) throw new Error(`${slug}: ${name} is missing — run \`pnpm generate\``)
+    if (!existsSync(file)) throw new Error(`${slug}: ${name} is missing. Run \`pnpm generate\``)
     return readFileSync(file, 'utf8').replaceAll('{{PIN}}', PIN)
   }
   return { linked: read('prompt.md'), inlined: read('prompt.inline.md') }

@@ -3,12 +3,12 @@
  * One live demo, and never more than one on a page.
  *
  * Chromium allows 16 WebGL contexts *or* 16 × 1024 × 1024 pixels, whichever
- * comes first, and forcibly loses the oldest past either. A 600×400 panel at 2×
+ * comes first, and forcibly loses the oldest past either. A 600x400 panel at 2x
  * DPR is 960,000 pixels, so seventeen live panels exhaust the budget. That is why
  * the index page is video posters and this component exists once per item page.
  *
- * Every ambient effect gets a visible pause control: WCAG 2.2.2 Pause, Stop, Hide
- * is Level A, and it describes every background in this library.
+ * Every ambient effect gets a visible pause control. WCAG 2.2.2 Pause, Stop,
+ * Hide is Level A, and it describes every background in this library.
  */
 
 type Props = {
@@ -58,14 +58,14 @@ const { slug, tier, instruction, oneShot } = Astro.props
   {
     /*
      * Without a line telling people what to do, half of these look broken to
-     * anyone who does not already know to interact. Non-negotiable — and real
-     * DOM rather than burnt into the video, so it survives reduced motion and a
+     * anyone who does not already know to interact. Non-negotiable, and real DOM
+     * rather than burnt into the video, so it survives reduced motion and a
      * poster that has not loaded.
      */
   }
   <figcaption class="tag mt-3 flex items-center gap-2">
     <span aria-hidden="true">↳</span>
-    {instruction ?? 'ambient — nothing to do'}
+    {instruction ?? 'ambient, nothing to do'}
   </figcaption>
 </figure>
 
@@ -74,7 +74,7 @@ const { slug, tier, instruction, oneShot } = Astro.props
 
   type Mounted = { stop(): void; start(): void; destroy(): void }
 
-  // Explicit, not glob: five items is a list a person can read, and it keeps the
+  // Explicit, not glob. Five items is a list a person can read, and it keeps the
   // bundle honest about what each page actually pulls in.
   const EFFECTS: Record<string, () => Promise<{ default: (el: HTMLElement) => EffectHandle }>> = {
     overprint: () => import('@items/effects/overprint/core'),

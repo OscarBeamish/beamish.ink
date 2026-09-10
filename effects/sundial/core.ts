@@ -1,12 +1,12 @@
 /*
- * Sundial — Beamish
+ * Sundial: Beamish
  * https://beamish.ink/effects/sundial
  *
  * A still life of matte forms standing on paper, lit by one sun that travels a
  * full circuit over the loop. The subject is the shadows, not the objects: they
  * lengthen, sweep and cross each other, and come back exactly where they began.
  *
- * A real three.js scene — perspective camera, meshes, materials, a shadow map —
+ * A real three.js scene: perspective camera, meshes, materials, a shadow map,
  * rather than a full-bleed shader pretending to be one.
  */
 
@@ -22,11 +22,11 @@ export type SundialOptions = BaseOptions & {
   accent: string
   /** Sun height above the horizon, degrees. Low means long shadows. */
   elevation: number
-  /** Shadow edge softness, 0–1. */
+  /** Shadow edge softness, 0 to 1. */
   softness: number
-  /** How dark the shadows fall on the paper, 0–1. */
+  /** How dark the shadows fall on the paper, 0 to 1. */
   shadow: number
-  /** How much of the frame the group fills, 0–1. */
+  /** How much of the frame the group fills, 0 to 1. */
   zoom: number
   /** Camera height, 0 is eye level with the paper, 1 is looking straight down. */
   tilt: number
@@ -166,7 +166,7 @@ class SundialSurface implements Surface<SundialOptions> {
     /*
      * The ground is a ShadowMaterial, not a lit surface. A lit plane picks up the
      * sun at a grazing angle and comes out somewhere around 85% of its own
-     * colour — a warm grey, not paper. This way the paper is exactly the colour
+     * colour, a warm grey, not paper. This way the paper is exactly the colour
      * asked for and the shadow is the only thing drawn on it, which is both more
      * accurate and far easier to art-direct.
      */
@@ -288,7 +288,7 @@ class SundialSurface implements Surface<SundialOptions> {
 }
 
 /**
- * Mount Sundial into `el`. The element needs a size — give it width and height
+ * Mount Sundial into `el`. The element needs a size. Give it width and height
  * in CSS, not just content.
  *
  * ```ts

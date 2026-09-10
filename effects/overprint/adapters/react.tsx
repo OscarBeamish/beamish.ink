@@ -1,5 +1,5 @@
 /*
- * React adapter for Overprint. Thin on purpose — it wires a ref to the core and
+ * React adapter for Overprint. Thin on purpose. It wires a ref to the core and
  * nothing else. If you find yourself adding logic here, it belongs in core.ts.
  */
 
@@ -11,7 +11,7 @@ import type { EffectHandle } from '../../../shared/runtime'
 
 export type OverprintProps = Partial<OverprintOptions> & {
   className?: string
-  /** Set false to mount without starting — useful behind your own pause control. */
+  /** Set false to mount without starting. Useful behind your own pause control. */
   autoStart?: boolean
 }
 

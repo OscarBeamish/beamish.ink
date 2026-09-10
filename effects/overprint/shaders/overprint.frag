@@ -2,13 +2,13 @@
 precision highp float;
 
 /*
- * Overprint — two ink plates drifting out of registration behind a halftone
+ * Overprint: two ink plates drifting out of registration behind a halftone
  * screen, composited the way ink actually behaves on paper: multiplied, not
  * added. Additive light on a dark canvas is the easy version of this and it is
  * the one everybody else ships.
  *
- * Everything animates on a circle in noise space, so the loop is exactly
- * periodic over u_period and the recorded video is seamless with no crossfade.
+ * Everything animates on a circle in noise space. The loop is exactly periodic
+ * over u_period, so the recorded video joins back on itself with no crossfade.
  */
 
 uniform vec2  u_resolution;  // drawing buffer, device px
@@ -86,7 +86,7 @@ float halftone(vec2 cssPx, float angle, float value, float freq) {
 
 /*
  * fbm lands in roughly -0.5..0.5 and clusters hard around the middle. Left alone
- * that maps to one flat mid-tone across the whole canvas — a rug, not a print.
+ * that maps to one flat mid-tone across the whole canvas. A rug, not a print.
  * Amplify first, then window: the amplification buys real highlights where the
  * paper shows through, and real solids.
  */
@@ -95,9 +95,9 @@ float tone(float raw, float coverage) {
   float edge = 1.0 - coverage;
   float t = smoothstep(edge - 0.30, edge + 0.30, v);
   // Clean the toe. Without this the highlights keep a haze of sub-pixel dots
-  // that reads as dirt on the paper rather than as a light tone — and, being
-  // fine unpredictable detail, costs more in the encoded video than the entire
-  // rest of the frame.
+  // that reads as dirt on the paper rather than as a light tone. Being fine
+  // unpredictable detail, it costs more in the encoded video than the whole rest
+  // of the frame.
   return t * smoothstep(0.03, 0.11, t);
 }
 
@@ -143,7 +143,7 @@ void main() {
   //
   // Two-pixel blocks rather than one. At 2x DPR a one-pixel grain is below what
   // the eye resolves anyway, and it is the single most expensive thing in the
-  // frame for a video codec — pure noise, no structure to predict.
+  // frame for a video codec: pure noise, no structure to predict.
   float tooth = hash12(floor(cssPx * 0.5)) - 0.5;
   col += tooth * 0.055 * u_grain;
 

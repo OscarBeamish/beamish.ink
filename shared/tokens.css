@@ -16,21 +16,21 @@
   --label-d: 54, 54, 48;                     /* desaturated, every alpha step below */
   --background-deep: 251, 250, 244;          /* warm paper */
   --background-elevated: #efede7;            /* panels, demo surrounds */
-  --line: rgba(var(--label-d), 0.1);         /* 1.19:1 — dividers only */
-  --control-line: rgba(var(--label-d), 0.7); /* 4.71:1 — pressable edges */
+  --line: rgba(var(--label-d), 0.1);         /* 1.19:1, dividers only */
+  --control-line: rgba(var(--label-d), 0.7); /* 4.71:1, pressable edges */
   --accent: #c44400;                         /* white on it = 5.03:1 */
   --selection-bg: #c44400;
 
   --label-1: rgba(var(--label), 1);          /* 20.08:1 */
   --label-2: rgba(var(--label-d), 0.78);     /* 5.95:1 */
   --label-3: rgba(var(--label-d), 0.7);      /* 4.71:1 */
-  --label-4: rgba(var(--label-d), 0.16);     /* 1.33:1 — NEVER text */
+  --label-4: rgba(var(--label-d), 0.16);     /* 1.33:1, NEVER text */
 
   --ease-66: cubic-bezier(0.66, 0, 0.01, 1);
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* Mono is the default face. The display sans is for headings and real prose
-     only — see AGENTS.md. */
+     only. See AGENTS.md. */
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-display: 'Archivo', ui-sans-serif, system-ui, sans-serif;
 }

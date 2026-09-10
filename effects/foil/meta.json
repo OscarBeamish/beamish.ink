@@ -10,7 +10,7 @@
     "webgl": "webgl2",
     "notes": [
       "WebGL2 for gl_VertexID; there is no WebGL1 fallback and none is planned",
-      "Pointer-driven, but never pointer-dependent — with no cursor the light orbits on its own, so it works on touch and under reduced motion"
+      "Pointer-driven, never pointer-dependent. With no cursor the light orbits on its own, so it works on touch and under reduced motion"
     ]
   },
   "perf": {
@@ -109,7 +109,7 @@
       "min": 0,
       "max": 1,
       "step": 0.01,
-      "description": "Paper tooth. Static by design — animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent."
+      "description": "Paper tooth. Static by design. Animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent."
     },
     "period": {
       "type": "number",
@@ -119,7 +119,7 @@
       "step": 1,
       "unit": "s",
       "sensible": [5, 20],
-      "description": "Seconds for one orbit of the idle light — the motion used when no pointer is present. Exactly periodic, so the loop has no seam."
+      "description": "Seconds for one orbit of the idle light, which is the motion used when no pointer is present. Exactly periodic, so the loop has no seam."
     },
     "reducedMotionTime": {
       "type": "number",
@@ -131,7 +131,7 @@
       "description": "The single frame shown when the user prefers reduced motion. Pick a light angle where the relief is legible."
     }
   },
-  "instruction": "move the cursor — it carries the light",
+  "instruction": "move the cursor. it carries the light",
   "oneShot": false,
   "cursor": {
     "duration": 5,

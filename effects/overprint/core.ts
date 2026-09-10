@@ -1,5 +1,5 @@
 /*
- * Overprint — Beamish
+ * Overprint: Beamish
  * https://beamish.ink/effects/overprint
  *
  * Two ink plates drifting out of registration behind a halftone screen, on warm
@@ -10,7 +10,7 @@
  * out how a program gets compiled.
  *
  * The shader source is generated from shaders/overprint.frag and
- * shaders/overprint.vert — edit those, then run `pnpm generate`. The markers are
+ * shaders/overprint.vert. Edit those, then run `pnpm generate`. The markers are
  * load-bearing.
  */
 
@@ -31,11 +31,11 @@ export type OverprintOptions = BaseOptions & {
   angleA: number
   /** Screen angle of plate B, degrees. Keep ~30 from angleA or the plates moiré. */
   angleB: number
-  /** Registration error in CSS pixels — how far the plates slide apart. */
+  /** Registration error in CSS pixels: how far the plates slide apart. */
   drift: number
-  /** Ink density, 0–1. */
+  /** Ink density, 0 to 1. */
   coverage: number
-  /** Paper tooth, 0–1. Static, not film grain. */
+  /** Paper tooth, 0 to 1. Static, not film grain. */
   grain: number
   /** Seconds for one full loop. The animation is exactly periodic over this. */
   period: number
@@ -63,7 +63,7 @@ export const overprintDefaults: OverprintOptions = {
 // beamish:shader-begin shaders/overprint.vert
 const VERT = `#version 300 es
 
-// Full-screen triangle from gl_VertexID — no buffers, no attributes. Bind an
+// Full-screen triangle from gl_VertexID. No buffers, no attributes. Bind an
 // empty VAO and drawArrays(TRIANGLES, 0, 3).
 
 void main() {
@@ -78,7 +78,7 @@ const FRAG = `#version 300 es
 precision highp float;
 
 /*
- * Overprint — two ink plates drifting out of registration behind a halftone
+ * Overprint: two ink plates drifting out of registration behind a halftone
  * screen, composited the way ink actually behaves on paper: multiplied, not
  * added. Additive light on a dark canvas is the easy version of this and it is
  * the one everybody else ships.
@@ -162,7 +162,7 @@ float halftone(vec2 cssPx, float angle, float value, float freq) {
 
 /*
  * fbm lands in roughly -0.5..0.5 and clusters hard around the middle. Left alone
- * that maps to one flat mid-tone across the whole canvas — a rug, not a print.
+ * that maps to one flat mid-tone across the whole canvas. A rug, not a print.
  * Amplify first, then window: the amplification buys real highlights where the
  * paper shows through, and real solids.
  */
@@ -171,8 +171,8 @@ float tone(float raw, float coverage) {
   float edge = 1.0 - coverage;
   float t = smoothstep(edge - 0.30, edge + 0.30, v);
   // Clean the toe. Without this the highlights keep a haze of sub-pixel dots
-  // that reads as dirt on the paper rather than as a light tone — and, being
-  // fine unpredictable detail, costs more in the encoded video than the entire
+  // that reads as dirt on the paper rather than as a light tone. Being fine
+  // unpredictable detail, it costs more in the encoded video than the entire
   // rest of the frame.
   return t * smoothstep(0.03, 0.11, t);
 }
@@ -219,7 +219,7 @@ void main() {
   //
   // Two-pixel blocks rather than one. At 2x DPR a one-pixel grain is below what
   // the eye resolves anyway, and it is the single most expensive thing in the
-  // frame for a video codec — pure noise, no structure to predict.
+  // frame for a video codec: pure noise, no structure to predict.
   float tooth = hash12(floor(cssPx * 0.5)) - 0.5;
   col += tooth * 0.055 * u_grain;
 
@@ -247,7 +247,7 @@ const UNIFORMS = [
 
 type UniformName = (typeof UNIFORMS)[number]
 
-/** '#rgb' | '#rrggbb' | 'rgb(r g b)' → linear-ish 0–1 triple. */
+/** '#rgb' | '#rrggbb' | 'rgb(r g b)' → linear-ish 0 to 1 triple. */
 function parseColor(input: string): [number, number, number] {
   const value = input.trim()
   if (value.startsWith('#')) {
@@ -376,7 +376,7 @@ class OverprintSurface implements Surface<OverprintOptions> {
 }
 
 /**
- * Mount Overprint into `el`. The element needs a size — give it width and height
+ * Mount Overprint into `el`. The element needs a size. Give it width and height
  * in CSS, not just content.
  *
  * ```ts

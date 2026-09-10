@@ -1,7 +1,7 @@
 ---
 /*
  * A card on the wall. Poster by default, video on hover, and never a live
- * context — the index page cannot host live demos and stay inside the browser's
+ * context. The index page cannot host live demos and stay inside the browser's
  * WebGL budget. See DemoPanel.astro.
  */
 import { loadMedia, type Item } from '../lib/catalogue'
@@ -32,7 +32,7 @@ const href = `/${item.group}/${item.slug}`
         />
       ) : (
         <div class="text-l3 absolute inset-0 grid place-items-center text-[0.7rem] tracking-[0.1em] uppercase">
-          not yet recorded
+          no video yet
         </div>
       )
     }
@@ -67,7 +67,7 @@ const href = `/${item.group}/${item.slug}`
 <script>
   /*
    * Hover plays, leaving pauses and rewinds. Under reduced motion the video is
-   * never started at all — the poster is the whole experience, and it is a
+   * never started at all. The poster is the whole experience, and it is a
    * composed frame rather than a blank.
    */
   const reduced = matchMedia('(prefers-reduced-motion: reduce)')

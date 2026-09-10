@@ -30,14 +30,14 @@ export type Size = {
 }
 
 export type Pointer = {
-  /** 0–1 across the element, origin top-left. Centre until first move. */
+  /** 0 to 1 across the element, origin top-left. Centre until first move. */
   x: number
   y: number
   /** False until the pointer has entered, so effects can idle sensibly. */
   active: boolean
 }
 
-/** One sample of a scripted cursor path. `t` is seconds; x/y are 0–1. */
+/** One sample of a scripted cursor path. `t` is seconds; x/y are 0 to 1. */
 export type PointerKey = { t: number; x: number; y: number }
 
 export type SurfaceContext = {
@@ -55,8 +55,8 @@ export interface Surface<O> {
   /**
    * Draw one frame. `t` is absolute seconds from the start of the loop.
    *
-   * Must be pure in `t` — no integrating against the previous frame — or the
-   * recorder cannot produce a seamless loop and `renderAtTime` breaks.
+   * Must be pure in `t`. Do not integrate against the previous frame, or the
+   * recorder cannot produce a clean loop and `renderAtTime` breaks.
    */
   render(t: number, opts: O, pointer: Pointer): void
   teardown(): void
@@ -67,7 +67,7 @@ export interface Surface<O> {
 export type BaseOptions = {
   /**
    * Scripted cursor path. When set, the live pointer is ignored and the pointer
-   * is sampled from this path at the current time — which is what makes
+   * is sampled from this path at the current time, which is what makes
    * pointer-driven effects deterministic for the recorder.
    */
   pointerPath?: PointerKey[]
@@ -209,7 +209,7 @@ export function mount<O extends BaseOptions>(
     ensureSurface()
     if (reduced) {
       // WCAG 2.3.3: no loop at all. Still show a composed frame rather than a
-      // blank panel — see reducedMotionTime.
+      // blank panel. See reducedMotionTime.
       draw(opts.reducedMotionTime ?? 0)
       return
     }

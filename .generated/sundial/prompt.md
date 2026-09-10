@@ -5,7 +5,7 @@ You are adding **Sundial** from Beamish to this project.
 
 Beamish is not a package and there is nothing to install from npm. The source
 lives in a public repo; you fetch the files, put them in this project, and wire
-them in. Adapt them to whatever this project already uses — that is the point of
+them in. Adapt them to whatever this project already uses. That is the point of
 shipping it this way.
 
 Assume you have not seen this library before. Everything you need is below.
@@ -14,7 +14,7 @@ Assume you have not seen this library before. Everything you need is below.
 
 - **npm dependencies:** `three@>=0.160.0`
 - WebGL1 or better
-- three.js must already be a dependency of the project — it is not bundled
+- three.js must already be a dependency of the project. It is not bundled
 - A 2048² shadow map is allocated; on a very old integrated GPU drop it to 1024
 - Falls back to a still frame under prefers-reduced-motion, handled in the runtime
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
@@ -24,7 +24,7 @@ Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
 ## 1. Fetch these files
 
 Fetch each URL and save it at the path given. Adjust the paths to match this
-project's conventions, but keep them in the same relative arrangement — the
+project's conventions, but keep them in the same relative arrangement. The
 import between them is relative.
 
 | Save as | Fetch from |
@@ -32,33 +32,33 @@ import between them is relative.
 | `src/beamish/shared/runtime.ts` | https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/shared/runtime.ts |
 | `src/beamish/effects/sundial/core.ts` | https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/effects/sundial/core.ts |
 
-If you cannot fetch URLs, say so rather than writing the file from memory — there
-is a version of this prompt with the source inlined, and guessing at a shader
-produces something that compiles and looks wrong.
+If you cannot fetch these URLs, say so. Do not write the file from memory. There
+is a version of this prompt with the source inlined, and a guessed shader
+compiles and looks wrong.
 
 ## 2. What it is
 
-Sundial is a still life: seven matte forms standing on paper, lit by a single sun
-that makes one complete circuit over the loop. The forms never move. The subject
-is the shadows — they lengthen, swing round, cross each other and arrive back
-exactly where they started.
+Sundial is a still life. Seven matte forms stand on paper, lit by one sun that
+makes a complete circuit over the loop. The forms never move. The shadows are the
+subject: they lengthen, swing round, cross each other, and arrive back exactly
+where they started.
 
 It is a real three.js scene. A perspective camera, seven meshes, standard
-materials, a directional light with a shadow map, and a bounce light standing in
-for light coming back off the paper. Not a full-bleed shader pretending to be
+materials, a directional light with a shadow map, and a dim bounce light standing
+in for light coming back off the paper. Not a full-bleed shader pretending to be
 three-dimensional.
 
 The paper is never lit. It is the scene background, and the ground plane is a
-`ShadowMaterial` that draws nothing but the shadow. That is why the paper comes
-out exactly the colour you asked for instead of the warm grey a lit plane gives
-you at a grazing sun angle.
+`ShadowMaterial` that draws nothing but the shadow. A lit plane picks up the sun
+at a grazing angle and lands around 85% of its own colour, which on warm paper is
+a warm grey. This way the paper comes out the colour you asked for.
 
-Because the forms sit in the middle and the sun keeps the edges clear, there is
-room for a headline over the top of it. That is what it is for.
+The forms sit in the middle and the sun keeps the edges clear, so there is room
+for a headline over the top. That is what it is for.
 
 ## 3. Wire it in
 
-**Plain HTML.** three.js must already be available to your build — this file
+**Plain HTML.** three.js must already be available to your build. This file
 imports it and does not bundle it.
 
 ```html
@@ -74,9 +74,9 @@ imports it and does not bundle it.
 </script>
 ```
 
-**React.** Start in an effect, destroy in its cleanup. In StrictMode the effect
-runs twice in development; that is fine, because `destroy()` fully releases the
-context — which is exactly the case StrictMode exists to catch.
+**React.** Start in an effect. Destroy in its cleanup. StrictMode runs the effect
+twice in development. That is fine, because `destroy()` fully releases the
+context, which is the case StrictMode exists to catch.
 
 ```tsx
 import { useEffect, useRef } from 'react'
@@ -96,7 +96,7 @@ export function Hero() {
 }
 ```
 
-Do not put option values in the dependency array — that tears the WebGL context
+Do not put option values in the dependency array. That tears the WebGL context
 down and rebuilds the whole scene on every keystroke. Call `update()` instead:
 
 ```tsx
@@ -130,9 +130,9 @@ onBeforeUnmount(() => sundial?.destroy())
 </template>
 ```
 
-**Astro.** Nothing special is needed. Use the React or Vue file as an island with
-`client:visible`, or call `createSundial` from a plain `<script>` in the page —
-the core is a standard ES module.
+**Astro.** Nothing extra is required. Use the React or Vue file as an island with
+`client:visible`, or call `createSundial` from a plain `<script>` in the page. The
+core is a standard ES module.
 
 ## 4. Options
 
@@ -144,24 +144,25 @@ as the second argument to the create function; anything omitted takes its defaul
 | `paper` | color | `#fbfaf4` | any CSS hex | The paper the forms stand on. Match it to your page background or the panel reads as a pasted-in rectangle. |
 | `stone` | color | `#f5f2e9` | any CSS hex | The forms. Slightly lighter than the paper is what makes them read as objects standing on it rather than holes cut in it. |
 | `accent` | color | `#c44400` | any CSS hex | One form carries colour. This is the obvious place to put your own brand colour. |
-| `elevation` | number | `30` | 8 – 80 deg (looks right between 22 and 45) | How high the sun sits. Low is long dramatic shadows; above about 60 the shadows disappear under the objects and the whole thing goes flat. |
-| `softness` | number | `0.68` | 0 – 1 (looks right between 0.35 and 0.75) | Shadow edge softness. Zero is a hard midday edge, one is heavy overcast. |
-| `shadow` | number | `0.3` | 0 – 1 (looks right between 0.18 and 0.45) | How dark the shadows fall on the paper. The paper itself is never lit — it stays exactly the colour you set — so this is the only thing drawn on it. |
-| `zoom` | number | `0.66` | 0.3 – 1.6 (looks right between 0.6 and 1) | How much of the frame the group fills. |
-| `tilt` | number | `0.52` | 0 – 1 (looks right between 0.2 and 0.55) | Camera height. Zero is eye level with the paper, one looks straight down. Around 0.35 is a table seen from a chair. |
-| `period` | number | `5` | 2 – 120 s (looks right between 5 and 30) | Seconds for one full circuit of the sun. The default is 5 so the preview video is a whole cycle; 20–30 is right for something you leave running behind a page. |
-| `reducedMotionTime` | number | `1.1` | 0 – 120 s | The single frame shown when the user prefers reduced motion. Pick a sun angle that composes — the still is the whole effect for those users. |
+| `elevation` | number | `30` | 8 to 80 deg (looks right between 22 and 45) | How high the sun sits. Low is long dramatic shadows; above about 60 the shadows disappear under the objects and the whole thing goes flat. |
+| `softness` | number | `0.68` | 0 to 1 (looks right between 0.35 and 0.75) | Shadow edge softness. Zero is a hard midday edge, one is heavy overcast. |
+| `shadow` | number | `0.3` | 0 to 1 (looks right between 0.18 and 0.45) | How dark the shadows fall on the paper. The paper is never lit. It stays exactly the colour you set, so the shadow is the only thing drawn on it. |
+| `zoom` | number | `0.66` | 0.3 to 1.6 (looks right between 0.6 and 1) | How much of the frame the group fills. |
+| `tilt` | number | `0.52` | 0 to 1 (looks right between 0.2 and 0.55) | Camera height. Zero is eye level with the paper, one looks straight down. Around 0.35 is a table seen from a chair. |
+| `period` | number | `5` | 2 to 120 s (looks right between 5 and 30) | Seconds for one full circuit of the sun. The default is 5 so the preview video is a whole cycle. Use 20 to 30 for something you leave running behind a page. |
+| `reducedMotionTime` | number | `1.1` | 0 to 120 s | The single frame shown when the user prefers reduced motion. Pick a sun angle that composes. For those users the still is the whole effect. |
 
 ## 5. Cleanup and SSR
 
-`destroy()` disposes every geometry, material and shadow map, disposes the
-three.js renderer, then releases the WebGL context itself. Call it. A page that
-mounts and unmounts scenes without destroying them will hit the browser's context
-limit — sixteen contexts *or* sixteen million pixels, whichever comes first — and
-the browser starts killing the oldest one.
+Call `destroy()`. It disposes every geometry, material and shadow map, disposes
+the three.js renderer, then releases the WebGL context itself.
 
-None of this can run on the server. `createSundial` touches `document` and
-`matchMedia` at call time, so it must be inside `useEffect`, `onMounted`, or a
+A page that mounts and unmounts scenes without destroying them will hit the
+browser's context limit, which is 16 contexts or 16,777,216 pixels, whichever
+runs out first. Past that the browser starts killing the oldest context.
+
+None of this runs on the server. `createSundial` touches `document` and
+`matchMedia` at call time. Put the call inside `useEffect`, `onMounted`, or a
 `client:*` island. Next.js App Router needs `'use client'` at the top of the
 component file.
 
@@ -170,18 +171,19 @@ is hidden, so the shadow map is not being redrawn behind a modal.
 
 ## 6. Pausing and reduced motion
 
-WCAG 2.2.2 is Level A and it applies to this: content that moves for more than
-five seconds must be pausable. `stop()` and `start()` are on the handle for
-exactly that reason. Surface them as a real control in your own build — a small
-button in the corner is enough — rather than assuming reduced motion covers it.
-It does not; plenty of people who need a pause button have not set that
-preference.
+WCAG 2.2.2 is Level A and it applies here. Content that moves for more than five
+seconds must be pausable. `stop()` and `start()` are on the handle for that.
+Surface them as a real control in your own build. A small button in the corner is
+enough.
 
-Handled in the runtime, with a live `matchMedia` listener so toggling the OS
+Reduced motion does not cover this. Plenty of people who need a pause button have
+not set that preference.
+
+Handled in the runtime with a live `matchMedia` listener, so changing the OS
 setting mid-session takes effect without a reload. Under reduced motion the loop
-never starts and a single frame is drawn instead — the one at `reducedMotionTime`.
+never starts and one frame is drawn instead, the one at `reducedMotionTime`.
 
-This effect degrades better than most: one frame of it is a photograph, which is
+This effect degrades better than most. One frame of it is a photograph, which is
 a perfectly good thing for a hero to be. Choose a sun angle where the shadows
 rake across the composition rather than hiding behind the forms.
 
@@ -189,18 +191,17 @@ rake across the composition rather than hiding behind the forms.
 
 1. **Not installing three.js, or installing a version older than 0.160.** This
    file imports `three` and does not bundle it. `ShadowMaterial`, `SRGBColorSpace`
-   and the current light-intensity model all need a reasonably recent version; on
-   an old one the scene renders about twice as dark and nothing obviously errors.
+   and the current light-intensity model all need a recent version. On an old one
+   the scene renders about twice as dark and nothing obviously errors.
 
 2. **Mounting into an element with no height.** The canvas is `width: 100%;
-   height: 100%`, so a `<div>` with no content and no CSS height is zero pixels
-   tall and you get nothing. Give the host an `aspect-ratio` or an explicit
-   height.
+   height: 100%`. A `<div>` with no content and no CSS height is zero pixels tall
+   and renders nothing. Give the host an `aspect-ratio` or an explicit height.
 
-3. **Raising `elevation` to "see it better".** Above about 60 degrees the sun is
-   nearly overhead, the shadows vanish underneath the forms, and the whole scene
-   goes flat and dull. If it looks too dark, raise `shadow` towards 0.2 or lighten
-   `stone` — do not move the sun up.
+3. **Raising `elevation` to see it better.** Above about 60 degrees the sun is
+   nearly overhead, the shadows vanish underneath the forms, and the scene goes
+   flat. If it looks too dark, lower `shadow` towards 0.2 or lighten `stone`. Do
+   not move the sun up.
 
 ---
 

@@ -20,20 +20,20 @@ const options = Object.entries(item.options)
 
 const range = (spec: (typeof options)[number][1]) => {
   if (spec.type === 'number') {
-    const base = `${spec.min} – ${spec.max}${spec.unit ? ` ${spec.unit}` : ''}`
-    return spec.sensible ? `${base} · good: ${spec.sensible[0]}–${spec.sensible[1]}` : base
+    const base = `${spec.min} to ${spec.max}${spec.unit ? ` ${spec.unit}` : ''}`
+    return spec.sensible ? `${base}, good: ${spec.sensible[0]} to ${spec.sensible[1]}` : base
   }
   if (spec.type === 'enum') return (spec.values ?? []).join(' · ')
   if (spec.type === 'boolean') return 'true · false'
   if (spec.type === 'color') return 'css colour'
-  return '—'
+  return 'any value'
 }
 
 const deps = Object.entries(item.peerDependencies)
 ---
 
 <Base
-  title={`${item.name} — Beamish`}
+  title={`${item.name}: Beamish`}
   description={item.description}
   image={media.poster}
   video={media.mp4}
@@ -114,7 +114,7 @@ const deps = Object.entries(item.peerDependencies)
               <div>
                 <dt class="tag">Concept credit</dt>
                 <dd class="text-l2 mt-1">
-                  {item.credit.what} — <a href={item.credit.url}>{item.credit.author}</a>
+                  {item.credit.what}, <a href={item.credit.url}>{item.credit.author}</a>
                 </dd>
               </div>
             )

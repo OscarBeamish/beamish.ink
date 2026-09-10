@@ -55,7 +55,7 @@
       "label": {
         "type": "string",
         "default": "Index",
-        "description": "The trigger's text, and the dialog's accessible name. Keep it a noun — it is read out as the name of the whole overlay."
+        "description": "The trigger's text, and the dialog's accessible name. Keep it a noun. It is read out as the name of the whole overlay."
       },
       "closeLabel": {
         "type": "string",
@@ -98,7 +98,7 @@
       ]
     },
     "group": "components",
-    "intro": "Contents is a full-viewport index: a small trigger, and an overlay that takes the\nwhole screen and lists everything in mono with hairline rules between the rows.\nThe rows cascade in on a 26ms stagger counted across every section, so the reveal\nreads as one movement down the page rather than several.\n\nThe overlay is a real `<dialog>` opened with `showModal()`. That is worth saying\nplainly, because it is the whole design: the browser then provides the focus\ntrap, Escape, the top layer, inerting the rest of the page, and returning focus\nto the trigger on close. Every one of those is something hand-rolled menus get\nsubtly wrong, and none of them is our code. There is no focus-trap library, no\nportal and no scroll-lock package.\n\nWhat is left is layout, type, and one transition."
+    "intro": "Contents is a full-viewport index: a small trigger, and an overlay that takes the\nwhole screen and lists everything in mono with hairline rules between the rows.\nThe rows cascade in on a 26ms stagger counted across every section, so the reveal\nreads as one movement down the page rather than several.\n\nThe overlay is a real `<dialog>` opened with `showModal()`. That is the whole\ndesign. The browser then provides the focus trap, Escape, the top layer,\ninerting the rest of the page, and returning focus to the trigger on close. Every\none of those is something hand-rolled menus get subtly wrong, and none of them is\nour code. There is no focus-trap library, no portal, and no scroll-lock package.\n\nWhat is left is layout, type, and one transition."
   },
   {
     "name": "Ember",
@@ -122,7 +122,7 @@
       "webgl": "none",
       "notes": [
         "Uses color-mix(); Chrome 111+, Safari 16.2+, Firefox 113+. Older browsers get the base colour with no hover shift, which is a graceful loss",
-        "No JavaScript animation at all — the motion is two CSS transitions"
+        "No JavaScript animation at all. The motion is two CSS transitions"
       ]
     },
     "perf": {
@@ -162,7 +162,7 @@
       "href": {
         "type": "string",
         "default": "",
-        "description": "Given an href it renders an <a>; without one it renders a <button type=\"button\">. Do not fake a link with a click handler — keyboard users and screen readers both notice."
+        "description": "Given an href it renders an <a>. Without one it renders a <button type=\"button\">. Do not fake a link with a click handler. Keyboard users and screen readers both notice."
       },
       "disabled": {
         "type": "boolean",
@@ -201,7 +201,7 @@
       ]
     },
     "group": "components",
-    "intro": "Ember is the action pill: mono, uppercase, 100px radius, with a single slow band\nof light crossing its face on hover. It is the one piece of the library that is\ndeliberately ordinary — a button that does not surprise anyone — because the\nsurprising things are meant to be the effects, and the button is meant to be the\nthing you press to get one.\n\nTwo tones. `solid` is the accent pill and belongs to the single most important\naction on a screen. `quiet` is the outlined secondary. If a page has two solid\nEmbers on it, one of them is wrong.\n\nIt renders a `<button>` by default and an `<a>` when given an `href`, because a\nthing that navigates should be a link and a thing that acts should be a button.\nThere is no `as` prop and no polymorphic generic: the distinction is small enough\nto make by hand and important enough not to get wrong.\n\nThe hover state *darkens*. The accent sits near the top of its range already, and\nlifting it drops white lettering below 4.5:1 — the direction most libraries go is\nthe one that fails."
+    "intro": "Ember is the action pill: mono, uppercase, 100px radius, with one slow band of\nlight crossing its face on hover. It is the one piece of the library that is\ndeliberately ordinary. The surprising things are meant to be the effects. This is\nthe thing you press to get one.\n\nTwo tones. `solid` is the accent pill and belongs to the single most important\naction on a screen. `quiet` is the outlined secondary. If a page has two solid\nEmbers on it, one of them is wrong.\n\nIt renders a `<button>` by default and an `<a>` when given an `href`. A thing\nthat navigates should be a link and a thing that acts should be a button. There\nis no `as` prop and no polymorphic generic: the distinction is small enough to\nmake by hand and important enough not to get wrong.\n\nThe hover state darkens. The accent sits near the top of its range already, and\nlifting it drops white lettering below 4.5:1. The direction most libraries go is\nthe one that fails."
   },
   {
     "name": "Foil",
@@ -223,7 +223,7 @@
       "webgl": "webgl2",
       "notes": [
         "WebGL2 for gl_VertexID; there is no WebGL1 fallback and none is planned",
-        "Pointer-driven, but never pointer-dependent — with no cursor the light orbits on its own, so it works on touch and under reduced motion"
+        "Pointer-driven, never pointer-dependent. With no cursor the light orbits on its own, so it works on touch and under reduced motion"
       ]
     },
     "perf": {
@@ -337,7 +337,7 @@
       "grain": {
         "type": "number",
         "default": 0.3,
-        "description": "Paper tooth. Static by design — animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent.",
+        "description": "Paper tooth. Static by design. Animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent.",
         "min": 0,
         "max": 1,
         "step": 0.01
@@ -345,7 +345,7 @@
       "period": {
         "type": "number",
         "default": 5,
-        "description": "Seconds for one orbit of the idle light — the motion used when no pointer is present. Exactly periodic, so the loop has no seam.",
+        "description": "Seconds for one orbit of the idle light, which is the motion used when no pointer is present. Exactly periodic, so the loop has no seam.",
         "min": 2,
         "max": 60,
         "step": 1,
@@ -365,7 +365,7 @@
         "unit": "s"
       }
     },
-    "instruction": "move the cursor — it carries the light",
+    "instruction": "move the cursor. it carries the light",
     "oneShot": false,
     "cursor": {
       "duration": 5,
@@ -423,7 +423,7 @@
       "posterAt": 1.6
     },
     "group": "effects",
-    "intro": "Foil is a hot-foil stamp pressed into paper, and your cursor is the light. Move\nit and the highlight rakes across the relief exactly the way tilting a real\nfoil-stamped card does — a narrow band of brightness travelling over a brushed\nsurface, picking up a little colour at the grazing edges.\n\nThere is no image and no texture. The stamp is a signed-distance rosette with a\nbrushed relief written into its height field; the light is a point source sitting\njust above the surface at the cursor. Everything you see is that height field,\nits gradient, and one specular term. WebGL2, one full-screen triangle, no\ndependencies.\n\nIt is pointer-driven but never pointer-dependent. With no cursor — on touch, or\nbefore anyone has moved the mouse — the light takes a slow closed orbit of its\nown, so the panel is alive on arrival and the loop still has no seam."
+    "intro": "Foil is a hot-foil stamp pressed into paper, and the cursor is the light. Move it\nand the highlight rakes across the relief the way tilting a real foil-stamped\ncard does: a narrow band of brightness travelling over a brushed surface, picking\nup a little colour at the grazing edges.\n\nThere is no image and no texture. The stamp is a signed-distance rosette with a\nbrushed relief written into its height field. The light is a point source sitting\njust above the surface at the cursor. Everything you see is that height field,\nits gradient, and one specular term. WebGL2, one full-screen triangle, no npm\ndependencies.\n\nIt is pointer-driven, never pointer-dependent. With no cursor, on touch, or\nbefore anyone has moved the mouse, the light takes a slow closed orbit of its\nown. The panel is alive on arrival and the loop still has no seam."
   },
   {
     "name": "Overprint",
@@ -482,7 +482,7 @@
       "inkB": {
         "type": "color",
         "default": "#c44400",
-        "description": "Second plate. This is where the colour lives — change this one first."
+        "description": "Second plate. This is where the colour lives, so change this one first."
       },
       "scale": {
         "type": "number",
@@ -521,7 +521,7 @@
       "angleB": {
         "type": "number",
         "default": 75,
-        "description": "Screen angle of the second plate. Keep it at least 30 degrees from angleA — closer than that and the two screens beat against each other.",
+        "description": "Screen angle of the second plate. Keep it at least 30 degrees from angleA. Closer than that and the two screens beat against each other.",
         "min": 0,
         "max": 180,
         "step": 1,
@@ -559,7 +559,7 @@
       "grain": {
         "type": "number",
         "default": 0.35,
-        "description": "Paper tooth. Static by design — animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent.",
+        "description": "Paper tooth. Static by design. Animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent.",
         "min": 0,
         "max": 1,
         "step": 0.01
@@ -567,7 +567,7 @@
       "period": {
         "type": "number",
         "default": 5,
-        "description": "Seconds for one full loop. The animation is exactly periodic over this. The default is 5 so that the preview video is a whole cycle; raise it to 15–25 for a page background you want to forget is moving.",
+        "description": "Seconds for one full loop. The animation is exactly periodic over this. The default is 5 so that the preview video is a whole cycle. Raise it to 15 or 25 for a page background you want to forget is moving.",
         "min": 2,
         "max": 120,
         "step": 1,
@@ -587,7 +587,7 @@
         "unit": "s"
       }
     },
-    "instruction": "ambient — nothing to do",
+    "instruction": "ambient, nothing to do",
     "oneShot": false,
     "record": {
       "duration": 5,
@@ -597,7 +597,7 @@
       "webmCrf": 47
     },
     "group": "effects",
-    "intro": "Overprint is a full-bleed background that behaves like a two-colour print rather\nthan like a light source. Two ink plates — a desaturated near-black and a burnt\norange — are screened into halftone dots at different angles, then multiplied\nover the paper colour the way a second pass of ink actually behaves. Over the\nloop the plates slide fractionally out of registration, which is the misprint\nthat makes a risograph look alive.\n\nIt is a single WebGL2 fragment shader on one full-screen triangle. No three.js,\nno textures, no render targets, no dependencies at all.\n\nThe whole thing is designed for a light background. On black it does nothing,\nbecause multiplying ink into black gets you black.\n\nThe defaults are tuned to be looked at — dense, confident, plenty of solid ink.\nIf you are putting text on top of it, that is too much: drop `coverage` to around\n0.2 and raise `period` to 15 or so, and it recedes into a texture you stop\nnoticing. Do that rather than reaching for opacity, which greys the paper and\nloses the thing that makes it look printed."
+    "intro": "Overprint is a full-bleed background that behaves like a two-colour print. Two\nink plates, a desaturated near-black and a burnt orange, are screened into\nhalftone dots at different angles and multiplied over the paper colour. That is\nwhat a second pass of ink does to the first. Over the loop the plates slide\nfractionally out of registration, which is the misprint that makes a risograph\nlook alive.\n\nIt is one WebGL2 fragment shader on one full-screen triangle. No three.js, no\ntextures, no render targets, no npm dependencies.\n\nIt needs a light background. Multiplying ink into black gets you black.\n\nThe defaults are tuned to be looked at: dense, plenty of solid ink. If you are\nputting text on top, that is too much. Drop `coverage` to about 0.2 and raise\n`period` to 15. Do not reach for opacity instead. Opacity greys the paper and\nloses the thing that makes it look printed."
   },
   {
     "name": "Sundial",
@@ -621,7 +621,7 @@
     "browser": {
       "webgl": "webgl1",
       "notes": [
-        "three.js must already be a dependency of the project — it is not bundled",
+        "three.js must already be a dependency of the project. It is not bundled",
         "A 2048² shadow map is allocated; on a very old integrated GPU drop it to 1024",
         "Falls back to a still frame under prefers-reduced-motion, handled in the runtime"
       ]
@@ -690,7 +690,7 @@
       "shadow": {
         "type": "number",
         "default": 0.3,
-        "description": "How dark the shadows fall on the paper. The paper itself is never lit — it stays exactly the colour you set — so this is the only thing drawn on it.",
+        "description": "How dark the shadows fall on the paper. The paper is never lit. It stays exactly the colour you set, so the shadow is the only thing drawn on it.",
         "min": 0,
         "max": 1,
         "step": 0.01,
@@ -726,7 +726,7 @@
       "period": {
         "type": "number",
         "default": 5,
-        "description": "Seconds for one full circuit of the sun. The default is 5 so the preview video is a whole cycle; 20–30 is right for something you leave running behind a page.",
+        "description": "Seconds for one full circuit of the sun. The default is 5 so the preview video is a whole cycle. Use 20 to 30 for something you leave running behind a page.",
         "min": 2,
         "max": 120,
         "step": 1,
@@ -739,14 +739,14 @@
       "reducedMotionTime": {
         "type": "number",
         "default": 1.1,
-        "description": "The single frame shown when the user prefers reduced motion. Pick a sun angle that composes — the still is the whole effect for those users.",
+        "description": "The single frame shown when the user prefers reduced motion. Pick a sun angle that composes. For those users the still is the whole effect.",
         "min": 0,
         "max": 120,
         "step": 0.1,
         "unit": "s"
       }
     },
-    "instruction": "ambient — watch the shadows come round",
+    "instruction": "watch the shadows come round",
     "oneShot": false,
     "record": {
       "duration": 5,
@@ -754,6 +754,6 @@
       "posterAt": 1.1
     },
     "group": "effects",
-    "intro": "Sundial is a still life: seven matte forms standing on paper, lit by a single sun\nthat makes one complete circuit over the loop. The forms never move. The subject\nis the shadows — they lengthen, swing round, cross each other and arrive back\nexactly where they started.\n\nIt is a real three.js scene. A perspective camera, seven meshes, standard\nmaterials, a directional light with a shadow map, and a bounce light standing in\nfor light coming back off the paper. Not a full-bleed shader pretending to be\nthree-dimensional.\n\nThe paper is never lit. It is the scene background, and the ground plane is a\n`ShadowMaterial` that draws nothing but the shadow. That is why the paper comes\nout exactly the colour you asked for instead of the warm grey a lit plane gives\nyou at a grazing sun angle.\n\nBecause the forms sit in the middle and the sun keeps the edges clear, there is\nroom for a headline over the top of it. That is what it is for."
+    "intro": "Sundial is a still life. Seven matte forms stand on paper, lit by one sun that\nmakes a complete circuit over the loop. The forms never move. The shadows are the\nsubject: they lengthen, swing round, cross each other, and arrive back exactly\nwhere they started.\n\nIt is a real three.js scene. A perspective camera, seven meshes, standard\nmaterials, a directional light with a shadow map, and a dim bounce light standing\nin for light coming back off the paper. Not a full-bleed shader pretending to be\nthree-dimensional.\n\nThe paper is never lit. It is the scene background, and the ground plane is a\n`ShadowMaterial` that draws nothing but the shadow. A lit plane picks up the sun\nat a grazing angle and lands around 85% of its own colour, which on warm paper is\na warm grey. This way the paper comes out the colour you asked for.\n\nThe forms sit in the middle and the sun keeps the edges clear, so there is room\nfor a headline over the top. That is what it is for."
   }
 ]

@@ -23,7 +23,7 @@
 /*
  * Tailwind v4 reads utilities off these. Everything an item ships must inherit
  * the host's theme, so nothing in the repo is allowed to hardcode a colour
- * utility like bg-black — there is nothing here to reach for if you tried.
+ * utility like bg-black. There is nothing here to reach for if you tried.
  */
 @theme inline {
   --color-l1: var(--label-1);

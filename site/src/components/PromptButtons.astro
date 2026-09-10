@@ -1,7 +1,7 @@
 ---
 /*
- * The product surface. Two buttons, and neither of them may ever be a dead end:
- * the first hands the agent pinned URLs to fetch, the second hands it the same
+ * The product surface. Two buttons, and neither of them may ever be a dead end.
+ * The first hands the agent pinned URLs to fetch. The second hands it the same
  * instructions with the source pasted in, for agents with no web access.
  *
  * The pills are Ember's own stylesheet, not a copy of it. If the button on this
@@ -20,8 +20,8 @@ const { slug, linked, inlined } = Astro.props
 /*
  * The prompts contain wiring examples, and those examples contain `</script>`.
  * Inside a <script> element the parser closes on that sequence wherever it
- * appears — string literal or not — so it has to be escaped. Nothing else about
- * the JSON changes, and JSON.parse reads `<\/` as `</`.
+ * appears, string literal or not, so it has to be escaped. Nothing else about the
+ * JSON changes, and JSON.parse reads `<\/` as `</`.
  */
 const embed = (text: string) => JSON.stringify(text).replaceAll('</', '<\\/')
 ---
@@ -39,7 +39,7 @@ const embed = (text: string) => JSON.stringify(text).replaceAll('</', '<\\/')
   <script type="application/json" data-prompt="inlined" set:html={embed(inlined)} />
 
   <p class="text-l3 basis-full text-[0.7rem] tracking-[0.08em] uppercase">
-    Paste into Claude Code, Cursor, or any agent. Pinned to a tag — it will not
+    Paste into Claude Code, Cursor or any agent. Pinned to a tag, so it will not
     change under you.
   </p>
 </div>
@@ -64,10 +64,10 @@ const embed = (text: string) => JSON.stringify(text).replaceAll('</', '<\\/')
           await navigator.clipboard.writeText(text)
           label.textContent = 'Copied'
         } catch {
-          // Clipboard access can be refused outright — in an insecure context,
-          // or by permission. Saying so beats a button that silently does
-          // nothing, which reads as broken.
-          label.textContent = 'Press ⌘C'
+          // Clipboard access can be refused outright, in an insecure context or
+          // by permission. Saying so beats a button that silently does nothing,
+          // which reads as broken.
+          label.textContent = 'Blocked. Select and copy'
           const range = document.createRange()
           range.selectNodeContents(button)
           getSelection()?.removeAllRanges()

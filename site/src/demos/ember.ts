@@ -1,6 +1,6 @@
 /*
  * The Ember demo panel: both tones side by side, because the whole point of the
- * component is the pairing — one solid, one quiet.
+ * component is the pairing: one solid, one quiet.
  *
  * `createElement` is passed in rather than imported so this file stays free of a
  * React import and the panel controls when React loads.

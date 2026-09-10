@@ -5,7 +5,7 @@ You are adding **Foil** from Beamish to this project.
 
 Beamish is not a package and there is nothing to install from npm. The source
 lives in a public repo; you fetch the files, put them in this project, and wire
-them in. Adapt them to whatever this project already uses — that is the point of
+them in. Adapt them to whatever this project already uses. That is the point of
 shipping it this way.
 
 Assume you have not seen this library before. Everything you need is below.
@@ -13,9 +13,9 @@ Assume you have not seen this library before. Everything you need is below.
 ## What it needs
 
 - **npm dependencies:** None. This file has no npm dependencies at all.
-- WebGL2 — there is no WebGL1 fallback
+- WebGL2. There is no WebGL1 fallback
 - WebGL2 for gl_VertexID; there is no WebGL1 fallback and none is planned
-- Pointer-driven, but never pointer-dependent — with no cursor the light orbits on its own, so it works on touch and under reduced motion
+- Pointer-driven, never pointer-dependent. With no cursor the light orbits on its own, so it works on touch and under reduced motion
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -24,7 +24,7 @@ Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
 
 The full source is inlined below because you may not be able to fetch URLs.
 Create each file at the path given, verbatim. Adjust the paths to match this
-project's conventions, but keep them in the same relative arrangement — the
+project's conventions, but keep them in the same relative arrangement. The
 import between them is relative.
 
 **`src/beamish/shared/runtime.ts`**
@@ -62,14 +62,14 @@ export type Size = {
 }
 
 export type Pointer = {
-  /** 0–1 across the element, origin top-left. Centre until first move. */
+  /** 0 to 1 across the element, origin top-left. Centre until first move. */
   x: number
   y: number
   /** False until the pointer has entered, so effects can idle sensibly. */
   active: boolean
 }
 
-/** One sample of a scripted cursor path. `t` is seconds; x/y are 0–1. */
+/** One sample of a scripted cursor path. `t` is seconds; x/y are 0 to 1. */
 export type PointerKey = { t: number; x: number; y: number }
 
 export type SurfaceContext = {
@@ -87,8 +87,8 @@ export interface Surface<O> {
   /**
    * Draw one frame. `t` is absolute seconds from the start of the loop.
    *
-   * Must be pure in `t` — no integrating against the previous frame — or the
-   * recorder cannot produce a seamless loop and `renderAtTime` breaks.
+   * Must be pure in `t`. Do not integrate against the previous frame, or the
+   * recorder cannot produce a clean loop and `renderAtTime` breaks.
    */
   render(t: number, opts: O, pointer: Pointer): void
   teardown(): void
@@ -99,7 +99,7 @@ export interface Surface<O> {
 export type BaseOptions = {
   /**
    * Scripted cursor path. When set, the live pointer is ignored and the pointer
-   * is sampled from this path at the current time — which is what makes
+   * is sampled from this path at the current time, which is what makes
    * pointer-driven effects deterministic for the recorder.
    */
   pointerPath?: PointerKey[]
@@ -241,7 +241,7 @@ export function mount<O extends BaseOptions>(
     ensureSurface()
     if (reduced) {
       // WCAG 2.3.3: no loop at all. Still show a composed frame rather than a
-      // blank panel — see reducedMotionTime.
+      // blank panel. See reducedMotionTime.
       draw(opts.reducedMotionTime ?? 0)
       return
     }
@@ -403,7 +403,7 @@ export function mount<O extends BaseOptions>(
 
 ```ts
 /*
- * Foil — Beamish
+ * Foil: Beamish
  * https://beamish.ink/effects/foil
  *
  * A hot-foil stamp on paper, lit by the cursor. Moving the pointer rakes the
@@ -411,14 +411,14 @@ export function mount<O extends BaseOptions>(
  * WebGL2, no three.js, no dependencies.
  *
  * With no pointer the light takes a slow closed orbit of its own, so the panel
- * is alive before anyone touches it — and so the recorded loop still has no seam.
+ * is alive before anyone touches it, and the recorded loop still has no seam.
  *
  * The GL boilerplate is inline rather than imported. This file is published and
  * read on its own, and a reader should not have to fetch a second module to find
  * out how a program gets compiled.
  *
- * The shader source is generated from shaders/foil.frag and shaders/foil.vert —
- * edit those, then run `pnpm generate`. The markers are load-bearing.
+ * The shader source is generated from shaders/foil.frag and shaders/foil.vert.
+ * Edit those, then run `pnpm generate`. The markers are load-bearing.
  */
 
 import { mount, type BaseOptions, type EffectHandle, type Surface, type Pointer } from '../../shared/runtime'
@@ -434,15 +434,15 @@ export type FoilOptions = BaseOptions & {
   spokes: number
   /** Size of the stamp relative to the shorter side of the element. */
   scale: number
-  /** Depth of the brushed relief, 0–1. */
+  /** Depth of the brushed relief, 0 to 1. */
   relief: number
-  /** How tight the highlight is, 0–1. */
+  /** How tight the highlight is, 0 to 1. */
   sharpness: number
-  /** Spectral shift at grazing angles, 0–1. */
+  /** Spectral shift at grazing angles, 0 to 1. */
   iridescence: number
   /** How far above the surface the light sits. Low is a harder rake. */
   lightHeight: number
-  /** Paper tooth, 0–1. Static, not film grain. */
+  /** Paper tooth, 0 to 1. Static, not film grain. */
   grain: number
   /** Seconds for one orbit of the idle light. */
   period: number
@@ -470,7 +470,7 @@ export const foilDefaults: FoilOptions = {
 // beamish:shader-begin shaders/foil.vert
 const VERT = `#version 300 es
 
-// Full-screen triangle from gl_VertexID — no buffers, no attributes. Bind an
+// Full-screen triangle from gl_VertexID. No buffers, no attributes. Bind an
 // empty VAO and drawArrays(TRIANGLES, 0, 3).
 
 void main() {
@@ -485,7 +485,7 @@ const FRAG = `#version 300 es
 precision highp float;
 
 /*
- * Foil — a hot-foil stamp on paper, lit by the cursor.
+ * Foil: a hot-foil stamp on paper, lit by the cursor.
  *
  * The stamp is an SDF rosette with a brushed relief pressed into it. The cursor
  * is the light: a point source just above the surface, so moving it rakes the
@@ -522,7 +522,7 @@ float hash12(vec2 p) {
 
 /*
  * The stamp, as a height field in 0..1. Everything the light does is derived
- * from this one function, sampled five times per pixel — once for the mask and
+ * from this one function, sampled five times per pixel: once for the mask and
  * four times for the gradient.
  */
 float stamp(vec2 p, float spokes, float relief) {
@@ -541,12 +541,12 @@ float stamp(vec2 p, float spokes, float relief) {
 
   float mask = clamp(max(max(body, hub), ring), 0.0, 1.0);
 
-  // Brushed relief. This is the part the highlight rakes over — without it the
+  // Brushed relief. This is the part the highlight rakes over. Without it the
   // foil is a flat shape that changes brightness, which reads as plastic.
   //
   // The amplitude falls away towards the centre. Radial lines all converge on
   // the origin, and at full strength that convergence is the first thing the eye
-  // goes to — which is not what the piece is about.
+  // goes to, which is not what the piece is about.
   float brush = 0.5 + 0.5 * sin(a * spokes * 3.0 + r * 24.0);
   float depth = relief * smoothstep(0.12, 0.42, r);
   return mask * (1.0 - depth * 0.5 + depth * 0.5 * brush);
@@ -594,7 +594,7 @@ void main() {
   // is why a foil looks like foil and a matte print does not.
   vec3 foil = mix(u_foilLow, u_foilHigh, smoothstep(0.15, 0.95, ndh));
 
-  // A narrow spectral shift near grazing angles. Restrained on purpose — a full
+  // A narrow spectral shift near grazing angles. Restrained on purpose. A full
   // rainbow is a hologram, not a foil.
   float shift = fract(ndh * 1.6 + 0.35);
   vec3 spectral = 0.5 + 0.5 * cos(TAU * (vec3(0.0, 0.28, 0.55) + shift));
@@ -645,7 +645,7 @@ const UNIFORMS = [
 
 type UniformName = (typeof UNIFORMS)[number]
 
-/** '#rgb' | '#rrggbb' | 'rgb(r g b)' → 0–1 triple. */
+/** '#rgb' | '#rrggbb' | 'rgb(r g b)' → 0 to 1 triple. */
 function parseColor(input: string): [number, number, number] {
   const value = input.trim()
   if (value.startsWith('#')) {
@@ -776,7 +776,7 @@ class FoilSurface implements Surface<FoilOptions> {
 }
 
 /**
- * Mount Foil into `el`. The element needs a size — give it width and height in
+ * Mount Foil into `el`. The element needs a size. Give it width and height in
  * CSS, not just content.
  *
  * ```ts
@@ -798,25 +798,25 @@ export default createFoil
 
 ## 2. What it is
 
-Foil is a hot-foil stamp pressed into paper, and your cursor is the light. Move
-it and the highlight rakes across the relief exactly the way tilting a real
-foil-stamped card does — a narrow band of brightness travelling over a brushed
-surface, picking up a little colour at the grazing edges.
+Foil is a hot-foil stamp pressed into paper, and the cursor is the light. Move it
+and the highlight rakes across the relief the way tilting a real foil-stamped
+card does: a narrow band of brightness travelling over a brushed surface, picking
+up a little colour at the grazing edges.
 
 There is no image and no texture. The stamp is a signed-distance rosette with a
-brushed relief written into its height field; the light is a point source sitting
+brushed relief written into its height field. The light is a point source sitting
 just above the surface at the cursor. Everything you see is that height field,
-its gradient, and one specular term. WebGL2, one full-screen triangle, no
+its gradient, and one specular term. WebGL2, one full-screen triangle, no npm
 dependencies.
 
-It is pointer-driven but never pointer-dependent. With no cursor — on touch, or
-before anyone has moved the mouse — the light takes a slow closed orbit of its
-own, so the panel is alive on arrival and the loop still has no seam.
+It is pointer-driven, never pointer-dependent. With no cursor, on touch, or
+before anyone has moved the mouse, the light takes a slow closed orbit of its
+own. The panel is alive on arrival and the loop still has no seam.
 
 ## 3. Wire it in
 
-**Plain HTML.** The element needs a size of its own — the canvas fills it, so an
-element with no height renders nothing.
+**Plain HTML.** Give the host element a size. The canvas fills it, so an element
+with no height renders nothing.
 
 ```html
 <div id="stamp" style="width: 100%; aspect-ratio: 1"></div>
@@ -831,9 +831,9 @@ element with no height renders nothing.
 </script>
 ```
 
-**React.** Start in an effect, destroy in its cleanup. In StrictMode the effect
-runs twice in development; that is fine, because `destroy()` fully releases the
-context — which is exactly the case StrictMode exists to catch.
+**React.** Start in an effect. Destroy in its cleanup. StrictMode runs the effect
+twice in development. That is fine, because `destroy()` fully releases the
+context, which is the case StrictMode exists to catch.
 
 ```tsx
 import { useEffect, useRef } from 'react'
@@ -853,8 +853,8 @@ export function Stamp() {
 }
 ```
 
-Do not put option values in the dependency array — that tears the context down
-and rebuilds it on every keystroke. Call `update()` instead:
+Do not put option values in the dependency array. That tears the context down and
+rebuilds it on every keystroke. Call `update()` instead:
 
 ```tsx
 useEffect(() => {
@@ -887,16 +887,16 @@ onBeforeUnmount(() => foil?.destroy())
 </template>
 ```
 
-**Astro.** Nothing special is needed. Use the React or Vue file as an island with
-`client:visible`, or call `createFoil` from a plain `<script>` in the page — the
+**Astro.** Nothing extra is required. Use the React or Vue file as an island with
+`client:visible`, or call `createFoil` from a plain `<script>` in the page. The
 core is a standard ES module with no framework in it.
 
 **Driving the light yourself.** The pointer is read from the element the effect
-is mounted into. If you want the light to follow something else — a scripted
-path, a scroll position, an element elsewhere on the page — pass `pointerPath`, a
-list of `{ t, x, y }` keys in 0–1 element coordinates, plus
+is mounted into. To drive the light from something else, a scripted path, a
+scroll position, or an element elsewhere on the page, pass `pointerPath` as a
+list of `{ t, x, y }` keys in 0 to 1 element coordinates, plus
 `pointerPathDuration`. The runtime samples it at exactly the time being drawn and
-ignores the live pointer. This is how the video on the site is recorded.
+ignores the live pointer. That is how the video on the site is recorded.
 
 ## 4. Options
 
@@ -908,65 +908,62 @@ as the second argument to the create function; anything omitted takes its defaul
 | `paper` | color | `#fbfaf4` | any CSS hex | The paper the stamp is pressed into. Match it to your page background or the panel reads as a pasted-in rectangle. |
 | `foilLow` | color | `#7a3410` | any CSS hex | The foil where the light does not reach. Metal takes almost all its colour from the highlight, so this wants to be genuinely dark. |
 | `foilHigh` | color | `#f0b070` | any CSS hex | The foil at the highlight. Copper by default; a pale grey here gives silver, a yellow gives gold. |
-| `spokes` | number | `12` | 3 – 40 (looks right between 8 and 18) | Points on the rosette. Above about 24 the petals are narrower than the relief and it turns into a disc. |
-| `scale` | number | `0.86` | 0.3 – 1.6 (looks right between 0.7 and 1.1) | Size of the stamp relative to the shorter side of the element. |
-| `relief` | number | `0.38` | 0 – 1 (looks right between 0.35 and 0.7) | Depth of the brushed relief. At zero the foil is a flat shape that changes brightness, which reads as plastic rather than metal. |
-| `sharpness` | number | `0.42` | 0 – 1 (looks right between 0.3 and 0.65) | How tight the highlight is. High is a mirror finish, low is a brushed one. |
-| `iridescence` | number | `0.3` | 0 – 1 (looks right between 0.15 and 0.45) | Spectral shift at grazing angles. Past about 0.6 it stops being a foil and becomes a hologram. |
-| `lightHeight` | number | `0.42` | 0.05 – 2 (looks right between 0.3 and 0.7) | How far above the surface the cursor's light sits. Low is a hard raking light that sweeps a narrow band; high floods the whole stamp at once. |
-| `grain` | number | `0.3` | 0 – 1 | Paper tooth. Static by design — animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent. |
-| `period` | number | `5` | 2 – 60 s (looks right between 5 and 20) | Seconds for one orbit of the idle light — the motion used when no pointer is present. Exactly periodic, so the loop has no seam. |
-| `reducedMotionTime` | number | `0.9` | 0 – 60 s | The single frame shown when the user prefers reduced motion. Pick a light angle where the relief is legible. |
+| `spokes` | number | `12` | 3 to 40 (looks right between 8 and 18) | Points on the rosette. Above about 24 the petals are narrower than the relief and it turns into a disc. |
+| `scale` | number | `0.86` | 0.3 to 1.6 (looks right between 0.7 and 1.1) | Size of the stamp relative to the shorter side of the element. |
+| `relief` | number | `0.38` | 0 to 1 (looks right between 0.35 and 0.7) | Depth of the brushed relief. At zero the foil is a flat shape that changes brightness, which reads as plastic rather than metal. |
+| `sharpness` | number | `0.42` | 0 to 1 (looks right between 0.3 and 0.65) | How tight the highlight is. High is a mirror finish, low is a brushed one. |
+| `iridescence` | number | `0.3` | 0 to 1 (looks right between 0.15 and 0.45) | Spectral shift at grazing angles. Past about 0.6 it stops being a foil and becomes a hologram. |
+| `lightHeight` | number | `0.42` | 0.05 to 2 (looks right between 0.3 and 0.7) | How far above the surface the cursor's light sits. Low is a hard raking light that sweeps a narrow band; high floods the whole stamp at once. |
+| `grain` | number | `0.3` | 0 to 1 | Paper tooth. Static by design. Animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent. |
+| `period` | number | `5` | 2 to 60 s (looks right between 5 and 20) | Seconds for one orbit of the idle light, which is the motion used when no pointer is present. Exactly periodic, so the loop has no seam. |
+| `reducedMotionTime` | number | `0.9` | 0 to 60 s | The single frame shown when the user prefers reduced motion. Pick a light angle where the relief is legible. |
 
 ## 5. Cleanup and SSR
 
-`destroy()` releases the WebGL context, cancels the RAF, disconnects both
-observers and removes every listener including the pointer ones. Call it. A page
-that mounts and unmounts demos without destroying them will hit the browser's
-context limit — sixteen contexts *or* sixteen million pixels, whichever comes
-first — and the browser will start killing the oldest one.
+Call `destroy()`. It releases the WebGL context, cancels the RAF, disconnects
+both observers, and removes every listener including the pointer ones.
 
-None of this can run on the server. `createFoil` touches `document` and
-`matchMedia` at call time, so it must be inside `useEffect`, `onMounted`, or a
-`client:*` island. Next.js App Router needs `'use client'` at the top of the
-component file.
+A page that mounts and unmounts demos without destroying them will hit the
+browser's context limit, which is 16 contexts or 16,777,216 pixels, whichever
+runs out first. Past that the browser starts killing the oldest context.
+
+None of this runs on the server. `createFoil` touches `document` and `matchMedia`
+at call time. Put the call inside `useEffect`, `onMounted`, or a `client:*`
+island. Next.js App Router needs `'use client'` at the top of the component file.
 
 The runtime pauses the loop when the element scrolls offscreen and when the tab
 is hidden.
 
 ## 6. Pausing and reduced motion
 
-WCAG 2.2.2 is Level A: content that moves for more than five seconds must be
-pausable. The idle orbit qualifies, so `stop()` and `start()` are on the handle
-for exactly that reason. Surface them as a real control in your own build.
+WCAG 2.2.2 is Level A. Content that moves for more than five seconds must be
+pausable, and the idle orbit qualifies. `stop()` and `start()` are on the handle
+for that. Surface them as a real control in your own build.
 
-Note that stopping the loop does not stop the effect responding to the cursor in
-any meaningful sense — with the loop stopped the surface simply holds its last
-frame, which is the correct behaviour: the motion is paused, the object is still
-there.
+Stopping the loop holds the last frame. The motion pauses and the object stays on
+screen, which is the correct behaviour.
 
-Handled in the runtime, with a live `matchMedia` listener so toggling the OS
+Handled in the runtime with a live `matchMedia` listener, so changing the OS
 setting mid-session takes effect without a reload. Under reduced motion the idle
-orbit never starts and a single frame is drawn instead — the one at
+orbit never starts and one frame is drawn instead, the one at
 `reducedMotionTime`.
 
-Foil degrades unusually well: a stamped emblem lit from one side is a perfectly
-finished thing to look at, and nobody would guess it was meant to move. Pick a
-light angle where the relief is legible rather than one where the highlight is
-brightest.
+Foil degrades unusually well. A stamped emblem lit from one side is a finished
+thing to look at and nobody would guess it was meant to move. Pick a light angle
+where the relief is legible rather than one where the highlight is brightest.
 
 ## 7. The three mistakes most likely to be made here
 
 1. **Mounting it into a wide, short element.** The stamp is sized against the
-   *shorter* side, so in a 1200×200 banner it is 200px across with a great deal
-   of paper either side. Give it something square-ish, or raise `scale`.
+   shorter side, so in a 1200×200 banner it is 200px across with a lot of paper
+   either side. Use something square, or raise `scale`.
 
-2. **Making `foilLow` too light.** Metal has almost no diffuse term — nearly all
+2. **Making `foilLow` too light.** Metal has almost no diffuse term. Nearly all
    of its colour comes from the highlight, which is why real foil looks like foil
-   and a matte print does not. If `foilLow` is a mid-tone the stamp turns into a
-   flat coloured shape with a shine on it. Take it darker than feels right.
+   and a matte print does not. A mid-tone `foilLow` turns the stamp into a flat
+   coloured shape with a shine on it. Take it darker than feels right.
 
-3. **Assuming it needs a mouse.** It does not: with no pointer the light orbits
+3. **Assuming it needs a mouse.** It does not. With no pointer the light orbits
    on its own, so it works on touch and in a screenshot. Do not hide it on small
    screens or gate it behind a hover media query.
 

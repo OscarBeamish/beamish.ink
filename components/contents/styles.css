@@ -1,5 +1,5 @@
 /*
- * Contents — Beamish
+ * Contents: Beamish
  *
  * Every custom property has a fallback, so the component looks right dropped into
  * a project that has never heard of Beamish tokens. If the tokens are present it
@@ -73,7 +73,7 @@
   /*
    * `display` and `overlay` are discrete properties. Without allow-discrete the
    * element is removed from the top layer the instant close() is called and the
-   * exit transition never runs — this one line is the whole difference between a
+   * exit transition never runs. This one line is the whole difference between a
    * dialog that fades out and one that vanishes.
    */
   transition:

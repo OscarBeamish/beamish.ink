@@ -2,7 +2,7 @@
 precision highp float;
 
 /*
- * Foil — a hot-foil stamp on paper, lit by the cursor.
+ * Foil: a hot-foil stamp on paper, lit by the cursor.
  *
  * The stamp is an SDF rosette with a brushed relief pressed into it. The cursor
  * is the light: a point source just above the surface, so moving it rakes the
@@ -39,7 +39,7 @@ float hash12(vec2 p) {
 
 /*
  * The stamp, as a height field in 0..1. Everything the light does is derived
- * from this one function, sampled five times per pixel — once for the mask and
+ * from this one function, sampled five times per pixel: once for the mask and
  * four times for the gradient.
  */
 float stamp(vec2 p, float spokes, float relief) {
@@ -58,12 +58,12 @@ float stamp(vec2 p, float spokes, float relief) {
 
   float mask = clamp(max(max(body, hub), ring), 0.0, 1.0);
 
-  // Brushed relief. This is the part the highlight rakes over — without it the
+  // Brushed relief. This is the part the highlight rakes over. Without it the
   // foil is a flat shape that changes brightness, which reads as plastic.
   //
   // The amplitude falls away towards the centre. Radial lines all converge on
   // the origin, and at full strength that convergence is the first thing the eye
-  // goes to — which is not what the piece is about.
+  // goes to, which is not what the piece is about.
   float brush = 0.5 + 0.5 * sin(a * spokes * 3.0 + r * 24.0);
   float depth = relief * smoothstep(0.12, 0.42, r);
   return mask * (1.0 - depth * 0.5 + depth * 0.5 * brush);
@@ -111,7 +111,7 @@ void main() {
   // is why a foil looks like foil and a matte print does not.
   vec3 foil = mix(u_foilLow, u_foilHigh, smoothstep(0.15, 0.95, ndh));
 
-  // A narrow spectral shift near grazing angles. Restrained on purpose — a full
+  // A narrow spectral shift near grazing angles. Restrained on purpose. A full
   // rainbow is a hologram, not a foil.
   float shift = fract(ndh * 1.6 + 0.35);
   vec3 spectral = 0.5 + 0.5 * cos(TAU * (vec3(0.0, 0.28, 0.55) + shift));

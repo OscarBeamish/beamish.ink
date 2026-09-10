@@ -1,5 +1,5 @@
 /*
- * Contents — Beamish
+ * Contents: Beamish
  * https://beamish.ink/components/contents
  *
  * A full-viewport index. The overlay is a real <dialog> opened with showModal(),
@@ -20,7 +20,7 @@ import './styles.css'
 export type ContentsItem = {
   label: string
   href: string
-  /** Small trailing note — a category, a count, a date. */
+  /** Small trailing note: a category, a count, a date. */
   meta?: string
 }
 

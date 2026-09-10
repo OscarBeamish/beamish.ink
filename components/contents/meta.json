@@ -45,7 +45,7 @@
     "label": {
       "type": "string",
       "default": "Index",
-      "description": "The trigger's text, and the dialog's accessible name. Keep it a noun — it is read out as the name of the whole overlay."
+      "description": "The trigger's text, and the dialog's accessible name. Keep it a noun. It is read out as the name of the whole overlay."
     },
     "closeLabel": {
       "type": "string",

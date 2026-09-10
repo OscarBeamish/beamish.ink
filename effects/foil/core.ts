@@ -1,5 +1,5 @@
 /*
- * Foil — Beamish
+ * Foil: Beamish
  * https://beamish.ink/effects/foil
  *
  * A hot-foil stamp on paper, lit by the cursor. Moving the pointer rakes the
@@ -7,14 +7,14 @@
  * WebGL2, no three.js, no dependencies.
  *
  * With no pointer the light takes a slow closed orbit of its own, so the panel
- * is alive before anyone touches it — and so the recorded loop still has no seam.
+ * is alive before anyone touches it, and the recorded loop still has no seam.
  *
  * The GL boilerplate is inline rather than imported. This file is published and
  * read on its own, and a reader should not have to fetch a second module to find
  * out how a program gets compiled.
  *
- * The shader source is generated from shaders/foil.frag and shaders/foil.vert —
- * edit those, then run `pnpm generate`. The markers are load-bearing.
+ * The shader source is generated from shaders/foil.frag and shaders/foil.vert.
+ * Edit those, then run `pnpm generate`. The markers are load-bearing.
  */
 
 import { mount, type BaseOptions, type EffectHandle, type Surface, type Pointer } from '../../shared/runtime'
@@ -30,15 +30,15 @@ export type FoilOptions = BaseOptions & {
   spokes: number
   /** Size of the stamp relative to the shorter side of the element. */
   scale: number
-  /** Depth of the brushed relief, 0–1. */
+  /** Depth of the brushed relief, 0 to 1. */
   relief: number
-  /** How tight the highlight is, 0–1. */
+  /** How tight the highlight is, 0 to 1. */
   sharpness: number
-  /** Spectral shift at grazing angles, 0–1. */
+  /** Spectral shift at grazing angles, 0 to 1. */
   iridescence: number
   /** How far above the surface the light sits. Low is a harder rake. */
   lightHeight: number
-  /** Paper tooth, 0–1. Static, not film grain. */
+  /** Paper tooth, 0 to 1. Static, not film grain. */
   grain: number
   /** Seconds for one orbit of the idle light. */
   period: number
@@ -66,7 +66,7 @@ export const foilDefaults: FoilOptions = {
 // beamish:shader-begin shaders/foil.vert
 const VERT = `#version 300 es
 
-// Full-screen triangle from gl_VertexID — no buffers, no attributes. Bind an
+// Full-screen triangle from gl_VertexID. No buffers, no attributes. Bind an
 // empty VAO and drawArrays(TRIANGLES, 0, 3).
 
 void main() {
@@ -81,7 +81,7 @@ const FRAG = `#version 300 es
 precision highp float;
 
 /*
- * Foil — a hot-foil stamp on paper, lit by the cursor.
+ * Foil: a hot-foil stamp on paper, lit by the cursor.
  *
  * The stamp is an SDF rosette with a brushed relief pressed into it. The cursor
  * is the light: a point source just above the surface, so moving it rakes the
@@ -118,7 +118,7 @@ float hash12(vec2 p) {
 
 /*
  * The stamp, as a height field in 0..1. Everything the light does is derived
- * from this one function, sampled five times per pixel — once for the mask and
+ * from this one function, sampled five times per pixel: once for the mask and
  * four times for the gradient.
  */
 float stamp(vec2 p, float spokes, float relief) {
@@ -137,12 +137,12 @@ float stamp(vec2 p, float spokes, float relief) {
 
   float mask = clamp(max(max(body, hub), ring), 0.0, 1.0);
 
-  // Brushed relief. This is the part the highlight rakes over — without it the
+  // Brushed relief. This is the part the highlight rakes over. Without it the
   // foil is a flat shape that changes brightness, which reads as plastic.
   //
   // The amplitude falls away towards the centre. Radial lines all converge on
   // the origin, and at full strength that convergence is the first thing the eye
-  // goes to — which is not what the piece is about.
+  // goes to, which is not what the piece is about.
   float brush = 0.5 + 0.5 * sin(a * spokes * 3.0 + r * 24.0);
   float depth = relief * smoothstep(0.12, 0.42, r);
   return mask * (1.0 - depth * 0.5 + depth * 0.5 * brush);
@@ -190,7 +190,7 @@ void main() {
   // is why a foil looks like foil and a matte print does not.
   vec3 foil = mix(u_foilLow, u_foilHigh, smoothstep(0.15, 0.95, ndh));
 
-  // A narrow spectral shift near grazing angles. Restrained on purpose — a full
+  // A narrow spectral shift near grazing angles. Restrained on purpose. A full
   // rainbow is a hologram, not a foil.
   float shift = fract(ndh * 1.6 + 0.35);
   vec3 spectral = 0.5 + 0.5 * cos(TAU * (vec3(0.0, 0.28, 0.55) + shift));
@@ -241,7 +241,7 @@ const UNIFORMS = [
 
 type UniformName = (typeof UNIFORMS)[number]
 
-/** '#rgb' | '#rrggbb' | 'rgb(r g b)' → 0–1 triple. */
+/** '#rgb' | '#rrggbb' | 'rgb(r g b)' → 0 to 1 triple. */
 function parseColor(input: string): [number, number, number] {
   const value = input.trim()
   if (value.startsWith('#')) {
@@ -372,7 +372,7 @@ class FoilSurface implements Surface<FoilOptions> {
 }
 
 /**
- * Mount Foil into `el`. The element needs a size — give it width and height in
+ * Mount Foil into `el`. The element needs a size. Give it width and height in
  * CSS, not just content.
  *
  * ```ts

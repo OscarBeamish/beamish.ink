@@ -4,7 +4,7 @@
  * Mount and destroy every effect fifty times and assert the browser is still
  * handing out WebGL contexts at the end. Chromium allows sixteen live contexts
  * (or sixteen million pixels) and silently kills the oldest past that, so a
- * `destroy()` that leaks does not throw — it just makes the fourth demo somebody
+ * `destroy()` that leaks does not throw. It just makes the fourth demo somebody
  * opens go blank, which is the worst kind of bug to find in the wild.
  *
  * Run with `pnpm test`. It drives a real browser because there is no meaningful

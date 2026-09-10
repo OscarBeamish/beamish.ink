@@ -1,6 +1,6 @@
 #version 300 es
 
-// Full-screen triangle from gl_VertexID — no buffers, no attributes. Bind an
+// Full-screen triangle from gl_VertexID. No buffers, no attributes. Bind an
 // empty VAO and drawArrays(TRIANGLES, 0, 3).
 
 void main() {
