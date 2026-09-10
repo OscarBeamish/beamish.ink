@@ -133,3 +133,48 @@
     color: var(--label-3);
   }
 }
+
+@layer components {
+  /* The card the Tilt panel leans. */
+  .demo-card {
+    width: min(19rem, 70%);
+    aspect-ratio: 5 / 6;
+    margin: 0 auto;
+    padding: 1.4rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: rgb(var(--background-deep));
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    box-shadow: 0 20px 50px rgba(54, 54, 48, 0.1);
+  }
+
+  .demo-card h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    line-height: 0.98;
+  }
+
+  .demo-card__mark {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .demo-card__tag {
+    margin: 0 0 0.35rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--label-3);
+  }
+
+  .demo-card__note {
+    margin: 0;
+    font-size: 0.7rem;
+    color: var(--label-3);
+  }
+}

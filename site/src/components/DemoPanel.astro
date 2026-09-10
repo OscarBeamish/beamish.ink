@@ -81,7 +81,8 @@ const { slug, tier, instruction, oneShot } = Astro.props
     sundial: () => import('@items/effects/sundial/core'),
     foil: () => import('@items/effects/foil/core'),
     sort: () => import('@items/effects/sort/core'),
-    riser: () => import('@items/effects/riser/core')
+    riser: () => import('@items/effects/riser/core'),
+    tilt: () => import('@items/effects/tilt/core')
   }
 
   const COMPONENTS: Record<string, () => Promise<{ mount(el: HTMLElement): Mounted }>> = {
@@ -129,7 +130,15 @@ const { slug, tier, instruction, oneShot } = Astro.props
       <div><span>Foil</span><span>pointer</span></div>
       <div><span>Sort</span><span>type</span></div>
       <div><span>Riser</span><span>reveal</span></div>
-    </div>`
+    </div>`,
+    tilt: `<article class="demo-card">
+      <div class="demo-card__mark"></div>
+      <div>
+        <p class="demo-card__tag">Surfaces</p>
+        <h2>Beamysshe as the sonne is</h2>
+      </div>
+      <p class="demo-card__note">John Palsgrave, 1530.</p>
+    </article>`
   }
 
   for (const panel of document.querySelectorAll<HTMLElement>('[data-demo]')) {

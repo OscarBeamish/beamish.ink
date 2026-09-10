@@ -192,6 +192,14 @@ Do not set it to 0: that leaves the headline invisible.
    arrived, so the text stays invisible for anyone who has asked for less motion.
    It wants to be a time after the animation ends.
 
+## Ready-made wrappers
+
+If you would rather not hand-write the wiring, these are the same thing as a
+drop-in file. They contain no effect logic.
+
+- https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/effects/sort/adapters/react.tsx
+- https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/effects/sort/adapters/vue.ts
+
 ---
 
 When you are done, confirm the effect renders and that its cleanup runs on

@@ -180,6 +180,14 @@ worst possible outcome of a motion preference.
    arrived, so the content stays invisible. It wants to be a time after the
    animation ends.
 
+## Ready-made wrappers
+
+If you would rather not hand-write the wiring, these are the same thing as a
+drop-in file. They contain no effect logic.
+
+- https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/effects/riser/adapters/react.tsx
+- https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/effects/riser/adapters/vue.ts
+
 ---
 
 When you are done, confirm the effect renders and that its cleanup runs on

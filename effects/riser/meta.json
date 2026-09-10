@@ -4,7 +4,13 @@
   "tier": 1,
   "description": "Children arrive on a stagger, held until the container is on screen",
   "category": "reveals",
-  "tags": ["scroll", "reveal", "stagger", "dom", "no-dependencies"],
+  "tags": [
+    "scroll",
+    "reveal",
+    "stagger",
+    "dom",
+    "no-dependencies"
+  ],
   "peerDependencies": {},
   "browser": {
     "webgl": "none",
@@ -32,6 +38,16 @@
       "from": "effects/riser/core.ts",
       "to": "src/beamish/effects/riser/core.ts",
       "role": "core"
+    },
+    {
+      "from": "effects/riser/adapters/react.tsx",
+      "to": "src/beamish/effects/riser/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/riser/adapters/vue.ts",
+      "to": "src/beamish/effects/riser/vue.ts",
+      "role": "adapter"
     }
   ],
   "options": {
@@ -42,7 +58,11 @@
     },
     "order": {
       "type": "enum",
-      "values": ["forward", "reverse", "centre"],
+      "values": [
+        "forward",
+        "reverse",
+        "centre"
+      ],
       "default": "forward",
       "description": "The order children arrive in. `centre` starts in the middle and works outwards, which suits a row of three or five."
     },
@@ -53,7 +73,10 @@
       "max": 400,
       "step": 5,
       "unit": "ms",
-      "sensible": [60, 140],
+      "sensible": [
+        60,
+        140
+      ],
       "description": "Milliseconds between one child and the next. Past about 150 a list of eight takes over a second to finish and people start scrolling away from it."
     },
     "duration": {
@@ -63,7 +86,10 @@
       "max": 3000,
       "step": 10,
       "unit": "ms",
-      "sensible": [600, 1100],
+      "sensible": [
+        600,
+        1100
+      ],
       "description": "Milliseconds each child takes on its own."
     },
     "rise": {
@@ -73,7 +99,10 @@
       "max": 120,
       "step": 1,
       "unit": "px",
-      "sensible": [20, 50],
+      "sensible": [
+        20,
+        50
+      ],
       "description": "How far each child travels. Negative falls from above. Large values read as a page that has not finished loading."
     },
     "scale": {
@@ -82,7 +111,10 @@
       "min": 0.5,
       "max": 1.5,
       "step": 0.01,
-      "sensible": [0.94, 1.06],
+      "sensible": [
+        0.94,
+        1.06
+      ],
       "description": "Scale each child starts at. 1 is no scaling. Anything below 0.9 makes text resample and look soft on the way in."
     },
     "blur": {
@@ -91,7 +123,10 @@
       "min": 0,
       "max": 20,
       "step": 0.5,
-      "sensible": [0, 6],
+      "sensible": [
+        0,
+        6
+      ],
       "description": "Blur each child starts at. Off by default: on a card with an image inside, a blur costs far more than the transform does."
     },
     "reducedMotionTime": {

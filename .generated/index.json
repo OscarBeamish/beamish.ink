@@ -639,6 +639,16 @@
         "from": "effects/riser/core.ts",
         "to": "src/beamish/effects/riser/core.ts",
         "role": "core"
+      },
+      {
+        "from": "effects/riser/adapters/react.tsx",
+        "to": "src/beamish/effects/riser/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/riser/adapters/vue.ts",
+        "to": "src/beamish/effects/riser/vue.ts",
+        "role": "adapter"
       }
     ],
     "options": {
@@ -781,6 +791,16 @@
         "from": "effects/sort/core.ts",
         "to": "src/beamish/effects/sort/core.ts",
         "role": "core"
+      },
+      {
+        "from": "effects/sort/adapters/react.tsx",
+        "to": "src/beamish/effects/sort/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/sort/adapters/vue.ts",
+        "to": "src/beamish/effects/sort/vue.ts",
+        "role": "adapter"
       }
     ],
     "options": {
@@ -1052,5 +1072,204 @@
     },
     "group": "effects",
     "intro": "Sundial is a still life. Seven matte forms stand on paper, lit by one sun that\nmakes a complete circuit over the loop. The forms never move. The shadows are the\nsubject: they lengthen, swing round, cross each other, and arrive back exactly\nwhere they started.\n\nIt is a real three.js scene. A perspective camera, seven meshes, standard\nmaterials, a directional light with a shadow map, and a dim bounce light standing\nin for light coming back off the paper. Not a full-bleed shader pretending to be\nthree-dimensional.\n\nThe paper is never lit. It is the scene background, and the ground plane is a\n`ShadowMaterial` that draws nothing but the shadow. A lit plane picks up the sun\nat a grazing angle and lands around 85% of its own colour, which on warm paper is\na warm grey. This way the paper comes out the colour you asked for.\n\nThe forms sit in the middle and the sun keeps the edges clear, so there is room\nfor a headline over the top. That is what it is for."
+  },
+  {
+    "name": "Tilt",
+    "slug": "tilt",
+    "tier": 1,
+    "description": "A panel that leans towards the cursor, with a sheen raking across it",
+    "category": "surfaces",
+    "tags": [
+      "card",
+      "pointer",
+      "3d",
+      "transform",
+      "dom",
+      "no-dependencies"
+    ],
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "No canvas and no WebGL. One CSS transform and one radial gradient",
+        "The easing is a CSS transition rather than a per-frame spring, so nothing integrates and renderAtTime stays pure",
+        "The sheen uses mix-blend-mode: soft-light, which is unsupported below Safari 15.4 and simply does not paint there"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.2,
+      "contexts": 0,
+      "notes": [
+        "Composited transform and opacity only",
+        "The gradient string is rebuilt each frame; the paint is cheap, the string is cheaper"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/tilt/core.ts",
+        "to": "src/beamish/effects/tilt/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/tilt/adapters/react.tsx",
+        "to": "src/beamish/effects/tilt/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/tilt/adapters/vue.ts",
+        "to": "src/beamish/effects/tilt/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "maxTilt": {
+        "type": "number",
+        "default": 9,
+        "description": "How far it leans at the corners. Past about 16 the text on the card starts to distort and people read it as a bug rather than a bevel.",
+        "min": 0,
+        "max": 30,
+        "step": 0.5,
+        "unit": "deg",
+        "sensible": [
+          5,
+          14
+        ]
+      },
+      "perspective": {
+        "type": "number",
+        "default": 900,
+        "description": "Perspective distance. Lower is a wider, more theatrical lens; higher flattens the lean into something closer to a skew.",
+        "min": 200,
+        "max": 3000,
+        "step": 10,
+        "unit": "px",
+        "sensible": [
+          600,
+          1400
+        ]
+      },
+      "scale": {
+        "type": "number",
+        "default": 1.02,
+        "description": "Scale while the pointer is over it. 1 is no lift. Above 1.06 the card starts covering its neighbours.",
+        "min": 0.9,
+        "max": 1.2,
+        "step": 0.005,
+        "sensible": [
+          1,
+          1.05
+        ]
+      },
+      "sheen": {
+        "type": "number",
+        "default": 0.5,
+        "description": "Strength of the light pool following the cursor. Zero switches the overlay off entirely.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.3,
+          0.7
+        ]
+      },
+      "sheenColor": {
+        "type": "color",
+        "default": "#ffffff",
+        "description": "Colour of the sheen. On paper a warm white reads as light falling on the card. A cool white reads as glass, which is a different product."
+      },
+      "sheenSize": {
+        "type": "number",
+        "default": 0.75,
+        "description": "How wide the light pool is, as a fraction of the panel. Small and bright reads as a torch; wide and faint reads as a window.",
+        "min": 0.1,
+        "max": 2,
+        "step": 0.05,
+        "sensible": [
+          0.5,
+          1.1
+        ]
+      },
+      "ease": {
+        "type": "number",
+        "default": 320,
+        "description": "How long the panel takes to follow the cursor and to settle back. Zero locks it to the pointer, which feels precise and slightly cheap.",
+        "min": 0,
+        "max": 1200,
+        "step": 10,
+        "unit": "ms",
+        "sensible": [
+          200,
+          450
+        ]
+      },
+      "invert": {
+        "type": "boolean",
+        "default": false,
+        "description": "Tip away from the cursor rather than towards it. Reads as pushing the card rather than lifting it."
+      },
+      "reducedMotionTime": {
+        "type": "number",
+        "default": 0,
+        "description": "The single frame shown when the user prefers reduced motion. At rest there is no pointer, so this draws the panel flat and unmodified, which is the right answer.",
+        "min": 0,
+        "max": 60,
+        "step": 0.1,
+        "unit": "s"
+      }
+    },
+    "instruction": "move the cursor across the card",
+    "oneShot": false,
+    "cursor": {
+      "duration": 5,
+      "keys": [
+        {
+          "t": 0,
+          "x": 0.5,
+          "y": 0.5
+        },
+        {
+          "t": 0.7,
+          "x": 0.86,
+          "y": 0.2
+        },
+        {
+          "t": 1.7,
+          "x": 0.88,
+          "y": 0.82
+        },
+        {
+          "t": 2.6,
+          "x": 0.3,
+          "y": 0.86
+        },
+        {
+          "t": 3.4,
+          "x": 0.12,
+          "y": 0.24
+        },
+        {
+          "t": 4.2,
+          "x": 0.62,
+          "y": 0.36
+        },
+        {
+          "t": 5,
+          "x": 0.5,
+          "y": 0.5
+        }
+      ]
+    },
+    "record": {
+      "duration": 5,
+      "fps": 30,
+      "posterAt": 1.2
+    },
+    "group": "effects",
+    "intro": "Tilt leans a panel towards the cursor and rakes a pool of light across it as it\ngoes. One CSS transform and one radial gradient. No canvas, no WebGL, no npm\ndependency.\n\nThe easing is a CSS transition rather than a per-frame spring. That is a\ndeliberate choice: nothing integrates against the previous frame, so\n`renderAtTime` stays pure and the recorder scrubs the smoothing along with\neverything else. A spring would look almost the same and would make the effect\nimpossible to record.\n\nThe sheen is a warm white by default, not a cool one. Cool white on a panel reads\nas glass. Warm white reads as light falling on paper, which is the library this\nbelongs to.\n\n`destroy()` removes the sheen and clears every style it set."
   }
 ]

@@ -4,7 +4,14 @@
   "tier": 1,
   "description": "Type set one character at a time, in the order you choose",
   "category": "type",
-  "tags": ["text", "reveal", "stagger", "dom", "accessible", "no-dependencies"],
+  "tags": [
+    "text",
+    "reveal",
+    "stagger",
+    "dom",
+    "accessible",
+    "no-dependencies"
+  ],
   "peerDependencies": {},
   "browser": {
     "webgl": "none",
@@ -32,18 +39,37 @@
       "from": "effects/sort/core.ts",
       "to": "src/beamish/effects/sort/core.ts",
       "role": "core"
+    },
+    {
+      "from": "effects/sort/adapters/react.tsx",
+      "to": "src/beamish/effects/sort/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/sort/adapters/vue.ts",
+      "to": "src/beamish/effects/sort/vue.ts",
+      "role": "adapter"
     }
   ],
   "options": {
     "split": {
       "type": "enum",
-      "values": ["char", "word", "line"],
+      "values": [
+        "char",
+        "word",
+        "line"
+      ],
       "default": "char",
       "description": "What each animated piece is. Characters are grouped inside their word so the text still wraps."
     },
     "order": {
       "type": "enum",
-      "values": ["forward", "reverse", "centre", "random"],
+      "values": [
+        "forward",
+        "reverse",
+        "centre",
+        "random"
+      ],
       "default": "forward",
       "description": "The order pieces arrive in. `centre` starts in the middle and works outwards. `random` keeps every piece in its place in the sentence and only changes its turn."
     },
@@ -54,7 +80,10 @@
       "max": 200,
       "step": 1,
       "unit": "ms",
-      "sensible": [15, 45],
+      "sensible": [
+        15,
+        45
+      ],
       "description": "Milliseconds between one piece and the next. On a long heading this multiplies fast: 40ms across 60 characters is a two and a half second wait."
     },
     "duration": {
@@ -64,7 +93,10 @@
       "max": 3000,
       "step": 10,
       "unit": "ms",
-      "sensible": [500, 900],
+      "sensible": [
+        500,
+        900
+      ],
       "description": "Milliseconds each piece takes on its own."
     },
     "rise": {
@@ -74,7 +106,10 @@
       "max": 80,
       "step": 1,
       "unit": "px",
-      "sensible": [12, 34],
+      "sensible": [
+        12,
+        34
+      ],
       "description": "How far each piece travels. Negative falls from above instead of rising from below."
     },
     "blur": {
@@ -83,7 +118,10 @@
       "min": 0,
       "max": 20,
       "step": 0.5,
-      "sensible": [0, 8],
+      "sensible": [
+        0,
+        8
+      ],
       "description": "Blur each piece starts at. Zero is cheaper and often better at small sizes, where the blur just reads as a smudge."
     },
     "scale": {
@@ -92,7 +130,10 @@
       "min": 0.4,
       "max": 1.6,
       "step": 0.01,
-      "sensible": [0.9, 1.1],
+      "sensible": [
+        0.9,
+        1.1
+      ],
       "description": "Scale each piece starts at. 1 is no scaling, which is usually right for text."
     },
     "seed": {

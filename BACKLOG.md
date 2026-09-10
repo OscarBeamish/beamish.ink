@@ -33,7 +33,7 @@ keeps them framework-free and recordable. Tier 2 only where they need state.
 
 | Beamish | React Bits | P | Note |
 | --- | --- | --- | --- |
-| Sort | Split Text | 1 | **done**. Adapter files still outstanding |
+| Sort | Split Text | 1 | **done** |
 | Focus | Blur Text | 1 | Blur resolves to sharp |
 | Bleed | Fuzzy Text | 1 | Ink bleeding into paper fibres. Recast: theirs is a CRT wobble |
 | Misprint | Glitch Text | 1 | Recast as a plate slipping, not RGB channel split |
@@ -119,20 +119,20 @@ How things arrive on screen.
 
 | Beamish | React Bits | P | Note |
 | --- | --- | --- | --- |
-| Riser | Animated Content, Scroll Reveal, Scroll Float | 1 | **done**. Adapter files still outstanding |
+| Riser | Animated Content, Scroll Reveal, Scroll Float | 1 | **done** |
 | Dissolve | Pixel Transition, Pixel Swap, Halftone Reveal | 1 | Halftone dissolve. Three of theirs, one of ours |
 | Fade | Fade Content | 1 | Trivial, and its absence would be noticed |
 | Haze | Gradual Blur | 2 | |
 | Expand | Scroll Expand | 2 | |
 | Curtain | Masked Heading | 2 | Shared with Type |
 
-## Surfaces (from Components, 0 built)
+## Surfaces (from Components, 1 built)
 
 Cards, panels, images.
 
 | Beamish | React Bits | P | Note |
 | --- | --- | --- | --- |
-| Tilt | Tilted Card | 1 | |
+| Tilt | Tilted Card | 1 | **done** |
 | Spotlight | Spotlight Card, Border Glow, Glare Hover | 1 | Three of theirs, one of ours |
 | Contact | Chroma Grid | 1 | A contact sheet |
 | Vellum | Glass Surface, Fluid Glass, Reflective Card, Glass Icons | 1 | **recast**. Translucent paper, not frosted glass. Four of theirs, one of ours |
@@ -169,7 +169,7 @@ glows and five light-ray backdrops as separate entries and we would not.
 
 Of those 90: 25 are P1, about 30 are P2, and the rest are P3 or marked skip.
 
-Seven are built. At the rate of the first session, a good item costs most of a
+Eight are built. At the rate of the first session, a good item costs most of a
 day once you count the shader, the option surface, the recipe, the recording and
 the paste-test. Twenty-five P1 items is therefore several weeks, not a sitting.
 
