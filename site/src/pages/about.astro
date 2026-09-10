@@ -1,0 +1,76 @@
+---
+import Base from '../layouts/Base.astro'
+import { loadCatalogue, PIN } from '../lib/catalogue'
+
+const items = loadCatalogue()
+---
+
+<Base
+  title="About — Beamish"
+  description="Beamish, adj. — shining brightly; radiant. First recorded in 1530. A library of light and glow effects named after a five-hundred-year-old word for radiance."
+>
+  <article class="mx-auto max-w-[62ch] px-5 pt-32 pb-16 md:px-8 md:pt-44">
+    <h1 class="text-[clamp(2.2rem,7vw,4rem)] leading-[0.95]">
+      A five-hundred-year-old word for radiance.
+    </h1>
+
+    <div class="text-l2 mt-10 grid gap-5 font-[family-name:var(--font-display)] text-[1.05rem] leading-relaxed">
+      <p>
+        <strong class="text-l1">Beamish</strong>, <em>adj.</em> — shining
+        brightly; radiant. It is first recorded in 1530, in John Palsgrave's
+        <em>Lesclarcissement de la langue francoyse</em>, the earliest
+        French–English dictionary, glossing the French <em>radieux</em> as
+        “Beamysshe as the sonne is”.
+      </p>
+      <p>
+        Three centuries later Lewis Carroll used it in <em>Jabberwocky</em> —
+        “Come to my arms, my beamish boy!” — and may well have thought he had
+        coined it, alongside <em>chortle</em> and <em>galumph</em>, which he
+        genuinely did. He had not. He had found it.
+      </p>
+      <p>
+        It is also my surname, which is the other half of the reason a collection
+        of light and glow effects is called this.
+      </p>
+    </div>
+
+    <h2 class="border-line mt-16 border-b pb-3 text-[1.05rem]">How it works</h2>
+    <div class="text-l2 mt-5 grid gap-4 text-[0.9rem]">
+      <p>
+        There is no package. Every item on this site has a <strong class="text-l1"
+          >Copy prompt</strong
+        > button that hands your agent the pinned source URLs, the full option surface
+        with the ranges that actually look good, wiring for React, Vue and plain HTML,
+        cleanup and SSR notes, and the three mistakes most likely to be made. It then
+        adapts all of that to the project in front of it, which is something a package
+        cannot do.
+      </p>
+      <p>
+        If your agent cannot reach the web, the second button gives you the same
+        instructions with the source pasted in. Nobody hits a dead end because
+        their tool cannot fetch.
+      </p>
+      <p>
+        Prompt URLs are pinned to a git tag — currently <code class="text-l1">{PIN}</code
+        > — and never to <code>main</code>. A prompt you paste today will still fetch
+        the file it was written about in a year.
+      </p>
+    </div>
+
+    <h2 class="border-line mt-16 border-b pb-3 text-[1.05rem]">Designed for paper</h2>
+    <div class="text-l2 mt-5 grid gap-4 text-[0.9rem]">
+      <p>
+        Nearly every library in this space assumes a near-black canvas, and their
+        effects fall apart the moment you put them on anything else. All
+        {items.length} items here are built the other way round: the default palette
+        is warm paper, and each one is designed to look right on it. Light on light
+        is the harder problem, and the more useful one, because most of the web is
+        not black.
+      </p>
+      <p>
+        Everything is MIT. Where an effect is recognisably derived from a specific
+        published demo, the credit is on its page.
+      </p>
+    </div>
+  </article>
+</Base>
