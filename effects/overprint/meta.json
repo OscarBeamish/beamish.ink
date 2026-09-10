@@ -1,0 +1,144 @@
+{
+  "name": "Overprint",
+  "slug": "overprint",
+  "tier": 1,
+  "description": "Two ink plates drift out of registration behind a halftone screen",
+  "category": "backdrops",
+  "tags": ["shader", "webgl2", "print", "halftone", "paper", "ambient", "no-dependencies"],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "WebGL2 for gl_VertexID; there is no WebGL1 fallback and none is planned",
+      "Falls back to a still frame under prefers-reduced-motion, handled in the runtime"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 1.4,
+    "contexts": 1,
+    "notes": [
+      "One full-screen triangle, four octaves of value noise, two halftone lookups",
+      "No render targets, no textures, no allocations per frame"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/overprint/core.ts",
+      "to": "src/beamish/effects/overprint/core.ts",
+      "role": "core"
+    }
+  ],
+  "options": {
+    "paper": {
+      "type": "color",
+      "default": "#fbfaf4",
+      "description": "Paper colour. Set this to your own background or the panel will not sit in the page."
+    },
+    "inkA": {
+      "type": "color",
+      "default": "#363630",
+      "description": "First plate. A desaturated near-black reads as ink; pure black reads as a hole."
+    },
+    "inkB": {
+      "type": "color",
+      "default": "#c44400",
+      "description": "Second plate. This is where the colour lives — change this one first."
+    },
+    "scale": {
+      "type": "number",
+      "default": 1.9,
+      "min": 0.3,
+      "max": 6,
+      "step": 0.1,
+      "sensible": [1.2, 3],
+      "description": "Size of the ink shapes. Lower is broader and calmer."
+    },
+    "screen": {
+      "type": "number",
+      "default": 8,
+      "min": 2,
+      "max": 40,
+      "step": 0.5,
+      "unit": "dots / 100px",
+      "sensible": [5, 14],
+      "description": "Halftone frequency. Above about 20 the screen stops reading as a screen and starts reading as noise."
+    },
+    "angleA": {
+      "type": "number",
+      "default": 15,
+      "min": 0,
+      "max": 180,
+      "step": 1,
+      "unit": "deg",
+      "description": "Screen angle of the first plate."
+    },
+    "angleB": {
+      "type": "number",
+      "default": 75,
+      "min": 0,
+      "max": 180,
+      "step": 1,
+      "unit": "deg",
+      "sensible": [45, 105],
+      "description": "Screen angle of the second plate. Keep it at least 30 degrees from angleA — closer than that and the two screens beat against each other."
+    },
+    "drift": {
+      "type": "number",
+      "default": 5,
+      "min": 0,
+      "max": 30,
+      "step": 0.5,
+      "unit": "px",
+      "sensible": [4, 12],
+      "description": "Registration error: how far the plates slide apart over a loop. Zero is a clean print and much duller."
+    },
+    "coverage": {
+      "type": "number",
+      "default": 0.42,
+      "min": 0.1,
+      "max": 0.9,
+      "step": 0.01,
+      "sensible": [0.35, 0.6],
+      "description": "Ink density. Past 0.7 the plates flood and the paper stops showing through."
+    },
+    "grain": {
+      "type": "number",
+      "default": 0.35,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Paper tooth. Static by design — animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent."
+    },
+    "period": {
+      "type": "number",
+      "default": 5,
+      "min": 2,
+      "max": 120,
+      "step": 1,
+      "unit": "s",
+      "sensible": [5, 25],
+      "description": "Seconds for one full loop. The animation is exactly periodic over this. The default is 5 so that the preview video is a whole cycle; raise it to 15–25 for a page background you want to forget is moving."
+    },
+    "reducedMotionTime": {
+      "type": "number",
+      "default": 1.4,
+      "min": 0,
+      "max": 120,
+      "step": 0.1,
+      "unit": "s",
+      "description": "The single frame shown when the user prefers reduced motion. Pick one that composes rather than the frame at zero."
+    }
+  },
+  "instruction": "ambient — nothing to do",
+  "oneShot": false,
+  "record": {
+    "duration": 5,
+    "fps": 60,
+    "posterAt": 2.05
+  }
+}

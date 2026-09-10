@@ -182,6 +182,21 @@ export const metaSchema = z
         message: 'pointer-driven tier-1 items need a cursor path or the recorder gets a still'
       })
     }
+    /*
+     * A recording is only seamless if it spans a whole number of loops. An item
+     * with a 20s period recorded for 5s cuts mid-cycle and the video jumps —
+     * which is the kind of thing nobody notices until it is on the homepage.
+     */
+    const period = value.options['period']
+    if (period && typeof period.default === 'number') {
+      const loops = value.record.duration / period.default
+      if (!Number.isInteger(Number(loops.toFixed(6)))) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `record.duration (${value.record.duration}s) is not a whole number of loops at the default period (${period.default}s), so the video will not loop seamlessly`
+        })
+      }
+    }
     if (value.perf.contexts === 1 && value.browser.webgl === 'none') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

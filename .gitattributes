@@ -1,2 +1,12 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Source is served raw from GitHub straight into other people's projects, so it
+# is stored and checked out with LF everywhere. Nothing here is Windows-specific.
+* text=auto eol=lf
+
+# Recorded media is committed (the site host serves it; raw GitHub and LFS both
+# draw on a 1GB/month tier that one traffic spike would exhaust). No LFS: the
+# budget is capped in tools/recorder instead — see AGENTS.md.
+*.mp4  binary
+*.webm binary
+*.jpg  binary
+*.png  binary
+*.woff2 binary
