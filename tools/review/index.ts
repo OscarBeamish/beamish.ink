@@ -23,7 +23,7 @@ import { fileURLToPath } from 'node:url'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 const SHOTS = path.join(ROOT, 'tools', 'review', '.shots')
-const PORT = 4331
+const PORT = 4489
 const ORIGIN = `http://localhost:${PORT}`
 
 const WIDTHS = [
@@ -125,13 +125,25 @@ async function routes(): Promise<string[]> {
   return ['/', '/how-it-works/', ...items.map(item => `/${item.group}/${item.slug}/`)]
 }
 
+/*
+ * Runs astro's entry point through node directly rather than through npx and a
+ * shell. On Windows a shell-spawned child means kill() reaches the shell and
+ * leaves the server running, which then poisons the next run: it answers on the
+ * port, the review connects to a stale build, and reports on the wrong site.
+ */
 function serve(): ChildProcess {
-  const child = spawn(
-    process.platform === 'win32' ? 'npx.cmd' : 'npx',
-    ['astro', 'preview', '--port', String(PORT)],
-    { cwd: path.join(ROOT, 'site'), stdio: 'ignore', shell: process.platform === 'win32' }
+  return spawn(
+    process.execPath,
+    [
+      path.join(ROOT, 'site', 'node_modules', 'astro', 'astro.js'),
+      'preview',
+      '--port',
+      String(PORT),
+      '--host',
+      '127.0.0.1'
+    ],
+    { cwd: path.join(ROOT, 'site'), stdio: 'ignore' }
   )
-  return child
 }
 
 async function waitForServer(timeoutMs = 30_000) {
@@ -151,6 +163,22 @@ async function waitForServer(timeoutMs = 30_000) {
 async function main() {
   if (!existsSync(path.join(ROOT, 'site', 'dist', 'index.html'))) {
     throw new Error('site/dist is missing. Run `pnpm build` first.')
+  }
+
+  /*
+   * Refuse to run if something already answers on the port. Astro's preview
+   * silently increments when a port is taken, so without this the review would
+   * quietly test whatever else happened to be listening and report on the wrong
+   * site. It did exactly that once.
+   */
+  try {
+    await fetch(ORIGIN, { signal: AbortSignal.timeout(1500) })
+    throw new Error(
+      `Something is already serving ${ORIGIN}. Stop it, or the review will test the wrong site.`
+    )
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith('Something is already')) throw error
+    // Connection refused is what we want: the port is free.
   }
 
   await rm(SHOTS, { recursive: true, force: true }).catch(() => {})
