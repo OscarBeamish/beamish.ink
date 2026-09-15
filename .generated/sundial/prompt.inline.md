@@ -577,7 +577,12 @@ class SundialSurface implements Surface<SundialOptions> {
     // and paper staying paper is the whole premise.
     renderer.toneMapping = THREE.NoToneMapping
     renderer.shadowMap.enabled = true
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    /*
+     * PCF, not PCFSoft. They sound the other way round, but shadow.radius is
+     * only read by the PCF branch of three's shadow shader: under PCFSoft the
+     * kernel is fixed and the softness control silently does nothing.
+     */
+    renderer.shadowMap.type = THREE.PCFShadowMap
 
     const scene = new THREE.Scene()
 

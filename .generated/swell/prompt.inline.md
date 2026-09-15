@@ -495,6 +495,8 @@ export type SwellOptions = BaseOptions & {
   elevation: number
   /** How dark the shadows fall on the paper, 0 to 1. */
   shadow: number
+  /** Shadow edge softness, 0 to 1. */
+  softness: number
   /** Camera height. 0 is eye level with the paper, 1 looks straight down. */
   tilt: number
   /** How much of the frame the field fills. */
@@ -520,6 +522,7 @@ export const swellDefaults: SwellOptions = {
   falloff: 0.26,
   elevation: 36,
   shadow: 0.26,
+  softness: 0.5,
   tilt: 0.6,
   zoom: 0.8,
   period: 5,
@@ -566,7 +569,12 @@ class SwellSurface implements Surface<SwellOptions> {
     // staying paper is the premise of the whole library.
     renderer.toneMapping = THREE.NoToneMapping
     renderer.shadowMap.enabled = true
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    /*
+     * PCF, not PCFSoft. They sound the other way round, but shadow.radius is
+     * only read by the PCF branch of three's shadow shader: under PCFSoft the
+     * kernel is fixed and the softness control silently does nothing.
+     */
+    renderer.shadowMap.type = THREE.PCFShadowMap
 
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(28, 1, 0.5, 120)
@@ -732,6 +740,7 @@ class SwellSurface implements Surface<SwellOptions> {
     )
     sun.target.position.set(0, 0, 0)
     sun.target.updateMatrixWorld()
+    sun.shadow.radius = 1 + opts.softness * 6
 
     /*
      * Frame the field rather than the viewport. Portrait and landscape need very
@@ -922,6 +931,7 @@ as the second argument to the create function; anything omitted takes its defaul
 | `falloff` | number | `0.26` | 0.05 to 2 (looks right between 0.18 and 0.6) | How quickly the ripple fades away from the cursor. Low spreads across the whole field; high is a tight pool underneath it. |
 | `elevation` | number | `36` | 8 to 80 deg (looks right between 25 and 50) | Sun height above the horizon. Low throws long shadows between the forms, which is most of what gives the field depth. |
 | `shadow` | number | `0.26` | 0 to 1 (looks right between 0.15 and 0.4) | How dark the shadows fall on the paper. The paper is never lit, so this is the only thing drawn on it. |
+| `softness` | number | `0.5` | 0 to 1 (looks right between 0.3 and 0.7) | Shadow edge softness. Zero is a hard midday edge, one is heavy overcast. |
 | `tilt` | number | `0.6` | 0 to 1 (looks right between 0.4 and 0.75) | Camera height. Zero is eye level with the paper, one looks straight down. Low is dramatic and hides the ripple; high shows the pattern and flattens the forms. |
 | `zoom` | number | `0.8` | 0.3 to 1.6 (looks right between 0.6 and 1) | How much of the frame the field fills. |
 | `period` | number | `5` | 2 to 60 s (looks right between 5 and 20) | Seconds for one loop of the idle swell, the motion used when no pointer is present. Exactly periodic, so the loop closes. |

@@ -1439,6 +1439,18 @@
           0.4
         ]
       },
+      "softness": {
+        "type": "number",
+        "default": 0.5,
+        "description": "Shadow edge softness. Zero is a hard midday edge, one is heavy overcast.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.3,
+          0.7
+        ]
+      },
       "tilt": {
         "type": "number",
         "default": 0.6,

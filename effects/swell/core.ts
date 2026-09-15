@@ -46,6 +46,8 @@ export type SwellOptions = BaseOptions & {
   elevation: number
   /** How dark the shadows fall on the paper, 0 to 1. */
   shadow: number
+  /** Shadow edge softness, 0 to 1. */
+  softness: number
   /** Camera height. 0 is eye level with the paper, 1 looks straight down. */
   tilt: number
   /** How much of the frame the field fills. */
@@ -71,6 +73,7 @@ export const swellDefaults: SwellOptions = {
   falloff: 0.26,
   elevation: 36,
   shadow: 0.26,
+  softness: 0.5,
   tilt: 0.6,
   zoom: 0.8,
   period: 5,
@@ -117,7 +120,12 @@ class SwellSurface implements Surface<SwellOptions> {
     // staying paper is the premise of the whole library.
     renderer.toneMapping = THREE.NoToneMapping
     renderer.shadowMap.enabled = true
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    /*
+     * PCF, not PCFSoft. They sound the other way round, but shadow.radius is
+     * only read by the PCF branch of three's shadow shader: under PCFSoft the
+     * kernel is fixed and the softness control silently does nothing.
+     */
+    renderer.shadowMap.type = THREE.PCFShadowMap
 
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(28, 1, 0.5, 120)
@@ -283,6 +291,7 @@ class SwellSurface implements Surface<SwellOptions> {
     )
     sun.target.position.set(0, 0, 0)
     sun.target.updateMatrixWorld()
+    sun.shadow.radius = 1 + opts.softness * 6
 
     /*
      * Frame the field rather than the viewport. Portrait and landscape need very
