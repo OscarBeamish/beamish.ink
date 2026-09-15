@@ -77,7 +77,10 @@ const { slug, tier, instruction, oneShot } = Astro.props
 
   // Explicit, not glob. Five items is a list a person can read, and it keeps the
   // bundle honest about what each page actually pulls in.
-  const EFFECTS: Record<string, () => Promise<{ default: (el: HTMLElement) => EffectHandle }>> = {
+  const EFFECTS: Record<
+    string,
+    () => Promise<{ default: (el: HTMLElement, opts?: Record<string, unknown>) => EffectHandle }>
+  > = {
     overprint: () => import('@items/effects/overprint/core'),
     sundial: () => import('@items/effects/sundial/core'),
     foil: () => import('@items/effects/foil/core'),
@@ -85,7 +88,8 @@ const { slug, tier, instruction, oneShot } = Astro.props
     riser: () => import('@items/effects/riser/core'),
     tilt: () => import('@items/effects/tilt/core'),
     swell: () => import('@items/effects/swell/core'),
-    magnet: () => import('@items/effects/magnet/core')
+    magnet: () => import('@items/effects/magnet/core'),
+    tally: () => import('@items/effects/tally/core')
   }
 
   const COMPONENTS: Record<string, () => Promise<{ mount(el: HTMLElement): Mounted }>> = {
@@ -134,6 +138,10 @@ const { slug, tier, instruction, oneShot } = Astro.props
       <div><span>Sort</span><span>type</span></div>
       <div><span>Riser</span><span>reveal</span></div>
     </div>`,
+    tally: `<div class="demo-tally">
+      <span class="demo-tally__value">45,400</span>
+      <p>Stars on the library we are not competing with</p>
+    </div>`,
     magnet: `<div class="demo-magnet">
       <div class="demo-magnet__rest" aria-hidden="true"></div>
       <button type="button" class="beamish-ember beamish-ember--solid">Get prompt</button>
@@ -148,8 +156,20 @@ const { slug, tier, instruction, oneShot } = Astro.props
     </article>`
   }
 
+  /*
+   * Options the panel mounts with. Tally needs an explicit locale: Intl follows
+   * the browser's language setting, not the document's lang attribute, so a
+   * visitor whose browser is set to German sees 45.400 on an en-GB page.
+   */
+  const OPTIONS: Record<string, Record<string, unknown>> = {
+    tally: { locale: 'en-GB' }
+  }
+
   /* Where inside the injected markup the effect actually mounts. */
-  const MOUNT_ON: Record<string, string> = { magnet: '.beamish-ember' }
+  const MOUNT_ON: Record<string, string> = {
+    magnet: '.beamish-ember',
+    tally: '.demo-tally__value'
+  }
 
   for (const panel of document.querySelectorAll<HTMLElement>('[data-demo]')) {
     const slug = panel.dataset['slug'] ?? ''
@@ -175,7 +195,7 @@ const { slug, tier, instruction, oneShot } = Astro.props
       const target = markup
         ? ((inner ? stage.querySelector<HTMLElement>(inner) : stage.firstElementChild) as HTMLElement)
         : stage
-      const effect = module.default(target)
+      const effect = module.default(target, OPTIONS[slug])
       effect.start()
       handle = effect
     } else {

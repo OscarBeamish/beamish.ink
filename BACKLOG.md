@@ -26,7 +26,7 @@ Status: `done` items exist. Everything else is unbuilt.
 
 ---
 
-## Type (32 candidates, 1 built)
+## Type (32 candidates, 2 built)
 
 Text treatments. Tier 1 where the effect takes an element containing text, which
 keeps them framework-free and recordable. Tier 2 only where they need state.
@@ -38,7 +38,7 @@ keeps them framework-free and recordable. Tier 2 only where they need state.
 | Bleed | Fuzzy Text | 1 | Ink bleeding into paper fibres. Recast: theirs is a CRT wobble |
 | Misprint | Glitch Text | 1 | Recast as a plate slipping, not RGB channel split |
 | Impression | Text Pressure, Variable Proximity | 1 | Variable font weight under the cursor. Two of theirs, one of ours |
-| Tally | Count Up | 1 | Animated number. Needs `Intl.NumberFormat`, not string padding |
+| Tally | Count Up | 1 | **done** |
 | Fountain | Gradient Text | 2 | Split-fountain inking rather than an animated rainbow |
 | Gloss | Shiny Text | 2 | Sheen sweep. Restrained: theirs reads as a discount code |
 | Slug | Text Type | 2 | Typewriter. A slug is a cast line of type |
@@ -202,7 +202,7 @@ Codrops adds eight more worth building, three of them P1 and all of them 3D.
 
 Of the React Bits 90: 25 are P1, about 30 are P2, and the rest are P3 or marked skip.
 
-Ten are built. At the rate of the first session, a good item costs most of a
+Eleven are built. At the rate of the first session, a good item costs most of a
 day once you count the shader, the option surface, the recipe, the recording and
 the paste-test. Twenty-five P1 items is therefore several weeks, not a sitting.
 

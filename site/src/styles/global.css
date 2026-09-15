@@ -201,3 +201,32 @@
     grid-area: 1 / 1;
   }
 }
+
+@layer components {
+  /* The Tally panel. */
+  .demo-tally {
+    display: grid;
+    justify-items: center;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .demo-tally__value {
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 9vw, 5.5rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--label-1);
+    /* Tabular figures, or the line jitters as the digits change width. */
+    font-variant-numeric: tabular-nums;
+  }
+
+  .demo-tally p {
+    margin: 0;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--label-3);
+  }
+}

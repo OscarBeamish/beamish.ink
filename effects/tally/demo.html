@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tally: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        place-content: center;
+        justify-items: center;
+        gap: 0.6rem;
+      }
+      #count {
+        font-family: var(--font-display);
+        font-size: clamp(3.5rem, 14vw, 9rem);
+        font-weight: 700;
+        letter-spacing: -0.04em;
+        line-height: 1;
+        /* Tabular figures, or the line jitters as the digits change width. */
+        font-variant-numeric: tabular-nums;
+      }
+      p {
+        margin: 0;
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--label-3);
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+
+      The real figure is in the markup. Without JavaScript the page still says
+      45,400, which is the whole point of reading the target from the text.
+    -->
+    <div id="stage">
+      <span id="count">45,400</span>
+      <p>Stars on the library we are not competing with</p>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      // Intl follows the browser's language setting, not the document's lang
+      // attribute, so the locale is named rather than left to chance.
+      const handle = window.Beamish.create(document.getElementById('count'), {
+        locale: 'en-GB'
+      })
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      window.__beamish = handle
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
+    </script>
+  </body>
+</html>
