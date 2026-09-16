@@ -9,7 +9,11 @@ type Props = {
   video?: string | null
 }
 
-const { title, description, image = null, video = null } = Astro.props
+// Item pages pass their own poster. Everything else falls back to the social
+// card, because a shared link with no image is a grey box.
+const FALLBACK_IMAGE = '/social/preview.png'
+
+const { title, description, image = FALLBACK_IMAGE, video = null } = Astro.props
 const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink')
 ---
 
@@ -26,10 +30,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical.href} />
-    {image && <meta property="og:image" content={new URL(image, canonical).href} />}
+    <meta property="og:image" content={new URL(image ?? FALLBACK_IMAGE, canonical).href} />
+    <meta property="og:image:alt" content={description} />
     {/* The videos are the product, so a shared link should unfurl into one. */}
     {video && <meta property="og:video" content={new URL(video, canonical).href} />}
-    <meta name="twitter:card" content={video || image ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:card" content="summary_large_image" />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 

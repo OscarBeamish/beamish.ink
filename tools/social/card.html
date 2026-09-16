@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <title>Beamish social card</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 1280px;
+        height: 640px;
+        overflow: hidden;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+
+      /*
+       * The card is rendered by the library it is advertising. The relief below
+       * is a live Contour, not a screenshot of one, which means the image can
+       * never drift from what the site actually ships.
+       */
+      /*
+       * Two columns, not an overlay. The first attempt put the wordmark on top
+       * of the relief behind a gradient scrim, and at the size a timeline shows
+       * this, type over ridges is simply unreadable however dark the scrim is.
+       */
+      #stage {
+        position: absolute;
+        inset: 0 0 0 33%;
+      }
+
+      /*
+       * Only over the join. The scene paints its own paper, so the two halves
+       * are the same colour already; this just softens the point where the land
+       * itself begins.
+       */
+      .fade {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 30%;
+        width: 16%;
+        background: linear-gradient(
+          90deg,
+          rgb(var(--background-deep)) 0%,
+          rgb(var(--background-deep) / 0) 100%
+        );
+      }
+
+      .plate {
+        position: absolute;
+        inset: 0;
+        width: 46%;
+        display: grid;
+        align-content: center;
+        padding: 0 0 0 80px;
+        box-sizing: border-box;
+      }
+
+      h1 {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: 80px;
+        font-weight: 700;
+        letter-spacing: -0.045em;
+        line-height: 0.9;
+      }
+
+      h1 span {
+        color: var(--label-3);
+      }
+
+      .rule {
+        width: 56px;
+        height: 2px;
+        background: var(--accent);
+        margin: 34px 0 0;
+      }
+
+      p {
+        margin: 22px 0 0;
+        font-size: 21px;
+        line-height: 1.5;
+        max-width: 26ch;
+        color: var(--label-2);
+      }
+
+      .foot {
+        position: absolute;
+        left: 80px;
+        bottom: 56px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-size: 16px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--label-3);
+      }
+
+      .mark {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage"></div>
+    <div class="fade"></div>
+
+    <div class="plate">
+      <h1>Effects and<br /><span>components</span></h1>
+      <div class="rule"></div>
+      <p>Three.js scenes, WebGL shaders and text animations. For your AI agent.</p>
+    </div>
+
+    <div class="foot">
+      <span class="mark"></span>
+      beamish.ink · 12 items · MIT
+    </div>
+
+    <script src="../../effects/contour/demo.bundle.js"></script>
+    <script>
+      // Low sun and a low camera: the ridges read as relief at thumbnail size,
+      // where a top-down map would collapse into texture.
+      const handle = window.Beamish.create(document.getElementById('stage'), {
+        tilt: 0.44,
+        zoom: 0.4,
+        elevation: 17,
+        azimuth: 52,
+        relief: 2.2,
+        density: 1.5,
+        weight: 0.8
+      })
+      window.__beamish = handle
+    </script>
+  </body>
+</html>
