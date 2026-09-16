@@ -74,7 +74,7 @@ dark-canvas assumption, so most entries here are recasts rather than ports.
 | Marbling | Liquid Chrome, Ferrofluid | 1 | Paper marbling. Two of theirs, one of ours, and ours is paper-native |
 | Guilloche | Waves, Line Waves, Sliced Waves | 1 | The engraved wave pattern on a banknote. Three of theirs, one of ours |
 | Stipple | Dot Grid, Dot Field | 1 | |
-| Contour | Topography | 1 | |
+| Contour | Topography | 1 | **moved to 3D**, see the shortlist below. A lit relief, not a flat shader |
 | Watermark | Silk | 2 | Light through paper. **recast** |
 | Weft | Threads, Web Threads, Floating Lines | 2 | Woven fibre. Three of theirs, one of ours |
 | Rake | Light Rays, Side Rays, Light Pillar, Lightfall, Beams | 2 | Raking light across a surface. Five of theirs, one of ours |
@@ -190,6 +190,39 @@ backdrops. Codrops publishes cameras, meshes, depth maps and physics every week.
 
 Credit goes in the effect's `meta.json` and on its page, naming the author and
 linking the article.
+
+### The 3D shortlist, sharpened
+
+Swell proved the pattern: a three.js scene in the Sundial family costs about half
+a day and is the one thing React Bits cannot answer. Three scenes now exist in
+two shapes, a still life and a field. These are the next three, in order.
+
+**Contour** is the pick. Codrops' Ridgeline piece is real-time terrain, and a
+topographic relief is the most paper-native 3D subject there is: contour lines
+are a printing convention, the surface is matte, and it lights exactly like
+Sundial. It needs no assets, no WebGPU and no model loader, which is what
+disqualified the other candidates. It is also a third distinct shape after the
+still life and the field, so it stretches the runtime rather than repeating it.
+
+Promote it out of Backdrops. As a 2D shader it was a P1 nobody would have
+noticed; as a lit relief it is a headline item.
+
+**Vellum** second, from the Endless Glass Xylophone piece. Their glass is faked
+entirely in the shader with no refraction pass, which is the technique worth
+taking: translucent paper wants the same trick and costs the same nothing.
+
+**Vitrine** third, and only if a scroll-driven 3D gallery earns its keep. It
+needs an authored camera path, which is a different kind of maintenance from
+everything else here.
+
+Two more stay out. The face-mask piece needs a camera permission and a 3MB
+model. Anything built on TSL or WebGPU waits until WebGPU is not Chrome-first,
+because a prompt that only works in one browser is not a prompt worth pasting.
+
+One technique from their wave-grid article we deliberately did not take:
+raycasting the pointer into the scene. Swell maps the pointer straight onto grid
+coordinates instead. It is simpler, it has no per-frame raycast, and it keeps
+`renderAtTime` pure. Use the same approach in Contour.
 
 ---
 
