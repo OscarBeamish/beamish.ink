@@ -230,3 +230,51 @@
     color: var(--label-3);
   }
 }
+
+@layer components {
+  /*
+   * The reading column, with a breakout track either side. Everything that is
+   * words sits at a comfortable measure; only the demo goes wide. The named
+   * grid lines are what make `grid-column: full` readable at the call site.
+   */
+  .item {
+    display: grid;
+    grid-template-columns:
+      [full-start] minmax(1.25rem, 1fr)
+      [content-start] min(70ch, 100% - 2.5rem)
+      [content-end] minmax(1.25rem, 1fr)
+      [full-end];
+  }
+
+  .item > * {
+    grid-column: content;
+  }
+
+  .item__wide {
+    /*
+     * Wider than the text but not edge to edge. A demo panel touching both
+     * sides of a 27-inch monitor reads as a background, not as an exhibit.
+     */
+    grid-column: full;
+    width: min(1180px, 100% - 2.5rem);
+    margin-inline: auto;
+  }
+
+  @media (min-width: 768px) {
+    .item {
+      grid-template-columns:
+        [full-start] minmax(2rem, 1fr)
+        [content-start] min(70ch, 100% - 4rem)
+        [content-end] minmax(2rem, 1fr)
+        [full-end];
+    }
+
+    .item__wide {
+      width: min(1180px, 100% - 4rem);
+    }
+  }
+
+  .item dd {
+    margin-inline-start: 0;
+  }
+}

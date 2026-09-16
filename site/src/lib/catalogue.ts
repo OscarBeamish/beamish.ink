@@ -45,6 +45,24 @@ export function resolvePin(): string {
 
 export const PIN = resolvePin()
 
+/*
+ * A host that does a shallow clone has no tags, so `git describe` fails and the
+ * pin silently falls back to a commit SHA. The URLs still work, so nothing
+ * errors and nobody notices until a prompt is pasted somewhere. Say so in the
+ * build log. See DEPLOY.md step 4.
+ */
+if (!/^v[0-9]+\.[0-9]+\.[0-9]+/.test(PIN)) {
+  console.warn(
+    [
+      '',
+      `  Prompts are pinning to "${PIN}", which is not a version tag.`,
+      '  On a shallow clone set BEAMISH_PIN to the tag you released.',
+      '  See DEPLOY.md step 4.',
+      ''
+    ].join('\n')
+  )
+}
+
 export function loadCatalogue(): Item[] {
   const indexPath = path.join(GENERATED, 'index.json')
   if (!existsSync(indexPath)) {

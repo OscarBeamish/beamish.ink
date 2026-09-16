@@ -1,0 +1,22 @@
+# Cloudflare Pages reads this file from the build output root.
+
+# Astro fingerprints these filenames, so they can never go stale.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Fonts are self-hosted and versioned by hand. They change when a release
+# changes them, which is approximately never.
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Media filenames are not fingerprinted, so a re-record has to be able to take
+# effect. A day is long enough to be free on a repeat visit and short enough
+# that a fix is not stuck behind a year of caching.
+/media/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  # Nothing here embeds anyone, and nobody should embed this in a frame.
+  X-Frame-Options: SAMEORIGIN
