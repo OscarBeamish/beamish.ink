@@ -62,7 +62,7 @@ keeps them framework-free and recordable. Tier 2 only where they need state.
 | Pigment | Particle Text | 3 | Canvas particles from glyph pixels. Expensive |
 | Teletype | ASCII Text | 3 | **recast** for paper, theirs is green-on-black |
 
-## Backdrops (56 candidates, 2 built)
+## Backdrops (56 candidates, 3 built)
 
 Ambient full-bleed scenes. This is the category most damaged by their
 dark-canvas assumption, so most entries here are recasts rather than ports.
@@ -74,7 +74,7 @@ dark-canvas assumption, so most entries here are recasts rather than ports.
 | Marbling | Liquid Chrome, Ferrofluid | 1 | Paper marbling. Two of theirs, one of ours, and ours is paper-native |
 | Guilloche | Waves, Line Waves, Sliced Waves | 1 | The engraved wave pattern on a banknote. Three of theirs, one of ours |
 | Stipple | Dot Grid, Dot Field | 1 | |
-| Contour | Topography | 1 | **moved to 3D**, see the shortlist below. A lit relief, not a flat shader |
+| Contour | Topography | 1 | **done**, as a lit relief rather than a flat shader |
 | Watermark | Silk | 2 | Light through paper. **recast** |
 | Weft | Threads, Web Threads, Floating Lines | 2 | Woven fibre. Three of theirs, one of ours |
 | Rake | Light Rays, Side Rays, Light Pillar, Lightfall, Beams | 2 | Raking light across a surface. Five of theirs, one of ours |
@@ -197,7 +197,7 @@ Swell proved the pattern: a three.js scene in the Sundial family costs about hal
 a day and is the one thing React Bits cannot answer. Three scenes now exist in
 two shapes, a still life and a field. These are the next three, in order.
 
-**Contour** is the pick. Codrops' Ridgeline piece is real-time terrain, and a
+**Contour** is done. Codrops' Ridgeline piece is real-time terrain, and a
 topographic relief is the most paper-native 3D subject there is: contour lines
 are a printing convention, the surface is matte, and it lights exactly like
 Sundial. It needs no assets, no WebGPU and no model loader, which is what
@@ -207,7 +207,7 @@ still life and the field, so it stretches the runtime rather than repeating it.
 Promote it out of Backdrops. As a 2D shader it was a P1 nobody would have
 noticed; as a lit relief it is a headline item.
 
-**Vellum** second, from the Endless Glass Xylophone piece. Their glass is faked
+**Vellum** is next, from the Endless Glass Xylophone piece. Their glass is faked
 entirely in the shader with no refraction pass, which is the technique worth
 taking: translucent paper wants the same trick and costs the same nothing.
 
@@ -235,7 +235,7 @@ Codrops adds eight more worth building, three of them P1 and all of them 3D.
 
 Of the React Bits 90: 25 are P1, about 30 are P2, and the rest are P3 or marked skip.
 
-Eleven are built. At the rate of the first session, a good item costs most of a
+Twelve are built. At the rate of the first session, a good item costs most of a
 day once you count the shader, the option surface, the recipe, the recording and
 the paste-test. Twenty-five P1 items is therefore several weeks, not a sitting.
 

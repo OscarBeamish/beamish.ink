@@ -89,7 +89,8 @@ const { slug, tier, instruction, oneShot } = Astro.props
     tilt: () => import('@items/effects/tilt/core'),
     swell: () => import('@items/effects/swell/core'),
     magnet: () => import('@items/effects/magnet/core'),
-    tally: () => import('@items/effects/tally/core')
+    tally: () => import('@items/effects/tally/core'),
+    contour: () => import('@items/effects/contour/core')
   }
 
   const COMPONENTS: Record<string, () => Promise<{ mount(el: HTMLElement): Mounted }>> = {
