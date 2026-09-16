@@ -27,8 +27,8 @@ import between them is relative.
 
 | Save as | Fetch from |
 | --- | --- |
-| `src/beamish/components/ember/react.tsx` | https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/components/ember/react.tsx |
-| `src/beamish/components/ember/styles.css` | https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/components/ember/styles.css |
+| `src/beamish/components/ember/react.tsx` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/components/ember/react.tsx |
+| `src/beamish/components/ember/styles.css` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/components/ember/styles.css |
 
 If you cannot fetch these URLs, say so. Do not write the file from memory. There
 is a version of this prompt with the source inlined, and a guessed shader
@@ -65,7 +65,7 @@ export function Cta() {
   return (
     <div className="flex gap-4">
       <Ember onClick={() => copy()}>Get prompt</Ember>
-      <Ember tone="quiet" href="https://github.com/oscarbeamish/beamish">
+      <Ember tone="quiet" href="https://github.com/OscarBeamish/beamish.ink">
         View source
       </Ember>
     </div>
@@ -82,7 +82,7 @@ import { Ember } from '@/beamish/components/ember/vue'
 
 <template>
   <Ember @click="copy">Get prompt</Ember>
-  <Ember tone="quiet" href="https://github.com/oscarbeamish/beamish">View source</Ember>
+  <Ember tone="quiet" href="https://github.com/OscarBeamish/beamish.ink">View source</Ember>
 </template>
 ```
 
@@ -161,7 +161,7 @@ have asked for less motion still need to know what they are pointing at.
 If you would rather not hand-write the wiring, these are the same thing as a
 drop-in file. They contain no effect logic.
 
-- https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/components/ember/vue.ts
+- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/components/ember/vue.ts
 
 ---
 

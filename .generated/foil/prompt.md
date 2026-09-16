@@ -28,8 +28,8 @@ import between them is relative.
 
 | Save as | Fetch from |
 | --- | --- |
-| `src/beamish/shared/runtime.ts` | https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/shared/runtime.ts |
-| `src/beamish/effects/foil/core.ts` | https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/effects/foil/core.ts |
+| `src/beamish/shared/runtime.ts` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/shared/runtime.ts |
+| `src/beamish/effects/foil/core.ts` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/foil/core.ts |
 
 If you cannot fetch these URLs, say so. Do not write the file from memory. There
 is a version of this prompt with the source inlined, and a guessed shader

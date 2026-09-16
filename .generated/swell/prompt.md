@@ -29,8 +29,8 @@ import between them is relative.
 
 | Save as | Fetch from |
 | --- | --- |
-| `src/beamish/shared/runtime.ts` | https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/shared/runtime.ts |
-| `src/beamish/effects/swell/core.ts` | https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/effects/swell/core.ts |
+| `src/beamish/shared/runtime.ts` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/shared/runtime.ts |
+| `src/beamish/effects/swell/core.ts` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/swell/core.ts |
 
 If you cannot fetch these URLs, say so. Do not write the file from memory. There
 is a version of this prompt with the source inlined, and a guessed shader
@@ -214,8 +214,8 @@ flat grid of identical pins is not worth looking at.
 If you would rather not hand-write the wiring, these are the same thing as a
 drop-in file. They contain no effect logic.
 
-- https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/effects/swell/adapters/react.tsx
-- https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/effects/swell/adapters/vue.ts
+- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/swell/adapters/react.tsx
+- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/swell/adapters/vue.ts
 
 ---
 

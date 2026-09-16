@@ -28,8 +28,8 @@ import between them is relative.
 
 | Save as | Fetch from |
 | --- | --- |
-| `src/beamish/components/contents/react.tsx` | https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/components/contents/react.tsx |
-| `src/beamish/components/contents/styles.css` | https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/components/contents/styles.css |
+| `src/beamish/components/contents/react.tsx` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/components/contents/react.tsx |
+| `src/beamish/components/contents/styles.css` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/components/contents/styles.css |
 
 If you cannot fetch these URLs, say so. Do not write the file from memory. There
 is a version of this prompt with the source inlined, and a guessed shader
@@ -186,7 +186,7 @@ The overlay still appears and disappears. Only the movement goes.
 If you would rather not hand-write the wiring, these are the same thing as a
 drop-in file. They contain no effect logic.
 
-- https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/components/contents/vue.ts
+- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/components/contents/vue.ts
 
 ---
 

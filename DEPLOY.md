@@ -11,25 +11,25 @@ every prompt on the live site.
 
 ## 1. Push the repo to GitHub
 
-Cloudflare builds from a repository, so this has to exist first.
+Already done. `OscarBeamish/beamish.ink`, private, `main`.
 
 ```bash
-gh repo create oscarbeamish/beamish --private --source=. --remote=origin
-git push -u origin main
+git push origin main
 git push --tags
 ```
 
-`--tags` matters. The tags are what the prompts pin to.
+`--tags` matters. The tags are what the prompts pin to, and a push without them
+leaves the build resolving a commit SHA. See step 4.
 
-Keep it private for now. Cloudflare can build a private repo, and nothing about
-going live requires the source to be public yet.
+Private is fine for now. Cloudflare builds a private repo without complaint, and
+nothing about going live requires the source to be public yet.
 
 ## 2. Add the site to Cloudflare
 
 You need a Cloudflare account. Free is fine.
 
 1. **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
-2. Authorise GitHub, pick `oscarbeamish/beamish`
+2. Authorise GitHub, pick `OscarBeamish/beamish.ink`
 3. Production branch: `main`
 
 ## 3. Build settings
@@ -157,24 +157,24 @@ Pages, and for an app that needs a runtime they are right. This has no runtime.
 Pages is simpler, the Git integration is better, and there is nothing to gain.
 
 **No media on a CDN of its own.** The videos are committed to the repo and served
-from the same origin as the site, which is about 18MB of assets. Cloudflare
+from the same origin as the site, which is about 29MB of assets. Cloudflare
 caches them at the edge for free. Revisit this if the repo passes 200MB, not
 before.
 
 ## When something is wrong
 
-**Build fails on `pnpm: not found`** — the `packageManager` field has been
+**Build fails on `pnpm: not found`.** The `packageManager` field has been
 removed from `package.json`. Put it back.
 
-**Build fails on `.generated/index.json is missing`** — the build command is
+**Build fails on `.generated/index.json is missing`.** The build command is
 running `astro build` directly instead of `pnpm build`. The generate step has to
 run first.
 
-**Prompts point at a SHA instead of a tag** — `BEAMISH_PIN` is unset or stale.
+**Prompts point at a SHA instead of a tag.** `BEAMISH_PIN` is unset or stale.
 Step 4.
 
-**Fonts look wrong on the live site but fine locally** — `site/public/fonts` is
+**Fonts look wrong on the live site but fine locally.** `site/public/fonts` is
 gitignored, because it is a copy. `pnpm build` runs `sync-public.mjs` first,
 which recreates it. If you changed the build command, that is why.
 
-**Videos 404** — same cause, same fix. `site/public/media` is a copy too.
+**Videos 404.** Same cause, same fix. `site/public/media` is a copy too.

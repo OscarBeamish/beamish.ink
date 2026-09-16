@@ -23,7 +23,7 @@ import { metaSchema, CATEGORY_LABELS, type Meta, type OptionSpec } from '../sche
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 const OUT = path.join(ROOT, '.generated')
-const REPO = 'oscarbeamish/beamish'
+const REPO = 'OscarBeamish/beamish.ink'
 const SITE = 'https://beamish.ink'
 
 const PIN_PLACEHOLDER = '{{PIN}}'

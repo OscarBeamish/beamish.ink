@@ -29,7 +29,7 @@ export function Cta() {
   return (
     <div className="flex gap-4">
       <Ember onClick={() => copy()}>Get prompt</Ember>
-      <Ember tone="quiet" href="https://github.com/oscarbeamish/beamish">
+      <Ember tone="quiet" href="https://github.com/OscarBeamish/beamish.ink">
         View source
       </Ember>
     </div>
@@ -46,7 +46,7 @@ import { Ember } from '@/beamish/components/ember/vue'
 
 <template>
   <Ember @click="copy">Get prompt</Ember>
-  <Ember tone="quiet" href="https://github.com/oscarbeamish/beamish">View source</Ember>
+  <Ember tone="quiet" href="https://github.com/OscarBeamish/beamish.ink">View source</Ember>
 </template>
 ```
 

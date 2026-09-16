@@ -29,8 +29,8 @@ import between them is relative.
 
 | Save as | Fetch from |
 | --- | --- |
-| `src/beamish/shared/runtime.ts` | https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/shared/runtime.ts |
-| `src/beamish/effects/contour/core.ts` | https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/effects/contour/core.ts |
+| `src/beamish/shared/runtime.ts` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/shared/runtime.ts |
+| `src/beamish/effects/contour/core.ts` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/contour/core.ts |
 
 If you cannot fetch these URLs, say so. Do not write the file from memory. There
 is a version of this prompt with the source inlined, and a guessed shader
@@ -214,8 +214,8 @@ thing to look at, so the default of 3 is as good as any other number.
 If you would rather not hand-write the wiring, these are the same thing as a
 drop-in file. They contain no effect logic.
 
-- https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/effects/contour/adapters/react.tsx
-- https://raw.githubusercontent.com/oscarbeamish/beamish/{{PIN}}/effects/contour/adapters/vue.ts
+- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/contour/adapters/react.tsx
+- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/contour/adapters/vue.ts
 
 ---
 
