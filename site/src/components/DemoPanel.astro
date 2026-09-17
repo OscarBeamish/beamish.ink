@@ -93,7 +93,8 @@ const { slug, tier, instruction, oneShot } = Astro.props
     'terrain-relief': () => import('@items/effects/terrain-relief/core'),
     'guilloche-lines': () => import('@items/effects/guilloche-lines/core'),
     'translucent-sheets': () => import('@items/effects/translucent-sheets/core'),
-    'scroll-slideshow': () => import('@items/effects/scroll-slideshow/core')
+    'scroll-slideshow': () => import('@items/effects/scroll-slideshow/core'),
+    'scroll-warp-image': () => import('@items/effects/scroll-warp-image/core')
   }
 
   const COMPONENTS: Record<string, () => Promise<{ mount(el: HTMLElement): Mounted }>> = {
@@ -154,19 +155,26 @@ const { slug, tier, instruction, oneShot } = Astro.props
      * are the host's own children rather than an option. Scrolling this page is
      * what drives it, so the panel needs nothing else.
      */
-    'scroll-slideshow': ['halftone-backdrop', 'guilloche-lines', 'pointer-ripple-grid', 'tilt-card']
+    'scroll-slideshow': [
+      ['01-curved-facade', 'A curved concrete apartment block, its balconies banding round the corner'],
+      ['02-perforated-grid', 'A facade of small square windows punched in a dark grid, seen from above'],
+      ['03-concrete-stair', 'Concrete stairs crossing back on themselves behind black steel railings'],
+      ['04-spiral-stair', 'A spiral stair curving down the inside of a circular concrete well']
+    ]
       .map(
-        slug =>
-          `<img class="demo-scroll-slideshow__plate" src="/media/${slug}/poster.jpg" alt="A still from the ${slug} effect" />`
+        ([file, alt]) =>
+          `<img class="demo-scroll-slideshow__plate" src="/plates/scroll-slideshow/${file}.jpg" alt="${alt}" />`
       )
       .join(''),
+    'scroll-warp-image':
+      '<img class="demo-plate-fill" src="/plates/scroll-warp-image/grid.jpg" alt="A facade of small square windows punched in a dark grid, seen from above" />',
     'scramble-text': '<h1 class="demo-heading">Come to my arms, my beamish boy</h1>',
     'scroll-reveal-rows': `<div class="demo-list">
-      <div><span>Overprint</span><span>shader</span></div>
-      <div><span>Sundial</span><span>three</span></div>
-      <div><span>Foil</span><span>pointer</span></div>
-      <div><span>Sort</span><span>type</span></div>
-      <div><span>Riser</span><span>reveal</span></div>
+      <div><span>Halftone Backdrop</span><span>shader</span></div>
+      <div><span>Cast Shadow Scene</span><span>three</span></div>
+      <div><span>Pointer Foil Sheen</span><span>pointer</span></div>
+      <div><span>Scramble Text</span><span>type</span></div>
+      <div><span>Scroll Reveal Rows</span><span>reveal</span></div>
     </div>`,
     'count-up-number': `<div class="demo-count-up-number">
       <span class="demo-count-up-number__value">45,400</span>
@@ -207,7 +215,7 @@ const { slug, tier, instruction, oneShot } = Astro.props
    * being animated, so it mounts on the stage rather than on the first child,
    * and the centring styles for DOM content must not apply to it.
    */
-  const CANVAS_WITH_CONTENT = new Set(['scroll-slideshow'])
+  const CANVAS_WITH_CONTENT = new Set(['scroll-slideshow', 'scroll-warp-image'])
 
   for (const panel of document.querySelectorAll<HTMLElement>('[data-demo]')) {
     const slug = panel.dataset['slug'] ?? ''

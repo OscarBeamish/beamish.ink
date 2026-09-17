@@ -2200,6 +2200,158 @@
     "intro": "A slideshow the page scroll runs, on a paper web that bows as it accelerates.\n\nA web press does not feed sheets. It feeds one continuous ribbon of paper off a\nreel, and at speed that ribbon bows between the rollers. The faster it runs the\nmore it bows. When the press stops, the paper lies flat.\n\nThat is the whole behaviour. At rest this draws an undistorted photograph and\nnothing else. The distortion is a function of scroll velocity, not of time and\nnot of position, so a reader who has stopped scrolling is looking at the picture\nrather than at an effect. Most WebGL sliders warp continuously and end up reading\nas a filter laid over the content. This one only exists while it is being pulled.\n\nThree things happen while it moves, and all three are the same press. The sides\nlag behind the middle, which curves the top and bottom edges. The whole web slides\na little against the direction of travel, the way anything with mass does when it\nis pulled. And the colour channels separate slightly at the edges, because a press\nrunning colour work strikes one plate per ink and a moving web lands them a\nfraction apart.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency, no render targets."
   },
   {
+    "name": "ScrollWarpImage",
+    "slug": "scroll-warp-image",
+    "tier": 1,
+    "description": "One picture that deforms, edges and all, as it travels up the viewport",
+    "category": "surfaces",
+    "tags": [
+      "webgl",
+      "shader",
+      "scroll",
+      "image",
+      "distortion",
+      "parallax",
+      "subtle",
+      "no-dependencies"
+    ],
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "The picture is the host element's own <img> child. It is hidden from sight and left in the document, so the alt text is whatever you wrote and a page with no JavaScript still shows it",
+        "Driven by scroll position rather than scroll speed, so the sheet is somewhere in the deformation the whole time it is on screen",
+        "The edges deform with the picture. The warp is applied first and whatever falls outside the source is paper, so the boundary of the sheet bends rather than staying a rectangle",
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 1,
+      "contexts": 1,
+      "notes": [
+        "Three texture reads per pixel, one per channel, because the colour fringe evaluates the deformation three times",
+        "The image uploads once, on load. Nothing is uploaded per frame",
+        "Fill rate and nothing else. There is no geometry"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/scroll-warp-image/core.ts",
+        "to": "src/beamish/effects/scroll-warp-image/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/scroll-warp-image/adapters/react.tsx",
+        "to": "src/beamish/effects/scroll-warp-image/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/scroll-warp-image/adapters/vue.ts",
+        "to": "src/beamish/effects/scroll-warp-image/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "paper": {
+        "type": "color",
+        "default": "#fbfaf4",
+        "description": "Shown wherever the warp has pulled the sheet away from the frame. Match it to the page behind, or a border appears out of nowhere as soon as anyone scrolls."
+      },
+      "bulge": {
+        "type": "number",
+        "default": 0.34,
+        "description": "Barrels the sheet at both ends of its travel, flat only as it passes the middle. The main shape of the effect, and the first thing to reach for. Signing it so that one end pinches instead wastes half the travel: a pinch samples inside the picture, so it reads as a zoom and the edges stay a rectangle.",
+        "min": 0,
+        "max": 1.2,
+        "step": 0.01
+      },
+      "twist": {
+        "type": "number",
+        "default": 0.13,
+        "description": "Rotation that grows with radius, so the corners lead and the middle holds. Without some of this the bulge reads as a zoom, because a purely radial scale is what a zoom is.",
+        "min": 0,
+        "max": 0.8,
+        "step": 0.01
+      },
+      "squeeze": {
+        "type": "number",
+        "default": 0.06,
+        "description": "How much the sheet narrows across its width, the way paper does between two rollers.",
+        "min": 0,
+        "max": 0.4,
+        "step": 0.01
+      },
+      "fringe": {
+        "type": "number",
+        "default": 0.035,
+        "description": "Separation between the colour channels where the warp is strongest, which is at the corners. A press strikes one plate per ink and a moving sheet lands them a fraction apart.",
+        "min": 0,
+        "max": 0.2,
+        "step": 0.005
+      },
+      "vignette": {
+        "type": "number",
+        "default": 0.16,
+        "description": "How much heavier the ink lies where the sheet curves away from you. Arrives and leaves with the warp rather than sitting there permanently.",
+        "min": 0,
+        "max": 0.6,
+        "step": 0.01
+      },
+      "grain": {
+        "type": "number",
+        "default": 0.4,
+        "description": "Paper tooth over the image.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "range": {
+        "type": "number",
+        "default": 1,
+        "description": "How much of the element's travel through the viewport the warp uses. 1 runs the full range. Lower holds the picture flat for longer around the middle and then goes harder at the ends.",
+        "min": 0.2,
+        "max": 3,
+        "step": 0.05
+      }
+    },
+    "instruction": "scroll the page and watch the sheet pass through flat",
+    "oneShot": false,
+    "scroll": {
+      "duration": 8,
+      "keys": [
+        {
+          "t": 0,
+          "progress": 0
+        },
+        {
+          "t": 3.6,
+          "progress": 0.5
+        },
+        {
+          "t": 4.4,
+          "progress": 0.5
+        },
+        {
+          "t": 8,
+          "progress": 1
+        }
+      ]
+    },
+    "record": {
+      "duration": 8,
+      "fps": 30,
+      "posterAt": 7.2,
+      "crf": 32
+    },
+    "group": "effects",
+    "intro": "One picture, printed on something that is not flat, deforming as it travels up\nthe viewport.\n\nThe distortion is driven by scroll **position**, not scroll speed. That is the\nopposite choice to ScrollSlideshow and it gives a completely different feel.\nSpeed-driven means nothing happens until the reader moves, and the picture is\nflat the moment they stop. Position-driven means the sheet is somewhere in a\ncontinuous deformation the whole time it is on screen, and scrolling walks it\nthrough: barrelled and twisted one way as it comes up from the bottom, flat as it\npasses the middle of the viewport, barrelled and twisted the other way as it\nleaves the top.\n\nThe edges deform with everything else. This is not a rectangle with a warped\npicture inside it. The warp is applied first and whatever falls outside the\nsource is paper, so the boundary of the sheet bends too. That is the part that\nsells it, and it is why there is no geometry here beyond one triangle: the shape\nof the sheet is a by-product of the sampling rather than a mesh.\n\nOne WebGL2 fragment shader. No three.js, no dependency, no render targets."
+  },
+  {
     "name": "TerrainRelief",
     "slug": "terrain-relief",
     "tier": 1,

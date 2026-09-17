@@ -5,6 +5,48 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.6.0, 17 September 2026
+
+Seventeen items, and every one of them renamed.
+
+### Changed
+
+- **Every item has a literal name, and its slug and directory moved with it.**
+  The library was named for print: Overprint, Sundial, Vellum, Spool, Plate.
+  Good names to say and bad names to find, which matters here more than it
+  would elsewhere, because the distribution is a prompt pasted into an agent and
+  an agent asked for "a scroll slideshow" will never guess "Spool".
+
+  Prompts already pinned to v0.5.0 or earlier keep working. A published tag
+  still contains the old paths and no tag is ever moved.
+
+      Overprint  -> HalftoneBackdrop      Riser     -> ScrollRevealRows
+      Sundial    -> CastShadowScene       Tilt      -> TiltCard
+      Contour    -> TerrainRelief         Contents  -> FullscreenMenu
+      Foil       -> PointerFoilSheen      Ember     -> GlowButton
+      Swell      -> PointerRippleGrid     Guilloche -> GuillocheLines
+      Magnet     -> MagneticButton        Plate     -> ImageGalleryLightbox
+      Sort       -> ScrambleText          Vellum    -> TranslucentSheets
+      Tally      -> CountUpNumber         Spool     -> ScrollSlideshow
+
+- The site nav is a floating pill, inset from the top, its width matching the
+  demo panels so the edges line up. The full-bleed bar it replaces carried a
+  class called `nav-blend` whose comment described a mix-blend-mode that was
+  never written, so the legibility problem it named had been live all along.
+- ScrollSlideshow's demo uses four architectural photographs from Unsplash
+  rather than the library's own posters. Credited in the demo folder.
+
+### Added
+
+- ScrollWarpImage (surfaces): one picture that deforms, edges and all, as it
+  travels up the viewport. Driven by scroll position rather than speed, which is
+  the opposite choice to ScrollSlideshow: the sheet is somewhere in the
+  deformation the whole time it is on screen, and passes through flat in the
+  middle. The boundary bends with the picture, because the warp is applied first
+  and whatever falls outside the source is paper.
+- `sync-public` copies any item's `demo-plates` folder into `site/public/plates`,
+  so the standalone demo page and the site panel read the same committed files.
+
 ## v0.5.0, 17 September 2026
 
 Sixteen items, and the runtime learned to read the scroll.

@@ -143,7 +143,7 @@ Cards, panels, images.
 | Bento | Magic Bento | 2 | |
 | Folder | Folder | 3 | |
 | Decay | Decay Card | 3 | |
-| Rolodex | Circular Gallery, Dome Gallery, Infinite Spiral, Depth Carousel, Carousel, Morph Slider | 3 | Six of theirs. Plate covers the flat case, so this is only worth it for the curved one |
+| Rolodex | Circular Gallery, Dome Gallery, Infinite Spiral, Depth Carousel, Carousel, Morph Slider | 3 | Six of theirs. ImageGalleryLightbox covers the flat case and ScrollSlideshow the scroll-run one, so this is only worth it for the curved one |
 | Viewer | Model Viewer, Lanyard | 3 | Real 3D. Worth doing well or not at all |
 
 ## Navigation (from Components, 2 built)

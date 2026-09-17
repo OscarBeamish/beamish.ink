@@ -31,6 +31,22 @@ for (const group of ['effects', 'components']) {
   }
 }
 
+/*
+ * Demo photographs, for the two items whose demos need real pictures rather
+ * than a canvas they fill themselves. Copied rather than duplicated in the
+ * repo, so the standalone demo page and the site panel read the same files.
+ */
+await rm(path.join(PUBLIC, 'plates'), { recursive: true, force: true })
+for (const group of ['effects', 'components']) {
+  const base = path.join(ROOT, group)
+  if (!existsSync(base)) continue
+  for (const entry of await readdir(base, { withFileTypes: true })) {
+    const plates = path.join(base, entry.name, 'demo-plates')
+    if (!entry.isDirectory() || !existsSync(plates)) continue
+    await cp(plates, path.join(PUBLIC, 'plates', entry.name), { recursive: true })
+  }
+}
+
 await mkdir(path.join(PUBLIC, 'fonts'), { recursive: true })
 await cp(path.join(ROOT, 'shared', 'fonts'), path.join(PUBLIC, 'fonts'), { recursive: true })
 

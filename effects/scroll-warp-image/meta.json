@@ -1,0 +1,150 @@
+{
+  "name": "ScrollWarpImage",
+  "slug": "scroll-warp-image",
+  "tier": 1,
+  "description": "One picture that deforms, edges and all, as it travels up the viewport",
+  "category": "surfaces",
+  "tags": [
+    "webgl",
+    "shader",
+    "scroll",
+    "image",
+    "distortion",
+    "parallax",
+    "subtle",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "The picture is the host element's own <img> child. It is hidden from sight and left in the document, so the alt text is whatever you wrote and a page with no JavaScript still shows it",
+      "Driven by scroll position rather than scroll speed, so the sheet is somewhere in the deformation the whole time it is on screen",
+      "The edges deform with the picture. The warp is applied first and whatever falls outside the source is paper, so the boundary of the sheet bends rather than staying a rectangle",
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 1.0,
+    "contexts": 1,
+    "notes": [
+      "Three texture reads per pixel, one per channel, because the colour fringe evaluates the deformation three times",
+      "The image uploads once, on load. Nothing is uploaded per frame",
+      "Fill rate and nothing else. There is no geometry"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/scroll-warp-image/core.ts",
+      "to": "src/beamish/effects/scroll-warp-image/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/scroll-warp-image/adapters/react.tsx",
+      "to": "src/beamish/effects/scroll-warp-image/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/scroll-warp-image/adapters/vue.ts",
+      "to": "src/beamish/effects/scroll-warp-image/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "paper": {
+      "type": "color",
+      "default": "#fbfaf4",
+      "description": "Shown wherever the warp has pulled the sheet away from the frame. Match it to the page behind, or a border appears out of nowhere as soon as anyone scrolls."
+    },
+    "bulge": {
+      "type": "number",
+      "default": 0.34,
+      "min": 0,
+      "max": 1.2,
+      "step": 0.01,
+      "description": "Barrels the sheet at both ends of its travel, flat only as it passes the middle. The main shape of the effect, and the first thing to reach for. Signing it so that one end pinches instead wastes half the travel: a pinch samples inside the picture, so it reads as a zoom and the edges stay a rectangle."
+    },
+    "twist": {
+      "type": "number",
+      "default": 0.13,
+      "min": 0,
+      "max": 0.8,
+      "step": 0.01,
+      "description": "Rotation that grows with radius, so the corners lead and the middle holds. Without some of this the bulge reads as a zoom, because a purely radial scale is what a zoom is."
+    },
+    "squeeze": {
+      "type": "number",
+      "default": 0.06,
+      "min": 0,
+      "max": 0.4,
+      "step": 0.01,
+      "description": "How much the sheet narrows across its width, the way paper does between two rollers."
+    },
+    "fringe": {
+      "type": "number",
+      "default": 0.035,
+      "min": 0,
+      "max": 0.2,
+      "step": 0.005,
+      "description": "Separation between the colour channels where the warp is strongest, which is at the corners. A press strikes one plate per ink and a moving sheet lands them a fraction apart."
+    },
+    "vignette": {
+      "type": "number",
+      "default": 0.16,
+      "min": 0,
+      "max": 0.6,
+      "step": 0.01,
+      "description": "How much heavier the ink lies where the sheet curves away from you. Arrives and leaves with the warp rather than sitting there permanently."
+    },
+    "grain": {
+      "type": "number",
+      "default": 0.4,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Paper tooth over the image."
+    },
+    "range": {
+      "type": "number",
+      "default": 1,
+      "min": 0.2,
+      "max": 3,
+      "step": 0.05,
+      "description": "How much of the element's travel through the viewport the warp uses. 1 runs the full range. Lower holds the picture flat for longer around the middle and then goes harder at the ends."
+    }
+  },
+  "instruction": "scroll the page and watch the sheet pass through flat",
+  "oneShot": false,
+  "record": {
+    "duration": 8,
+    "fps": 30,
+    "posterAt": 7.2,
+    "crf": 32
+  },
+  "scroll": {
+    "duration": 8,
+    "keys": [
+      {
+        "t": 0.0,
+        "progress": 0.0
+      },
+      {
+        "t": 3.6,
+        "progress": 0.5
+      },
+      {
+        "t": 4.4,
+        "progress": 0.5
+      },
+      {
+        "t": 8.0,
+        "progress": 1.0
+      }
+    ]
+  }
+}

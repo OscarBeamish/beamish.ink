@@ -49,24 +49,25 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
 
   <body class="min-h-dvh">
     <!--
-      mix-blend-mode: difference against white, so the header stays legible over
-      whatever is behind it, including arbitrary shader output. Essential on a
-      site that is mostly full-bleed demo panels.
+      A floating pill rather than a full-bleed bar. The nav sits over demo
+      panels that can be any colour a shader decides to produce, so it needs a
+      background of its own. The class here before was called `nav-blend` and
+      its comment described a mix-blend-mode that was never actually written,
+      which means the legibility problem it named had been live all along.
     -->
-    <header
-      class="nav-blend fixed inset-x-0 top-0 z-50 flex items-baseline justify-between px-5 py-4 md:px-8"
-    >
-      <a href="/" class="text-[0.95rem] tracking-[-0.01em] no-underline">Beamish</a>
-      <nav class="flex gap-5 text-[0.7rem] tracking-[0.1em] uppercase">
-        <a href="/#catalogue" class="no-underline">Index</a>
-        <a href="/how-it-works" class="no-underline">How it works</a>
-        <a
-          href="https://github.com/OscarBeamish/beamish.ink"
-          class="no-underline"
-          rel="noreferrer"
-          target="_blank">GitHub</a
-        >
-      </nav>
+    <header class="site-nav">
+      <div class="site-nav__pill">
+        <a href="/" class="site-nav__mark">Beamish</a>
+        <nav class="site-nav__links" aria-label="Primary">
+          <a href="/#catalogue">Index</a>
+          <a href="/how-it-works">How it works</a>
+          <a
+            href="https://github.com/OscarBeamish/beamish.ink"
+            rel="noreferrer"
+            target="_blank">GitHub</a
+          >
+        </nav>
+      </div>
     </header>
 
     <main>

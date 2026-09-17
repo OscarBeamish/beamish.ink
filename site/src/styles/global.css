@@ -284,10 +284,104 @@
  * content and they have to be laid out sensibly for the moment before the
  * effect takes over, and for anyone whose script never runs.
  */
-.demo-scroll-slideshow__plate {
+.demo-scroll-slideshow__plate,
+.demo-plate-fill {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* --- nav ----------------------------------------------------------------- */
+
+/*
+ * A floating pill, inset from the top, whose width matches the demo panels so
+ * its edges line up with them rather than floating free of the grid.
+ *
+ * The wrapper spans the viewport and passes clicks through; only the pill
+ * itself takes them. Without that the two gutters either side would swallow
+ * every click along the top of the page.
+ */
+.site-nav {
+  position: fixed;
+  top: 1.25rem;
+  inset-inline: 0;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.site-nav__pill {
+  width: min(1180px, 100% - 2.5rem);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0.65rem 1.15rem;
+  border: 1px solid var(--label-4);
+  border-radius: 100px;
+  /*
+   * Translucent paper, not white. The page behind is warm, and a neutral panel
+   * over it reads as a smudge on the screen.
+   */
+  background: rgb(var(--background-deep) / 0.72);
+  backdrop-filter: blur(14px) saturate(1.3);
+  pointer-events: auto;
+}
+
+/*
+ * Where the blur is unavailable the translucency is doing nothing except
+ * making the type harder to read, so take it back to solid paper.
+ */
+@supports not (backdrop-filter: blur(1px)) {
+  .site-nav__pill {
+    background: rgb(var(--background-deep));
+  }
+}
+
+.site-nav__mark {
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.site-nav__links {
+  display: flex;
+  gap: 1.25rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.site-nav__links a {
+  text-decoration: none;
+  color: var(--label-2);
+  transition: color 0.25s var(--ease-66, cubic-bezier(0.66, 0, 0.01, 1));
+}
+
+.site-nav__links a:hover {
+  color: var(--label-1);
+}
+
+.site-nav__pill a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* Three uppercase links and a wordmark do not fit a phone at this size. */
+@media (max-width: 30rem) {
+  .site-nav__pill {
+    gap: 0.75rem;
+    padding: 0.55rem 0.9rem;
+  }
+
+  .site-nav__links {
+    gap: 0.75rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+  }
 }

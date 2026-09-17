@@ -29,13 +29,13 @@ export const props = {
   label: 'Plates',
   columns: 4,
   plates: [
-    plate('halftone-backdrop', 'Overprint'),
-    plate('guilloche-lines', 'Guilloche'),
-    plate('terrain-relief', 'Contour'),
-    plate('cast-shadow-scene', 'Sundial'),
-    plate('pointer-foil-sheen', 'Foil'),
-    plate('pointer-ripple-grid', 'Swell'),
-    plate('magnetic-button', 'Magnet'),
-    plate('tilt-card', 'Tilt')
+    plate('halftone-backdrop', 'Halftone Backdrop'),
+    plate('guilloche-lines', 'Guilloche Lines'),
+    plate('terrain-relief', 'Terrain Relief'),
+    plate('cast-shadow-scene', 'Cast Shadow Scene'),
+    plate('pointer-foil-sheen', 'Pointer Foil Sheen'),
+    plate('pointer-ripple-grid', 'Pointer Ripple Grid'),
+    plate('magnetic-button', 'Magnetic Button'),
+    plate('tilt-card', 'Tilt Card')
   ]
 }
