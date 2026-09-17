@@ -1,0 +1,149 @@
+{
+  "name": "ScrollRevealRows",
+  "slug": "scroll-reveal-rows",
+  "tier": 1,
+  "description": "Children arrive on a stagger, held until the container is on screen",
+  "category": "reveals",
+  "tags": [
+    "scroll",
+    "reveal",
+    "stagger",
+    "dom",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "No canvas and no WebGL. It moves the children already in the element",
+      "No IntersectionObserver of its own: the runtime already holds the loop until the element is on screen",
+      "destroy() clears every style it set, leaving the children as they were found"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.3,
+    "contexts": 0,
+    "notes": [
+      "One transform and one opacity per child, composited",
+      "Nothing here reads layout, so it cannot cause a synchronous reflow"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/scroll-reveal-rows/core.ts",
+      "to": "src/beamish/effects/scroll-reveal-rows/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/scroll-reveal-rows/adapters/react.tsx",
+      "to": "src/beamish/effects/scroll-reveal-rows/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/scroll-reveal-rows/adapters/vue.ts",
+      "to": "src/beamish/effects/scroll-reveal-rows/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "select": {
+      "type": "string",
+      "default": "",
+      "description": "CSS selector for the children to animate, scoped to the container. Empty means every direct child, which is what you want most of the time."
+    },
+    "order": {
+      "type": "enum",
+      "values": [
+        "forward",
+        "reverse",
+        "centre"
+      ],
+      "default": "forward",
+      "description": "The order children arrive in. `centre` starts in the middle and works outwards, which suits a row of three or five."
+    },
+    "stagger": {
+      "type": "number",
+      "default": 90,
+      "min": 0,
+      "max": 400,
+      "step": 5,
+      "unit": "ms",
+      "sensible": [
+        60,
+        140
+      ],
+      "description": "Milliseconds between one child and the next. Past about 150 a list of eight takes over a second to finish and people start scrolling away from it."
+    },
+    "duration": {
+      "type": "number",
+      "default": 900,
+      "min": 100,
+      "max": 3000,
+      "step": 10,
+      "unit": "ms",
+      "sensible": [
+        600,
+        1100
+      ],
+      "description": "Milliseconds each child takes on its own."
+    },
+    "rise": {
+      "type": "number",
+      "default": 34,
+      "min": -120,
+      "max": 120,
+      "step": 1,
+      "unit": "px",
+      "sensible": [
+        20,
+        50
+      ],
+      "description": "How far each child travels. Negative falls from above. Large values read as a page that has not finished loading."
+    },
+    "scale": {
+      "type": "number",
+      "default": 1,
+      "min": 0.5,
+      "max": 1.5,
+      "step": 0.01,
+      "sensible": [
+        0.94,
+        1.06
+      ],
+      "description": "Scale each child starts at. 1 is no scaling. Anything below 0.9 makes text resample and look soft on the way in."
+    },
+    "blur": {
+      "type": "number",
+      "default": 0,
+      "min": 0,
+      "max": 20,
+      "step": 0.5,
+      "sensible": [
+        0,
+        6
+      ],
+      "description": "Blur each child starts at. Off by default: on a card with an image inside, a blur costs far more than the transform does."
+    },
+    "reducedMotionTime": {
+      "type": "number",
+      "default": 999,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "unit": "s",
+      "description": "The single frame shown when the user prefers reduced motion. For a one-shot reveal this should be a time after the animation has finished, so the content simply appears."
+    }
+  },
+  "instruction": "press replay to bring them in again",
+  "oneShot": true,
+  "record": {
+    "duration": 4,
+    "fps": 30,
+    "posterAt": 1.3
+  }
+}

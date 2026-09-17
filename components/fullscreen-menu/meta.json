@@ -1,0 +1,99 @@
+{
+  "name": "FullscreenMenu",
+  "slug": "fullscreen-menu",
+  "tier": 2,
+  "description": "A full-viewport index that opens as a real dialog and cascades in",
+  "category": "navigation",
+  "tags": [
+    "nav",
+    "menu",
+    "overlay",
+    "dialog",
+    "accessible",
+    "react",
+    "vue",
+    "no-dependencies"
+  ],
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "Uses <dialog>.showModal(), so the focus trap, Escape, top layer and focus restoration are the browser's",
+      "The fade uses transition-behavior: allow-discrete and @starting-style; where those are unsupported the overlay appears instantly, which is a graceful loss",
+      "No focus-trap library, no portal, no scroll-lock package"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.2,
+    "contexts": 0,
+    "notes": [
+      "The stagger is one transition-delay per row, composited",
+      "No JavaScript runs per frame"
+    ]
+  },
+  "files": [
+    {
+      "from": "components/fullscreen-menu/react.tsx",
+      "to": "src/beamish/components/fullscreen-menu/react.tsx",
+      "role": "component"
+    },
+    {
+      "from": "components/fullscreen-menu/styles.css",
+      "to": "src/beamish/components/fullscreen-menu/styles.css",
+      "role": "style"
+    },
+    {
+      "from": "components/fullscreen-menu/vue.ts",
+      "to": "src/beamish/components/fullscreen-menu/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "label": {
+      "type": "string",
+      "default": "Index",
+      "description": "The trigger's text, and the dialog's accessible name. Keep it a noun. It is read out as the name of the whole overlay."
+    },
+    "closeLabel": {
+      "type": "string",
+      "default": "Close",
+      "description": "Text on the close control. There is a visible one as well as Escape, because Escape is not discoverable."
+    },
+    "open": {
+      "type": "boolean",
+      "default": false,
+      "description": "Pass it to control the overlay yourself and listen to onOpenChange. Leave it undefined and the component keeps its own state, which is what you want unless a route change needs to close it."
+    }
+  },
+  "instruction": "open it, then try Escape and Tab",
+  "oneShot": false,
+  "record": {
+    "duration": 5,
+    "fps": 30,
+    "posterAt": 2.6,
+    "interactions": [
+      {
+        "at": 0.5,
+        "action": "hover",
+        "target": ".beamish-fullscreen-menu__trigger"
+      },
+      {
+        "at": 1.2,
+        "action": "click",
+        "target": ".beamish-fullscreen-menu__trigger"
+      },
+      {
+        "at": 2.9,
+        "action": "hover",
+        "target": ".beamish-fullscreen-menu__list a"
+      },
+      {
+        "at": 4.1,
+        "action": "key",
+        "key": "Escape"
+      }
+    ]
+  }
+}

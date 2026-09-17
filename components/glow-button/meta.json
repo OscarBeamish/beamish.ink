@@ -1,0 +1,101 @@
+{
+  "name": "GlowButton",
+  "slug": "glow-button",
+  "tier": 2,
+  "description": "The action pill: mono, uppercase, with a slow band of light crossing it",
+  "category": "navigation",
+  "tags": [
+    "button",
+    "link",
+    "cta",
+    "accessible",
+    "react",
+    "vue",
+    "no-dependencies"
+  ],
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "Uses color-mix(); Chrome 111+, Safari 16.2+, Firefox 113+. Older browsers get the base colour with no hover shift, which is a graceful loss",
+      "No JavaScript animation at all. The motion is two CSS transitions"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.1,
+    "contexts": 0,
+    "notes": [
+      "Composited transform and opacity only; nothing here triggers layout"
+    ]
+  },
+  "files": [
+    {
+      "from": "components/glow-button/react.tsx",
+      "to": "src/beamish/components/glow-button/react.tsx",
+      "role": "component"
+    },
+    {
+      "from": "components/glow-button/styles.css",
+      "to": "src/beamish/components/glow-button/styles.css",
+      "role": "style"
+    },
+    {
+      "from": "components/glow-button/vue.ts",
+      "to": "src/beamish/components/glow-button/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "tone": {
+      "type": "enum",
+      "values": [
+        "solid",
+        "quiet"
+      ],
+      "default": "solid",
+      "description": "`solid` is the accent pill and is for the one action on the page that matters. `quiet` is the outlined secondary. If a screen has two solid Embers on it, one of them is wrong."
+    },
+    "href": {
+      "type": "string",
+      "default": "",
+      "description": "Given an href it renders an <a>. Without one it renders a <button type=\"button\">. Do not fake a link with a click handler. Keyboard users and screen readers both notice."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Button form only. An anchor cannot be disabled, so the anchor form sets aria-disabled instead and you must stop the navigation yourself."
+    }
+  },
+  "instruction": "hover, then tab to it",
+  "oneShot": false,
+  "record": {
+    "duration": 5,
+    "fps": 30,
+    "posterAt": 1.2,
+    "interactions": [
+      {
+        "at": 0.4,
+        "action": "hover",
+        "target": "#solid .beamish-glow-button"
+      },
+      {
+        "at": 1.8,
+        "action": "click",
+        "target": "#solid .beamish-glow-button"
+      },
+      {
+        "at": 2.4,
+        "action": "hover",
+        "target": "#quiet .beamish-glow-button"
+      },
+      {
+        "at": 3.8,
+        "action": "move",
+        "x": 0.5,
+        "y": 0.92
+      }
+    ]
+  }
+}

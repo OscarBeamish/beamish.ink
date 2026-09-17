@@ -32,9 +32,9 @@ const AT_SECONDS = 3.1
 
 async function main() {
   // The card loads the item's demo bundle, so it has to exist and be current.
-  const contour = (await listItems()).find(item => item.slug === 'contour')
-  if (!contour) throw new Error('effects/contour is missing')
-  await buildItem(contour)
+  const relief = (await listItems()).find(item => item.slug === 'terrain-relief')
+  if (!relief) throw new Error('effects/terrain-relief is missing')
+  await buildItem(relief)
 
   await mkdir(OUT, { recursive: true })
 

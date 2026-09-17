@@ -184,12 +184,12 @@
 @layer components {
   /* The Magnet panel. The dashed outline is demo furniture showing where the
      button sits at rest, so the displacement reads in a still frame. */
-  .demo-magnet {
+  .demo-magnetic-button {
     display: grid;
     place-items: center;
   }
 
-  .demo-magnet__rest {
+  .demo-magnetic-button__rest {
     grid-area: 1 / 1;
     width: 11.4rem;
     height: 3.2rem;
@@ -197,21 +197,21 @@
     border-radius: 100px;
   }
 
-  .demo-magnet .beamish-ember {
+  .demo-magnetic-button .beamish-glow-button {
     grid-area: 1 / 1;
   }
 }
 
 @layer components {
   /* The Tally panel. */
-  .demo-tally {
+  .demo-count-up-number {
     display: grid;
     justify-items: center;
     gap: 0.5rem;
     text-align: center;
   }
 
-  .demo-tally__value {
+  .demo-count-up-number__value {
     font-family: var(--font-display);
     font-size: clamp(2.6rem, 9vw, 5.5rem);
     font-weight: 700;
@@ -222,7 +222,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .demo-tally p {
+  .demo-count-up-number p {
     margin: 0;
     font-size: 0.65rem;
     letter-spacing: 0.1em;
@@ -284,7 +284,7 @@
  * content and they have to be laid out sensibly for the moment before the
  * effect takes over, and for anyone whose script never runs.
  */
-.demo-spool__plate {
+.demo-scroll-slideshow__plate {
   position: absolute;
   inset: 0;
   width: 100%;
