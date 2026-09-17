@@ -13,15 +13,18 @@
 
 import { describe, expect, it, beforeAll, afterAll } from 'vitest'
 import { chromium, type Browser } from 'playwright'
-import { pathToFileURL } from 'node:url'
-import path from 'node:path'
+import { serveRoot, closeServer, demoUrl, type Server } from '../serve'
 import { listItems, buildItem } from '../build-items'
 
 const CYCLES = 50
 
 let browser: Browser
+let server: Server
 
 beforeAll(async () => {
+  // Over HTTP, not file://. A textured effect cannot upload an image from an
+  // opaque file origin, so the mount would throw before it ever leaked anything.
+  server = await serveRoot()
   browser = await chromium.launch({
     channel: 'chromium',
     args: ['--enable-gpu', '--ignore-gpu-blocklist', '--enable-unsafe-swiftshader']
@@ -30,6 +33,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await browser?.close()
+  if (server) await closeServer(server)
 })
 
 const effects = (await listItems()).filter(item => item.tier === 1)
@@ -50,7 +54,7 @@ describe('effects release their WebGL context on destroy', () => {
         const errors: string[] = []
         page.on('pageerror', error => errors.push(error.message))
 
-        await page.goto(`${pathToFileURL(path.join(item.dir, 'demo.html')).href}?record=1`, {
+        await page.goto(`${demoUrl(item.dir)}?record=1`, {
           waitUntil: 'load'
         })
 

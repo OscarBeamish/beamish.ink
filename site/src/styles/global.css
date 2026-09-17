@@ -278,3 +278,16 @@
     margin-inline-start: 0;
   }
 }
+
+/*
+ * Spool draws its images into a canvas and hides these, but they are the real
+ * content and they have to be laid out sensibly for the moment before the
+ * effect takes over, and for anyone whose script never runs.
+ */
+.demo-spool__plate {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

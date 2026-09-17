@@ -1677,6 +1677,166 @@
     "intro": "Sort sets type one piece at a time. A sort is a single piece of metal type, and\nthat is what each animated fragment here is: a character, a word or a whole line,\narriving on a stagger.\n\nIt takes an element that already contains text, splits it, and animates the\npieces. There is no canvas, no WebGL and no npm dependency.\n\nTwo things it does that most text-splitters do not. Characters are grouped inside\ntheir word, so the text still wraps at the right places. And the original string\nstays in the accessibility tree as one label, so a screen reader reads a sentence\nrather than sixty separate characters.\n\n`destroy()` puts the original text back. The element is left as it was found."
   },
   {
+    "name": "Spool",
+    "slug": "spool",
+    "tier": 1,
+    "description": "A scroll-run slideshow on a paper web that bows as it accelerates",
+    "category": "surfaces",
+    "tags": [
+      "webgl",
+      "shader",
+      "slideshow",
+      "scroll",
+      "images",
+      "carousel",
+      "subtle",
+      "no-dependencies"
+    ],
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "The images are the host element's own <img> children. They are hidden from sight and left in the document, so the alt text and source order are whatever you wrote, and a page with no JavaScript still shows the pictures",
+        "At rest nothing is distorted. The whole effect is a function of scroll velocity, so a reader who has stopped scrolling is looking at a photograph",
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes",
+        "Textures are CLAMP_TO_EDGE. The bow samples past the edge of the image and a repeating wrap would tile the opposite side of the picture into the gap"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 1.2,
+      "contexts": 1,
+      "notes": [
+        "Two texture reads per channel per pixel while crossfading, three channels, so six taps. It is fill rate and nothing else",
+        "Images upload once, on load. Nothing is uploaded per frame",
+        "Scroll velocity is measured on the scroll event and decayed in the frame loop. A per-frame difference reads zero on most frames, because scroll events do not fire every frame, and the effect stutters"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/spool/core.ts",
+        "to": "src/beamish/effects/spool/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/spool/adapters/react.tsx",
+        "to": "src/beamish/effects/spool/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/spool/adapters/vue.ts",
+        "to": "src/beamish/effects/spool/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "paper": {
+        "type": "color",
+        "default": "#fbfaf4",
+        "description": "Shown wherever the bow has pulled the image away from the edge of the frame. Match it to the page behind, or the gap reads as a border that appears only while scrolling."
+      },
+      "bend": {
+        "type": "number",
+        "default": 0.09,
+        "description": "How hard the sides lag behind the middle. This is the bow, and it is the option you came for. Past about 0.12 it stops being a press and starts being a fisheye.",
+        "min": 0,
+        "max": 0.3,
+        "step": 0.005
+      },
+      "slip": {
+        "type": "number",
+        "default": 0.018,
+        "description": "How far the whole web slides against the direction of travel, the way anything with mass does when it is pulled. Small: this is the part you feel rather than see.",
+        "min": 0,
+        "max": 0.15,
+        "step": 0.002
+      },
+      "fringe": {
+        "type": "number",
+        "default": 0.004,
+        "description": "Separation between the colour channels at the edges while moving. A press running colour work strikes one plate per ink, and a moving web lands them a fraction apart. Keep it under about 0.01 or it reads as a broken monitor.",
+        "min": 0,
+        "max": 0.03,
+        "step": 0.001
+      },
+      "grain": {
+        "type": "number",
+        "default": 0.4,
+        "description": "Paper tooth over the image. Fixed per slide rather than per frame, because grain that crawls is a screen artefact and grain that sits still is paper.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "reference": {
+        "type": "number",
+        "default": 1.6,
+        "description": "The scroll velocity that counts as full speed, in screens per second. Above it the effect stops growing. Lower makes the web bow more readily; too low and an ordinary wheel click maxes it out.",
+        "min": 0.2,
+        "max": 6,
+        "step": 0.1
+      },
+      "crossfade": {
+        "type": "number",
+        "default": 0.55,
+        "description": "Fraction of each slide's travel spent crossing to the next. Low holds each picture still and then cuts; 1 never stops dissolving.",
+        "min": 0.05,
+        "max": 1,
+        "step": 0.05
+      }
+    },
+    "instruction": "scroll the page, then stop and watch it settle flat",
+    "oneShot": false,
+    "scroll": {
+      "duration": 8,
+      "keys": [
+        {
+          "t": 0,
+          "progress": 0
+        },
+        {
+          "t": 0.7,
+          "progress": 0
+        },
+        {
+          "t": 1.25,
+          "progress": 0.333
+        },
+        {
+          "t": 2.6,
+          "progress": 0.333
+        },
+        {
+          "t": 3.15,
+          "progress": 0.666
+        },
+        {
+          "t": 4.5,
+          "progress": 0.666
+        },
+        {
+          "t": 5.05,
+          "progress": 1
+        },
+        {
+          "t": 8,
+          "progress": 1
+        }
+      ]
+    },
+    "record": {
+      "duration": 8,
+      "fps": 30,
+      "posterAt": 0.97,
+      "crf": 32
+    },
+    "group": "effects",
+    "intro": "A slideshow the page scroll runs, on a paper web that bows as it accelerates.\n\nA web press does not feed sheets. It feeds one continuous ribbon of paper off a\nreel, and at speed that ribbon bows between the rollers. The faster it runs the\nmore it bows. When the press stops, the paper lies flat.\n\nThat is the whole behaviour. At rest this draws an undistorted photograph and\nnothing else. The distortion is a function of scroll velocity, not of time and\nnot of position, so a reader who has stopped scrolling is looking at the picture\nrather than at an effect. Most WebGL sliders warp continuously and end up reading\nas a filter laid over the content. This one only exists while it is being pulled.\n\nThree things happen while it moves, and all three are the same press. The sides\nlag behind the middle, which curves the top and bottom edges. The whole web slides\na little against the direction of travel, the way anything with mass does when it\nis pulled. And the colour channels separate slightly at the edges, because a press\nrunning colour work strikes one plate per ink and a moving web lands them a\nfraction apart.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency, no render targets."
+  },
+  {
     "name": "Sundial",
     "slug": "sundial",
     "tier": 1,

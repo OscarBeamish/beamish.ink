@@ -80,6 +80,16 @@ const pointerKey = z.object({
   y: z.number().min(-4).max(5)
 })
 
+/*
+ * One sample of a scripted scroll. Progress is clamped to the element's own
+ * travel through the viewport, so unlike a cursor there is nowhere outside to
+ * be: 0 is entering at the bottom and 1 is leaving at the top.
+ */
+const scrollKey = z.object({
+  t: z.number().min(0),
+  progress: z.number().min(0).max(1)
+})
+
 /**
  * Tier 2 has no render loop to drive, so the recorder replays a script instead.
  * `at` is seconds from the start of the take.
@@ -172,6 +182,18 @@ export const metaSchema = z
       .object({
         duration: z.number().positive(),
         keys: z.array(pointerKey).min(2)
+      })
+      .optional(),
+
+    /**
+     * Scripted scroll path for scroll-driven tier-1 items. Same idea as
+     * `cursor`: the runtime samples it at the exact time being drawn, so the
+     * take is deterministic without synthesising wheel events.
+     */
+    scroll: z
+      .object({
+        duration: z.number().positive(),
+        keys: z.array(scrollKey).min(2)
       })
       .optional(),
 

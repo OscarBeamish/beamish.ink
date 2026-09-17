@@ -5,6 +5,35 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.5.0, 17 September 2026
+
+Sixteen items, and the runtime learned to read the scroll.
+
+### Added
+
+- Spool (surfaces): a scroll-run slideshow on a paper web that bows as it
+  accelerates. WebGL2, no dependency. At rest it draws an undistorted
+  photograph; the whole effect is a function of scroll velocity, so a reader who
+  has stopped scrolling is not looking at an effect at all.
+- `Scroll` in the shared runtime, with `scrollPath` and `scrollPathDuration` to
+  override it. Velocity comes from the path's own slope rather than a difference
+  against the last frame, so a scroll-driven effect stays a function of `t` and
+  can still be recorded. Same contract as `pointerPath`.
+- `tools/serve.ts`: a static server over the repo root, used by the recorder and
+  the leak test.
+
+### Changed
+
+- `Surface.render` takes a fourth argument. Existing effects are untouched: a
+  three-parameter implementation still satisfies the interface.
+
+### Fixed
+
+- The recorder and the leak test opened demo pages as `file://` URLs. Every file
+  is its own opaque origin there, so `texImage2D` throws on the first image an
+  effect tries to sample and no textured effect could be recorded at all. Both
+  now serve over HTTP on an OS-assigned port.
+
 ## v0.4.0, 17 September 2026
 
 Fifteen items.

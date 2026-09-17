@@ -78,6 +78,28 @@ export type Pointer = {
 /** One sample of a scripted cursor path. `t` is seconds; x/y are 0 to 1. */
 export type PointerKey = { t: number; x: number; y: number }
 
+export type Scroll = {
+  /**
+   * How far the host has travelled through the viewport. 0 when its top edge is
+   * level with the bottom of the viewport, 1 when its bottom edge is level with
+   * the top. Outside that range the element is off screen.
+   */
+  progress: number
+  /**
+   * Signed rate of change of `progress`, in units per second, already smoothed.
+   * Negative is scrolling back up.
+   *
+   * This is the interesting one. Position tells an effect where it is; velocity
+   * tells it how hard it was thrown, which is what anything physical has to know.
+   */
+  velocity: number
+  /** False until the page has actually been scrolled. */
+  active: boolean
+}
+
+/** One sample of a scripted scroll path. `t` is seconds; progress is 0 to 1. */
+export type ScrollKey = { t: number; progress: number }
+
 export type SurfaceContext = {
   /** The element the effect was mounted into. */
   host: HTMLElement
@@ -102,7 +124,7 @@ export interface Surface<O> {
    * Must be pure in `t`. Do not integrate against the previous frame, or the
    * recorder cannot produce a clean loop and `renderAtTime` breaks.
    */
-  render(t: number, opts: O, pointer: Pointer): void
+  render(t: number, opts: O, pointer: Pointer, scroll: Scroll): void
   teardown(): void
   /** Return the GL context if there is one, so the host can release it. */
   context?(): WebGLRenderingContext | WebGL2RenderingContext | null
@@ -117,6 +139,18 @@ export type BaseOptions = {
   pointerPath?: PointerKey[]
   /** Seconds the scripted path takes to run once before repeating. */
   pointerPathDuration?: number
+  /**
+   * Scripted scroll path. When set, the real scroll position is ignored and both
+   * progress and velocity are read from this path at the current time.
+   *
+   * Velocity is the slope of the segment rather than a difference against the
+   * last frame, so it is a function of `t` alone. That is the whole point: an
+   * effect driven by a real scrollbar cannot be replayed, and the recorder needs
+   * frame 90 to look the same every time it asks for it.
+   */
+  scrollPath?: ScrollKey[]
+  /** Seconds the scripted scroll path takes to run once before repeating. */
+  scrollPathDuration?: number
   /** Frame shown when the user prefers reduced motion. Pick one that composes. */
   reducedMotionTime?: number
   /** Cap on device pixel ratio. Above 2 the cost is real and the gain is not. */
@@ -181,6 +215,46 @@ export const samplePointerPath = (keys: PointerKey[], t: number, duration: numbe
   return { x: a.x + (b.x - a.x) * e, y: a.y + (b.y - a.y) * e, active: true }
 }
 
+/**
+ * Linear sample of a scripted scroll path, wrapping at `duration` so it loops.
+ *
+ * Velocity comes out of the same smoothstep by differentiating it rather than by
+ * comparing against the previous frame, which is what keeps the whole thing a
+ * function of `t`. The derivative of the smoothstep is 6k(1-k), so velocity is
+ * zero at each key and peaks halfway between: the scroll eases in and out of
+ * every stop by construction.
+ */
+export const sampleScrollPath = (keys: ScrollKey[], t: number, duration: number): Scroll => {
+  if (keys.length === 0) return { progress: 0, velocity: 0, active: false }
+  const first = keys[0]!
+  if (keys.length === 1) return { progress: first.progress, velocity: 0, active: true }
+
+  const span = duration > 0 ? duration : keys[keys.length - 1]!.t
+  const local = span > 0 ? ((t % span) + span) % span : 0
+
+  let a = first
+  let b = keys[keys.length - 1]!
+  for (let i = 0; i < keys.length - 1; i++) {
+    const lo = keys[i]!
+    const hi = keys[i + 1]!
+    if (local >= lo.t && local <= hi.t) {
+      a = lo
+      b = hi
+      break
+    }
+  }
+
+  const gap = b.t - a.t
+  const k = gap > 0 ? clamp01((local - a.t) / gap) : 0
+  const e = k * k * (3 - 2 * k)
+  const delta = b.progress - a.progress
+  return {
+    progress: a.progress + delta * e,
+    velocity: gap > 0 ? (delta * 6 * k * (1 - k)) / gap : 0,
+    active: true
+  }
+}
+
 export function mount<O extends BaseOptions>(
   el: HTMLElement,
   userOpts: Partial<O> | undefined,
@@ -213,6 +287,26 @@ export function mount<O extends BaseOptions>(
   let lastStamp = 0
 
   const pointer: Pointer = { x: 0.5, y: 0.5, active: false }
+  const scroll: Scroll = { progress: 0, velocity: 0, active: false }
+
+  /*
+   * Velocity is measured on the scroll event and bled off in the frame loop
+   * rather than being recomputed per frame. A scroll event does not fire every
+   * frame, so a per-frame difference reads zero on most of them and the effect
+   * stutters. Decaying instead means a flick lands once and eases out.
+   *
+   * This is the one piece of state in the runtime that is not a function of `t`,
+   * which is why `scrollPath` exists to replace it wholesale for the recorder.
+   */
+  let scrollMeasuredAt = 0
+  function decayScroll(dt: number) {
+    if (scroll.velocity === 0) return
+    // Halves roughly every 90ms. Slow enough to feel like weight, fast enough
+    // that the effect is at rest by the time the reader has stopped.
+    const keep = Math.pow(0.0005, dt)
+    scroll.velocity *= keep
+    if (Math.abs(scroll.velocity) < 1e-4) scroll.velocity = 0
+  }
 
   const motionQuery =
     typeof matchMedia === 'function' ? matchMedia(REDUCED_MOTION_QUERY) : null
@@ -250,15 +344,25 @@ export function mount<O extends BaseOptions>(
     return pointer
   }
 
+  function scrollAt(t: number): Scroll {
+    const path = opts.scrollPath
+    if (path && path.length > 0) {
+      return sampleScrollPath(path, t, opts.scrollPathDuration ?? 0)
+    }
+    return scroll
+  }
+
   function draw(t: number) {
     if (!surface || contextLost) return
-    surface.render(t, opts, pointerAt(t))
+    surface.render(t, opts, pointerAt(t), scrollAt(t))
   }
 
   function tick(stamp: number) {
     if (!running) return
-    elapsed += Math.min(stamp - lastStamp, 100) / 1000 // clamp tab-switch spikes
+    const dt = Math.min(stamp - lastStamp, 100) / 1000 // clamp tab-switch spikes
+    elapsed += dt
     lastStamp = stamp
+    decayScroll(dt)
     draw(elapsed)
     raf = requestAnimationFrame(tick)
   }
@@ -339,6 +443,38 @@ export function mount<O extends BaseOptions>(
   pointerTarget.addEventListener('pointermove', onPointerMove as EventListener)
   // Only element scope has a leave: the window one is never left.
   if (!windowScope) el.addEventListener('pointerleave', onPointerLeave)
+
+  // --- scroll ------------------------------------------------------------
+
+  const readScroll = () => {
+    const rect = el.getBoundingClientRect()
+    const viewport = window.innerHeight || 1
+    /*
+     * 0 when the top edge is level with the bottom of the viewport, 1 when the
+     * bottom edge is level with the top. Measured against the element's own
+     * height plus the viewport, so a tall hero and a short strip both travel
+     * the full range, which is what makes the number worth handing to an
+     * effect at all.
+     */
+    const span = viewport + rect.height
+    const next = span > 0 ? clamp01((viewport - rect.top) / span) : 0
+
+    const now = performance.now()
+    const gap = (now - scrollMeasuredAt) / 1000
+    // The first event has no previous sample to difference against, and a stale
+    // one after a long pause would read as an enormous flick.
+    if (scrollMeasuredAt > 0 && gap > 0 && gap < 0.25) {
+      scroll.velocity = (next - scroll.progress) / gap
+    }
+    scrollMeasuredAt = now
+    scroll.progress = next
+    scroll.active = true
+  }
+
+  // Passive: this never calls preventDefault, and saying so lets the browser
+  // scroll without waiting to find out.
+  window.addEventListener('scroll', readScroll, { passive: true })
+  readScroll()
 
   // --- visibility and viewport -------------------------------------------
 
@@ -423,6 +559,7 @@ export function mount<O extends BaseOptions>(
       resizeObserver.disconnect()
       pointerTarget.removeEventListener('pointermove', onPointerMove as EventListener)
       el.removeEventListener('pointerleave', onPointerLeave)
+      window.removeEventListener('scroll', readScroll)
       canvas?.removeEventListener('webglcontextlost', onLost as EventListener)
       canvas?.removeEventListener('webglcontextrestored', onRestored)
 

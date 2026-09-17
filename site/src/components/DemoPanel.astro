@@ -92,7 +92,8 @@ const { slug, tier, instruction, oneShot } = Astro.props
     tally: () => import('@items/effects/tally/core'),
     contour: () => import('@items/effects/contour/core'),
     guilloche: () => import('@items/effects/guilloche/core'),
-    vellum: () => import('@items/effects/vellum/core')
+    vellum: () => import('@items/effects/vellum/core'),
+    spool: () => import('@items/effects/spool/core')
   }
 
   const COMPONENTS: Record<string, () => Promise<{ mount(el: HTMLElement): Mounted }>> = {
@@ -148,6 +149,17 @@ const { slug, tier, instruction, oneShot } = Astro.props
    * provide some. A shader effect gets an empty stage and fills it itself.
    */
   const CONTENT: Record<string, string> = {
+    /*
+     * Spool is a shader effect that still needs DOM content, because its images
+     * are the host's own children rather than an option. Scrolling this page is
+     * what drives it, so the panel needs nothing else.
+     */
+    spool: ['overprint', 'guilloche', 'swell', 'tilt']
+      .map(
+        slug =>
+          `<img class="demo-spool__plate" src="/media/${slug}/poster.jpg" alt="A still from the ${slug} effect" />`
+      )
+      .join(''),
     sort: '<h1 class="demo-heading">Come to my arms, my beamish boy</h1>',
     riser: `<div class="demo-list">
       <div><span>Overprint</span><span>shader</span></div>
@@ -189,6 +201,14 @@ const { slug, tier, instruction, oneShot } = Astro.props
     tally: '.demo-tally__value'
   }
 
+  /*
+   * Effects that need DOM content and still draw into a canvas filling the
+   * panel. Spool's <img> children are the pictures it samples, not the thing
+   * being animated, so it mounts on the stage rather than on the first child,
+   * and the centring styles for DOM content must not apply to it.
+   */
+  const CANVAS_WITH_CONTENT = new Set(['spool'])
+
   for (const panel of document.querySelectorAll<HTMLElement>('[data-demo]')) {
     const slug = panel.dataset['slug'] ?? ''
     const tier = panel.dataset['tier'] === '2' ? 2 : 1
@@ -201,18 +221,20 @@ const { slug, tier, instruction, oneShot } = Astro.props
       const load = EFFECTS[slug]
       if (!load) continue
       const markup = CONTENT[slug]
+      const drawsToCanvas = CANVAS_WITH_CONTENT.has(slug)
       if (markup) {
         stage.innerHTML = markup
         // Marks the stage as holding DOM content, so the centring styles apply
         // to it and not to a canvas that should fill the panel.
-        stage.setAttribute('data-content', '')
+        if (!drawsToCanvas) stage.setAttribute('data-content', '')
       }
       const module = await load()
       // A DOM effect wants the element holding the content, not the stage.
       const inner = MOUNT_ON[slug]
-      const target = markup
-        ? ((inner ? stage.querySelector<HTMLElement>(inner) : stage.firstElementChild) as HTMLElement)
-        : stage
+      const target =
+        markup && !drawsToCanvas
+          ? ((inner ? stage.querySelector<HTMLElement>(inner) : stage.firstElementChild) as HTMLElement)
+          : stage
       const effect = module.default(target, OPTIONS[slug])
       effect.start()
       handle = effect

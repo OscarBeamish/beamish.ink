@@ -1,0 +1,158 @@
+{
+  "name": "Spool",
+  "slug": "spool",
+  "tier": 1,
+  "description": "A scroll-run slideshow on a paper web that bows as it accelerates",
+  "category": "surfaces",
+  "tags": [
+    "webgl",
+    "shader",
+    "slideshow",
+    "scroll",
+    "images",
+    "carousel",
+    "subtle",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "The images are the host element's own <img> children. They are hidden from sight and left in the document, so the alt text and source order are whatever you wrote, and a page with no JavaScript still shows the pictures",
+      "At rest nothing is distorted. The whole effect is a function of scroll velocity, so a reader who has stopped scrolling is looking at a photograph",
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes",
+      "Textures are CLAMP_TO_EDGE. The bow samples past the edge of the image and a repeating wrap would tile the opposite side of the picture into the gap"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 1.2,
+    "contexts": 1,
+    "notes": [
+      "Two texture reads per channel per pixel while crossfading, three channels, so six taps. It is fill rate and nothing else",
+      "Images upload once, on load. Nothing is uploaded per frame",
+      "Scroll velocity is measured on the scroll event and decayed in the frame loop. A per-frame difference reads zero on most frames, because scroll events do not fire every frame, and the effect stutters"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/spool/core.ts",
+      "to": "src/beamish/effects/spool/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/spool/adapters/react.tsx",
+      "to": "src/beamish/effects/spool/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/spool/adapters/vue.ts",
+      "to": "src/beamish/effects/spool/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "paper": {
+      "type": "color",
+      "default": "#fbfaf4",
+      "description": "Shown wherever the bow has pulled the image away from the edge of the frame. Match it to the page behind, or the gap reads as a border that appears only while scrolling."
+    },
+    "bend": {
+      "type": "number",
+      "default": 0.09,
+      "min": 0,
+      "max": 0.3,
+      "step": 0.005,
+      "description": "How hard the sides lag behind the middle. This is the bow, and it is the option you came for. Past about 0.12 it stops being a press and starts being a fisheye."
+    },
+    "slip": {
+      "type": "number",
+      "default": 0.018,
+      "min": 0,
+      "max": 0.15,
+      "step": 0.002,
+      "description": "How far the whole web slides against the direction of travel, the way anything with mass does when it is pulled. Small: this is the part you feel rather than see."
+    },
+    "fringe": {
+      "type": "number",
+      "default": 0.004,
+      "min": 0,
+      "max": 0.03,
+      "step": 0.001,
+      "description": "Separation between the colour channels at the edges while moving. A press running colour work strikes one plate per ink, and a moving web lands them a fraction apart. Keep it under about 0.01 or it reads as a broken monitor."
+    },
+    "grain": {
+      "type": "number",
+      "default": 0.4,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Paper tooth over the image. Fixed per slide rather than per frame, because grain that crawls is a screen artefact and grain that sits still is paper."
+    },
+    "reference": {
+      "type": "number",
+      "default": 1.6,
+      "min": 0.2,
+      "max": 6,
+      "step": 0.1,
+      "description": "The scroll velocity that counts as full speed, in screens per second. Above it the effect stops growing. Lower makes the web bow more readily; too low and an ordinary wheel click maxes it out."
+    },
+    "crossfade": {
+      "type": "number",
+      "default": 0.55,
+      "min": 0.05,
+      "max": 1,
+      "step": 0.05,
+      "description": "Fraction of each slide's travel spent crossing to the next. Low holds each picture still and then cuts; 1 never stops dissolving."
+    }
+  },
+  "instruction": "scroll the page, then stop and watch it settle flat",
+  "oneShot": false,
+  "record": {
+    "duration": 8,
+    "fps": 30,
+    "posterAt": 0.97,
+    "crf": 32
+  },
+  "scroll": {
+    "duration": 8,
+    "keys": [
+      {
+        "t": 0.0,
+        "progress": 0.0
+      },
+      {
+        "t": 0.7,
+        "progress": 0.0
+      },
+      {
+        "t": 1.25,
+        "progress": 0.333
+      },
+      {
+        "t": 2.6,
+        "progress": 0.333
+      },
+      {
+        "t": 3.15,
+        "progress": 0.666
+      },
+      {
+        "t": 4.5,
+        "progress": 0.666
+      },
+      {
+        "t": 5.05,
+        "progress": 1.0
+      },
+      {
+        "t": 8.0,
+        "progress": 1.0
+      }
+    ]
+  }
+}

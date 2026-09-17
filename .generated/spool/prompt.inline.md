@@ -1,7 +1,7 @@
-You are adding **Guilloche** from Beamish to this project.
+You are adding **Spool** from Beamish to this project.
 
-> The engine-turned line work off a banknote, printed on paper. Backdrops · effect · MIT.
-> https://beamish.ink/effects/guilloche
+> A scroll-run slideshow on a paper web that bows as it accelerates. Surfaces · effect · MIT.
+> https://beamish.ink/effects/spool
 
 Beamish is not a package and there is nothing to install from npm. The source
 lives in a public repo; you fetch the files, put them in this project, and wire
@@ -14,9 +14,10 @@ Assume you have not seen this library before. Everything you need is below.
 
 - **npm dependencies:** None. This file has no npm dependencies at all.
 - WebGL2. There is no WebGL1 fallback
-- WebGL2 for gl_VertexID; there is no WebGL1 fallback and none is planned
-- The line width is derived from the screen-space derivative of the field, so the engraving stays one pixel wide at any DPR instead of filling in at the centre
-- Falls back to a still frame under prefers-reduced-motion, handled in the runtime
+- The images are the host element's own <img> children. They are hidden from sight and left in the document, so the alt text and source order are whatever you wrote, and a page with no JavaScript still shows the pictures
+- At rest nothing is distorted. The whole effect is a function of scroll velocity, so a reader who has stopped scrolling is looking at a photograph
+- One WebGL2 context, one full-screen triangle, no buffers and no attributes
+- Textures are CLAMP_TO_EDGE. The bow samples past the edge of the image and a repeating wrap would tile the opposite side of the picture into the gap
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -581,75 +582,69 @@ export function mount<O extends BaseOptions>(
 }
 ```
 
-**`src/beamish/effects/guilloche/core.ts`**
+**`src/beamish/effects/spool/core.ts`**
 
 ```ts
 /*
- * Guilloche: Beamish
- * https://beamish.ink/effects/guilloche
+ * Spool: Beamish
+ * https://beamish.ink/effects/spool
  *
- * The engine-turned line work on a banknote, drawn on warm paper. WebGL2, no
- * three.js, no dependencies.
+ * A slideshow the page scroll runs, on a web that bows as it accelerates.
  *
- * The GL boilerplate is inline rather than imported. This file is published and
- * read on its own, and a reader should not have to fetch a second module to find
- * out how a program gets compiled.
+ * A web press does not feed sheets, it feeds one continuous ribbon of paper off
+ * a reel, and at speed that ribbon bows between the rollers. The faster it runs
+ * the more it bows. When the press stops, the paper lies flat.
  *
- * The shader source is generated from shaders/guilloche.frag and
- * shaders/guilloche.vert. Edit those, then run `pnpm generate`. The markers are
- * load-bearing.
+ * At rest this draws an undistorted image and nothing else. That is the whole
+ * design. The distortion is a function of scroll velocity, so a reader who has
+ * stopped scrolling sees a photograph, not an effect. Most WebGL sliders warp
+ * continuously and end up reading as a filter laid over the content; this one
+ * only exists while it is being pulled.
+ *
+ * The images come from the host element's own <img> children rather than from
+ * an option. Without JavaScript you get a plain list of pictures with real alt
+ * text, and with it the canvas draws them instead. The originals stay in the
+ * document, so what a screen reader gets is the markup you wrote.
  */
 
-import { mount, type BaseOptions, type EffectHandle, type Surface } from '../../shared/runtime'
+import { mount, type BaseOptions, type EffectHandle, type Scroll, type Surface } from '../../shared/runtime'
 
-export type GuillocheOptions = BaseOptions & {
-  /** The paper the plate is printed on. */
+export type SpoolOptions = BaseOptions & {
+  /** Shown wherever the bow has pulled the image away from the frame edge. */
   paper: string
-  /** The engraving. A desaturated near-black reads as ink. */
-  ink: string
-  /** The second colour, printed over one band of the pattern. */
-  accent: string
-  /** Size of the whole rosette. */
-  scale: number
-  /** Lines per unit of radius. Higher is finer engraving. */
-  pitch: number
-  /** Lobes on the first rosette. Whole numbers only, or the curve never closes. */
-  lobes: number
-  /** Spokes in the family that runs around the circle rather than out from it. */
-  waves: number
-  /** How far each rosette's radius wobbles. */
-  depth: number
-  /** Weight of the engraved line, 0 to 1. */
-  weight: number
-  /** Where the second colour band sits, as a radius. */
-  accentBand: number
-  /** Paper tooth, 0 to 1. Static, not film grain. */
+  /** How hard the sides lag behind the middle. This is the bow. */
+  bend: number
+  /** How far the whole web slides against the direction of travel. */
+  slip: number
+  /** Separation between the colour channels at the edges while moving. */
+  fringe: number
+  /** Paper tooth over the image. */
   grain: number
-  /** Seconds for one turn of the gears. Exactly periodic over this. */
-  period: number
+  /**
+   * Scroll velocity that counts as full speed. Above it the effect stops
+   * growing, so a trackpad flick does not tear the picture in half.
+   */
+  reference: number
+  /** Fraction of each slide's travel spent crossing to the next. */
+  crossfade: number
 }
 
 /*
  * Kept in step with meta.json by `pnpm generate`, which fails if the two drift.
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
-export const guillocheDefaults: GuillocheOptions = {
+export const spoolDefaults: SpoolOptions = {
   paper: '#fbfaf4',
-  ink: '#2f2b26',
-  accent: '#c44400',
-  scale: 0.92,
-  pitch: 26,
-  lobes: 7,
-  waves: 24,
-  depth: 0.07,
-  weight: 0.35,
-  accentBand: 0.22,
-  grain: 0.28,
-  period: 6,
-  reducedMotionTime: 5
+  bend: 0.09,
+  slip: 0.018,
+  fringe: 0.004,
+  grain: 0.4,
+  reference: 1.6,
+  crossfade: 0.55,
+  reducedMotionTime: 0
 }
 
-// beamish:shader-begin shaders/guilloche.vert
+// beamish:shader-begin shaders/spool.vert
 const VERT = `#version 300 es
 
 // Full-screen triangle from gl_VertexID. No buffers, no attributes. Bind an
@@ -662,121 +657,116 @@ void main() {
 `
 // beamish:shader-end
 
-// beamish:shader-begin shaders/guilloche.frag
+// beamish:shader-begin shaders/spool.frag
 const FRAG = `#version 300 es
 precision highp float;
 
 /*
- * Guilloche: the engine-turned line work on a banknote, a share certificate or
- * the bezel of a watch.
+ * Spool: the paper web running through a press.
  *
- * It is not noise and it is not a gradient. A real rose engine cuts one
- * continuous line whose radius is modulated by a set of gears, so the pattern
- * is a family of curves with a strict harmonic relationship. That is exactly
- * what this draws: several rosettes, each a circle whose radius wobbles at an
- * integer number of lobes, rendered as a line field rather than a fill.
+ * A web press does not feed sheets, it feeds one continuous ribbon off a reel,
+ * and at speed that ribbon bows between the rollers. The faster it runs the more
+ * it bows, and when the press stops the paper lies flat again.
  *
- * The integer lobe counts are the whole thing. Fractional ones never close, and
- * an open curve reads as a mistake rather than as engraving.
+ * That is the entire behaviour here. At rest this draws an undistorted image and
+ * nothing else, which is the point: the distortion is a function of how fast you
+ * are scrolling, so a reader who is not moving never sees an effect at all. Most
+ * WebGL sliders warp all the time and read as a filter. This one only shows up
+ * while it is being pulled.
  */
 
+uniform sampler2D u_a;
+uniform sampler2D u_b;
+
 uniform vec2  u_resolution;
-uniform float u_dpr;
-uniform float u_time;
-uniform float u_period;
+uniform vec2  u_sizeA;
+uniform vec2  u_sizeB;
 uniform vec3  u_paper;
-uniform vec3  u_ink;
-uniform vec3  u_accent;
-uniform float u_scale;
-uniform float u_pitch;
-uniform float u_lobes;
-uniform float u_waves;
-uniform float u_depth;
-uniform float u_weight;
-uniform float u_accentBand;
+uniform float u_blend;
+uniform float u_velocity;
+uniform float u_bend;
+uniform float u_slip;
+uniform float u_fringe;
 uniform float u_grain;
+uniform float u_seed;
 
 out vec4 fragColor;
-
-const float TAU = 6.28318530718;
 
 float hash12(vec2 p) {
   return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 
 /*
- * One engraved line family. \`spacing\` is how far apart the lines sit; the
- * derivative keeps them a constant width on screen however fast the field is
- * changing, which is what stops the centre turning into a solid disc.
+ * Cover fit, the CSS object-fit rule, done in UV space. Without it every image
+ * whose aspect ratio is not the canvas's is stretched, which is the single most
+ * common thing wrong with a hand-rolled WebGL slider.
  */
-float engrave(float field, float weight) {
-  float band = fract(field);
-  float aa = fwidth(field);
-  float edge = aa * (0.5 + weight * 2.0);
-  return 1.0 - smoothstep(0.0, edge, min(band, 1.0 - band));
+vec2 cover(vec2 uv, vec2 frame, vec2 image) {
+  float frameAspect = frame.x / max(frame.y, 1.0);
+  float imageAspect = image.x / max(image.y, 1.0);
+  vec2 scale = imageAspect > frameAspect
+    ? vec2(frameAspect / imageAspect, 1.0)
+    : vec2(1.0, imageAspect / frameAspect);
+  return (uv - 0.5) * scale + 0.5;
 }
 
 void main() {
-  vec2 cssRes = u_resolution / max(u_dpr, 0.001);
-  float shortSide = min(cssRes.x, cssRes.y);
-  vec2 cssPx = gl_FragCoord.xy / max(u_dpr, 0.001);
-
-  vec2 p = (cssPx - cssRes * 0.5) / (shortSide * 0.5);
-  p /= max(u_scale, 0.05);
-
-  float phase = TAU * u_time / max(u_period, 0.001);
-
-  float r = length(p);
-  float a = atan(p.y, p.x);
+  vec2 uv = gl_FragCoord.xy / u_resolution;
+  // Textures arrive with their origin at the top left and GL samples from the
+  // bottom, so this is flipped once here rather than on upload.
+  uv.y = 1.0 - uv.y;
 
   /*
-   * Three rosettes turning against each other, the way a rose engine stacks
-   * gears. Their lobe counts are coprime, so the interference pattern takes a
-   * long time to repeat and never looks like a simple grid.
+   * How far across the frame this pixel is, 0 in the middle and 1 at the left
+   * and right edges. Squared, so the middle of the web stays nearly flat and
+   * the bow is concentrated where the paper is unsupported.
    */
-  float lobesA = floor(u_lobes);
-  float lobesB = floor(u_lobes * 1.75) + 1.0;
-  float lobesC = floor(u_lobes * 0.5) + 2.0;
+  float fromCentre = abs(uv.x * 2.0 - 1.0);
+  float edge = fromCentre * fromCentre;
 
-  float waveA = sin(a * lobesA + phase) * u_depth;
-  float waveB = sin(a * lobesB - phase * 1.5) * u_depth * 0.55;
-  float waveC = cos(a * lobesC + phase * 0.5) * u_depth * 0.8;
+  // The sides lag behind the middle, which is what curves the top and bottom
+  // edges. Displacing y by a function of x is the whole trick.
+  float bow = u_velocity * u_bend * edge;
 
-  // Each family is the radius plus its own wobble, scaled into line spacing.
-  float fieldA = (r + waveA) * u_pitch;
-  float fieldB = (r + waveB) * u_pitch * 1.31;
+  // And the whole web slides a little against the direction of travel, the way
+  // anything with mass does when it is pulled.
+  float slip = u_velocity * u_slip;
 
-  // The third runs around the circle rather than out from the centre, which is
-  // what turns two ring families into woven guilloche instead of a moire.
-  float fieldC = (a / TAU * u_waves + waveC + r * 0.35) * u_pitch * 0.42;
-
-  float lineA = engrave(fieldA, u_weight);
-  float lineB = engrave(fieldB, u_weight);
-  /*
-   * The angular family is singular at the origin: every spoke meets there, and
-   * without this the middle of the rosette collapses into a solid blot. A real
-   * rose engine has a centre finding of its own for the same reason.
-   */
-  float lineC = engrave(fieldC, u_weight) * smoothstep(0.0, 0.3, r);
-
-  vec3 col = u_paper;
-  // Multiplied, not added: this is ink on paper, and two lines crossing are
-  // darker than one.
-  col *= mix(vec3(1.0), u_ink, lineA * 0.85);
-  col *= mix(vec3(1.0), u_ink, lineB * 0.7);
-  col *= mix(vec3(1.0), u_ink, lineC * 0.5);
+  vec2 warped = vec2(uv.x, uv.y + bow + slip);
 
   /*
-   * A single band of the pattern printed in the second colour, the way a
-   * certificate prints one guilloche in red over the rest in black. It rides
-   * the same field, so it is part of the engraving rather than a highlight laid
-   * on top of it.
+   * A press running colour work has one plate per ink, and if the web is moving
+   * when they strike, the inks land a fraction apart. Sampling the channels at
+   * slightly different offsets is the same error, and it is what makes fast
+   * scrolling read as printing rather than as a blur filter.
    */
-  float ring = smoothstep(u_accentBand + 0.16, u_accentBand, abs(r - u_accentBand - 0.28));
-  col = mix(col, col * mix(vec3(1.0), u_accent, lineA * 0.9), ring);
+  float fringe = u_velocity * u_fringe * edge;
 
-  float tooth = hash12(floor(cssPx * 0.5)) - 0.5;
-  col += tooth * 0.05 * u_grain;
+  vec2 aR = cover(warped + vec2(0.0, fringe), u_resolution, u_sizeA);
+  vec2 aG = cover(warped, u_resolution, u_sizeA);
+  vec2 aB = cover(warped - vec2(0.0, fringe), u_resolution, u_sizeA);
+
+  vec2 bR = cover(warped + vec2(0.0, fringe), u_resolution, u_sizeB);
+  vec2 bG = cover(warped, u_resolution, u_sizeB);
+  vec2 bB = cover(warped - vec2(0.0, fringe), u_resolution, u_sizeB);
+
+  vec3 a = vec3(texture(u_a, aR).r, texture(u_a, aG).g, texture(u_a, aB).b);
+  vec3 b = vec3(texture(u_b, bR).r, texture(u_b, bG).g, texture(u_b, bB).b);
+
+  vec3 col = mix(a, b, u_blend);
+
+  /*
+   * Outside the cover rectangle there is no image, only clamped edge pixels
+   * smeared into a streak. The bow pushes pixels past the top and bottom of the
+   * frame, so this has to be paper rather than whatever the last row happened
+   * to be.
+   */
+  vec2 bounds = step(vec2(0.0), aG) * step(aG, vec2(1.0));
+  float inside = bounds.x * bounds.y;
+  col = mix(u_paper, col, inside);
+
+  float tooth = hash12(floor(gl_FragCoord.xy * 0.5) + u_seed) - 0.5;
+  col += tooth * 0.045 * u_grain;
 
   fragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }
@@ -784,34 +774,31 @@ void main() {
 // beamish:shader-end
 
 const UNIFORMS = [
+  'u_a',
+  'u_b',
   'u_resolution',
-  'u_dpr',
-  'u_time',
-  'u_period',
+  'u_sizeA',
+  'u_sizeB',
   'u_paper',
-  'u_ink',
-  'u_accent',
-  'u_scale',
-  'u_pitch',
-  'u_lobes',
-  'u_waves',
-  'u_depth',
-  'u_weight',
-  'u_accentBand',
-  'u_grain'
+  'u_blend',
+  'u_velocity',
+  'u_bend',
+  'u_slip',
+  'u_fringe',
+  'u_grain',
+  'u_seed'
 ] as const
 
 type UniformName = (typeof UNIFORMS)[number]
 
-/** '#rgb' | '#rrggbb' | 'rgb(r g b)' → linear-ish 0 to 1 triple. */
-function parseColor(input: string): [number, number, number] {
-  const value = input.trim()
-  if (value.startsWith('#')) {
-    let hex = value.slice(1)
-    if (hex.length === 3) hex = hex[0]! + hex[0]! + hex[1]! + hex[1]! + hex[2]! + hex[2]!
-    const n = Number.parseInt(hex.slice(0, 6), 16)
-    if (Number.isNaN(n)) return [0, 0, 0]
-    return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255]
+function rgb(value: string): [number, number, number] {
+  const hex = value.trim()
+  if (/^#[0-9a-f]{6}$/i.test(hex)) {
+    return [
+      parseInt(hex.slice(1, 3), 16) / 255,
+      parseInt(hex.slice(3, 5), 16) / 255,
+      parseInt(hex.slice(5, 7), 16) / 255
+    ]
   }
   const nums = value.match(/[\d.]+/g)
   if (nums && nums.length >= 3) {
@@ -822,26 +809,31 @@ function parseColor(input: string): [number, number, number] {
 
 function compile(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader {
   const shader = gl.createShader(type)
-  if (!shader) throw new Error('Guilloche: could not create shader')
+  if (!shader) throw new Error('Spool: could not create shader')
   gl.shaderSource(shader, source)
   gl.compileShader(shader)
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
     const log = gl.getShaderInfoLog(shader)
     gl.deleteShader(shader)
-    throw new Error(`Guilloche: shader failed to compile\n${log ?? ''}`)
+    throw new Error(`Spool: shader failed to compile\n${log ?? ''}`)
   }
   return shader
 }
 
-class GuillocheSurface implements Surface<GuillocheOptions> {
+type Slide = { texture: WebGLTexture; width: number; height: number }
+
+class SpoolSurface implements Surface<SpoolOptions> {
   private gl: WebGL2RenderingContext | null = null
   private program: WebGLProgram | null = null
   private vao: WebGLVertexArrayObject | null = null
   private locations = new Map<UniformName, WebGLUniformLocation | null>()
   private size = { pixelWidth: 1, pixelHeight: 1, dpr: 1 }
+  private slides: Slide[] = []
+  private images: HTMLImageElement[] = []
+  private blank: WebGLTexture | null = null
 
-  setup(ctx: { canvas: HTMLCanvasElement | null }): void {
-    if (!ctx.canvas) throw new Error('Guilloche needs a canvas')
+  setup(ctx: { canvas: HTMLCanvasElement | null; host: HTMLElement }): void {
+    if (!ctx.canvas) throw new Error('Spool needs a canvas')
     const gl = ctx.canvas.getContext('webgl2', {
       alpha: false,
       antialias: false,
@@ -852,23 +844,21 @@ class GuillocheSurface implements Surface<GuillocheOptions> {
       preserveDrawingBuffer: true,
       powerPreference: 'low-power'
     })
-    if (!gl) throw new Error('Guilloche needs WebGL2, which this browser did not provide')
+    if (!gl) throw new Error('Spool needs WebGL2, which this browser did not provide')
 
     const vert = compile(gl, gl.VERTEX_SHADER, VERT)
     const frag = compile(gl, gl.FRAGMENT_SHADER, FRAG)
     const program = gl.createProgram()
-    if (!program) throw new Error('Guilloche: could not create program')
+    if (!program) throw new Error('Spool: could not create program')
     gl.attachShader(program, vert)
     gl.attachShader(program, frag)
     gl.linkProgram(program)
-    // Shader objects are reference-counted by the program; drop our references
-    // now so they are freed the moment the program is.
     gl.deleteShader(vert)
     gl.deleteShader(frag)
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
       const log = gl.getProgramInfoLog(program)
       gl.deleteProgram(program)
-      throw new Error(`Guilloche: program failed to link\n${log ?? ''}`)
+      throw new Error(`Spool: program failed to link\n${log ?? ''}`)
     }
 
     // WebGL2 requires a bound VAO even when the draw uses no attributes.
@@ -881,6 +871,59 @@ class GuillocheSurface implements Surface<GuillocheOptions> {
     for (const name of UNIFORMS) {
       this.locations.set(name, gl.getUniformLocation(program, name))
     }
+
+    /*
+     * One opaque pixel, bound wherever a real image has not arrived yet. A
+     * sampler left unbound in WebGL2 reads as black, which would flash the
+     * whole frame dark on the first paint of a slow connection.
+     */
+    const blank = gl.createTexture()
+    gl.bindTexture(gl.TEXTURE_2D, blank)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([251, 250, 244, 255]))
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+    this.blank = blank
+
+    this.collect(ctx.host)
+  }
+
+  /*
+   * The images are the host's own children. They are hidden from sight but left
+   * in the document, so the alt text and the source order are still whatever was
+   * written, and a page with no JavaScript still shows the pictures.
+   */
+  private collect(host: HTMLElement): void {
+    const found = [...host.querySelectorAll('img')]
+    this.images = found
+    for (const image of found) {
+      image.style.visibility = 'hidden'
+      if (image.complete && image.naturalWidth > 0) this.upload(image)
+      else image.addEventListener('load', () => this.upload(image), { once: true })
+    }
+  }
+
+  private upload(image: HTMLImageElement): void {
+    const gl = this.gl
+    if (!gl || image.naturalWidth === 0) return
+    const index = this.images.indexOf(image)
+    if (index < 0 || this.slides[index]) return
+
+    const texture = gl.createTexture()
+    if (!texture) return
+    gl.bindTexture(gl.TEXTURE_2D, texture)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
+    /*
+     * CLAMP_TO_EDGE, not REPEAT. The bow pushes samples past the edge of the
+     * image, and a repeating wrap would tile the opposite side of the picture
+     * into the gap. The shader paints paper over that region instead, but the
+     * clamp is what stops it being a mirrored seam in the meantime.
+     */
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+
+    this.slides[index] = { texture, width: image.naturalWidth, height: image.naturalHeight }
   }
 
   resize(size: { pixelWidth: number; pixelHeight: number; dpr: number }): void {
@@ -888,7 +931,7 @@ class GuillocheSurface implements Surface<GuillocheOptions> {
     this.gl?.viewport(0, 0, size.pixelWidth, size.pixelHeight)
   }
 
-  render(t: number, opts: GuillocheOptions): void {
+  render(_t: number, opts: SpoolOptions, _pointer: unknown, scroll: Scroll): void {
     const gl = this.gl
     const program = this.program
     if (!gl || !program) return
@@ -896,166 +939,135 @@ class GuillocheSurface implements Surface<GuillocheOptions> {
     gl.useProgram(program)
     gl.bindVertexArray(this.vao)
 
-    const at = (name: UniformName) => this.locations.get(name) ?? null
-    gl.uniform2f(at('u_resolution'), this.size.pixelWidth, this.size.pixelHeight)
-    gl.uniform1f(at('u_dpr'), this.size.dpr)
-    gl.uniform1f(at('u_time'), t)
-    gl.uniform1f(at('u_period'), opts.period)
-    gl.uniform3fv(at('u_paper'), parseColor(opts.paper))
-    gl.uniform3fv(at('u_ink'), parseColor(opts.ink))
-    gl.uniform3fv(at('u_accent'), parseColor(opts.accent))
-    gl.uniform1f(at('u_scale'), opts.scale)
-    gl.uniform1f(at('u_pitch'), opts.pitch)
-    gl.uniform1f(at('u_lobes'), opts.lobes)
-    gl.uniform1f(at('u_waves'), opts.waves)
-    gl.uniform1f(at('u_depth'), opts.depth)
-    gl.uniform1f(at('u_weight'), opts.weight)
-    gl.uniform1f(at('u_accentBand'), opts.accentBand)
-    gl.uniform1f(at('u_grain'), opts.grain)
+    const count = Math.max(this.images.length, 1)
+    const loc = (name: UniformName) => this.locations.get(name) ?? null
+
+    /*
+     * Scroll position picks the slide, and the fraction between two of them is
+     * the crossfade. `crossfade` decides how much of each slide's travel is
+     * spent moving rather than sitting still, so a low value holds each picture
+     * and cuts quickly, and 1 never stops dissolving.
+     */
+    const travel = scroll.progress * (count - 1)
+    const index = Math.min(Math.floor(travel), Math.max(count - 2, 0))
+    const within = count > 1 ? travel - index : 0
+    const window = Math.min(Math.max(opts.crossfade, 0.01), 1)
+    const raw = Math.min(Math.max((within - (1 - window)) / window, 0), 1)
+    // Smoothstep, so a slide settles rather than arriving at a constant rate.
+    const blend = raw * raw * (3 - 2 * raw)
+
+    const a = this.slides[index] ?? null
+    const b = this.slides[Math.min(index + 1, count - 1)] ?? null
+
+    gl.activeTexture(gl.TEXTURE0)
+    gl.bindTexture(gl.TEXTURE_2D, a?.texture ?? this.blank)
+    gl.uniform1i(loc('u_a'), 0)
+    gl.activeTexture(gl.TEXTURE1)
+    gl.bindTexture(gl.TEXTURE_2D, b?.texture ?? a?.texture ?? this.blank)
+    gl.uniform1i(loc('u_b'), 1)
+
+    gl.uniform2f(loc('u_resolution'), this.size.pixelWidth, this.size.pixelHeight)
+    gl.uniform2f(loc('u_sizeA'), a?.width ?? 1, a?.height ?? 1)
+    gl.uniform2f(loc('u_sizeB'), b?.width ?? a?.width ?? 1, b?.height ?? a?.height ?? 1)
+    gl.uniform3fv(loc('u_paper'), rgb(opts.paper))
+    gl.uniform1f(loc('u_blend'), blend)
+
+    /*
+     * Normalised and clipped. A trackpad can report a velocity an order of
+     * magnitude past anything a mouse wheel produces, and without a ceiling the
+     * picture tears in half the first time somebody flicks it.
+     */
+    const reference = Math.max(opts.reference, 0.001)
+    const velocity = Math.max(-1, Math.min(1, scroll.velocity / reference))
+
+    gl.uniform1f(loc('u_velocity'), velocity)
+    gl.uniform1f(loc('u_bend'), opts.bend)
+    gl.uniform1f(loc('u_slip'), opts.slip)
+    gl.uniform1f(loc('u_fringe'), opts.fringe)
+    gl.uniform1f(loc('u_grain'), opts.grain)
+    // Fixed per slide rather than per frame: grain that crawls is a screen
+    // artefact, grain that sits still is paper.
+    gl.uniform1f(loc('u_seed'), index * 17.13)
 
     gl.drawArrays(gl.TRIANGLES, 0, 3)
-    gl.bindVertexArray(null)
   }
 
-  context(): WebGL2RenderingContext | null {
+  context(): WebGLRenderingContext | WebGL2RenderingContext | null {
     return this.gl
   }
 
   teardown(): void {
     const gl = this.gl
-    if (!gl) return
-    if (this.vao) gl.deleteVertexArray(this.vao)
-    if (this.program) gl.deleteProgram(this.program)
-    this.vao = null
-    this.program = null
-    this.locations.clear()
+    if (gl) {
+      for (const slide of this.slides) if (slide) gl.deleteTexture(slide.texture)
+      if (this.blank) gl.deleteTexture(this.blank)
+      if (this.program) gl.deleteProgram(this.program)
+      if (this.vao) gl.deleteVertexArray(this.vao)
+    }
+    // Put the markup back the way it was found. The effect borrowed these; it
+    // does not own them.
+    for (const image of this.images) image.style.visibility = ''
+    this.slides = []
+    this.images = []
+    this.blank = null
     this.gl = null
+    this.program = null
+    this.vao = null
+    this.locations.clear()
   }
 }
 
 /**
- * Mount Guilloche into `el`. The element needs a size. Give it width and height
- * in CSS, not just content.
+ * Mount Spool into `el`. The element needs a size, and it needs `<img>` children
+ * to draw.
+ *
+ * ```html
+ * <div id="reel" style="height: 100vh">
+ *   <img src="/one.jpg" alt="…" />
+ *   <img src="/two.jpg" alt="…" />
+ * </div>
+ * ```
  *
  * ```ts
- * const guilloche = createGuilloche(document.querySelector('#bg')!)
- * guilloche.start()
+ * const spool = createSpool(document.querySelector('#reel')!)
+ * spool.start()
  * // …later
- * guilloche.destroy()
+ * spool.destroy()
  * ```
  */
-export function createGuilloche(
-  el: HTMLElement,
-  opts: Partial<GuillocheOptions> = {}
-): EffectHandle {
-  return mount<GuillocheOptions>(el, opts, {
-    defaults: guillocheDefaults,
-    create: () => new GuillocheSurface()
+export function createSpool(el: HTMLElement, opts: Partial<SpoolOptions> = {}): EffectHandle {
+  return mount<SpoolOptions>(el, opts, {
+    defaults: spoolDefaults,
+    create: () => new SpoolSurface()
   })
 }
 
-export default createGuilloche
+export default createSpool
 ```
 
 ## 2. What it is
 
-Guilloche is the engine-turned line work off a banknote, a share certificate or
-the bezel of a watch, drawn on warm paper.
+A slideshow the page scroll runs, on a paper web that bows as it accelerates.
 
-It is not noise and it is not a gradient. A real rose engine cuts one continuous
-line whose radius is modulated by a set of gears, so the result is a family of
-curves in a strict harmonic relationship. That is what this draws: three
-rosettes, each a circle whose radius wobbles at a whole number of lobes, rendered
-as a line field rather than a fill, and multiplied together the way overlapping
-ink actually behaves.
+A web press does not feed sheets. It feeds one continuous ribbon of paper off a
+reel, and at speed that ribbon bows between the rollers. The faster it runs the
+more it bows. When the press stops, the paper lies flat.
 
-The whole-number lobe counts matter. A fractional count gives a curve that never
-closes, and an open curve reads as a mistake rather than as engraving. The three
-families are kept coprime so their interference takes a long time to repeat and
-never settles into a grid.
+That is the whole behaviour. At rest this draws an undistorted photograph and
+nothing else. The distortion is a function of scroll velocity, not of time and
+not of position, so a reader who has stopped scrolling is looking at the picture
+rather than at an effect. Most WebGL sliders warp continuously and end up reading
+as a filter laid over the content. This one only exists while it is being pulled.
 
-One band is printed in a second colour, riding the same field, the way a
-certificate prints one guilloche in red over the rest in black. It is part of the
-engraving rather than a highlight laid on top of it.
+Three things happen while it moves, and all three are the same press. The sides
+lag behind the middle, which curves the top and bottom edges. The whole web slides
+a little against the direction of travel, the way anything with mass does when it
+is pulled. And the colour channels separate slightly at the edges, because a press
+running colour work strikes one plate per ink and a moving web lands them a
+fraction apart.
 
-One WebGL2 fragment shader on one full-screen triangle. No noise, no textures, no
-render targets. It is the cheapest effect in the library.
-
-## 3. Wire it in
-
-**Plain HTML.** The element needs a size of its own.
-
-```html
-<div id="backdrop" style="position: fixed; inset: 0; z-index: -1"></div>
-
-<script type="module">
-  import { createGuilloche } from './beamish/effects/guilloche/core.js'
-
-  const guilloche = createGuilloche(document.querySelector('#backdrop'), {
-    lobes: 7,
-    period: 40
-  })
-  guilloche.start()
-</script>
-```
-
-**React.** Start in an effect, destroy in its cleanup. StrictMode runs the effect
-twice in development, which is fine, because `destroy()` fully releases the
-context.
-
-```tsx
-import { useEffect, useRef } from 'react'
-import { createGuilloche } from '@/beamish/effects/guilloche/core'
-
-export function Backdrop() {
-  const host = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!host.current) return
-    const guilloche = createGuilloche(host.current, { period: 40 })
-    guilloche.start()
-    return () => guilloche.destroy()
-  }, [])
-
-  return <div ref={host} className="fixed inset-0 -z-10" />
-}
-```
-
-Do not put option values in the dependency array. Call `update()` instead: every
-option is a uniform, so nothing rebuilds.
-
-**Vue.**
-
-```vue
-<script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref } from 'vue'
-import { createGuilloche } from '@/beamish/effects/guilloche/core'
-import type { EffectHandle } from '@/beamish/shared/runtime'
-
-const host = ref<HTMLDivElement | null>(null)
-let guilloche: EffectHandle | null = null
-
-onMounted(() => {
-  if (!host.value) return
-  guilloche = createGuilloche(host.value, { period: 40 })
-  guilloche.start()
-})
-
-onBeforeUnmount(() => guilloche?.destroy())
-</script>
-
-<template>
-  <div ref="host" class="backdrop" />
-</template>
-```
-
-**Astro.** Nothing extra is required. The core is a standard ES module with no
-framework in it.
-
-**Behind content.** Raise `period` to 40 and drop `weight` to about 0.2. The
-engraving recedes into a watermark you stop noticing, which is what a certificate
-background is for. Do not reach for opacity: it greys the paper and loses the
-thing that makes it look printed.
+One WebGL2 fragment shader on one full-screen triangle. No three.js, no
+dependency, no render targets.
 
 ## 4. Options
 
@@ -1064,61 +1076,56 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | The paper the plate is printed on. Match it to your page background. |
-| `ink` | color | `#2f2b26` | any CSS hex | The engraving. A desaturated near-black reads as ink; pure black reads as a wireframe. |
-| `accent` | color | `#c44400` | any CSS hex | The second colour, printed over one band of the pattern the way a share certificate prints one guilloche in red over the rest in black. |
-| `scale` | number | `0.92` | 0.2 to 3 (looks right between 0.6 and 1.4) | Size of the whole rosette. Below about 0.5 the lines are finer than the pixels and the plate turns grey. |
-| `pitch` | number | `26` | 4 to 80 (looks right between 14 and 40) | Lines per unit of radius. Higher is finer engraving, and past about 50 it stops resolving on anything but a retina screen. |
-| `lobes` | number | `7` | 2 to 24 (looks right between 5 and 12) | Lobes on the first rosette. Whole numbers only: a fractional lobe count gives a curve that never closes, and an open curve reads as a mistake rather than as engraving. The other two families are derived from this and kept coprime to it. |
-| `waves` | number | `24` | 4 to 80 (looks right between 12 and 40) | Spokes in the family that runs around the circle rather than out from it. This is what turns two ring families into woven guilloche instead of a moire. |
-| `depth` | number | `0.07` | 0 to 0.4 (looks right between 0.04 and 0.14) | How far each rosette's radius wobbles. Zero is concentric circles. Past about 0.2 the curves cross themselves and the weave becomes a tangle. |
-| `weight` | number | `0.35` | 0 to 1 (looks right between 0.2 and 0.55) | Weight of the engraved line. Heavy lines at a high pitch fill in solid, so raise one and lower the other. |
-| `accentBand` | number | `0.22` | 0 to 1.2 (looks right between 0.1 and 0.5) | Where the second colour sits, as a radius from the centre. Set it past the corner of the panel to switch the second colour off. |
-| `grain` | number | `0.28` | 0 to 1 | Paper tooth. Static by design. Animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent. |
-| `period` | number | `6` | 4 to 180 s (looks right between 6 and 60) | Seconds for one turn of the gears. The pattern is exactly periodic over this. The default is 6 so the preview video is a whole turn; 30 to 60 is right behind a page, where the gears should be moving slowly enough that nobody catches them. |
-| `reducedMotionTime` | number | `5` | 0 to 180 s | The single frame shown when the user prefers reduced motion. Any time works: a still guilloche is an engraving, which is a finished thing to look at. |
+| `paper` | color | `#fbfaf4` | any CSS hex | Shown wherever the bow has pulled the image away from the edge of the frame. Match it to the page behind, or the gap reads as a border that appears only while scrolling. |
+| `bend` | number | `0.09` | 0 to 0.3 | How hard the sides lag behind the middle. This is the bow, and it is the option you came for. Past about 0.12 it stops being a press and starts being a fisheye. |
+| `slip` | number | `0.018` | 0 to 0.15 | How far the whole web slides against the direction of travel, the way anything with mass does when it is pulled. Small: this is the part you feel rather than see. |
+| `fringe` | number | `0.004` | 0 to 0.03 | Separation between the colour channels at the edges while moving. A press running colour work strikes one plate per ink, and a moving web lands them a fraction apart. Keep it under about 0.01 or it reads as a broken monitor. |
+| `grain` | number | `0.4` | 0 to 1 | Paper tooth over the image. Fixed per slide rather than per frame, because grain that crawls is a screen artefact and grain that sits still is paper. |
+| `reference` | number | `1.6` | 0.2 to 6 | The scroll velocity that counts as full speed, in screens per second. Above it the effect stops growing. Lower makes the web bow more readily; too low and an ordinary wheel click maxes it out. |
+| `crossfade` | number | `0.55` | 0.05 to 1 | Fraction of each slide's travel spent crossing to the next. Low holds each picture still and then cuts; 1 never stops dissolving. |
 
 ## 5. Cleanup and SSR
 
-`destroy()` releases the WebGL context, cancels the RAF, disconnects both
-observers and removes every listener. Call it.
+`destroy()` releases the WebGL context, deletes every texture, restores the
+original images, cancels the RAF, disconnects both observers and removes every
+listener including the scroll one. Call it.
 
 A page that mounts and unmounts demos without destroying them will hit the
-browser's context limit, which is 16 contexts or 16,777,216 pixels, whichever
-runs out first. Past that the browser starts killing the oldest context.
+browser's context limit, which is 16 contexts or 16,777,216 pixels, whichever runs
+out first.
 
-None of this runs on the server. `createGuilloche` touches `document` and
-`matchMedia` at call time. Put the call inside `useEffect`, `onMounted`, or a
-`client:*` island. Next.js App Router needs `'use client'` at the top of the
-component file.
+None of this runs on the server. Put the call inside `useEffect`, `onMounted`, or
+a `client:*` island. Next.js App Router needs `'use client'`.
 
 ## 6. Pausing and reduced motion
 
-WCAG 2.2.2 is Level A: content that moves for more than five seconds must be
-pausable. `stop()` and `start()` are on the handle for that. Surface them as a
-real control in your own build. Reduced motion does not cover this, and plenty of
-people who need a pause button have not set that preference.
+There is nothing to pause. Nothing moves unless the reader moves it, which is
+what takes this outside WCAG 2.2.2 rather than exempting it from it. `stop()` and
+`start()` are still on the handle.
 
-Handled in the runtime with a live `matchMedia` listener. Under reduced motion
-the loop never starts and one frame is drawn at `reducedMotionTime`.
-
-This effect needs no care here. Any frame of it is an engraving, which is a
-finished thing to look at, so the default is as good as any other number.
+Handled in the runtime. Under reduced motion the loop never starts and one frame
+is drawn, which means the reader gets a still photograph with no warp at all.
+That is the correct outcome here and it needs no special case.
 
 ## 7. The three mistakes most likely to be made here
 
-1. **Passing a fractional `lobes`.** The curve then never closes on itself, and
-   what you get is a spiral with a visible join rather than a rosette. The option
-   is stepped to whole numbers for that reason; if you set it from code, round it.
+1. **Turning `bend` up to see it better.** If you cannot see it, the reason is
+   almost always that the host is too short, so the whole set crosses in one flick
+   and there is no room to build speed. Give it height before you touch `bend`.
+   Past about 0.12 it stops being a press and starts being a fisheye.
 
-2. **Raising `pitch` and `weight` together.** Fine lines and heavy weight fill in
-   solid, and the centre of the rosette goes black first because that is where
-   the field changes fastest. Raise one and lower the other.
+2. **Leaving `paper` on the default when the page is not.** The bow pulls the
+   image away from the top and bottom of the frame and `paper` is what shows in
+   the gap. If it does not match the page behind, a border appears out of nowhere
+   whenever somebody scrolls.
 
-3. **Mounting it into an element with no height.** The canvas is `width: 100%;
-   height: 100%`, so a `<div>` with no content and no CSS height is zero pixels
-   tall and renders nothing. Give the host `position: fixed; inset: 0`, or an
-   explicit height.
+3. **Pale images.** The warp is an edge effect, and an image that is nearly the
+   same colour as the paper hides its own edges. Pictures with detail running to
+   the frame show it; washed-out ones do not.
+
+4. **Expecting it to animate on its own.** It has no idle state and no loop of its
+   own. A screenshot of a page nobody is scrolling is a photograph, which is the
+   entire point.
 
 ---
 

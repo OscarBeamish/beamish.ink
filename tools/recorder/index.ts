@@ -19,9 +19,10 @@ import { mkdir, rm, readdir, stat, readFile, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { promisify } from 'node:util'
-import { fileURLToPath, pathToFileURL } from 'node:url'
+import { fileURLToPath } from 'node:url'
 import { metaSchema, type Meta, type InteractionStep } from '../schema/meta'
 import { buildItem, listItems, type ItemRef } from '../build-items'
+import { serveRoot, demoUrl } from '../serve'
 
 const run = promisify(execFile)
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
@@ -116,7 +117,13 @@ async function openDemo(browser: Browser, item: ItemRef, ratio: Ratio): Promise<
     if (message.type() === 'error') errors.push(message.text())
   })
 
-  const url = `${pathToFileURL(path.join(item.dir, 'demo.html')).href}?record=1`
+  /*
+   * Served over HTTP rather than opened as a file. Under file:// every image is
+   * a separate opaque origin, so texImage2D refuses to upload one and any effect
+   * that samples a texture cannot be recorded at all. Nothing else here needs a
+   * server, which is why this went unnoticed until the first textured effect.
+   */
+  const url = `${demoUrl(item.dir)}?record=1`
   await page.goto(url, { waitUntil: 'load' })
   await page.evaluate(() => document.fonts.ready)
 
@@ -148,6 +155,18 @@ async function captureTier1(page: Page, meta: Meta, dir: string): Promise<number
         pointerPathDuration: cursor.duration
       }),
       meta.cursor
+    )
+  }
+
+  // Same contract for a scroll-driven item. Its velocity comes out of the
+  // path's own slope, so it is a function of t like everything else.
+  if (meta.scroll) {
+    await page.evaluate(
+      scroll => window.__beamish.update({
+        scrollPath: scroll.keys,
+        scrollPathDuration: scroll.duration
+      }),
+      meta.scroll
     )
   }
 
@@ -397,6 +416,7 @@ async function main() {
 
   if (!existsSync(FRAMES)) await mkdir(FRAMES, { recursive: true })
 
+  const server = await serveRoot()
   const browser = await chromium.launch({
     // The full browser rather than the headless shell: the shell has no GPU, and
     // software rasterising a shader at 1920×1080 for 300 frames is the difference
@@ -413,6 +433,7 @@ async function main() {
     for (const item of items) await recordItem(browser, item, only, keepFrames)
   } finally {
     await browser.close()
+    await new Promise<void>(resolve => server.close(() => resolve()))
     if (!keepFrames) await emptyDir(FRAMES)
   }
 }
