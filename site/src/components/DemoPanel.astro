@@ -91,7 +91,8 @@ const { slug, tier, instruction, oneShot } = Astro.props
     magnet: () => import('@items/effects/magnet/core'),
     tally: () => import('@items/effects/tally/core'),
     contour: () => import('@items/effects/contour/core'),
-    guilloche: () => import('@items/effects/guilloche/core')
+    guilloche: () => import('@items/effects/guilloche/core'),
+    vellum: () => import('@items/effects/vellum/core')
   }
 
   const COMPONENTS: Record<string, () => Promise<{ mount(el: HTMLElement): Mounted }>> = {
