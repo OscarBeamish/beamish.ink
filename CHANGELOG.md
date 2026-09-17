@@ -5,6 +5,18 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.4.0, 17 September 2026
+
+Fifteen items.
+
+### Added
+
+- Vellum (backdrops): a drifting stack of translucent paper, three.js. The
+  sheets multiply rather than composite, which is order-independent, so the
+  whole pile is one InstancedMesh with no transparency sorting to get wrong.
+  Nothing in it can be brighter than the paper, which is a real constraint of
+  the blend and not a limitation worth hiding.
+
 ## v0.3.1, 17 September 2026
 
 ### Fixed
