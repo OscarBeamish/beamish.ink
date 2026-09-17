@@ -5,6 +5,21 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.6.2, 17 September 2026
+
+### Changed
+
+- The nav follows its reference properly: mono at full size, a bold uppercase
+  display wordmark, and a dotted rule on a ::before that appears on hover rather
+  than an underline. Drawn on a pseudo-element at inset 0, so it costs no layout
+  and nothing shifts when it arrives.
+- Nav labels scramble and settle on hover, one character at a time, left to
+  right. Site chrome rather than a library item: ScrambleText is a rise-and-blur
+  reveal and stays that way. Spaces are held through the scramble so the word
+  shape never dissolves into noise, the animation always runs to completion even
+  if the pointer leaves, and re-entering mid-run does nothing, so sweeping the
+  cursor along the bar cannot stack copies on one element.
+
 ## v0.6.1, 17 September 2026
 
 ### Fixed

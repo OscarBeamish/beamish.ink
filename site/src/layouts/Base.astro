@@ -49,28 +49,34 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
 
   <body class="min-h-dvh">
     <!--
-      Fixed, full bleed, and blended. The wordmark sits in the left corner and
-      the links spread across the right half rather than bunching at the edge,
-      which is what stops a three-item nav reading as an afterthought tucked
-      into a corner.
+      Fixed and full bleed, with the links given half the bar and spread across
+      it. A three-item nav pushed into the right corner reads as an afterthought;
+      given room and told to justify between, it reads as part of the grid.
 
-      mix-blend-mode: difference against white asks nothing of the page and
-      needs telling nothing: whatever pixel is behind, the type comes out its
-      inverse. That matters here because the nav sits over demo panels that can
-      be any colour a shader decides to produce.
+      Hover is a dotted rule drawn on a ::before over the whole control rather
+      than an underline or a colour change. It costs no layout, it works the same
+      over any background, and it is the one treatment that survives the blend
+      below.
 
-      The blend has to be on the fixed element itself. `position: fixed` creates
-      a stacking context and blending is isolated to one, so the same rule on a
+      mix-blend-mode: difference against white asks nothing of the page and needs
+      telling nothing: whatever pixel is behind, the type comes out its inverse.
+      That matters because the nav sits over demo panels that can be any colour a
+      shader decides to produce.
+
+      The blend has to be on the fixed element itself. `position: fixed` creates a
+      stacking context and blending is isolated to one, so the same rule on a
       child has nothing to blend against and renders plain white.
     -->
     <header class="site-nav">
       <div class="site-nav__row">
-        <a href="/" class="site-nav__mark">Beamish</a>
+        <a href="/" class="site-nav__mark site-nav__hit" data-scramble>Beamish</a>
         <nav class="site-nav__links" aria-label="Primary">
-          <a href="/#catalogue">Index</a>
-          <a href="/how-it-works">How it works</a>
+          <a href="/#catalogue" class="site-nav__hit" data-scramble>Index</a>
+          <a href="/how-it-works" class="site-nav__hit" data-scramble>How it works</a>
           <a
             href="https://github.com/OscarBeamish/beamish.ink"
+            class="site-nav__hit"
+            data-scramble
             rel="noreferrer"
             target="_blank">GitHub</a
           >
@@ -107,6 +113,70 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
           requestAnimationFrame(raf)
         }
         requestAnimationFrame(raf)
+      }
+    </script>
+
+    <script>
+      /*
+       * Scramble-on-hover for the nav.
+       *
+       * Each label settles one character at a time, left to right, with the
+       * characters that have not landed yet cycling through a fixed glyph set.
+       * It is the site's own chrome rather than a library item: ScrambleText is
+       * a rise-and-blur reveal and stays that way.
+       *
+       * Two things keep it from being annoying. The animation always runs to
+       * completion even if the pointer leaves, because a label abandoned
+       * mid-scramble is unreadable and looks broken. And re-entering while it is
+       * still going does nothing, so sweeping the cursor along the bar does not
+       * stack three copies on the same element.
+       */
+      const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*+-=?/<>[]{}'
+      const SETTLE_MS = 45
+
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+      for (const el of document.querySelectorAll<HTMLElement>('[data-scramble]')) {
+        const original = el.textContent ?? ''
+        const chars = [...original]
+        let running = false
+
+        el.addEventListener('pointerenter', () => {
+          // Reading it live rather than at load, so changing the setting with the
+          // page open takes effect without a reload.
+          if (running || reduced.matches) return
+          running = true
+
+          /*
+           * Pin the width for the duration. The links are monospace and would
+           * hold their own, but the wordmark is set in the display face, where
+           * swapping W for I mid-animation would shuffle the whole bar.
+           */
+          const width = el.getBoundingClientRect().width
+          el.style.width = `${width}px`
+
+          let settled = 0
+          const tick = () => {
+            if (settled > chars.length) {
+              el.textContent = original
+              el.style.width = ''
+              running = false
+              return
+            }
+            el.textContent = chars
+              .map((c, i) => {
+                if (i < settled) return c
+                // Spaces stay spaces, so the word shape is legible throughout
+                // and the label never reads as one long run of noise.
+                if (c === ' ') return ' '
+                return GLYPHS[Math.floor(Math.random() * GLYPHS.length)]
+              })
+              .join('')
+            settled += 1
+            window.setTimeout(tick, SETTLE_MS)
+          }
+          tick()
+        })
       }
     </script>
   </body>

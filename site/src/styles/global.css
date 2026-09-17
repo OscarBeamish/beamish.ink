@@ -296,12 +296,13 @@
 /* --- nav ----------------------------------------------------------------- */
 
 /*
- * Fixed and full bleed, with the links spread across the right half.
+ * Fixed and full bleed, links given half the bar and spread across it.
  *
- * The blend is the whole trick. White plus mix-blend-mode: difference means the
- * type comes out the inverse of whatever is behind it, so the nav stays legible
- * over warm paper, over a dark three.js scene and over a shader that has not
- * been written yet, without anything having to tell it which.
+ * The blend is the whole trick for legibility. White plus
+ * mix-blend-mode: difference means the type comes out the inverse of whatever is
+ * behind it, so the nav works over warm paper, over a dark three.js scene and
+ * over a shader nobody has written yet, without anything having to tell it
+ * which.
  *
  * It must sit on the fixed element itself. `position: fixed` creates a stacking
  * context and blending is isolated to one, so the same two rules on a child
@@ -314,7 +315,8 @@
   z-index: 50;
   color: #fff;
   mix-blend-mode: difference;
-  /* Clicks fall through the bar; only the links take them. */
+  font-family: var(--font-mono);
+  /* Clicks fall through the bar; only the controls take them. */
   pointer-events: none;
 }
 
@@ -323,52 +325,70 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
+  font-size: 1rem;
 }
 
 .site-nav__mark {
-  pointer-events: auto;
-  font-size: 0.95rem;
-  letter-spacing: -0.01em;
-  text-decoration: none;
-  color: inherit;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
 }
 
 /*
  * Spread rather than bunched. Given half the bar and told to justify between,
- * the three links sit at measured intervals across it, which reads as part of
- * the layout instead of as a cluster pushed into the corner.
+ * the links sit at measured intervals across it instead of clustering in the
+ * corner.
  */
 .site-nav__links {
-  pointer-events: auto;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
+  gap: 0.5rem 0.75rem;
   text-transform: uppercase;
 }
 
-.site-nav__links a {
+/*
+ * A dotted rule around the whole control, transparent until hover.
+ *
+ * Drawn on a ::before at inset 0 rather than as a border on the element itself,
+ * so it costs no layout and nothing shifts when it appears. Only where hover is
+ * a real input: on a touch screen it would either never show or stick after a
+ * tap, and neither is worth having.
+ */
+.site-nav__hit {
+  position: relative;
+  display: inline-block;
+  padding: 0.5rem;
   text-decoration: none;
   color: inherit;
-  /*
-   * Opacity, not colour. Inside a difference blend any colour change is
-   * unpredictable against an unknown background, and a link that goes lighter
-   * on cream would go darker on black. Fading the whole thing behaves the same
-   * way over anything.
-   */
-  opacity: 0.78;
-  transition: opacity 0.25s var(--ease-66, cubic-bezier(0.66, 0, 0.01, 1));
+  pointer-events: auto;
 }
 
-.site-nav__links a:hover {
-  opacity: 1;
+.site-nav__hit::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px dotted transparent;
+  pointer-events: none;
+  transition: border-color 0.2s linear;
 }
 
-.site-nav__row a:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 4px;
+@media (hover: hover) and (min-width: 64rem) {
+  .site-nav__hit:hover::before {
+    border-color: currentColor;
+  }
+}
+
+.site-nav__hit:focus-visible {
+  outline: none;
+}
+
+/* Focus gets the same rule, shown rather than hidden behind a hover query. */
+.site-nav__hit:focus-visible::before {
+  border-color: currentColor;
+  border-style: solid;
 }
 
 @media (min-width: 64rem) {
@@ -384,5 +404,24 @@
 @media (min-width: 80rem) {
   .site-nav__links {
     flex-basis: 33.333%;
+  }
+}
+
+/*
+ * The reference drops its nav below lg entirely. This one keeps it, because
+ * three links are the whole of the site and a phone with no route to them is
+ * not a trade worth copying. It comes down in size instead.
+ */
+@media (max-width: 40rem) {
+  .site-nav__row {
+    font-size: 0.75rem;
+  }
+
+  .site-nav__hit {
+    padding: 0.4rem;
+  }
+
+  .site-nav__links {
+    gap: 0.25rem;
   }
 }
