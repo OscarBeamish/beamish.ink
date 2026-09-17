@@ -103,7 +103,7 @@ async function loadItems(): Promise<Item[]> {
  * and is published inlined in core.ts so an agent fetches one file that runs with
  * no bundler plugin. Both, from one source, synced here.
  */
-const SHADER_BLOCK = /(\/\/ beamish:shader-begin (\S+)\n)([\s\S]*?)(\/\/ beamish:shader-end)/g
+const SHADER_BLOCK = /(\/\/ beamish:shader-begin (\S+)\r?\n)([\s\S]*?)(\/\/ beamish:shader-end)/g
 
 async function syncShaders(item: Item): Promise<{ file: string; contents: string } | null> {
   const corePath = path.join(item.dir, 'core.ts')
@@ -132,6 +132,24 @@ async function syncShaders(item: Item): Promise<{ file: string; contents: string
     void name
     return `${begin}const ${varName} = \`${sources.get(rel)!}\`\n${end}`
   })
+
+  /*
+   * Belt and braces. A marker that matched nothing, or a block that came out
+   * different from the file it names, means the published file is about to ship
+   * a shader nobody edited. Fail rather than generate a lie.
+   */
+  for (const [rel, source] of sources) {
+    if (!next.includes(source)) {
+      throw new Error(
+        `${item.meta.slug}: ${rel} did not make it into core.ts.
+` +
+          '  The shader-begin marker is present but its block was not replaced.'
+      )
+    }
+  }
+  if (sources.size === 0) {
+    throw new Error(`${item.meta.slug}: core.ts has shader markers but none of them matched`)
+  }
 
   return next === original ? null : { file: corePath, contents: next }
 }

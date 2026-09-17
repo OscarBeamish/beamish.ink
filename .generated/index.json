@@ -642,6 +642,205 @@
     "intro": "Foil is a hot-foil stamp pressed into paper, and the cursor is the light. Move it\nand the highlight rakes across the relief the way tilting a real foil-stamped\ncard does: a narrow band of brightness travelling over a brushed surface, picking\nup a little colour at the grazing edges.\n\nThere is no image and no texture. The stamp is a signed-distance rosette with a\nbrushed relief written into its height field. The light is a point source sitting\njust above the surface at the cursor. Everything you see is that height field,\nits gradient, and one specular term. WebGL2, one full-screen triangle, no npm\ndependencies.\n\nIt is pointer-driven, never pointer-dependent. With no cursor, on touch, or\nbefore anyone has moved the mouse, the light takes a slow closed orbit of its\nown. The panel is alive on arrival and the loop still has no seam."
   },
   {
+    "name": "Guilloche",
+    "slug": "guilloche",
+    "tier": 1,
+    "description": "The engine-turned line work off a banknote, printed on paper",
+    "category": "backdrops",
+    "tags": [
+      "shader",
+      "webgl2",
+      "engraving",
+      "line-art",
+      "print",
+      "paper",
+      "ambient",
+      "no-dependencies"
+    ],
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "WebGL2 for gl_VertexID; there is no WebGL1 fallback and none is planned",
+        "The line width is derived from the screen-space derivative of the field, so the engraving stays one pixel wide at any DPR instead of filling in at the centre",
+        "Falls back to a still frame under prefers-reduced-motion, handled in the runtime"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.9,
+      "contexts": 1,
+      "notes": [
+        "One full-screen triangle and three line families. No noise, no textures, no render targets",
+        "The cheapest effect in the library",
+        "Dense line work is the hardest thing in this library for a video codec to encode, so its recording carries a per-item quality override. The effect itself is unaffected"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/guilloche/core.ts",
+        "to": "src/beamish/effects/guilloche/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/guilloche/adapters/react.tsx",
+        "to": "src/beamish/effects/guilloche/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/guilloche/adapters/vue.ts",
+        "to": "src/beamish/effects/guilloche/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "paper": {
+        "type": "color",
+        "default": "#fbfaf4",
+        "description": "The paper the plate is printed on. Match it to your page background."
+      },
+      "ink": {
+        "type": "color",
+        "default": "#2f2b26",
+        "description": "The engraving. A desaturated near-black reads as ink; pure black reads as a wireframe."
+      },
+      "accent": {
+        "type": "color",
+        "default": "#c44400",
+        "description": "The second colour, printed over one band of the pattern the way a share certificate prints one guilloche in red over the rest in black."
+      },
+      "scale": {
+        "type": "number",
+        "default": 0.92,
+        "description": "Size of the whole rosette. Below about 0.5 the lines are finer than the pixels and the plate turns grey.",
+        "min": 0.2,
+        "max": 3,
+        "step": 0.01,
+        "sensible": [
+          0.6,
+          1.4
+        ]
+      },
+      "pitch": {
+        "type": "number",
+        "default": 26,
+        "description": "Lines per unit of radius. Higher is finer engraving, and past about 50 it stops resolving on anything but a retina screen.",
+        "min": 4,
+        "max": 80,
+        "step": 1,
+        "sensible": [
+          14,
+          40
+        ]
+      },
+      "lobes": {
+        "type": "number",
+        "default": 7,
+        "description": "Lobes on the first rosette. Whole numbers only: a fractional lobe count gives a curve that never closes, and an open curve reads as a mistake rather than as engraving. The other two families are derived from this and kept coprime to it.",
+        "min": 2,
+        "max": 24,
+        "step": 1,
+        "sensible": [
+          5,
+          12
+        ]
+      },
+      "waves": {
+        "type": "number",
+        "default": 24,
+        "description": "Spokes in the family that runs around the circle rather than out from it. This is what turns two ring families into woven guilloche instead of a moire.",
+        "min": 4,
+        "max": 80,
+        "step": 1,
+        "sensible": [
+          12,
+          40
+        ]
+      },
+      "depth": {
+        "type": "number",
+        "default": 0.07,
+        "description": "How far each rosette's radius wobbles. Zero is concentric circles. Past about 0.2 the curves cross themselves and the weave becomes a tangle.",
+        "min": 0,
+        "max": 0.4,
+        "step": 0.005,
+        "sensible": [
+          0.04,
+          0.14
+        ]
+      },
+      "weight": {
+        "type": "number",
+        "default": 0.35,
+        "description": "Weight of the engraved line. Heavy lines at a high pitch fill in solid, so raise one and lower the other.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.2,
+          0.55
+        ]
+      },
+      "accentBand": {
+        "type": "number",
+        "default": 0.22,
+        "description": "Where the second colour sits, as a radius from the centre. Set it past the corner of the panel to switch the second colour off.",
+        "min": 0,
+        "max": 1.2,
+        "step": 0.01,
+        "sensible": [
+          0.1,
+          0.5
+        ]
+      },
+      "grain": {
+        "type": "number",
+        "default": 0.28,
+        "description": "Paper tooth. Static by design. Animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "period": {
+        "type": "number",
+        "default": 6,
+        "description": "Seconds for one turn of the gears. The pattern is exactly periodic over this. The default is 6 so the preview video is a whole turn; 30 to 60 is right behind a page, where the gears should be moving slowly enough that nobody catches them.",
+        "min": 4,
+        "max": 180,
+        "step": 1,
+        "unit": "s",
+        "sensible": [
+          6,
+          60
+        ]
+      },
+      "reducedMotionTime": {
+        "type": "number",
+        "default": 5,
+        "description": "The single frame shown when the user prefers reduced motion. Any time works: a still guilloche is an engraving, which is a finished thing to look at.",
+        "min": 0,
+        "max": 180,
+        "step": 0.1,
+        "unit": "s"
+      }
+    },
+    "instruction": "ambient, the gears are turning slowly",
+    "oneShot": false,
+    "record": {
+      "duration": 6,
+      "fps": 30,
+      "posterAt": 2.2,
+      "crf": 40,
+      "webmCrf": 62
+    },
+    "group": "effects",
+    "intro": "Guilloche is the engine-turned line work off a banknote, a share certificate or\nthe bezel of a watch, drawn on warm paper.\n\nIt is not noise and it is not a gradient. A real rose engine cuts one continuous\nline whose radius is modulated by a set of gears, so the result is a family of\ncurves in a strict harmonic relationship. That is what this draws: three\nrosettes, each a circle whose radius wobbles at a whole number of lobes, rendered\nas a line field rather than a fill, and multiplied together the way overlapping\nink actually behaves.\n\nThe whole-number lobe counts matter. A fractional count gives a curve that never\ncloses, and an open curve reads as a mistake rather than as engraving. The three\nfamilies are kept coprime so their interference takes a long time to repeat and\nnever settles into a grid.\n\nOne band is printed in a second colour, riding the same field, the way a\ncertificate prints one guilloche in red over the rest in black. It is part of the\nengraving rather than a highlight laid on top of it.\n\nOne WebGL2 fragment shader on one full-screen triangle. No noise, no textures, no\nrender targets. It is the cheapest effect in the library."
+  },
+  {
     "name": "Magnet",
     "slug": "magnet",
     "tier": 1,

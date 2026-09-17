@@ -83,8 +83,8 @@ precision highp float;
  * added. Additive light on a dark canvas is the easy version of this and it is
  * the one everybody else ships.
  *
- * Everything animates on a circle in noise space, so the loop is exactly
- * periodic over u_period and the recorded video is seamless with no crossfade.
+ * Everything animates on a circle in noise space. The loop is exactly periodic
+ * over u_period, so the recorded video joins back on itself with no crossfade.
  */
 
 uniform vec2  u_resolution;  // drawing buffer, device px
@@ -172,8 +172,8 @@ float tone(float raw, float coverage) {
   float t = smoothstep(edge - 0.30, edge + 0.30, v);
   // Clean the toe. Without this the highlights keep a haze of sub-pixel dots
   // that reads as dirt on the paper rather than as a light tone. Being fine
-  // unpredictable detail, it costs more in the encoded video than the entire
-  // rest of the frame.
+  // unpredictable detail, it costs more in the encoded video than the whole rest
+  // of the frame.
   return t * smoothstep(0.03, 0.11, t);
 }
 
