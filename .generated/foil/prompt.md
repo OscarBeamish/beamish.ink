@@ -206,6 +206,14 @@ where the relief is legible rather than one where the highlight is brightest.
    on its own, so it works on touch and in a screenshot. Do not hide it on small
    screens or gate it behind a hover media query.
 
+## Ready-made wrappers
+
+If you would rather not hand-write the wiring, these are the same thing as a
+drop-in file. They contain no effect logic.
+
+- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/foil/adapters/react.tsx
+- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/foil/adapters/vue.ts
+
 ---
 
 When you are done, confirm the effect renders and that its cleanup runs on

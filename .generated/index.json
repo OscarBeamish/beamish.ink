@@ -460,6 +460,16 @@
         "from": "effects/foil/core.ts",
         "to": "src/beamish/effects/foil/core.ts",
         "role": "core"
+      },
+      {
+        "from": "effects/foil/adapters/react.tsx",
+        "to": "src/beamish/effects/foil/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/foil/adapters/vue.ts",
+        "to": "src/beamish/effects/foil/vue.ts",
+        "role": "adapter"
       }
     ],
     "options": {
@@ -1069,6 +1079,16 @@
         "from": "effects/overprint/core.ts",
         "to": "src/beamish/effects/overprint/core.ts",
         "role": "core"
+      },
+      {
+        "from": "effects/overprint/adapters/react.tsx",
+        "to": "src/beamish/effects/overprint/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/overprint/adapters/vue.ts",
+        "to": "src/beamish/effects/overprint/vue.ts",
+        "role": "adapter"
       }
     ],
     "options": {
@@ -1701,6 +1721,16 @@
         "from": "effects/sundial/core.ts",
         "to": "src/beamish/effects/sundial/core.ts",
         "role": "core"
+      },
+      {
+        "from": "effects/sundial/adapters/react.tsx",
+        "to": "src/beamish/effects/sundial/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/sundial/adapters/vue.ts",
+        "to": "src/beamish/effects/sundial/vue.ts",
+        "role": "adapter"
       }
     ],
     "options": {

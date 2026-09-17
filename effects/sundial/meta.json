@@ -43,6 +43,16 @@
       "from": "effects/sundial/core.ts",
       "to": "src/beamish/effects/sundial/core.ts",
       "role": "core"
+    },
+    {
+      "from": "effects/sundial/adapters/react.tsx",
+      "to": "src/beamish/effects/sundial/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/sundial/adapters/vue.ts",
+      "to": "src/beamish/effects/sundial/vue.ts",
+      "role": "adapter"
     }
   ],
   "options": {

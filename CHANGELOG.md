@@ -5,6 +5,17 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.3.1, 17 September 2026
+
+### Fixed
+
+- Overprint, Foil and Sundial ship React and Vue adapters, and their prompts
+  never mentioned them. The three oldest items predate the adapter convention
+  and were never backfilled, so pasting one into a React project got you the
+  core and a recipe telling you to import an adapter that was never fetched.
+  Found by walking every raw URL on the live site and noticing those three
+  listed two files where every other item listed four.
+
 ## v0.3.0, 17 September 2026
 
 Two items, and the pin stops being something a human has to remember.

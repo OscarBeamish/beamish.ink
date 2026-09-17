@@ -39,6 +39,16 @@
       "from": "effects/overprint/core.ts",
       "to": "src/beamish/effects/overprint/core.ts",
       "role": "core"
+    },
+    {
+      "from": "effects/overprint/adapters/react.tsx",
+      "to": "src/beamish/effects/overprint/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/overprint/adapters/vue.ts",
+      "to": "src/beamish/effects/overprint/vue.ts",
+      "role": "adapter"
     }
   ],
   "options": {

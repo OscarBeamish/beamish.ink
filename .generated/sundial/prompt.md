@@ -203,6 +203,14 @@ rake across the composition rather than hiding behind the forms.
    flat. If it looks too dark, lower `shadow` towards 0.2 or lighten `stone`. Do
    not move the sun up.
 
+## Ready-made wrappers
+
+If you would rather not hand-write the wiring, these are the same thing as a
+drop-in file. They contain no effect logic.
+
+- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/sundial/adapters/react.tsx
+- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/sundial/adapters/vue.ts
+
 ---
 
 When you are done, confirm the effect renders and that its cleanup runs on

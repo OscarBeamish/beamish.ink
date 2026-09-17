@@ -4,7 +4,15 @@
   "tier": 1,
   "description": "A hot-foil stamp on paper, raked by the light your cursor carries",
   "category": "pointer",
-  "tags": ["shader", "webgl2", "pointer", "specular", "print", "paper", "no-dependencies"],
+  "tags": [
+    "shader",
+    "webgl2",
+    "pointer",
+    "specular",
+    "print",
+    "paper",
+    "no-dependencies"
+  ],
   "peerDependencies": {},
   "browser": {
     "webgl": "webgl2",
@@ -31,6 +39,16 @@
       "from": "effects/foil/core.ts",
       "to": "src/beamish/effects/foil/core.ts",
       "role": "core"
+    },
+    {
+      "from": "effects/foil/adapters/react.tsx",
+      "to": "src/beamish/effects/foil/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/foil/adapters/vue.ts",
+      "to": "src/beamish/effects/foil/vue.ts",
+      "role": "adapter"
     }
   ],
   "options": {
@@ -55,7 +73,10 @@
       "min": 3,
       "max": 40,
       "step": 1,
-      "sensible": [8, 18],
+      "sensible": [
+        8,
+        18
+      ],
       "description": "Points on the rosette. Above about 24 the petals are narrower than the relief and it turns into a disc."
     },
     "scale": {
@@ -64,7 +85,10 @@
       "min": 0.3,
       "max": 1.6,
       "step": 0.01,
-      "sensible": [0.7, 1.1],
+      "sensible": [
+        0.7,
+        1.1
+      ],
       "description": "Size of the stamp relative to the shorter side of the element."
     },
     "relief": {
@@ -73,7 +97,10 @@
       "min": 0,
       "max": 1,
       "step": 0.01,
-      "sensible": [0.35, 0.7],
+      "sensible": [
+        0.35,
+        0.7
+      ],
       "description": "Depth of the brushed relief. At zero the foil is a flat shape that changes brightness, which reads as plastic rather than metal."
     },
     "sharpness": {
@@ -82,7 +109,10 @@
       "min": 0,
       "max": 1,
       "step": 0.01,
-      "sensible": [0.3, 0.65],
+      "sensible": [
+        0.3,
+        0.65
+      ],
       "description": "How tight the highlight is. High is a mirror finish, low is a brushed one."
     },
     "iridescence": {
@@ -91,7 +121,10 @@
       "min": 0,
       "max": 1,
       "step": 0.01,
-      "sensible": [0.15, 0.45],
+      "sensible": [
+        0.15,
+        0.45
+      ],
       "description": "Spectral shift at grazing angles. Past about 0.6 it stops being a foil and becomes a hologram."
     },
     "lightHeight": {
@@ -100,7 +133,10 @@
       "min": 0.05,
       "max": 2,
       "step": 0.01,
-      "sensible": [0.3, 0.7],
+      "sensible": [
+        0.3,
+        0.7
+      ],
       "description": "How far above the surface the cursor's light sits. Low is a hard raking light that sweeps a narrow band; high floods the whole stamp at once."
     },
     "grain": {
@@ -118,7 +154,10 @@
       "max": 60,
       "step": 1,
       "unit": "s",
-      "sensible": [5, 20],
+      "sensible": [
+        5,
+        20
+      ],
       "description": "Seconds for one orbit of the idle light, which is the motion used when no pointer is present. Exactly periodic, so the loop has no seam."
     },
     "reducedMotionTime": {
@@ -136,15 +175,51 @@
   "cursor": {
     "duration": 5,
     "keys": [
-      { "t": 0, "x": 0.86, "y": 0.5 },
-      { "t": 0.625, "x": 0.755, "y": 0.641 },
-      { "t": 1.25, "x": 0.5, "y": 0.7 },
-      { "t": 1.875, "x": 0.245, "y": 0.641 },
-      { "t": 2.5, "x": 0.14, "y": 0.5 },
-      { "t": 3.125, "x": 0.245, "y": 0.359 },
-      { "t": 3.75, "x": 0.5, "y": 0.3 },
-      { "t": 4.375, "x": 0.755, "y": 0.359 },
-      { "t": 5, "x": 0.86, "y": 0.5 }
+      {
+        "t": 0,
+        "x": 0.86,
+        "y": 0.5
+      },
+      {
+        "t": 0.625,
+        "x": 0.755,
+        "y": 0.641
+      },
+      {
+        "t": 1.25,
+        "x": 0.5,
+        "y": 0.7
+      },
+      {
+        "t": 1.875,
+        "x": 0.245,
+        "y": 0.641
+      },
+      {
+        "t": 2.5,
+        "x": 0.14,
+        "y": 0.5
+      },
+      {
+        "t": 3.125,
+        "x": 0.245,
+        "y": 0.359
+      },
+      {
+        "t": 3.75,
+        "x": 0.5,
+        "y": 0.3
+      },
+      {
+        "t": 4.375,
+        "x": 0.755,
+        "y": 0.359
+      },
+      {
+        "t": 5,
+        "x": 0.86,
+        "y": 0.5
+      }
     ]
   },
   "record": {

@@ -203,6 +203,14 @@ offset.
    halftone stops resolving, aliases against the pixel grid, and turns into noise
    that shimmers as the plates drift. Lower `coverage` instead.
 
+## Ready-made wrappers
+
+If you would rather not hand-write the wiring, these are the same thing as a
+drop-in file. They contain no effect logic.
+
+- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/overprint/adapters/react.tsx
+- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/overprint/adapters/vue.ts
+
 ---
 
 When you are done, confirm the effect renders and that its cleanup runs on
