@@ -5,6 +5,22 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.6.1, 17 September 2026
+
+### Fixed
+
+- ScrollWarpImage warps the way ScrollSlideshow does. It was driven by scroll
+  position with a radial barrel and twist, which made two neighbouring
+  scroll-driven image items behave on different principles and neither of them
+  explainable. Now it is the same press, velocity-driven and flat at rest, with
+  the bow running on both axes rather than one so every edge of the sheet bends.
+- The nav ships the CSS it was already asking for. The bar carried a class
+  called `nav-blend` copied out of the reference build, and the two lines that
+  make it work were never copied with it, so the comment claimed the nav stayed
+  legible over arbitrary shader output and nothing in the stylesheet did that.
+  Layout now follows the reference too: full bleed rather than a pill, with the
+  links given half the bar and spread across it.
+
 ## v0.6.0, 17 September 2026
 
 Seventeen items, and every one of them renamed.
