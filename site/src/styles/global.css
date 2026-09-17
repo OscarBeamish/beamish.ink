@@ -320,19 +320,45 @@
   pointer-events: none;
 }
 
+/*
+ * Horizontal padding is the page's own gutter less the padding on each control,
+ * so the wordmark's first letter lines up with the h1 below it rather than
+ * sitting a hit area further in. Aligning the padding boxes instead leaves the
+ * text visibly indented, which is the thing you actually see.
+ */
 .site-nav__row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem;
+  padding: 1rem calc(1.25rem - 0.5rem);
   font-size: 1rem;
 }
 
-.site-nav__mark {
+/*
+ * Both classes are on the same element and .site-nav__hit sets inline-block
+ * further down, so this needs the extra specificity to keep the mark and the
+ * wordmark on one line. At equal weight the later rule wins and the icon stacks
+ * above the type.
+ */
+.site-nav__hit.site-nav__mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
   font-family: var(--font-display);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.01em;
+}
+
+/*
+ * Sized in em so it tracks the wordmark and never needs a breakpoint of its
+ * own. shrink-0 because a flex item with an intrinsic aspect ratio will
+ * otherwise be squeezed before the text wraps.
+ */
+.site-nav__icon {
+  width: 1.15em;
+  height: 1.15em;
+  flex-shrink: 0;
 }
 
 /*
@@ -364,6 +390,13 @@
   text-decoration: none;
   color: inherit;
   pointer-events: auto;
+  /*
+   * The scramble swaps letters for glyphs of a different width, and in the
+   * display face that is enough to push the label onto a second line inside its
+   * own pinned width. Pinning the width stops the bar reflowing; this stops the
+   * label folding in half while it does.
+   */
+  white-space: nowrap;
 }
 
 .site-nav__hit::before {
@@ -391,11 +424,14 @@
   border-style: solid;
 }
 
-@media (min-width: 64rem) {
+/* Matches the pages, which go from px-5 to md:px-8 at this width. */
+@media (min-width: 48rem) {
   .site-nav__row {
-    padding: 1.75rem 3.5rem;
+    padding: 1.5rem calc(2rem - 0.5rem);
   }
+}
 
+@media (min-width: 64rem) {
   .site-nav__links {
     flex-basis: 50%;
   }

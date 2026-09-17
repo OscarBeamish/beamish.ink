@@ -5,6 +5,29 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.6.3, 17 September 2026
+
+### Fixed
+
+- Hovering the wordmark folded it onto a second line. The scramble swaps letters
+  for glyphs of a different width, and in the display face that was enough to
+  wrap inside the width the script had already pinned. Pinning the width stops
+  the bar reflowing; `white-space: nowrap` stops the label folding while it does.
+- The nav lines up with the page. Its horizontal padding is now the page gutter
+  less the padding on each control, so the wordmark's first letter sits on the
+  same line as the h1 below it rather than a hit area further in. Measured: both
+  at 32px.
+- The mark stacked above the wordmark instead of sitting beside it. Both classes
+  are on the same element and `.site-nav__hit` sets `inline-block` further down
+  the stylesheet, so at equal specificity it won.
+
+### Added
+
+- The icosahedron mark beside the wordmark, and the matching favicons. The mark
+  is inline SVG rather than an `img` so it takes `currentColor`: the nav blends
+  against whatever is behind it, and an `img` would stay one colour while the
+  type beside it inverted.
+
 ## v0.6.2, 17 September 2026
 
 ### Changed

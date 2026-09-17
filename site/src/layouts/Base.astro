@@ -37,6 +37,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
     <meta name="twitter:card" content="summary_large_image" />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-icon.png" />
 
     <link
       rel="preload"
@@ -69,7 +71,27 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
     -->
     <header class="site-nav">
       <div class="site-nav__row">
-        <a href="/" class="site-nav__mark site-nav__hit" data-scramble>Beamish</a>
+        <a href="/" class="site-nav__mark site-nav__hit">
+          <!--
+            Inline SVG rather than an img, so it takes currentColor. The nav
+            blends against whatever is behind it, and an img would stay one
+            colour while the type beside it inverted.
+
+            The viewBox starts at -4.5 because the artwork occupies x 0 to 65 of
+            a 74 unit box, so the shape's centre sits left of the element's. The
+            window is shifted to centre it; nothing about the path changes.
+          -->
+          <svg
+            class="site-nav__icon"
+            viewBox="-4.5 0 74 74"
+            fill="currentColor"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M8.51875 16.8366L30.8985 3.7998V15.0728L8.51875 16.8366ZM34.1 15.0728V3.79864L56.4803 16.836L34.1 15.0728ZM61.7975 26.2919V52.2433L52.2975 46.871L61.7975 26.2919ZM47.149 49.1689L32.4998 70.1906L17.8507 49.1689H47.149ZM12.6912 46.8768L3.20154 52.2433V26.2995L12.6912 46.8768ZM35.4053 18.4157L60.9734 20.4295L50.078 44.057L35.4053 18.4157ZM17.5404 45.9388L32.4992 19.7964L47.4592 45.9388H17.5404ZM14.9211 44.0564L4.0257 20.4301L29.5932 18.4157L14.9211 44.0564ZM4.83782 55.0204L14.3005 49.6689L27.0249 67.9443L4.83782 55.0204ZM37.9811 67.9402L50.7094 49.6752L60.1618 55.0204L37.9811 67.9402ZM62.246 16.4656L35.2533 0.742132C33.554 -0.247386 31.4451 -0.247386 29.7469 0.742132L2.75361 16.4656C1.05481 17.4546 -0.000488281 19.2982 -0.000488281 21.2772V52.7236C-0.000488281 54.7021 1.05481 56.5463 2.75361 57.5352L29.7457 73.2581C30.5951 73.7529 31.5472 74 32.4992 74C33.4513 74 34.4034 73.7529 35.2522 73.2581L62.2455 57.5352C63.9443 56.5463 64.9995 54.7021 64.9995 52.7236V21.2772C64.9995 19.2988 63.9442 17.4551 62.246 16.4656Z" />
+          </svg>
+          <span data-scramble>Beamish</span>
+        </a>
         <nav class="site-nav__links" aria-label="Primary">
           <a href="/#catalogue" class="site-nav__hit" data-scramble>Index</a>
           <a href="/how-it-works" class="site-nav__hit" data-scramble>How it works</a>
