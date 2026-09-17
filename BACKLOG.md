@@ -139,11 +139,11 @@ Cards, panels, images.
 | Mosaic | Pixel Card | 2 | |
 | Deck | Card Swap, Stack, Bounce Cards, Flying Posters | 2 | Four of theirs, one of ours |
 | Masonry | Masonry | 2 | |
-| Plate | Profile Card | 2 | |
+| Sitter | Profile Card | 2 | Was going to be Plate. Plate is built, and it is the gallery |
 | Bento | Magic Bento | 2 | |
 | Folder | Folder | 3 | |
 | Decay | Decay Card | 3 | |
-| Rolodex | Circular Gallery, Dome Gallery, Infinite Spiral, Depth Carousel, Carousel, Morph Slider | 3 | Six of theirs, one or two of ours |
+| Rolodex | Circular Gallery, Dome Gallery, Infinite Spiral, Depth Carousel, Carousel, Morph Slider | 3 | Six of theirs. Plate covers the flat case, so this is only worth it for the curved one |
 | Viewer | Model Viewer, Lanyard | 3 | Real 3D. Worth doing well or not at all |
 
 ## Navigation (from Components, 2 built)
