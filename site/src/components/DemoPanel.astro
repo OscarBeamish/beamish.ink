@@ -124,6 +124,21 @@ const { slug, tier, instruction, oneShot } = Astro.props
           return { start() {}, stop() {}, destroy: () => root.unmount() }
         }
       }
+    },
+    plate: async () => {
+      const [{ Plate }, react, dom, demo] = await Promise.all([
+        import('@items/components/plate/react'),
+        import('react'),
+        import('react-dom/client'),
+        import('../demos/plate')
+      ])
+      return {
+        mount(el) {
+          const root = dom.createRoot(el)
+          root.render(react.createElement(Plate, demo.props))
+          return { start() {}, stop() {}, destroy: () => root.unmount() }
+        }
+      }
     }
   }
 

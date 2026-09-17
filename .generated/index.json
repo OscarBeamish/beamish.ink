@@ -1203,6 +1203,143 @@
     "intro": "Overprint is a full-bleed background that behaves like a two-colour print. Two\nink plates, a desaturated near-black and a burnt orange, are screened into\nhalftone dots at different angles and multiplied over the paper colour. That is\nwhat a second pass of ink does to the first. Over the loop the plates slide\nfractionally out of registration, which is the misprint that makes a risograph\nlook alive.\n\nIt is one WebGL2 fragment shader on one full-screen triangle. No three.js, no\ntextures, no render targets, no npm dependencies.\n\nIt needs a light background. Multiplying ink into black gets you black.\n\nThe defaults are tuned to be looked at: dense, plenty of solid ink. If you are\nputting text on top, that is too much. Drop `coverage` to about 0.2 and raise\n`period` to 15. Do not reach for opacity instead. Opacity greys the paper and\nloses the thing that makes it look printed."
   },
   {
+    "name": "Plate",
+    "slug": "plate",
+    "tier": 2,
+    "description": "A contact sheet that opens into a lightbox you can arrow, swipe or play through",
+    "category": "surfaces",
+    "tags": [
+      "gallery",
+      "lightbox",
+      "slideshow",
+      "carousel",
+      "images",
+      "dialog",
+      "accessible",
+      "react",
+      "vue",
+      "no-dependencies"
+    ],
+    "peerDependencies": {
+      "react": ">=18"
+    },
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "Uses <dialog>.showModal(), so the focus trap, Escape, top layer, inerting and focus restoration are the browser's",
+        "The fade uses transition-behavior: allow-discrete and @starting-style; where those are unsupported the overlay appears instantly, which is a graceful loss",
+        "No carousel library, no focus-trap library, no portal, no scroll-lock package",
+        "Swipe is Pointer Events, and is ignored for mouse input, where a small drag is the start of a click rather than a gesture"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.2,
+      "contexts": 0,
+      "notes": [
+        "No JavaScript runs per frame. The enter is one CSS animation on the image",
+        "Thumbnails below the first row are lazy, and the two neighbouring full-size files are decoded while you are looking at the current one",
+        "Intrinsic width and height are required on every plate so the sheet reserves its shape and does not reflow as the files arrive"
+      ]
+    },
+    "files": [
+      {
+        "from": "components/plate/react.tsx",
+        "to": "src/beamish/components/plate/react.tsx",
+        "role": "component"
+      },
+      {
+        "from": "components/plate/styles.css",
+        "to": "src/beamish/components/plate/styles.css",
+        "role": "style"
+      },
+      {
+        "from": "components/plate/vue.ts",
+        "to": "src/beamish/components/plate/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "label": {
+        "type": "string",
+        "default": "Plates",
+        "description": "Accessible name for the sheet and for the overlay. Keep it a noun. It is read out as the name of the whole gallery."
+      },
+      "closeLabel": {
+        "type": "string",
+        "default": "Close",
+        "description": "Text on the close control. There is a visible one as well as Escape, because Escape is not discoverable and on a touch device it does not exist."
+      },
+      "columns": {
+        "type": "number",
+        "default": 3,
+        "description": "Columns at the widest the container gets. The sheet steps down on its own below that, because it fits its container rather than the viewport.",
+        "min": 1,
+        "max": 6,
+        "step": 1
+      },
+      "autoplay": {
+        "type": "number",
+        "default": 0,
+        "description": "Seconds between plates once the overlay is open. Zero is off, and off is the default: a gallery that starts moving on its own is rarely what the reader wanted. Any value above zero renders a pause control, and reduced motion turns it off entirely.",
+        "min": 0,
+        "max": 12,
+        "step": 0.5
+      },
+      "playLabel": {
+        "type": "string",
+        "default": "Play",
+        "description": "Text on the autoplay control when it is stopped."
+      },
+      "pauseLabel": {
+        "type": "string",
+        "default": "Pause",
+        "description": "Text on the autoplay control when it is running."
+      }
+    },
+    "instruction": "open a plate, then try the arrow keys and Escape",
+    "oneShot": false,
+    "record": {
+      "duration": 8,
+      "fps": 30,
+      "posterAt": 1.2,
+      "crf": 30,
+      "interactions": [
+        {
+          "at": 0.6,
+          "action": "hover",
+          "target": ".beamish-plate__cell:nth-child(2) .beamish-plate__trigger"
+        },
+        {
+          "at": 1.6,
+          "action": "click",
+          "target": ".beamish-plate__cell:nth-child(2) .beamish-plate__trigger"
+        },
+        {
+          "at": 3.2,
+          "action": "key",
+          "key": "ArrowRight"
+        },
+        {
+          "at": 4.6,
+          "action": "key",
+          "key": "ArrowRight"
+        },
+        {
+          "at": 6,
+          "action": "key",
+          "key": "ArrowLeft"
+        },
+        {
+          "at": 7.2,
+          "action": "key",
+          "key": "Escape"
+        }
+      ]
+    },
+    "group": "components",
+    "intro": "Plate is a contact sheet that opens into a lightbox. A grid of numbered plates,\nand an overlay you move through with the arrow keys, a swipe, the controls, or an\nautoplay you have to start yourself.\n\nThe overlay is a real `<dialog>` opened with `showModal()`. That is the decision\nthe rest of it hangs off. The browser then gives you the focus trap, Escape, the\ntop layer, inerting the page behind, and returning focus to where you came from.\nEvery one of those is something hand-rolled galleries get subtly wrong, and none\nof it is code in this repo or a package in yours. There is no carousel library\nhere, no focus-trap library, no portal and no scroll-lock.\n\nWhat is left is the part worth building. Arrow keys and Home and End. A swipe\nthat is ignored for mouse input, where a small drag is the start of a click\nrather than a gesture. Neighbour preload, so the next plate is already decoded\nbefore you ask for it. And a counter, because a gallery with no sense of how far\nthrough you are is a gallery you leave.\n\nThe overlay is paper rather than black. A dark lightbox is the convention and it\nis the wrong one here: it turns every warm image cold, and it makes the caption\nthe brightest thing on the screen. A plate in a book sits on the page, with a\nmargin, which is what this does."
+  },
+  {
     "name": "Riser",
     "slug": "riser",
     "tier": 1,

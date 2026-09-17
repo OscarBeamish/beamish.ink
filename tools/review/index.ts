@@ -105,6 +105,16 @@ async function pageFacts(page: Page) {
     clientWidth: document.documentElement.clientWidth,
     brokenImages: [...document.querySelectorAll('img')]
       .filter(img => !img.complete || img.naturalWidth === 0)
+      /*
+       * A lazy image below the fold has not loaded because it was told not to,
+       * which is the loading strategy working rather than a broken file. Only
+       * count one as broken once it is somewhere near the viewport.
+       */
+      .filter(img => {
+        if (img.loading !== 'lazy') return true
+        const box = img.getBoundingClientRect()
+        return box.top < window.innerHeight * 1.5 && box.bottom > 0
+      })
       .map(img => img.getAttribute('src') ?? '(no src)'),
     unlabelledImages: [...document.querySelectorAll('img')].filter(
       img => img.getAttribute('alt') === null
