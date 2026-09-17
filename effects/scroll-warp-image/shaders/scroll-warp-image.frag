@@ -2,21 +2,18 @@
 precision highp float;
 
 /*
- * ScrollWarpImage: one picture, printed on something that is not flat.
+ * ScrollWarpImage: one sheet on the web, bowing as it runs.
  *
- * The distortion here is driven by scroll position rather than by scroll speed,
- * which is the opposite choice to ScrollSlideshow and gives a completely
- * different feel. Speed-driven means nothing happens until you move. Position
- * driven means the picture is somewhere in a continuous deformation the whole
- * time it is on screen, and scrolling walks it through: pinched as it comes up
- * from the bottom, flat as it passes the middle of the viewport, barrelled as
- * it leaves the top.
+ * The same press as ScrollSlideshow, and deliberately the same deformation: the
+ * sides lag behind the middle, the whole sheet slips against the direction of
+ * travel, and the inks land a fraction apart while it moves. At rest it lies
+ * flat and there is no effect at all.
  *
- * The edges deform with everything else. The image is not a rectangle with a
- * warped picture inside it; the warp is applied first and whatever falls
- * outside the source is paper, so the boundary itself bends. That is the part
- * that sells it, and it is why there is no geometry here beyond one triangle:
- * the shape of the sheet is a by-product of the sampling, not a mesh.
+ * What is different is that there is one picture and it never changes, so there
+ * is no crossfade drawing the eye away from the edges, and the bow runs on both
+ * axes rather than one. The slideshow curves the top and bottom because that is
+ * all you can see of a sheet that is being replaced. Here every edge of the
+ * sheet bends, because the sheet is the subject.
  */
 
 uniform sampler2D u_image;
@@ -24,14 +21,11 @@ uniform sampler2D u_image;
 uniform vec2  u_resolution;
 uniform vec2  u_imageSize;
 uniform vec3  u_paper;
-uniform float u_travel;
 uniform float u_velocity;
-uniform float u_bulge;
-uniform float u_twist;
-uniform float u_squeeze;
+uniform float u_bend;
+uniform float u_slip;
 uniform float u_fringe;
 uniform float u_grain;
-uniform float u_vignette;
 
 out vec4 fragColor;
 
@@ -50,38 +44,34 @@ vec2 cover(vec2 uv, vec2 frame, vec2 image) {
 }
 
 /*
- * The deformation, as a single function of a point and how far through its
- * travel the sheet is. Kept in one place because the colour fringe below has to
- * evaluate it three times at slightly different strengths, and two copies of
- * this that drifted apart would be a very annoying bug to find.
+ * The deformation, in one place, because the colour fringe below evaluates it
+ * three times at slightly different strengths and two copies that drifted apart
+ * would be a miserable bug to find.
  */
-vec2 deform(vec2 p, float amount) {
-  float r2 = dot(p, p);
+vec2 bow(vec2 uv, float amount) {
+  /*
+   * How far across and down the frame this pixel is, 0 in the middle and 1 at
+   * the edges. Squared, so the centre of the sheet stays nearly flat and the
+   * bend is concentrated where the paper is unsupported.
+   */
+  vec2 fromCentre = abs(uv * 2.0 - 1.0);
+  vec2 edge = fromCentre * fromCentre;
 
   /*
-   * abs(), so the sheet barrels at both ends of its travel and is flat only as
-   * it passes the middle. Signing this instead was the obvious reading of
-   * "one way, then the other", and it wastes half the effect: a pinch samples
-   * inside the picture, so it reads as a plain zoom and the edges stay a
-   * rectangle. Expanding at both ends means the boundary bends coming and
-   * going, and the direction of travel is carried by the twist below instead.
+   * Each axis is displaced by how far the *other* axis is from the middle. That
+   * cross-coupling is the whole trick: displacing y by a function of x is what
+   * curves the top and bottom edges, and doing the same the other way round
+   * curves the sides. Displacing each axis by its own distance would only
+   * stretch the sheet, which reads as a zoom.
    */
-  p *= 1.0 + abs(amount) * u_bulge * r2;
+  uv.y += amount * u_bend * edge.x;
+  uv.x += amount * u_bend * edge.y * 0.65;
 
-  /*
-   * A twist that grows with radius, so the middle of the picture stays put and
-   * the corners lead. Without it the barrel reads as a zoom, because a purely
-   * radial scale is what a zoom is.
-   */
-  float angle = amount * u_twist * r2;
-  float s = sin(angle);
-  float c = cos(angle);
-  p = mat2(c, -s, s, c) * p;
+  // And the whole sheet slides a little against the direction of travel, the
+  // way anything with mass does when it is pulled.
+  uv.y += amount * u_slip;
 
-  // Paper pulled between two rollers narrows across its width.
-  p.x *= 1.0 + amount * u_squeeze;
-
-  return p;
+  return uv;
 }
 
 void main() {
@@ -91,34 +81,16 @@ void main() {
   uv.y = 1.0 - uv.y;
 
   /*
-   * -1 as the sheet comes up from the bottom of the viewport, 0 as it passes
-   * the middle, +1 as it leaves the top. Everything below is signed by this, so
-   * the deformation runs through flat rather than easing back out the way it
-   * came.
+   * A press running colour work strikes one plate per ink, and a web that is
+   * moving when they hit lands them a fraction apart. Three evaluations of the
+   * same bow at slightly different strengths is the same error, and it is what
+   * makes a fast scroll read as printing rather than as a blur.
    */
-  float travel = u_travel * 2.0 - 1.0;
+  float spread = u_fringe * abs(u_velocity);
 
-  // Speed adds a little on top of position, so a flick has some weight to it
-  // without being the thing that drives the effect.
-  float amount = travel + u_velocity * 0.35;
-
-  vec2 p = uv - 0.5;
-
-  /*
-   * One plate per ink, and a sheet that is moving when they strike lands them a
-   * fraction apart. Here the offset is in the deformation itself rather than in
-   * the sampling position, so the channels separate most where the warp is
-   * strongest, which is at the corners.
-   */
-  float spread = u_fringe * abs(amount);
-
-  vec2 rp = deform(p, amount * (1.0 + spread)) + 0.5;
-  vec2 gp = deform(p, amount) + 0.5;
-  vec2 bp = deform(p, amount * (1.0 - spread)) + 0.5;
-
-  vec2 rUv = cover(rp, u_resolution, u_imageSize);
-  vec2 gUv = cover(gp, u_resolution, u_imageSize);
-  vec2 bUv = cover(bp, u_resolution, u_imageSize);
+  vec2 rUv = cover(bow(uv, u_velocity * (1.0 + spread)), u_resolution, u_imageSize);
+  vec2 gUv = cover(bow(uv, u_velocity), u_resolution, u_imageSize);
+  vec2 bUv = cover(bow(uv, u_velocity * (1.0 - spread)), u_resolution, u_imageSize);
 
   vec3 col = vec3(
     texture(u_image, rUv).r,
@@ -127,23 +99,18 @@ void main() {
   );
 
   /*
-   * Anything the deformation pushed outside the source is paper. This is what
-   * makes the edges of the sheet bend rather than just its contents: the
-   * boundary is wherever the sampling ran out of picture.
+   * Anything the bow pushed outside the source is paper. This is what makes the
+   * edges of the sheet bend rather than only its contents: the boundary is
+   * wherever the sampling ran out of picture.
    */
   vec2 inBounds = step(vec2(0.0), gUv) * step(gUv, vec2(1.0));
   float inside = inBounds.x * inBounds.y;
 
-  // One pixel of softness on that boundary, so the bent edge is a cut rather
-  // than a staircase.
+  // A pixel of softness on that boundary, so the bent edge is a cut rather than
+  // a staircase.
   float aa = fwidth(gUv.x) + fwidth(gUv.y);
   float edge = smoothstep(0.0, aa * 1.5, min(min(gUv.x, 1.0 - gUv.x), min(gUv.y, 1.0 - gUv.y)));
   col = mix(u_paper, col, inside * edge);
-
-  // Ink lies heavier where the sheet curves away. Radial, and signed with the
-  // warp, so it arrives and leaves with it.
-  float r = length(p) * 1.4;
-  col *= 1.0 - u_vignette * r * r * abs(amount);
 
   float tooth = hash12(floor(gl_FragCoord.xy * 0.5)) - 0.5;
   col += tooth * 0.045 * u_grain;

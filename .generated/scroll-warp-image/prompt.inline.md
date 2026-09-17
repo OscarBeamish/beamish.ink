@@ -1,6 +1,6 @@
 You are adding **ScrollWarpImage** from Beamish to this project.
 
-> One picture that deforms, edges and all, as it travels up the viewport. Surfaces · effect · MIT.
+> One picture on a paper web that bows on every edge as it accelerates. Surfaces · effect · MIT.
 > https://beamish.ink/effects/scroll-warp-image
 
 Beamish is not a package and there is nothing to install from npm. The source
@@ -15,8 +15,8 @@ Assume you have not seen this library before. Everything you need is below.
 - **npm dependencies:** None. This file has no npm dependencies at all.
 - WebGL2. There is no WebGL1 fallback
 - The picture is the host element's own <img> child. It is hidden from sight and left in the document, so the alt text is whatever you wrote and a page with no JavaScript still shows it
-- Driven by scroll position rather than scroll speed, so the sheet is somewhere in the deformation the whole time it is on screen
-- The edges deform with the picture. The warp is applied first and whatever falls outside the source is paper, so the boundary of the sheet bends rather than staying a rectangle
+- The same deformation as ScrollSlideshow, run on both axes rather than one, so every edge of the sheet bends instead of just the top and bottom
+- At rest nothing is distorted. The whole effect is a function of scroll velocity, so a reader who has stopped scrolling is looking at a photograph
 - One WebGL2 context, one full-screen triangle, no buffers and no attributes
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
@@ -589,22 +589,23 @@ export function mount<O extends BaseOptions>(
  * ScrollWarpImage: Beamish
  * https://beamish.ink/effects/scroll-warp-image
  *
- * One picture, printed on something that is not flat, deforming as it travels
- * up the viewport.
+ * One picture on a paper web that bows as it accelerates.
  *
- * The distortion is driven by scroll position rather than by scroll speed,
- * which is the opposite choice to ScrollSlideshow and gives a completely
- * different feel. Speed-driven means nothing happens until the reader moves.
- * Position-driven means the picture is somewhere in a continuous deformation
- * the whole time it is on screen, and scrolling walks it through: pinched as it
- * comes up from the bottom, flat as it passes the middle, barrelled as it
- * leaves the top.
+ * The same press as ScrollSlideshow, and deliberately the same deformation:
+ * the sides lag behind the middle, the whole sheet slips against the direction
+ * of travel, and the inks land a fraction apart while it moves. At rest it lies
+ * flat and there is no effect at all.
  *
- * The edges deform with everything else. This is not a rectangle with a warped
- * picture inside it. The warp is applied first and whatever falls outside the
- * source is paper, so the boundary of the sheet bends too. That is the part
- * that sells it, and it is why there is no geometry beyond one triangle: the
- * shape of the sheet is a by-product of the sampling rather than a mesh.
+ * What is different is that there is one picture and it never changes, so there
+ * is no crossfade drawing the eye away from the edges, and the bow runs on both
+ * axes rather than one. The slideshow curves the top and bottom, which is all
+ * you see of a sheet that is being replaced. Here every edge bends, because the
+ * sheet is the subject.
+ *
+ * The edges deform with the picture. The bow is applied first and whatever
+ * falls outside the source is paper, so the boundary bends rather than staying
+ * a rectangle. There is no geometry beyond one triangle: the shape of the sheet
+ * is a by-product of the sampling.
  *
  * The image comes from the host element's own <img> child rather than from an
  * option, so the alt text is whatever was written and a page with no
@@ -616,23 +617,19 @@ import { mount, type BaseOptions, type EffectHandle, type Scroll, type Surface }
 export type ScrollWarpImageOptions = BaseOptions & {
   /** Shown wherever the warp has pulled the sheet away from the frame. */
   paper: string
-  /** Barrel one way through the travel, pinch the other. The main shape. */
-  bulge: number
-  /** Rotation that grows with radius, so the corners lead and the middle holds. */
-  twist: number
-  /** How much the sheet narrows across its width, as paper between rollers does. */
-  squeeze: number
-  /** Separation between the colour channels where the warp is strongest. */
+  /** How hard the edges lag behind the middle. This is the bow. */
+  bend: number
+  /** How far the whole sheet slides against the direction of travel. */
+  slip: number
+  /** Separation between the colour channels while the sheet is moving. */
   fringe: number
-  /** How much heavier the ink lies where the sheet curves away. */
-  vignette: number
   /** Paper tooth over the image. */
   grain: number
   /**
-   * How much of the element's travel through the viewport the warp uses. 1 runs
-   * the full range; lower holds the picture flat for longer in the middle.
+   * Scroll velocity that counts as full speed. Above it the effect stops
+   * growing, so a trackpad flick does not tear the picture in half.
    */
-  range: number
+  reference: number
 }
 
 /*
@@ -641,13 +638,11 @@ export type ScrollWarpImageOptions = BaseOptions & {
  */
 export const scrollWarpImageDefaults: ScrollWarpImageOptions = {
   paper: '#fbfaf4',
-  bulge: 0.34,
-  twist: 0.13,
-  squeeze: 0.06,
-  fringe: 0.035,
-  vignette: 0.16,
+  bend: 0.07,
+  slip: 0.02,
+  fringe: 0.005,
   grain: 0.4,
-  range: 1,
+  reference: 1.6,
   reducedMotionTime: 0
 }
 
@@ -669,21 +664,18 @@ const FRAG = `#version 300 es
 precision highp float;
 
 /*
- * ScrollWarpImage: one picture, printed on something that is not flat.
+ * ScrollWarpImage: one sheet on the web, bowing as it runs.
  *
- * The distortion here is driven by scroll position rather than by scroll speed,
- * which is the opposite choice to ScrollSlideshow and gives a completely
- * different feel. Speed-driven means nothing happens until you move. Position
- * driven means the picture is somewhere in a continuous deformation the whole
- * time it is on screen, and scrolling walks it through: pinched as it comes up
- * from the bottom, flat as it passes the middle of the viewport, barrelled as
- * it leaves the top.
+ * The same press as ScrollSlideshow, and deliberately the same deformation: the
+ * sides lag behind the middle, the whole sheet slips against the direction of
+ * travel, and the inks land a fraction apart while it moves. At rest it lies
+ * flat and there is no effect at all.
  *
- * The edges deform with everything else. The image is not a rectangle with a
- * warped picture inside it; the warp is applied first and whatever falls
- * outside the source is paper, so the boundary itself bends. That is the part
- * that sells it, and it is why there is no geometry here beyond one triangle:
- * the shape of the sheet is a by-product of the sampling, not a mesh.
+ * What is different is that there is one picture and it never changes, so there
+ * is no crossfade drawing the eye away from the edges, and the bow runs on both
+ * axes rather than one. The slideshow curves the top and bottom because that is
+ * all you can see of a sheet that is being replaced. Here every edge of the
+ * sheet bends, because the sheet is the subject.
  */
 
 uniform sampler2D u_image;
@@ -691,14 +683,11 @@ uniform sampler2D u_image;
 uniform vec2  u_resolution;
 uniform vec2  u_imageSize;
 uniform vec3  u_paper;
-uniform float u_travel;
 uniform float u_velocity;
-uniform float u_bulge;
-uniform float u_twist;
-uniform float u_squeeze;
+uniform float u_bend;
+uniform float u_slip;
 uniform float u_fringe;
 uniform float u_grain;
-uniform float u_vignette;
 
 out vec4 fragColor;
 
@@ -717,38 +706,34 @@ vec2 cover(vec2 uv, vec2 frame, vec2 image) {
 }
 
 /*
- * The deformation, as a single function of a point and how far through its
- * travel the sheet is. Kept in one place because the colour fringe below has to
- * evaluate it three times at slightly different strengths, and two copies of
- * this that drifted apart would be a very annoying bug to find.
+ * The deformation, in one place, because the colour fringe below evaluates it
+ * three times at slightly different strengths and two copies that drifted apart
+ * would be a miserable bug to find.
  */
-vec2 deform(vec2 p, float amount) {
-  float r2 = dot(p, p);
+vec2 bow(vec2 uv, float amount) {
+  /*
+   * How far across and down the frame this pixel is, 0 in the middle and 1 at
+   * the edges. Squared, so the centre of the sheet stays nearly flat and the
+   * bend is concentrated where the paper is unsupported.
+   */
+  vec2 fromCentre = abs(uv * 2.0 - 1.0);
+  vec2 edge = fromCentre * fromCentre;
 
   /*
-   * abs(), so the sheet barrels at both ends of its travel and is flat only as
-   * it passes the middle. Signing this instead was the obvious reading of
-   * "one way, then the other", and it wastes half the effect: a pinch samples
-   * inside the picture, so it reads as a plain zoom and the edges stay a
-   * rectangle. Expanding at both ends means the boundary bends coming and
-   * going, and the direction of travel is carried by the twist below instead.
+   * Each axis is displaced by how far the *other* axis is from the middle. That
+   * cross-coupling is the whole trick: displacing y by a function of x is what
+   * curves the top and bottom edges, and doing the same the other way round
+   * curves the sides. Displacing each axis by its own distance would only
+   * stretch the sheet, which reads as a zoom.
    */
-  p *= 1.0 + abs(amount) * u_bulge * r2;
+  uv.y += amount * u_bend * edge.x;
+  uv.x += amount * u_bend * edge.y * 0.65;
 
-  /*
-   * A twist that grows with radius, so the middle of the picture stays put and
-   * the corners lead. Without it the barrel reads as a zoom, because a purely
-   * radial scale is what a zoom is.
-   */
-  float angle = amount * u_twist * r2;
-  float s = sin(angle);
-  float c = cos(angle);
-  p = mat2(c, -s, s, c) * p;
+  // And the whole sheet slides a little against the direction of travel, the
+  // way anything with mass does when it is pulled.
+  uv.y += amount * u_slip;
 
-  // Paper pulled between two rollers narrows across its width.
-  p.x *= 1.0 + amount * u_squeeze;
-
-  return p;
+  return uv;
 }
 
 void main() {
@@ -758,34 +743,16 @@ void main() {
   uv.y = 1.0 - uv.y;
 
   /*
-   * -1 as the sheet comes up from the bottom of the viewport, 0 as it passes
-   * the middle, +1 as it leaves the top. Everything below is signed by this, so
-   * the deformation runs through flat rather than easing back out the way it
-   * came.
+   * A press running colour work strikes one plate per ink, and a web that is
+   * moving when they hit lands them a fraction apart. Three evaluations of the
+   * same bow at slightly different strengths is the same error, and it is what
+   * makes a fast scroll read as printing rather than as a blur.
    */
-  float travel = u_travel * 2.0 - 1.0;
+  float spread = u_fringe * abs(u_velocity);
 
-  // Speed adds a little on top of position, so a flick has some weight to it
-  // without being the thing that drives the effect.
-  float amount = travel + u_velocity * 0.35;
-
-  vec2 p = uv - 0.5;
-
-  /*
-   * One plate per ink, and a sheet that is moving when they strike lands them a
-   * fraction apart. Here the offset is in the deformation itself rather than in
-   * the sampling position, so the channels separate most where the warp is
-   * strongest, which is at the corners.
-   */
-  float spread = u_fringe * abs(amount);
-
-  vec2 rp = deform(p, amount * (1.0 + spread)) + 0.5;
-  vec2 gp = deform(p, amount) + 0.5;
-  vec2 bp = deform(p, amount * (1.0 - spread)) + 0.5;
-
-  vec2 rUv = cover(rp, u_resolution, u_imageSize);
-  vec2 gUv = cover(gp, u_resolution, u_imageSize);
-  vec2 bUv = cover(bp, u_resolution, u_imageSize);
+  vec2 rUv = cover(bow(uv, u_velocity * (1.0 + spread)), u_resolution, u_imageSize);
+  vec2 gUv = cover(bow(uv, u_velocity), u_resolution, u_imageSize);
+  vec2 bUv = cover(bow(uv, u_velocity * (1.0 - spread)), u_resolution, u_imageSize);
 
   vec3 col = vec3(
     texture(u_image, rUv).r,
@@ -794,23 +761,18 @@ void main() {
   );
 
   /*
-   * Anything the deformation pushed outside the source is paper. This is what
-   * makes the edges of the sheet bend rather than just its contents: the
-   * boundary is wherever the sampling ran out of picture.
+   * Anything the bow pushed outside the source is paper. This is what makes the
+   * edges of the sheet bend rather than only its contents: the boundary is
+   * wherever the sampling ran out of picture.
    */
   vec2 inBounds = step(vec2(0.0), gUv) * step(gUv, vec2(1.0));
   float inside = inBounds.x * inBounds.y;
 
-  // One pixel of softness on that boundary, so the bent edge is a cut rather
-  // than a staircase.
+  // A pixel of softness on that boundary, so the bent edge is a cut rather than
+  // a staircase.
   float aa = fwidth(gUv.x) + fwidth(gUv.y);
   float edge = smoothstep(0.0, aa * 1.5, min(min(gUv.x, 1.0 - gUv.x), min(gUv.y, 1.0 - gUv.y)));
   col = mix(u_paper, col, inside * edge);
-
-  // Ink lies heavier where the sheet curves away. Radial, and signed with the
-  // warp, so it arrives and leaves with it.
-  float r = length(p) * 1.4;
-  col *= 1.0 - u_vignette * r * r * abs(amount);
 
   float tooth = hash12(floor(gl_FragCoord.xy * 0.5)) - 0.5;
   col += tooth * 0.045 * u_grain;
@@ -825,14 +787,11 @@ const UNIFORMS = [
   'u_resolution',
   'u_imageSize',
   'u_paper',
-  'u_travel',
   'u_velocity',
-  'u_bulge',
-  'u_twist',
-  'u_squeeze',
+  'u_bend',
+  'u_slip',
   'u_fringe',
-  'u_grain',
-  'u_vignette'
+  'u_grain'
 ] as const
 
 type UniformName = (typeof UNIFORMS)[number]
@@ -977,25 +936,17 @@ class ScrollWarpImageSurface implements Surface<ScrollWarpImageOptions> {
     gl.uniform3fv(loc('u_paper'), rgb(opts.paper))
 
     /*
-     * `range` compresses the travel around the midpoint, so a lower value holds
-     * the picture flat for longer before it starts to go. Clamped afterwards,
-     * because past the ends the sheet should sit at its extreme rather than
-     * carry on deforming off the top of the page.
+     * Normalised and clipped. A trackpad can report a velocity an order of
+     * magnitude past anything a wheel produces, and without a ceiling the sheet
+     * tears in half the first time somebody flicks it.
      */
-    const range = Math.max(opts.range, 0.05)
-    const centred = (scroll.progress - 0.5) / range + 0.5
-    gl.uniform1f(loc('u_travel'), Math.min(Math.max(centred, 0), 1))
+    const reference = Math.max(opts.reference, 0.001)
+    gl.uniform1f(loc('u_velocity'), Math.max(-1, Math.min(1, scroll.velocity / reference)))
 
-    // Capped hard. A trackpad reports velocities an order of magnitude past a
-    // wheel, and without a ceiling a flick turns the picture inside out.
-    gl.uniform1f(loc('u_velocity'), Math.max(-1, Math.min(1, scroll.velocity)))
-
-    gl.uniform1f(loc('u_bulge'), opts.bulge)
-    gl.uniform1f(loc('u_twist'), opts.twist)
-    gl.uniform1f(loc('u_squeeze'), opts.squeeze)
+    gl.uniform1f(loc('u_bend'), opts.bend)
+    gl.uniform1f(loc('u_slip'), opts.slip)
     gl.uniform1f(loc('u_fringe'), opts.fringe)
     gl.uniform1f(loc('u_grain'), opts.grain)
-    gl.uniform1f(loc('u_vignette'), opts.vignette)
 
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
@@ -1055,23 +1006,30 @@ export default createScrollWarpImage
 
 ## 2. What it is
 
-One picture, printed on something that is not flat, deforming as it travels up
-the viewport.
+One picture on a paper web that bows on every edge as it accelerates.
 
-The distortion is driven by scroll **position**, not scroll speed. That is the
-opposite choice to ScrollSlideshow and it gives a completely different feel.
-Speed-driven means nothing happens until the reader moves, and the picture is
-flat the moment they stop. Position-driven means the sheet is somewhere in a
-continuous deformation the whole time it is on screen, and scrolling walks it
-through: barrelled and twisted one way as it comes up from the bottom, flat as it
-passes the middle of the viewport, barrelled and twisted the other way as it
-leaves the top.
+The same press as ScrollSlideshow, and deliberately the same deformation. The
+sides lag behind the middle, the whole sheet slips against the direction of
+travel, and the inks land a fraction apart while it moves. At rest it lies flat
+and there is no effect at all, which is the point: a reader who has stopped
+scrolling is looking at a photograph rather than at a filter.
 
-The edges deform with everything else. This is not a rectangle with a warped
-picture inside it. The warp is applied first and whatever falls outside the
-source is paper, so the boundary of the sheet bends too. That is the part that
-sells it, and it is why there is no geometry here beyond one triangle: the shape
-of the sheet is a by-product of the sampling rather than a mesh.
+What is different is that there is one picture and it never changes, so there is
+no crossfade drawing the eye away from the edges, and the bow runs on **both**
+axes rather than one. The slideshow curves the top and bottom, which is all you
+see of a sheet that is being replaced. Here every edge bends, because the sheet
+is the subject.
+
+The cross-coupling is the whole trick. Each axis is displaced by how far the
+*other* axis is from the centre: displacing y by a function of x is what curves
+the top and bottom, and doing the same the other way round curves the sides.
+Displacing each axis by its own distance would only stretch the sheet, which
+reads as a zoom.
+
+The edges deform with the picture. The bow is applied first and whatever falls
+outside the source is paper, so the boundary bends rather than staying a
+rectangle. There is no geometry here beyond one triangle: the shape of the sheet
+is a by-product of the sampling rather than a mesh.
 
 One WebGL2 fragment shader. No three.js, no dependency, no render targets.
 
@@ -1083,13 +1041,11 @@ as the second argument to the create function; anything omitted takes its defaul
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
 | `paper` | color | `#fbfaf4` | any CSS hex | Shown wherever the warp has pulled the sheet away from the frame. Match it to the page behind, or a border appears out of nowhere as soon as anyone scrolls. |
-| `bulge` | number | `0.34` | 0 to 1.2 | Barrels the sheet at both ends of its travel, flat only as it passes the middle. The main shape of the effect, and the first thing to reach for. Signing it so that one end pinches instead wastes half the travel: a pinch samples inside the picture, so it reads as a zoom and the edges stay a rectangle. |
-| `twist` | number | `0.13` | 0 to 0.8 | Rotation that grows with radius, so the corners lead and the middle holds. Without some of this the bulge reads as a zoom, because a purely radial scale is what a zoom is. |
-| `squeeze` | number | `0.06` | 0 to 0.4 | How much the sheet narrows across its width, the way paper does between two rollers. |
-| `fringe` | number | `0.035` | 0 to 0.2 | Separation between the colour channels where the warp is strongest, which is at the corners. A press strikes one plate per ink and a moving sheet lands them a fraction apart. |
-| `vignette` | number | `0.16` | 0 to 0.6 | How much heavier the ink lies where the sheet curves away from you. Arrives and leaves with the warp rather than sitting there permanently. |
+| `bend` | number | `0.07` | 0 to 0.3 | How hard the edges lag behind the middle. This is the bow, and it is the option you came for. Each axis is displaced by how far the other one is from the centre, which is what curves the edges rather than stretching the sheet. |
+| `slip` | number | `0.02` | 0 to 0.15 | How far the whole sheet slides against the direction of travel, the way anything with mass does when it is pulled. Small: this is the part you feel rather than see. |
+| `fringe` | number | `0.005` | 0 to 0.03 | Separation between the colour channels while the sheet is moving. A press strikes one plate per ink and a moving web lands them a fraction apart. Keep it under about 0.01 or it reads as a broken monitor. |
 | `grain` | number | `0.4` | 0 to 1 | Paper tooth over the image. |
-| `range` | number | `1` | 0.2 to 3 | How much of the element's travel through the viewport the warp uses. 1 runs the full range. Lower holds the picture flat for longer around the middle and then goes harder at the ends. |
+| `reference` | number | `1.6` | 0.2 to 6 | The scroll velocity that counts as full speed, in screens per second. Above it the effect stops growing. Lower makes the sheet bow more readily; too low and an ordinary wheel click maxes it out. |
 
 ## 5. Cleanup and SSR
 
@@ -1111,29 +1067,24 @@ this outside WCAG 2.2.2 rather than exempting it from it. `stop()` and `start()`
 are still on the handle.
 
 Handled in the runtime. Under reduced motion the loop never starts and one frame
-is drawn, at `reducedMotionTime`. The default is 0, which is the start of the
-travel and therefore fully warped.
+is drawn.
 
-If you would rather the picture simply sat flat for those readers, the flat point
-is the middle of the travel, so drive it yourself: mount with `bulge: 0`,
-`twist: 0` and `squeeze: 0` when `matchMedia('(prefers-reduced-motion: reduce)')`
-matches. An undistorted photograph is a perfectly good outcome and it costs you
-nothing.
+This effect needs no special case. Velocity is zero when nothing is scrolling, so
+the frame that gets drawn is the undistorted photograph, which is exactly what
+somebody who has asked for less motion wants to see.
 
 ## 7. The three mistakes most likely to be made here
 
-1. **Putting text over the middle of it.** The middle is the calmest part of the
-   frame, which makes it tempting, and it is also the part that moves least, so
-   nothing warns you during development that the corners are doing something
-   violent. If there is text, bring `range` down so the sheet is flat for most of
-   its travel.
+1. **Leaving `paper` on the default when the page is not.** The bow pulls the
+   sheet away from the frame and `paper` is what shows in the gap. If it does not
+   match the page behind, a border appears out of nowhere whenever somebody
+   scrolls, and only while they scroll, which is a maddening thing to debug.
 
-2. **Reaching for `bulge` when it looks like a zoom.** More bulge makes a bigger
-   zoom. `twist` is the option that makes it read as a sheet turning.
+2. **Turning `bend` up to see it better.** If you cannot see it the host is
+   probably too short to build any speed. Height first.
 
 3. **A short host element.** The travel is the element's passage through the
-   viewport. Something 200px tall crosses it in a flick and the effect never
-   resolves.
+   viewport. Something 200px tall crosses it in one flick.
 
 4. **A soft or empty picture.** The warp is legible only where a straight line
    bends. Architecture, type, grids and horizons all show it; a portrait against a

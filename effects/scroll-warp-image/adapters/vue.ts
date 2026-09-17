@@ -11,13 +11,11 @@ export const Spool = defineComponent({
   name: 'Spool',
   props: {
     paper: { type: String, default: scrollWarpImageDefaults.paper },
-    bulge: { type: Number, default: scrollWarpImageDefaults.bulge },
-    twist: { type: Number, default: scrollWarpImageDefaults.twist },
-    squeeze: { type: Number, default: scrollWarpImageDefaults.squeeze },
+    bend: { type: Number, default: scrollWarpImageDefaults.bend },
+    slip: { type: Number, default: scrollWarpImageDefaults.slip },
     fringe: { type: Number, default: scrollWarpImageDefaults.fringe },
-    vignette: { type: Number, default: scrollWarpImageDefaults.vignette },
     grain: { type: Number, default: scrollWarpImageDefaults.grain },
-    range: { type: Number, default: scrollWarpImageDefaults.range },
+    reference: { type: Number, default: scrollWarpImageDefaults.reference },
     autoStart: { type: Boolean, default: true }
   },
   setup(props) {

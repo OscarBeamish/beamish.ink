@@ -49,14 +49,22 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
 
   <body class="min-h-dvh">
     <!--
-      A floating pill rather than a full-bleed bar. The nav sits over demo
-      panels that can be any colour a shader decides to produce, so it needs a
-      background of its own. The class here before was called `nav-blend` and
-      its comment described a mix-blend-mode that was never actually written,
-      which means the legibility problem it named had been live all along.
+      Fixed, full bleed, and blended. The wordmark sits in the left corner and
+      the links spread across the right half rather than bunching at the edge,
+      which is what stops a three-item nav reading as an afterthought tucked
+      into a corner.
+
+      mix-blend-mode: difference against white asks nothing of the page and
+      needs telling nothing: whatever pixel is behind, the type comes out its
+      inverse. That matters here because the nav sits over demo panels that can
+      be any colour a shader decides to produce.
+
+      The blend has to be on the fixed element itself. `position: fixed` creates
+      a stacking context and blending is isolated to one, so the same rule on a
+      child has nothing to blend against and renders plain white.
     -->
     <header class="site-nav">
-      <div class="site-nav__pill">
+      <div class="site-nav__row">
         <a href="/" class="site-nav__mark">Beamish</a>
         <nav class="site-nav__links" aria-label="Primary">
           <a href="/#catalogue">Index</a>

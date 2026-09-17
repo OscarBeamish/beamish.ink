@@ -296,61 +296,54 @@
 /* --- nav ----------------------------------------------------------------- */
 
 /*
- * A floating pill, inset from the top, whose width matches the demo panels so
- * its edges line up with them rather than floating free of the grid.
+ * Fixed and full bleed, with the links spread across the right half.
  *
- * The wrapper spans the viewport and passes clicks through; only the pill
- * itself takes them. Without that the two gutters either side would swallow
- * every click along the top of the page.
+ * The blend is the whole trick. White plus mix-blend-mode: difference means the
+ * type comes out the inverse of whatever is behind it, so the nav stays legible
+ * over warm paper, over a dark three.js scene and over a shader that has not
+ * been written yet, without anything having to tell it which.
+ *
+ * It must sit on the fixed element itself. `position: fixed` creates a stacking
+ * context and blending is isolated to one, so the same two rules on a child
+ * blend against nothing and render as plain white.
  */
 .site-nav {
   position: fixed;
-  top: 1.25rem;
   inset-inline: 0;
+  top: 0;
   z-index: 50;
+  color: #fff;
+  mix-blend-mode: difference;
+  /* Clicks fall through the bar; only the links take them. */
   pointer-events: none;
 }
 
-.site-nav__pill {
-  width: min(1180px, 100% - 2.5rem);
-  margin-inline: auto;
+.site-nav__row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
-  padding: 0.65rem 1.15rem;
-  border: 1px solid var(--label-4);
-  border-radius: 100px;
-  /*
-   * Translucent paper, not white. The page behind is warm, and a neutral panel
-   * over it reads as a smudge on the screen.
-   */
-  background: rgb(var(--background-deep) / 0.72);
-  backdrop-filter: blur(14px) saturate(1.3);
-  pointer-events: auto;
-}
-
-/*
- * Where the blur is unavailable the translucency is doing nothing except
- * making the type harder to read, so take it back to solid paper.
- */
-@supports not (backdrop-filter: blur(1px)) {
-  .site-nav__pill {
-    background: rgb(var(--background-deep));
-  }
+  padding: 1rem;
 }
 
 .site-nav__mark {
+  pointer-events: auto;
   font-size: 0.95rem;
   letter-spacing: -0.01em;
   text-decoration: none;
   color: inherit;
-  flex-shrink: 0;
 }
 
+/*
+ * Spread rather than bunched. Given half the bar and told to justify between,
+ * the three links sit at measured intervals across it, which reads as part of
+ * the layout instead of as a cluster pushed into the corner.
+ */
 .site-nav__links {
+  pointer-events: auto;
   display: flex;
-  gap: 1.25rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
   font-size: 0.7rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -358,30 +351,38 @@
 
 .site-nav__links a {
   text-decoration: none;
-  color: var(--label-2);
-  transition: color 0.25s var(--ease-66, cubic-bezier(0.66, 0, 0.01, 1));
+  color: inherit;
+  /*
+   * Opacity, not colour. Inside a difference blend any colour change is
+   * unpredictable against an unknown background, and a link that goes lighter
+   * on cream would go darker on black. Fading the whole thing behaves the same
+   * way over anything.
+   */
+  opacity: 0.78;
+  transition: opacity 0.25s var(--ease-66, cubic-bezier(0.66, 0, 0.01, 1));
 }
 
 .site-nav__links a:hover {
-  color: var(--label-1);
+  opacity: 1;
 }
 
-.site-nav__pill a:focus-visible {
+.site-nav__row a:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 4px;
-  border-radius: 2px;
 }
 
-/* Three uppercase links and a wordmark do not fit a phone at this size. */
-@media (max-width: 30rem) {
-  .site-nav__pill {
-    gap: 0.75rem;
-    padding: 0.55rem 0.9rem;
+@media (min-width: 64rem) {
+  .site-nav__row {
+    padding: 1.75rem 3.5rem;
   }
 
   .site-nav__links {
-    gap: 0.75rem;
-    font-size: 0.62rem;
-    letter-spacing: 0.06em;
+    flex-basis: 50%;
+  }
+}
+
+@media (min-width: 80rem) {
+  .site-nav__links {
+    flex-basis: 33.333%;
   }
 }

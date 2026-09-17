@@ -1,22 +1,29 @@
 ## What it is
 
-One picture, printed on something that is not flat, deforming as it travels up
-the viewport.
+One picture on a paper web that bows on every edge as it accelerates.
 
-The distortion is driven by scroll **position**, not scroll speed. That is the
-opposite choice to ScrollSlideshow and it gives a completely different feel.
-Speed-driven means nothing happens until the reader moves, and the picture is
-flat the moment they stop. Position-driven means the sheet is somewhere in a
-continuous deformation the whole time it is on screen, and scrolling walks it
-through: barrelled and twisted one way as it comes up from the bottom, flat as it
-passes the middle of the viewport, barrelled and twisted the other way as it
-leaves the top.
+The same press as ScrollSlideshow, and deliberately the same deformation. The
+sides lag behind the middle, the whole sheet slips against the direction of
+travel, and the inks land a fraction apart while it moves. At rest it lies flat
+and there is no effect at all, which is the point: a reader who has stopped
+scrolling is looking at a photograph rather than at a filter.
 
-The edges deform with everything else. This is not a rectangle with a warped
-picture inside it. The warp is applied first and whatever falls outside the
-source is paper, so the boundary of the sheet bends too. That is the part that
-sells it, and it is why there is no geometry here beyond one triangle: the shape
-of the sheet is a by-product of the sampling rather than a mesh.
+What is different is that there is one picture and it never changes, so there is
+no crossfade drawing the eye away from the edges, and the bow runs on **both**
+axes rather than one. The slideshow curves the top and bottom, which is all you
+see of a sheet that is being replaced. Here every edge bends, because the sheet
+is the subject.
+
+The cross-coupling is the whole trick. Each axis is displaced by how far the
+*other* axis is from the centre: displacing y by a function of x is what curves
+the top and bottom, and doing the same the other way round curves the sides.
+Displacing each axis by its own distance would only stretch the sheet, which
+reads as a zoom.
+
+The edges deform with the picture. The bow is applied first and whatever falls
+outside the source is paper, so the boundary bends rather than staying a
+rectangle. There is no geometry here beyond one triangle: the shape of the sheet
+is a by-product of the sampling rather than a mesh.
 
 One WebGL2 fragment shader. No three.js, no dependency, no render targets.
 
@@ -78,18 +85,18 @@ blank texture. Serve the picture from your own origin, or set
 
 ## Tuning it
 
-`bulge` is the main shape and the first thing to reach for. `twist` is what stops
-it reading as a zoom: a purely radial scale **is** a zoom, and the rotation
-growing with radius is what tells you the sheet is turning rather than coming
-closer.
+`bend` is the bow and the first thing to reach for. `slip` is the secondary: the
+whole sheet sliding against the direction of travel, which you feel rather than
+see. Past about 0.15 on `bend` it stops being a press and starts being a
+fisheye.
 
-`range` decides how much of the element's travel the warp uses. At 1 it runs the
-full range, so the picture is only truly flat for an instant. Below 1 it holds
-flat through the middle and then goes harder at the ends, which is usually what
-you want if there is text over it.
+`reference` is the velocity that counts as full speed. Lower makes the sheet bow
+more readily; too low and an ordinary wheel click maxes it out, which loses you
+the difference between a nudge and a flick.
 
-The element's height is the timeline. A short host crosses its whole travel in
-one flick and you never see the middle.
+If you cannot see it at all, the reason is almost always that the host is too
+short, so there is no room to build any speed. Give it height before you touch
+`bend`.
 
 ## Recording and determinism
 
@@ -117,14 +124,11 @@ are still on the handle.
 ## Reduced motion
 
 Handled in the runtime. Under reduced motion the loop never starts and one frame
-is drawn, at `reducedMotionTime`. The default is 0, which is the start of the
-travel and therefore fully warped.
+is drawn.
 
-If you would rather the picture simply sat flat for those readers, the flat point
-is the middle of the travel, so drive it yourself: mount with `bulge: 0`,
-`twist: 0` and `squeeze: 0` when `matchMedia('(prefers-reduced-motion: reduce)')`
-matches. An undistorted photograph is a perfectly good outcome and it costs you
-nothing.
+This effect needs no special case. Velocity is zero when nothing is scrolling, so
+the frame that gets drawn is the undistorted photograph, which is exactly what
+somebody who has asked for less motion wants to see.
 
 ## Cleanup and SSR
 
@@ -141,18 +145,16 @@ a `client:*` island. Next.js App Router needs `'use client'`.
 
 ## Common mistakes
 
-1. **Putting text over the middle of it.** The middle is the calmest part of the
-   frame, which makes it tempting, and it is also the part that moves least, so
-   nothing warns you during development that the corners are doing something
-   violent. If there is text, bring `range` down so the sheet is flat for most of
-   its travel.
+1. **Leaving `paper` on the default when the page is not.** The bow pulls the
+   sheet away from the frame and `paper` is what shows in the gap. If it does not
+   match the page behind, a border appears out of nowhere whenever somebody
+   scrolls, and only while they scroll, which is a maddening thing to debug.
 
-2. **Reaching for `bulge` when it looks like a zoom.** More bulge makes a bigger
-   zoom. `twist` is the option that makes it read as a sheet turning.
+2. **Turning `bend` up to see it better.** If you cannot see it the host is
+   probably too short to build any speed. Height first.
 
 3. **A short host element.** The travel is the element's passage through the
-   viewport. Something 200px tall crosses it in a flick and the effect never
-   resolves.
+   viewport. Something 200px tall crosses it in one flick.
 
 4. **A soft or empty picture.** The warp is legible only where a straight line
    bends. Architecture, type, grids and horizons all show it; a portrait against a

@@ -2203,7 +2203,7 @@
     "name": "ScrollWarpImage",
     "slug": "scroll-warp-image",
     "tier": 1,
-    "description": "One picture that deforms, edges and all, as it travels up the viewport",
+    "description": "One picture on a paper web that bows on every edge as it accelerates",
     "category": "surfaces",
     "tags": [
       "webgl",
@@ -2220,8 +2220,8 @@
       "webgl": "webgl2",
       "notes": [
         "The picture is the host element's own <img> child. It is hidden from sight and left in the document, so the alt text is whatever you wrote and a page with no JavaScript still shows it",
-        "Driven by scroll position rather than scroll speed, so the sheet is somewhere in the deformation the whole time it is on screen",
-        "The edges deform with the picture. The warp is applied first and whatever falls outside the source is paper, so the boundary of the sheet bends rather than staying a rectangle",
+        "The same deformation as ScrollSlideshow, run on both axes rather than one, so every edge of the sheet bends instead of just the top and bottom",
+        "At rest nothing is distorted. The whole effect is a function of scroll velocity, so a reader who has stopped scrolling is looking at a photograph",
         "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
       ]
     },
@@ -2229,9 +2229,9 @@
       "frameBudgetMs": 1,
       "contexts": 1,
       "notes": [
-        "Three texture reads per pixel, one per channel, because the colour fringe evaluates the deformation three times",
+        "Three texture reads per pixel, one per channel, because the colour fringe evaluates the bow three times",
         "The image uploads once, on load. Nothing is uploaded per frame",
-        "Fill rate and nothing else. There is no geometry"
+        "Scroll velocity is measured on the scroll event and decayed in the frame loop. A per-frame difference reads zero on most frames, because scroll events do not fire every frame, and the effect stutters"
       ]
     },
     "files": [
@@ -2262,45 +2262,29 @@
         "default": "#fbfaf4",
         "description": "Shown wherever the warp has pulled the sheet away from the frame. Match it to the page behind, or a border appears out of nowhere as soon as anyone scrolls."
       },
-      "bulge": {
+      "bend": {
         "type": "number",
-        "default": 0.34,
-        "description": "Barrels the sheet at both ends of its travel, flat only as it passes the middle. The main shape of the effect, and the first thing to reach for. Signing it so that one end pinches instead wastes half the travel: a pinch samples inside the picture, so it reads as a zoom and the edges stay a rectangle.",
+        "default": 0.07,
+        "description": "How hard the edges lag behind the middle. This is the bow, and it is the option you came for. Each axis is displaced by how far the other one is from the centre, which is what curves the edges rather than stretching the sheet.",
         "min": 0,
-        "max": 1.2,
-        "step": 0.01
+        "max": 0.3,
+        "step": 0.005
       },
-      "twist": {
+      "slip": {
         "type": "number",
-        "default": 0.13,
-        "description": "Rotation that grows with radius, so the corners lead and the middle holds. Without some of this the bulge reads as a zoom, because a purely radial scale is what a zoom is.",
+        "default": 0.02,
+        "description": "How far the whole sheet slides against the direction of travel, the way anything with mass does when it is pulled. Small: this is the part you feel rather than see.",
         "min": 0,
-        "max": 0.8,
-        "step": 0.01
-      },
-      "squeeze": {
-        "type": "number",
-        "default": 0.06,
-        "description": "How much the sheet narrows across its width, the way paper does between two rollers.",
-        "min": 0,
-        "max": 0.4,
-        "step": 0.01
+        "max": 0.15,
+        "step": 0.002
       },
       "fringe": {
         "type": "number",
-        "default": 0.035,
-        "description": "Separation between the colour channels where the warp is strongest, which is at the corners. A press strikes one plate per ink and a moving sheet lands them a fraction apart.",
+        "default": 0.005,
+        "description": "Separation between the colour channels while the sheet is moving. A press strikes one plate per ink and a moving web lands them a fraction apart. Keep it under about 0.01 or it reads as a broken monitor.",
         "min": 0,
-        "max": 0.2,
-        "step": 0.005
-      },
-      "vignette": {
-        "type": "number",
-        "default": 0.16,
-        "description": "How much heavier the ink lies where the sheet curves away from you. Arrives and leaves with the warp rather than sitting there permanently.",
-        "min": 0,
-        "max": 0.6,
-        "step": 0.01
+        "max": 0.03,
+        "step": 0.001
       },
       "grain": {
         "type": "number",
@@ -2310,16 +2294,16 @@
         "max": 1,
         "step": 0.01
       },
-      "range": {
+      "reference": {
         "type": "number",
-        "default": 1,
-        "description": "How much of the element's travel through the viewport the warp uses. 1 runs the full range. Lower holds the picture flat for longer around the middle and then goes harder at the ends.",
+        "default": 1.6,
+        "description": "The scroll velocity that counts as full speed, in screens per second. Above it the effect stops growing. Lower makes the sheet bow more readily; too low and an ordinary wheel click maxes it out.",
         "min": 0.2,
-        "max": 3,
-        "step": 0.05
+        "max": 6,
+        "step": 0.1
       }
     },
-    "instruction": "scroll the page and watch the sheet pass through flat",
+    "instruction": "scroll the page, then stop and watch it settle flat",
     "oneShot": false,
     "scroll": {
       "duration": 8,
@@ -2329,12 +2313,28 @@
           "progress": 0
         },
         {
-          "t": 3.6,
-          "progress": 0.5
+          "t": 0.7,
+          "progress": 0
         },
         {
-          "t": 4.4,
-          "progress": 0.5
+          "t": 1.25,
+          "progress": 0.34
+        },
+        {
+          "t": 2.7,
+          "progress": 0.34
+        },
+        {
+          "t": 3.25,
+          "progress": 0.67
+        },
+        {
+          "t": 4.7,
+          "progress": 0.67
+        },
+        {
+          "t": 5.25,
+          "progress": 1
         },
         {
           "t": 8,
@@ -2345,11 +2345,11 @@
     "record": {
       "duration": 8,
       "fps": 30,
-      "posterAt": 7.2,
+      "posterAt": 1,
       "crf": 32
     },
     "group": "effects",
-    "intro": "One picture, printed on something that is not flat, deforming as it travels up\nthe viewport.\n\nThe distortion is driven by scroll **position**, not scroll speed. That is the\nopposite choice to ScrollSlideshow and it gives a completely different feel.\nSpeed-driven means nothing happens until the reader moves, and the picture is\nflat the moment they stop. Position-driven means the sheet is somewhere in a\ncontinuous deformation the whole time it is on screen, and scrolling walks it\nthrough: barrelled and twisted one way as it comes up from the bottom, flat as it\npasses the middle of the viewport, barrelled and twisted the other way as it\nleaves the top.\n\nThe edges deform with everything else. This is not a rectangle with a warped\npicture inside it. The warp is applied first and whatever falls outside the\nsource is paper, so the boundary of the sheet bends too. That is the part that\nsells it, and it is why there is no geometry here beyond one triangle: the shape\nof the sheet is a by-product of the sampling rather than a mesh.\n\nOne WebGL2 fragment shader. No three.js, no dependency, no render targets."
+    "intro": "One picture on a paper web that bows on every edge as it accelerates.\n\nThe same press as ScrollSlideshow, and deliberately the same deformation. The\nsides lag behind the middle, the whole sheet slips against the direction of\ntravel, and the inks land a fraction apart while it moves. At rest it lies flat\nand there is no effect at all, which is the point: a reader who has stopped\nscrolling is looking at a photograph rather than at a filter.\n\nWhat is different is that there is one picture and it never changes, so there is\nno crossfade drawing the eye away from the edges, and the bow runs on **both**\naxes rather than one. The slideshow curves the top and bottom, which is all you\nsee of a sheet that is being replaced. Here every edge bends, because the sheet\nis the subject.\n\nThe cross-coupling is the whole trick. Each axis is displaced by how far the\n*other* axis is from the centre: displacing y by a function of x is what curves\nthe top and bottom, and doing the same the other way round curves the sides.\nDisplacing each axis by its own distance would only stretch the sheet, which\nreads as a zoom.\n\nThe edges deform with the picture. The bow is applied first and whatever falls\noutside the source is paper, so the boundary bends rather than staying a\nrectangle. There is no geometry here beyond one triangle: the shape of the sheet\nis a by-product of the sampling rather than a mesh.\n\nOne WebGL2 fragment shader. No three.js, no dependency, no render targets."
   },
   {
     "name": "TerrainRelief",
