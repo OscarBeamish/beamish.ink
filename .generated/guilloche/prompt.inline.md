@@ -1,7 +1,7 @@
-You are adding **Overprint** from Beamish to this project.
+You are adding **Guilloche** from Beamish to this project.
 
-> Two ink plates drift out of registration behind a halftone screen. Backdrops · effect · MIT.
-> https://beamish.ink/effects/overprint
+> The engine-turned line work off a banknote, printed on paper. Backdrops · effect · MIT.
+> https://beamish.ink/effects/guilloche
 
 Beamish is not a package and there is nothing to install from npm. The source
 lives in a public repo; you fetch the files, put them in this project, and wire
@@ -15,6 +15,7 @@ Assume you have not seen this library before. Everything you need is below.
 - **npm dependencies:** None. This file has no npm dependencies at all.
 - WebGL2. There is no WebGL1 fallback
 - WebGL2 for gl_VertexID; there is no WebGL1 fallback and none is planned
+- The line width is derived from the screen-space derivative of the field, so the engraving stays one pixel wide at any DPR instead of filling in at the centre
 - Falls back to a still frame under prefers-reduced-motion, handled in the runtime
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
@@ -443,49 +444,51 @@ export function mount<O extends BaseOptions>(
 }
 ```
 
-**`src/beamish/effects/overprint/core.ts`**
+**`src/beamish/effects/guilloche/core.ts`**
 
 ```ts
 /*
- * Overprint: Beamish
- * https://beamish.ink/effects/overprint
+ * Guilloche: Beamish
+ * https://beamish.ink/effects/guilloche
  *
- * Two ink plates drifting out of registration behind a halftone screen, on warm
- * paper. WebGL2, no three.js, no dependencies.
+ * The engine-turned line work on a banknote, drawn on warm paper. WebGL2, no
+ * three.js, no dependencies.
  *
  * The GL boilerplate is inline rather than imported. This file is published and
  * read on its own, and a reader should not have to fetch a second module to find
  * out how a program gets compiled.
  *
- * The shader source is generated from shaders/overprint.frag and
- * shaders/overprint.vert. Edit those, then run `pnpm generate`. The markers are
+ * The shader source is generated from shaders/guilloche.frag and
+ * shaders/guilloche.vert. Edit those, then run `pnpm generate`. The markers are
  * load-bearing.
  */
 
 import { mount, type BaseOptions, type EffectHandle, type Surface } from '../../shared/runtime'
 
-export type OverprintOptions = BaseOptions & {
-  /** Paper colour. The whole effect is designed against a warm off-white. */
+export type GuillocheOptions = BaseOptions & {
+  /** The paper the plate is printed on. */
   paper: string
-  /** First plate. A desaturated near-black reads as ink; pure black does not. */
-  inkA: string
-  /** Second plate. This is where the colour lives. */
-  inkB: string
-  /** Size of the ink shapes. Lower is broader. */
+  /** The engraving. A desaturated near-black reads as ink. */
+  ink: string
+  /** The second colour, printed over one band of the pattern. */
+  accent: string
+  /** Size of the whole rosette. */
   scale: number
-  /** Halftone dots per 100 CSS pixels. Above ~40 the screen stops reading as one. */
-  screen: number
-  /** Screen angle of plate A, degrees. */
-  angleA: number
-  /** Screen angle of plate B, degrees. Keep ~30 from angleA or the plates moiré. */
-  angleB: number
-  /** Registration error in CSS pixels: how far the plates slide apart. */
-  drift: number
-  /** Ink density, 0 to 1. */
-  coverage: number
+  /** Lines per unit of radius. Higher is finer engraving. */
+  pitch: number
+  /** Lobes on the first rosette. Whole numbers only, or the curve never closes. */
+  lobes: number
+  /** Spokes in the family that runs around the circle rather than out from it. */
+  waves: number
+  /** How far each rosette's radius wobbles. */
+  depth: number
+  /** Weight of the engraved line, 0 to 1. */
+  weight: number
+  /** Where the second colour band sits, as a radius. */
+  accentBand: number
   /** Paper tooth, 0 to 1. Static, not film grain. */
   grain: number
-  /** Seconds for one full loop. The animation is exactly periodic over this. */
+  /** Seconds for one turn of the gears. Exactly periodic over this. */
   period: number
 }
 
@@ -493,22 +496,23 @@ export type OverprintOptions = BaseOptions & {
  * Kept in step with meta.json by `pnpm generate`, which fails if the two drift.
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
-export const overprintDefaults: OverprintOptions = {
+export const guillocheDefaults: GuillocheOptions = {
   paper: '#fbfaf4',
-  inkA: '#363630',
-  inkB: '#c44400',
-  scale: 1.9,
-  screen: 8,
-  angleA: 15,
-  angleB: 75,
-  drift: 5,
-  coverage: 0.32,
-  grain: 0.35,
-  period: 5,
-  reducedMotionTime: 1.4
+  ink: '#2f2b26',
+  accent: '#c44400',
+  scale: 0.92,
+  pitch: 26,
+  lobes: 7,
+  waves: 24,
+  depth: 0.07,
+  weight: 0.35,
+  accentBand: 0.22,
+  grain: 0.28,
+  period: 6,
+  reducedMotionTime: 5
 }
 
-// beamish:shader-begin shaders/overprint.vert
+// beamish:shader-begin shaders/guilloche.vert
 const VERT = `#version 300 es
 
 // Full-screen triangle from gl_VertexID. No buffers, no attributes. Bind an
@@ -521,155 +525,121 @@ void main() {
 `
 // beamish:shader-end
 
-// beamish:shader-begin shaders/overprint.frag
+// beamish:shader-begin shaders/guilloche.frag
 const FRAG = `#version 300 es
 precision highp float;
 
 /*
- * Overprint: two ink plates drifting out of registration behind a halftone
- * screen, composited the way ink actually behaves on paper: multiplied, not
- * added. Additive light on a dark canvas is the easy version of this and it is
- * the one everybody else ships.
+ * Guilloche: the engine-turned line work on a banknote, a share certificate or
+ * the bezel of a watch.
  *
- * Everything animates on a circle in noise space. The loop is exactly periodic
- * over u_period, so the recorded video joins back on itself with no crossfade.
+ * It is not noise and it is not a gradient. A real rose engine cuts one
+ * continuous line whose radius is modulated by a set of gears, so the pattern
+ * is a family of curves with a strict harmonic relationship. That is exactly
+ * what this draws: several rosettes, each a circle whose radius wobbles at an
+ * integer number of lobes, rendered as a line field rather than a fill.
+ *
+ * The integer lobe counts are the whole thing. Fractional ones never close, and
+ * an open curve reads as a mistake rather than as engraving.
  */
 
-uniform vec2  u_resolution;  // drawing buffer, device px
+uniform vec2  u_resolution;
 uniform float u_dpr;
-uniform float u_time;        // seconds
-uniform float u_period;      // loop length, seconds
+uniform float u_time;
+uniform float u_period;
 uniform vec3  u_paper;
-uniform vec3  u_inkA;
-uniform vec3  u_inkB;
+uniform vec3  u_ink;
+uniform vec3  u_accent;
 uniform float u_scale;
-uniform float u_screen;      // halftone dots per 100 CSS px
-uniform float u_angleA;      // screen angle, degrees
-uniform float u_angleB;
-uniform float u_drift;       // registration error, CSS px
-uniform float u_coverage;    // 0..1 ink density
-uniform float u_grain;       // 0..1 paper tooth
+uniform float u_pitch;
+uniform float u_lobes;
+uniform float u_waves;
+uniform float u_depth;
+uniform float u_weight;
+uniform float u_accentBand;
+uniform float u_grain;
 
 out vec4 fragColor;
 
 const float TAU = 6.28318530718;
 
-vec2 hash22(vec2 p) {
-  p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
-  return fract(sin(p) * 43758.5453123) * 2.0 - 1.0;
-}
-
 float hash12(vec2 p) {
   return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 
-float gnoise(vec2 p) {
-  vec2 i = floor(p);
-  vec2 f = fract(p);
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float a = dot(hash22(i + vec2(0.0, 0.0)), f - vec2(0.0, 0.0));
-  float b = dot(hash22(i + vec2(1.0, 0.0)), f - vec2(1.0, 0.0));
-  float c = dot(hash22(i + vec2(0.0, 1.0)), f - vec2(0.0, 1.0));
-  float d = dot(hash22(i + vec2(1.0, 1.0)), f - vec2(1.0, 1.0));
-  return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
-}
-
-float fbm(vec2 p) {
-  float v = 0.0;
-  float a = 0.5;
-  for (int i = 0; i < 4; i++) {
-    v += a * gnoise(p);
-    p *= 2.03;
-    a *= 0.5;
-  }
-  return v;
-}
-
-mat2 rot(float degrees) {
-  float a = radians(degrees);
-  float c = cos(a);
-  float s = sin(a);
-  return mat2(c, -s, s, c);
-}
-
 /*
- * Area-proportional halftone dot. Radius goes as sqrt(value) so apparent tone is
- * linear in \`value\`, which is what a real screen does. Anti-aliased against the
- * screen-space derivative, so it stays clean at any DPR instead of buzzing.
+ * One engraved line family. \`spacing\` is how far apart the lines sit; the
+ * derivative keeps them a constant width on screen however fast the field is
+ * changing, which is what stops the centre turning into a solid disc.
  */
-float halftone(vec2 cssPx, float angle, float value, float freq) {
-  vec2 g = rot(angle) * cssPx * freq;
-  vec2 cell = fract(g) - 0.5;
-  float d = length(cell) * 2.0;
-  // 1.45, not 1.0: the cell corners are sqrt(2) from the centre, so a dot that
-  // stops at 1.0 can never close up and the darkest tone tops out around 78%.
-  float r = sqrt(clamp(value, 0.0, 1.0)) * 1.45;
-  float aa = fwidth(d) * 1.2 + 1e-4;
-  return 1.0 - smoothstep(r - aa, r + aa, d);
-}
-
-/*
- * fbm lands in roughly -0.5..0.5 and clusters hard around the middle. Left alone
- * that maps to one flat mid-tone across the whole canvas. A rug, not a print.
- * Amplify first, then window: the amplification buys real highlights where the
- * paper shows through, and real solids.
- */
-float tone(float raw, float coverage) {
-  float v = clamp(raw * 1.7 + 0.5, 0.0, 1.0);
-  float edge = 1.0 - coverage;
-  float t = smoothstep(edge - 0.30, edge + 0.30, v);
-  // Clean the toe. Without this the highlights keep a haze of sub-pixel dots
-  // that reads as dirt on the paper rather than as a light tone. Being fine
-  // unpredictable detail, it costs more in the encoded video than the whole rest
-  // of the frame.
-  return t * smoothstep(0.03, 0.11, t);
+float engrave(float field, float weight) {
+  float band = fract(field);
+  float aa = fwidth(field);
+  float edge = aa * (0.5 + weight * 2.0);
+  return 1.0 - smoothstep(0.0, edge, min(band, 1.0 - band));
 }
 
 void main() {
+  vec2 cssRes = u_resolution / max(u_dpr, 0.001);
+  float shortSide = min(cssRes.x, cssRes.y);
   vec2 cssPx = gl_FragCoord.xy / max(u_dpr, 0.001);
-  float shortSide = min(u_resolution.x, u_resolution.y) / max(u_dpr, 0.001);
-  vec2 uv = cssPx / max(shortSide, 1.0);
+
+  vec2 p = (cssPx - cssRes * 0.5) / (shortSide * 0.5);
+  p /= max(u_scale, 0.05);
 
   float phase = TAU * u_time / max(u_period, 0.001);
 
-  // A closed orbit through noise space. Any path that returns to its start works;
-  // a circle is the one with no easing artefact at the seam.
-  // Amplitudes are small on purpose. The loop is short so that a five-second
-  // recording is a whole cycle; the calm comes from how far the field travels,
-  // not from how long it takes.
-  vec2 orbitA = vec2(cos(phase), sin(phase)) * 0.30;
-  vec2 orbitB = vec2(cos(phase + 2.1), sin(phase + 2.1)) * 0.24 + vec2(11.3, -6.7);
+  float r = length(p);
+  float a = atan(p.y, p.x);
 
-  float rawA = fbm(uv * u_scale + orbitA);
-  float rawB = fbm(uv * u_scale * 1.18 + orbitB);
+  /*
+   * Three rosettes turning against each other, the way a rose engine stacks
+   * gears. Their lobe counts are coprime, so the interference pattern takes a
+   * long time to repeat and never looks like a simple grid.
+   */
+  float lobesA = floor(u_lobes);
+  float lobesB = floor(u_lobes * 1.75) + 1.0;
+  float lobesC = floor(u_lobes * 0.5) + 2.0;
 
-  // Plate B carries a little less ink than plate A, which is what stops the two
-  // reading as one muddy colour where they overlap.
-  float valueA = tone(rawA, u_coverage);
-  float valueB = tone(rawB, u_coverage * 0.88);
+  float waveA = sin(a * lobesA + phase) * u_depth;
+  float waveB = sin(a * lobesB - phase * 1.5) * u_depth * 0.55;
+  float waveC = cos(a * lobesC + phase * 0.5) * u_depth * 0.8;
 
-  float freq = u_screen / 100.0;
+  // Each family is the radius plus its own wobble, scaled into line spacing.
+  float fieldA = (r + waveA) * u_pitch;
+  float fieldB = (r + waveB) * u_pitch * 1.31;
 
-  // The registration error: plate B's screen slides against plate A's. Both
-  // components are periodic in \`phase\`, so the seam is exact.
-  vec2 misfit = vec2(cos(phase + 1.7), sin(phase * 2.0 + 0.4)) * u_drift;
+  // The third runs around the circle rather than out from the centre, which is
+  // what turns two ring families into woven guilloche instead of a moire.
+  float fieldC = (a / TAU * u_waves + waveC + r * 0.35) * u_pitch * 0.42;
 
-  float dotA = halftone(cssPx, u_angleA, valueA, freq);
-  float dotB = halftone(cssPx + misfit, u_angleB, valueB, freq);
+  float lineA = engrave(fieldA, u_weight);
+  float lineB = engrave(fieldB, u_weight);
+  /*
+   * The angular family is singular at the origin: every spoke meets there, and
+   * without this the middle of the rosette collapses into a solid blot. A real
+   * rose engine has a centre finding of its own for the same reason.
+   */
+  float lineC = engrave(fieldC, u_weight) * smoothstep(0.0, 0.3, r);
 
-  // Multiply, because that is what a second pass of ink does to the first.
   vec3 col = u_paper;
-  col *= mix(vec3(1.0), u_inkA, dotA);
-  col *= mix(vec3(1.0), u_inkB, dotB);
+  // Multiplied, not added: this is ink on paper, and two lines crossing are
+  // darker than one.
+  col *= mix(vec3(1.0), u_ink, lineA * 0.85);
+  col *= mix(vec3(1.0), u_ink, lineB * 0.7);
+  col *= mix(vec3(1.0), u_ink, lineC * 0.5);
 
-  // Static tooth, not animated film grain. Animated grain flickers, and a
-  // flicker this fine is exactly what WCAG 2.3.1 is about.
-  //
-  // Two-pixel blocks rather than one. At 2x DPR a one-pixel grain is below what
-  // the eye resolves anyway, and it is the single most expensive thing in the
-  // frame for a video codec: pure noise, no structure to predict.
+  /*
+   * A single band of the pattern printed in the second colour, the way a
+   * certificate prints one guilloche in red over the rest in black. It rides
+   * the same field, so it is part of the engraving rather than a highlight laid
+   * on top of it.
+   */
+  float ring = smoothstep(u_accentBand + 0.16, u_accentBand, abs(r - u_accentBand - 0.28));
+  col = mix(col, col * mix(vec3(1.0), u_accent, lineA * 0.9), ring);
+
   float tooth = hash12(floor(cssPx * 0.5)) - 0.5;
-  col += tooth * 0.055 * u_grain;
+  col += tooth * 0.05 * u_grain;
 
   fragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }
@@ -682,14 +652,15 @@ const UNIFORMS = [
   'u_time',
   'u_period',
   'u_paper',
-  'u_inkA',
-  'u_inkB',
+  'u_ink',
+  'u_accent',
   'u_scale',
-  'u_screen',
-  'u_angleA',
-  'u_angleB',
-  'u_drift',
-  'u_coverage',
+  'u_pitch',
+  'u_lobes',
+  'u_waves',
+  'u_depth',
+  'u_weight',
+  'u_accentBand',
   'u_grain'
 ] as const
 
@@ -714,18 +685,18 @@ function parseColor(input: string): [number, number, number] {
 
 function compile(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader {
   const shader = gl.createShader(type)
-  if (!shader) throw new Error('Overprint: could not create shader')
+  if (!shader) throw new Error('Guilloche: could not create shader')
   gl.shaderSource(shader, source)
   gl.compileShader(shader)
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
     const log = gl.getShaderInfoLog(shader)
     gl.deleteShader(shader)
-    throw new Error(`Overprint: shader failed to compile\n${log ?? ''}`)
+    throw new Error(`Guilloche: shader failed to compile\n${log ?? ''}`)
   }
   return shader
 }
 
-class OverprintSurface implements Surface<OverprintOptions> {
+class GuillocheSurface implements Surface<GuillocheOptions> {
   private gl: WebGL2RenderingContext | null = null
   private program: WebGLProgram | null = null
   private vao: WebGLVertexArrayObject | null = null
@@ -733,7 +704,7 @@ class OverprintSurface implements Surface<OverprintOptions> {
   private size = { pixelWidth: 1, pixelHeight: 1, dpr: 1 }
 
   setup(ctx: { canvas: HTMLCanvasElement | null }): void {
-    if (!ctx.canvas) throw new Error('Overprint needs a canvas')
+    if (!ctx.canvas) throw new Error('Guilloche needs a canvas')
     const gl = ctx.canvas.getContext('webgl2', {
       alpha: false,
       antialias: false,
@@ -744,12 +715,12 @@ class OverprintSurface implements Surface<OverprintOptions> {
       preserveDrawingBuffer: true,
       powerPreference: 'low-power'
     })
-    if (!gl) throw new Error('Overprint needs WebGL2, which this browser did not provide')
+    if (!gl) throw new Error('Guilloche needs WebGL2, which this browser did not provide')
 
     const vert = compile(gl, gl.VERTEX_SHADER, VERT)
     const frag = compile(gl, gl.FRAGMENT_SHADER, FRAG)
     const program = gl.createProgram()
-    if (!program) throw new Error('Overprint: could not create program')
+    if (!program) throw new Error('Guilloche: could not create program')
     gl.attachShader(program, vert)
     gl.attachShader(program, frag)
     gl.linkProgram(program)
@@ -760,7 +731,7 @@ class OverprintSurface implements Surface<OverprintOptions> {
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
       const log = gl.getProgramInfoLog(program)
       gl.deleteProgram(program)
-      throw new Error(`Overprint: program failed to link\n${log ?? ''}`)
+      throw new Error(`Guilloche: program failed to link\n${log ?? ''}`)
     }
 
     // WebGL2 requires a bound VAO even when the draw uses no attributes.
@@ -780,7 +751,7 @@ class OverprintSurface implements Surface<OverprintOptions> {
     this.gl?.viewport(0, 0, size.pixelWidth, size.pixelHeight)
   }
 
-  render(t: number, opts: OverprintOptions): void {
+  render(t: number, opts: GuillocheOptions): void {
     const gl = this.gl
     const program = this.program
     if (!gl || !program) return
@@ -794,14 +765,15 @@ class OverprintSurface implements Surface<OverprintOptions> {
     gl.uniform1f(at('u_time'), t)
     gl.uniform1f(at('u_period'), opts.period)
     gl.uniform3fv(at('u_paper'), parseColor(opts.paper))
-    gl.uniform3fv(at('u_inkA'), parseColor(opts.inkA))
-    gl.uniform3fv(at('u_inkB'), parseColor(opts.inkB))
+    gl.uniform3fv(at('u_ink'), parseColor(opts.ink))
+    gl.uniform3fv(at('u_accent'), parseColor(opts.accent))
     gl.uniform1f(at('u_scale'), opts.scale)
-    gl.uniform1f(at('u_screen'), opts.screen)
-    gl.uniform1f(at('u_angleA'), opts.angleA)
-    gl.uniform1f(at('u_angleB'), opts.angleB)
-    gl.uniform1f(at('u_drift'), opts.drift)
-    gl.uniform1f(at('u_coverage'), opts.coverage)
+    gl.uniform1f(at('u_pitch'), opts.pitch)
+    gl.uniform1f(at('u_lobes'), opts.lobes)
+    gl.uniform1f(at('u_waves'), opts.waves)
+    gl.uniform1f(at('u_depth'), opts.depth)
+    gl.uniform1f(at('u_weight'), opts.weight)
+    gl.uniform1f(at('u_accentBand'), opts.accentBand)
     gl.uniform1f(at('u_grain'), opts.grain)
 
     gl.drawArrays(gl.TRIANGLES, 0, 3)
@@ -825,115 +797,114 @@ class OverprintSurface implements Surface<OverprintOptions> {
 }
 
 /**
- * Mount Overprint into `el`. The element needs a size. Give it width and height
+ * Mount Guilloche into `el`. The element needs a size. Give it width and height
  * in CSS, not just content.
  *
  * ```ts
- * const overprint = createOverprint(document.querySelector('#bg')!)
- * overprint.start()
+ * const guilloche = createGuilloche(document.querySelector('#bg')!)
+ * guilloche.start()
  * // …later
- * overprint.destroy()
+ * guilloche.destroy()
  * ```
  */
-export function createOverprint(
+export function createGuilloche(
   el: HTMLElement,
-  opts: Partial<OverprintOptions> = {}
+  opts: Partial<GuillocheOptions> = {}
 ): EffectHandle {
-  return mount<OverprintOptions>(el, opts, {
-    defaults: overprintDefaults,
-    create: () => new OverprintSurface()
+  return mount<GuillocheOptions>(el, opts, {
+    defaults: guillocheDefaults,
+    create: () => new GuillocheSurface()
   })
 }
 
-export default createOverprint
+export default createGuilloche
 ```
 
 ## 2. What it is
 
-Overprint is a full-bleed background that behaves like a two-colour print. Two
-ink plates, a desaturated near-black and a burnt orange, are screened into
-halftone dots at different angles and multiplied over the paper colour. That is
-what a second pass of ink does to the first. Over the loop the plates slide
-fractionally out of registration, which is the misprint that makes a risograph
-look alive.
+Guilloche is the engine-turned line work off a banknote, a share certificate or
+the bezel of a watch, drawn on warm paper.
 
-It is one WebGL2 fragment shader on one full-screen triangle. No three.js, no
-textures, no render targets, no npm dependencies.
+It is not noise and it is not a gradient. A real rose engine cuts one continuous
+line whose radius is modulated by a set of gears, so the result is a family of
+curves in a strict harmonic relationship. That is what this draws: three
+rosettes, each a circle whose radius wobbles at a whole number of lobes, rendered
+as a line field rather than a fill, and multiplied together the way overlapping
+ink actually behaves.
 
-It needs a light background. Multiplying ink into black gets you black.
+The whole-number lobe counts matter. A fractional count gives a curve that never
+closes, and an open curve reads as a mistake rather than as engraving. The three
+families are kept coprime so their interference takes a long time to repeat and
+never settles into a grid.
 
-The defaults are tuned to be looked at: dense, plenty of solid ink. If you are
-putting text on top, that is too much. Drop `coverage` to about 0.2 and raise
-`period` to 15. Do not reach for opacity instead. Opacity greys the paper and
-loses the thing that makes it look printed.
+One band is printed in a second colour, riding the same field, the way a
+certificate prints one guilloche in red over the rest in black. It is part of the
+engraving rather than a highlight laid on top of it.
+
+One WebGL2 fragment shader on one full-screen triangle. No noise, no textures, no
+render targets. It is the cheapest effect in the library.
 
 ## 3. Wire it in
 
-**Plain HTML.** Give the host element a size. The canvas fills it, so an element
-with no height renders nothing.
+**Plain HTML.** The element needs a size of its own.
 
 ```html
 <div id="backdrop" style="position: fixed; inset: 0; z-index: -1"></div>
 
 <script type="module">
-  import { createOverprint } from './beamish/effects/overprint/core.js'
+  import { createGuilloche } from './beamish/effects/guilloche/core.js'
 
-  const overprint = createOverprint(document.querySelector('#backdrop'), {
-    inkB: '#c44400'
+  const guilloche = createGuilloche(document.querySelector('#backdrop'), {
+    lobes: 7,
+    period: 40
   })
-  overprint.start()
+  guilloche.start()
 </script>
 ```
 
-**React.** Start in an effect. Destroy in its cleanup. StrictMode runs the effect
-twice in development. That is fine, because `destroy()` fully releases the
-context, which is the case StrictMode exists to catch.
+**React.** Start in an effect, destroy in its cleanup. StrictMode runs the effect
+twice in development, which is fine, because `destroy()` fully releases the
+context.
 
 ```tsx
 import { useEffect, useRef } from 'react'
-import { createOverprint } from '@/beamish/effects/overprint/core'
+import { createGuilloche } from '@/beamish/effects/guilloche/core'
 
 export function Backdrop() {
   const host = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!host.current) return
-    const overprint = createOverprint(host.current, { inkB: '#c44400' })
-    overprint.start()
-    return () => overprint.destroy()
+    const guilloche = createGuilloche(host.current, { period: 40 })
+    guilloche.start()
+    return () => guilloche.destroy()
   }, [])
 
   return <div ref={host} className="fixed inset-0 -z-10" />
 }
 ```
 
-Do not put option values in the dependency array. That tears the context down and
-rebuilds it on every keystroke. Call `update()` instead:
-
-```tsx
-useEffect(() => {
-  effectRef.current?.update({ coverage })
-}, [coverage])
-```
+Do not put option values in the dependency array. Call `update()` instead: every
+option is a uniform, so nothing rebuilds.
 
 **Vue.**
 
 ```vue
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
-import { createOverprint } from '@/beamish/effects/overprint/core'
+import { createGuilloche } from '@/beamish/effects/guilloche/core'
 import type { EffectHandle } from '@/beamish/shared/runtime'
 
 const host = ref<HTMLDivElement | null>(null)
-let overprint: EffectHandle | null = null
+let guilloche: EffectHandle | null = null
 
 onMounted(() => {
   if (!host.value) return
-  overprint = createOverprint(host.value, { inkB: '#c44400' })
-  overprint.start()
+  guilloche = createGuilloche(host.value, { period: 40 })
+  guilloche.start()
 })
 
-onBeforeUnmount(() => overprint?.destroy())
+onBeforeUnmount(() => guilloche?.destroy())
 </script>
 
 <template>
@@ -941,9 +912,13 @@ onBeforeUnmount(() => overprint?.destroy())
 </template>
 ```
 
-**Astro.** Nothing extra is required. Use the React or Vue file as an island with
-`client:visible`, or call `createOverprint` from a plain `<script>` in the page.
-The core is a standard ES module with no framework in it.
+**Astro.** Nothing extra is required. The core is a standard ES module with no
+framework in it.
+
+**Behind content.** Raise `period` to 40 and drop `weight` to about 0.2. The
+engraving recedes into a watermark you stop noticing, which is what a certificate
+background is for. Do not reach for opacity: it greys the paper and loses the
+thing that makes it look printed.
 
 ## 4. Options
 
@@ -952,69 +927,61 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | Paper colour. Set this to your own background or the panel will not sit in the page. |
-| `inkA` | color | `#363630` | any CSS hex | First plate. A desaturated near-black reads as ink; pure black reads as a hole. |
-| `inkB` | color | `#c44400` | any CSS hex | Second plate. This is where the colour lives, so change this one first. |
-| `scale` | number | `1.9` | 0.3 to 6 (looks right between 1.2 and 3) | Size of the ink shapes. Lower is broader and calmer. |
-| `screen` | number | `8` | 2 to 40 dots / 100px (looks right between 5 and 14) | Halftone frequency. Above about 20 the screen stops reading as a screen and starts reading as noise. |
-| `angleA` | number | `15` | 0 to 180 deg | Screen angle of the first plate. |
-| `angleB` | number | `75` | 0 to 180 deg (looks right between 45 and 105) | Screen angle of the second plate. Keep it at least 30 degrees from angleA. Closer than that and the two screens beat against each other. |
-| `drift` | number | `5` | 0 to 30 px (looks right between 4 and 12) | Registration error: how far the plates slide apart over a loop. Zero is a clean print and much duller. |
-| `coverage` | number | `0.32` | 0.1 to 0.9 (looks right between 0.35 and 0.6) | Ink density. Past 0.7 the plates flood and the paper stops showing through. |
-| `grain` | number | `0.35` | 0 to 1 | Paper tooth. Static by design. Animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent. |
-| `period` | number | `5` | 2 to 120 s (looks right between 5 and 25) | Seconds for one full loop. The animation is exactly periodic over this. The default is 5 so that the preview video is a whole cycle. Raise it to 15 or 25 for a page background you want to forget is moving. |
-| `reducedMotionTime` | number | `1.4` | 0 to 120 s | The single frame shown when the user prefers reduced motion. Pick one that composes rather than the frame at zero. |
+| `paper` | color | `#fbfaf4` | any CSS hex | The paper the plate is printed on. Match it to your page background. |
+| `ink` | color | `#2f2b26` | any CSS hex | The engraving. A desaturated near-black reads as ink; pure black reads as a wireframe. |
+| `accent` | color | `#c44400` | any CSS hex | The second colour, printed over one band of the pattern the way a share certificate prints one guilloche in red over the rest in black. |
+| `scale` | number | `0.92` | 0.2 to 3 (looks right between 0.6 and 1.4) | Size of the whole rosette. Below about 0.5 the lines are finer than the pixels and the plate turns grey. |
+| `pitch` | number | `26` | 4 to 80 (looks right between 14 and 40) | Lines per unit of radius. Higher is finer engraving, and past about 50 it stops resolving on anything but a retina screen. |
+| `lobes` | number | `7` | 2 to 24 (looks right between 5 and 12) | Lobes on the first rosette. Whole numbers only: a fractional lobe count gives a curve that never closes, and an open curve reads as a mistake rather than as engraving. The other two families are derived from this and kept coprime to it. |
+| `waves` | number | `24` | 4 to 80 (looks right between 12 and 40) | Spokes in the family that runs around the circle rather than out from it. This is what turns two ring families into woven guilloche instead of a moire. |
+| `depth` | number | `0.07` | 0 to 0.4 (looks right between 0.04 and 0.14) | How far each rosette's radius wobbles. Zero is concentric circles. Past about 0.2 the curves cross themselves and the weave becomes a tangle. |
+| `weight` | number | `0.35` | 0 to 1 (looks right between 0.2 and 0.55) | Weight of the engraved line. Heavy lines at a high pitch fill in solid, so raise one and lower the other. |
+| `accentBand` | number | `0.22` | 0 to 1.2 (looks right between 0.1 and 0.5) | Where the second colour sits, as a radius from the centre. Set it past the corner of the panel to switch the second colour off. |
+| `grain` | number | `0.28` | 0 to 1 | Paper tooth. Static by design. Animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent. |
+| `period` | number | `6` | 4 to 180 s (looks right between 6 and 60) | Seconds for one turn of the gears. The pattern is exactly periodic over this. The default is 6 so the preview video is a whole turn; 30 to 60 is right behind a page, where the gears should be moving slowly enough that nobody catches them. |
+| `reducedMotionTime` | number | `5` | 0 to 180 s | The single frame shown when the user prefers reduced motion. Any time works: a still guilloche is an engraving, which is a finished thing to look at. |
 
 ## 5. Cleanup and SSR
 
-Call `destroy()`. It releases the WebGL context, cancels the RAF, disconnects
-both observers and removes every listener.
+`destroy()` releases the WebGL context, cancels the RAF, disconnects both
+observers and removes every listener. Call it.
 
 A page that mounts and unmounts demos without destroying them will hit the
 browser's context limit, which is 16 contexts or 16,777,216 pixels, whichever
 runs out first. Past that the browser starts killing the oldest context.
 
-None of this runs on the server. `createOverprint` touches `document` and
+None of this runs on the server. `createGuilloche` touches `document` and
 `matchMedia` at call time. Put the call inside `useEffect`, `onMounted`, or a
 `client:*` island. Next.js App Router needs `'use client'` at the top of the
 component file.
 
-The runtime already pauses the loop when the element scrolls offscreen and when
-the tab is hidden.
-
 ## 6. Pausing and reduced motion
 
-WCAG 2.2.2 is Level A and it applies here. Content that moves for more than five
-seconds must be pausable. `stop()` and `start()` are on the handle for that.
-Surface them as a real control in your own build. A small button in the corner of
-the panel is enough.
+WCAG 2.2.2 is Level A: content that moves for more than five seconds must be
+pausable. `stop()` and `start()` are on the handle for that. Surface them as a
+real control in your own build. Reduced motion does not cover this, and plenty of
+people who need a pause button have not set that preference.
 
-Reduced motion does not cover this. Plenty of people who need a pause button have
-not set that preference.
+Handled in the runtime with a live `matchMedia` listener. Under reduced motion
+the loop never starts and one frame is drawn at `reducedMotionTime`.
 
-Handled in the runtime with a live `matchMedia` listener, so changing the OS
-setting mid-session takes effect without a reload. Under reduced motion the loop
-never starts and one frame is drawn instead, the one at `reducedMotionTime`.
-
-Set that value deliberately. The frame at zero has the plates in perfect
-registration and looks like a mistake. Pick a time where the plates are visibly
-offset.
+This effect needs no care here. Any frame of it is an engraving, which is a
+finished thing to look at, so the default is as good as any other number.
 
 ## 7. The three mistakes most likely to be made here
 
-1. **Mounting into an element with no height.** The canvas is `width: 100%;
-   height: 100%`. A `<div>` with no content and no CSS height is zero pixels tall
-   and renders nothing. Give the host `position: fixed; inset: 0`, or an explicit
-   height.
+1. **Passing a fractional `lobes`.** The curve then never closes on itself, and
+   what you get is a spiral with a visible join rather than a rosette. The option
+   is stepped to whole numbers for that reason; if you set it from code, round it.
 
-2. **Leaving `paper` at the default when the page is not off-white.** Every other
-   colour is multiplied over it, so a mismatch shows as a hard rectangle where
-   the panel ends. Set `paper` to the actual background colour first, then tune
-   the inks.
+2. **Raising `pitch` and `weight` together.** Fine lines and heavy weight fill in
+   solid, and the centre of the rosette goes black first because that is where
+   the field changes fastest. Raise one and lower the other.
 
-3. **Raising `screen` to make it look finer.** Past about 20 dots per 100px the
-   halftone stops resolving, aliases against the pixel grid, and turns into noise
-   that shimmers as the plates drift. Lower `coverage` instead.
+3. **Mounting it into an element with no height.** The canvas is `width: 100%;
+   height: 100%`, so a `<div>` with no content and no CSS height is zero pixels
+   tall and renders nothing. Give the host `position: fixed; inset: 0`, or an
+   explicit height.
 
 ---
 
