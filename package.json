@@ -1,6 +1,7 @@
 {
   "name": "beamish",
   "private": true,
+  "version": "0.3.0",
   "type": "module",
   "packageManager": "pnpm@10.29.2",
   "engines": {
@@ -18,7 +19,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "review": "tsx tools/review/index.ts",
     "check": "pnpm typecheck && pnpm generate:check && pnpm test && pnpm build && pnpm review",
-    "social": "tsx tools/social/index.ts"
+    "social": "tsx tools/social/index.ts",
+    "verify:pin": "tsx tools/verify-pin/index.ts"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

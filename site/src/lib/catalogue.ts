@@ -22,13 +22,31 @@ export type Item = Meta & {
  * The tag every prompt on this build points at.
  *
  * The release order is generate → tag → build, so the generator cannot know the
- * tag; it writes {{PIN}} and this resolves it. A build with no tags at all falls
- * back to the commit SHA, which is still immutable. The one thing a prompt URL
- * must never be is `main`.
+ * tag; it writes {{PIN}} and this resolves it. The one thing a prompt URL must
+ * never be is `main`.
+ *
+ * The version in package.json is the source of truth, because it is the only
+ * one that travels with the commit. `git describe` looked like the obvious
+ * answer and it is the wrong one: a host that shallow-clones has no tags, so it
+ * fell through to a commit SHA, the URLs still resolved, nothing errored, and
+ * the mistake only surfaced when somebody pasted a prompt. This build of the
+ * site knows its own version whatever the host did to the checkout.
  */
 export function resolvePin(): string {
+  // An escape hatch for building a preview against some other tag. Nothing in
+  // the normal release path sets it.
   const fromEnv = process.env['BEAMISH_PIN']
   if (fromEnv) return fromEnv
+
+  try {
+    const pkg = JSON.parse(readFileSync(path.join(ROOT, 'package.json'), 'utf8')) as {
+      version?: string
+    }
+    if (pkg.version) return `v${pkg.version}`
+  } catch {
+    // Falls through to git below.
+  }
+
   try {
     return execFileSync('git', ['describe', '--tags', '--abbrev=0'], {
       cwd: ROOT,
@@ -46,18 +64,16 @@ export function resolvePin(): string {
 export const PIN = resolvePin()
 
 /*
- * A host that does a shallow clone has no tags, so `git describe` fails and the
- * pin silently falls back to a commit SHA. The URLs still work, so nothing
- * errors and nobody notices until a prompt is pasted somewhere. Say so in the
- * build log. See DEPLOY.md step 4.
+ * Only reachable if package.json has lost its version, which would mean the
+ * pin has fallen through to a SHA or to `main`. Loud, because the URLs would
+ * still resolve and nothing else would complain.
  */
 if (!/^v[0-9]+\.[0-9]+\.[0-9]+/.test(PIN)) {
   console.warn(
     [
       '',
       `  Prompts are pinning to "${PIN}", which is not a version tag.`,
-      '  On a shallow clone set BEAMISH_PIN to the tag you released.',
-      '  See DEPLOY.md step 4.',
+      '  package.json needs a version field. See DEPLOY.md.',
       ''
     ].join('\n')
   )

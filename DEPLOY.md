@@ -47,24 +47,25 @@ into them.
 
 ## 4. Environment variables
 
-This is the step that matters.
-
 | Name | Value |
 | --- | --- |
 | `NODE_VERSION` | `22.14.0` |
-| `BEAMISH_PIN` | `v0.1.0` |
 
-**`BEAMISH_PIN` is the one that silently breaks things.** The site resolves the
-tag every prompt points at by running `git describe --tags --abbrev=0`.
-Cloudflare does a shallow clone without tags, so that command fails, the code
-falls back to the commit SHA, and every prompt on the live site ends up pinned to
-a forty-character hash instead of `v0.1.0`.
+That is the whole list. If `BEAMISH_PIN` is still set in the dashboard from an
+earlier deploy, **delete it.** It overrides everything below and it is the
+reason the site shipped nine broken prompts.
 
-Nothing errors. The URLs still work. They are just ugly and they change on every
-deploy, which defeats the point of pinning at all.
+The tag every prompt points at now comes from the `version` field in
+`package.json`, which is the only place that travels with the commit. The
+earlier version ran `git describe --tags`, and Cloudflare shallow-clones without
+tags, so that failed, the pin fell back to a commit SHA, and a hand-set variable
+was the patch. A variable in a different system that a human has to remember to
+change is not a fix, and it silently pinned the live site to a tag that was
+missing more than half the library for a fortnight.
 
-Set it by hand, and **update it every time you cut a tag.** There is a check for
-this in step 8.
+Nothing about that failure is visible on the site. The site never fetches those
+URLs. Only a pasted prompt does, and then it 404s. `pnpm verify:pin` in step 8
+is what actually checks.
 
 `NODE_VERSION` is belt and braces: Cloudflare reads `.nvmrc`, which is already in
 the repo, but the variable is what the dashboard shows you when something goes
@@ -133,20 +134,35 @@ Then decide which one is canonical. `beamish.ink` is already the canonical URL i
 
 The pin is the one thing that does not update itself.
 
+Bump `version` in `package.json` first. That number is the pin, so the commit
+being tagged has to already name the tag it is about to get.
+
 ```bash
-pnpm check          # typecheck, generate:check, test, build, review
-git tag -a v0.2.0 -m "what changed"
-git push --tags
+# 1. version, changelog, checks
+#    package.json version -> 0.3.0, and CHANGELOG.md in the same commit
+pnpm check                              # typecheck, generate:check, test, build, review
+git commit -am "release: v0.3.0"
+
+# 2. tag first, then the branch
+git tag -a v0.3.0 -m "what changed"
+git push origin v0.3.0
+git push origin main
+
+# 3. prove it
+pnpm verify:pin
 ```
 
-Then in Cloudflare, **Settings** → **Environment variables**, change
-`BEAMISH_PIN` to `v0.2.0` and redeploy.
+The tag goes up before `main` on purpose. Cloudflare starts building the moment
+`main` moves, and if the tag is not there yet the build is racing it.
 
-Do not skip this. A tag without the variable means the new work is live and every
-prompt still points at the old one. Nothing will tell you.
+`pnpm verify:pin` fetches every file every prompt asks for, at the pin, and
+fails on anything that is not a 200. Run it after the push. It is the only step
+that checks the thing that actually breaks, and it would have caught both times
+this went wrong.
 
-Update `CHANGELOG.md` in the same commit as the tag, and never delete or move a
-tag that has been published. Somebody has pasted it.
+There is no Cloudflare step. Nothing to remember, nothing to keep in sync.
+
+Never delete or move a tag that has been published. Somebody has pasted it.
 
 ---
 
@@ -170,8 +186,13 @@ removed from `package.json`. Put it back.
 running `astro build` directly instead of `pnpm build`. The generate step has to
 run first.
 
-**Prompts point at a SHA instead of a tag.** `BEAMISH_PIN` is unset or stale.
-Step 4.
+**Prompts point at a SHA instead of a tag.** `package.json` has lost its
+`version`, or a stale `BEAMISH_PIN` is still set in the dashboard and is
+overriding it. Step 4. The build log says so.
+
+**A pasted prompt 404s.** The tag does not contain those files, which means it
+was cut before they existed. Run `pnpm verify:pin` to see exactly which, then
+cut a new tag from a commit that has them. Never move the old one.
 
 **Fonts look wrong on the live site but fine locally.** `site/public/fonts` is
 gitignored, because it is a copy. `pnpm build` runs `sync-public.mjs` first,

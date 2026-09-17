@@ -18,12 +18,12 @@
 import { readdir, readFile, writeFile, mkdir, rm } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { metaSchema, CATEGORY_LABELS, type Meta, type OptionSpec } from '../schema/meta'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 const OUT = path.join(ROOT, '.generated')
-const REPO = 'OscarBeamish/beamish.ink'
+export const REPO = 'OscarBeamish/beamish.ink'
 const SITE = 'https://beamish.ink'
 
 const PIN_PLACEHOLDER = '{{PIN}}'
@@ -60,7 +60,7 @@ function splitSections(markdown: string): Map<string, string> {
   return sections
 }
 
-async function loadItems(): Promise<Item[]> {
+export async function loadItems(): Promise<Item[]> {
   const items: Item[] = []
   for (const group of ['effects', 'components'] as const) {
     const base = path.join(ROOT, group)
@@ -456,8 +456,14 @@ async function generate(check: boolean, pin: string) {
   }
 }
 
-const args = process.argv.slice(2)
-const pinArg = args.indexOf('--pin')
-const pin = pinArg >= 0 ? args[pinArg + 1]! : process.env['BEAMISH_PIN'] || PIN_PLACEHOLDER
+/*
+ * Only when run directly. verify-pin imports loadItems from here, and without
+ * this guard that import would quietly regenerate everything as a side effect.
+ */
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const args = process.argv.slice(2)
+  const pinArg = args.indexOf('--pin')
+  const pin = pinArg >= 0 ? args[pinArg + 1]! : process.env['BEAMISH_PIN'] || PIN_PLACEHOLDER
 
-await generate(args.includes('--check'), pin)
+  await generate(args.includes('--check'), pin)
+}

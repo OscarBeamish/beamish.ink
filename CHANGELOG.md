@@ -5,6 +5,44 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.3.0, 17 September 2026
+
+Two items, and the pin stops being something a human has to remember.
+
+### Added
+
+- Guilloche (backdrops): engine-turned line work. Three rosettes with coprime
+  whole-number lobe counts, drawn as line fields and multiplied over paper.
+- Plate (surfaces): a contact sheet that opens into a lightbox. Tier 2, React
+  and Vue. Arrow keys, swipe, neighbour preload, and autoplay that is off by
+  default and carries a pause control whenever it is not.
+- `pnpm verify:pin`: fetches every file every prompt asks for, at the pin, and
+  fails on anything that is not a 200. This is the check that was missing.
+
+### Changed
+
+- The pin now comes from the `version` field in `package.json` rather than from
+  `git describe` plus a hand-set `BEAMISH_PIN` in the Cloudflare dashboard.
+  Delete that variable if it is still set. Releasing is bump, commit, tag, push,
+  with no step in another system.
+
+### Fixed
+
+- The generator matched shader blocks on a bare `
+`, so on any shader saved
+  with Windows line endings the replacement silently did nothing and the core
+  kept whatever shader was inlined before it. Guilloche shipped Overprint's
+  shader and the generator reported success. It now tolerates `
+` and throws
+  when a file has shader markers that none of them matched.
+- `pnpm review` reported below-the-fold lazy images as broken.
+
+### Known
+
+- `v0.1.0` and `v0.2.0` are both missing items that their prompts reference, so
+  the live site served 404ing prompts for anything added after the tag it was
+  pinned to. Neither tag is moved or deleted; `v0.3.0` contains everything.
+
 ## v0.2.0, 17 September 2026
 
 Seven more items, a review step, and a defect in a shipped prompt.
