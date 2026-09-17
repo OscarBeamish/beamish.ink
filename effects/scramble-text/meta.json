@@ -1,0 +1,164 @@
+{
+  "name": "ScrambleText",
+  "slug": "scramble-text",
+  "tier": 1,
+  "description": "Type set one character at a time, in the order you choose",
+  "category": "type",
+  "tags": [
+    "text",
+    "reveal",
+    "stagger",
+    "dom",
+    "accessible",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "No canvas and no WebGL. It splits the text already in the element and animates the pieces",
+      "The original string stays in the accessibility tree as one label, so a screen reader does not read sixty separate characters",
+      "destroy() puts the original text back, leaving the element as it was found"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.6,
+    "contexts": 0,
+    "notes": [
+      "One transform and one opacity per piece, composited",
+      "The blur is dropped the moment a piece lands, because a permanent blur(0px) keeps every piece on its own layer"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/scramble-text/core.ts",
+      "to": "src/beamish/effects/scramble-text/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/scramble-text/adapters/react.tsx",
+      "to": "src/beamish/effects/scramble-text/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/scramble-text/adapters/vue.ts",
+      "to": "src/beamish/effects/scramble-text/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "split": {
+      "type": "enum",
+      "values": [
+        "char",
+        "word",
+        "line"
+      ],
+      "default": "char",
+      "description": "What each animated piece is. Characters are grouped inside their word so the text still wraps."
+    },
+    "order": {
+      "type": "enum",
+      "values": [
+        "forward",
+        "reverse",
+        "centre",
+        "random"
+      ],
+      "default": "forward",
+      "description": "The order pieces arrive in. `centre` starts in the middle and works outwards. `random` keeps every piece in its place in the sentence and only changes its turn."
+    },
+    "stagger": {
+      "type": "number",
+      "default": 26,
+      "min": 0,
+      "max": 200,
+      "step": 1,
+      "unit": "ms",
+      "sensible": [
+        15,
+        45
+      ],
+      "description": "Milliseconds between one piece and the next. On a long heading this multiplies fast: 40ms across 60 characters is a two and a half second wait."
+    },
+    "duration": {
+      "type": "number",
+      "default": 720,
+      "min": 100,
+      "max": 3000,
+      "step": 10,
+      "unit": "ms",
+      "sensible": [
+        500,
+        900
+      ],
+      "description": "Milliseconds each piece takes on its own."
+    },
+    "rise": {
+      "type": "number",
+      "default": 22,
+      "min": -80,
+      "max": 80,
+      "step": 1,
+      "unit": "px",
+      "sensible": [
+        12,
+        34
+      ],
+      "description": "How far each piece travels. Negative falls from above instead of rising from below."
+    },
+    "blur": {
+      "type": "number",
+      "default": 5,
+      "min": 0,
+      "max": 20,
+      "step": 0.5,
+      "sensible": [
+        0,
+        8
+      ],
+      "description": "Blur each piece starts at. Zero is cheaper and often better at small sizes, where the blur just reads as a smudge."
+    },
+    "scale": {
+      "type": "number",
+      "default": 1,
+      "min": 0.4,
+      "max": 1.6,
+      "step": 0.01,
+      "sensible": [
+        0.9,
+        1.1
+      ],
+      "description": "Scale each piece starts at. 1 is no scaling, which is usually right for text."
+    },
+    "seed": {
+      "type": "number",
+      "default": 7,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "description": "Seed for the random order. The same seed always gives the same order, so a recorded video and a live page match."
+    },
+    "reducedMotionTime": {
+      "type": "number",
+      "default": 999,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "unit": "s",
+      "description": "The single frame shown when the user prefers reduced motion. For a one-shot reveal this should be a time after the animation has finished, so the text simply appears."
+    }
+  },
+  "instruction": "press replay to set it again",
+  "oneShot": true,
+  "record": {
+    "duration": 4,
+    "fps": 30,
+    "posterAt": 1.2
+  }
+}

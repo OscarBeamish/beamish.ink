@@ -9,19 +9,19 @@ export const props = {
     {
       title: 'Backdrops',
       items: [
-        { label: 'Overprint', href: '/effects/overprint', meta: 'shader' },
-        { label: 'Sundial', href: '/effects/sundial', meta: 'three' }
+        { label: 'Overprint', href: '/effects/halftone-backdrop', meta: 'shader' },
+        { label: 'Sundial', href: '/effects/cast-shadow-scene', meta: 'three' }
       ]
     },
     {
       title: 'Pointer',
-      items: [{ label: 'Foil', href: '/effects/foil', meta: 'shader' }]
+      items: [{ label: 'Foil', href: '/effects/pointer-foil-sheen', meta: 'shader' }]
     },
     {
       title: 'Navigation',
       items: [
-        { label: 'Contents', href: '/components/contents', meta: 'react · vue' },
-        { label: 'Ember', href: '/components/ember', meta: 'react · vue' }
+        { label: 'Contents', href: '/components/fullscreen-menu', meta: 'react · vue' },
+        { label: 'Ember', href: '/components/glow-button', meta: 'react · vue' }
       ]
     }
   ]

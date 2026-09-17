@@ -1,0 +1,230 @@
+{
+  "name": "PointerFoilSheen",
+  "slug": "pointer-foil-sheen",
+  "tier": 1,
+  "description": "A hot-foil stamp on paper, raked by the light your cursor carries",
+  "category": "pointer",
+  "tags": [
+    "shader",
+    "webgl2",
+    "pointer",
+    "specular",
+    "print",
+    "paper",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "WebGL2 for gl_VertexID; there is no WebGL1 fallback and none is planned",
+      "Pointer-driven, never pointer-dependent. With no cursor the light orbits on its own, so it works on touch and under reduced motion"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 2.2,
+    "contexts": 1,
+    "notes": [
+      "Five evaluations of the height field per pixel: one for the mask, four for the gradient",
+      "No render targets, no textures, no allocations per frame"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/pointer-foil-sheen/core.ts",
+      "to": "src/beamish/effects/pointer-foil-sheen/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/pointer-foil-sheen/adapters/react.tsx",
+      "to": "src/beamish/effects/pointer-foil-sheen/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/pointer-foil-sheen/adapters/vue.ts",
+      "to": "src/beamish/effects/pointer-foil-sheen/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "paper": {
+      "type": "color",
+      "default": "#fbfaf4",
+      "description": "The paper the stamp is pressed into. Match it to your page background or the panel reads as a pasted-in rectangle."
+    },
+    "foilLow": {
+      "type": "color",
+      "default": "#7a3410",
+      "description": "The foil where the light does not reach. Metal takes almost all its colour from the highlight, so this wants to be genuinely dark."
+    },
+    "foilHigh": {
+      "type": "color",
+      "default": "#f0b070",
+      "description": "The foil at the highlight. Copper by default; a pale grey here gives silver, a yellow gives gold."
+    },
+    "spokes": {
+      "type": "number",
+      "default": 12,
+      "min": 3,
+      "max": 40,
+      "step": 1,
+      "sensible": [
+        8,
+        18
+      ],
+      "description": "Points on the rosette. Above about 24 the petals are narrower than the relief and it turns into a disc."
+    },
+    "scale": {
+      "type": "number",
+      "default": 0.86,
+      "min": 0.3,
+      "max": 1.6,
+      "step": 0.01,
+      "sensible": [
+        0.7,
+        1.1
+      ],
+      "description": "Size of the stamp relative to the shorter side of the element."
+    },
+    "relief": {
+      "type": "number",
+      "default": 0.38,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [
+        0.35,
+        0.7
+      ],
+      "description": "Depth of the brushed relief. At zero the foil is a flat shape that changes brightness, which reads as plastic rather than metal."
+    },
+    "sharpness": {
+      "type": "number",
+      "default": 0.42,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [
+        0.3,
+        0.65
+      ],
+      "description": "How tight the highlight is. High is a mirror finish, low is a brushed one."
+    },
+    "iridescence": {
+      "type": "number",
+      "default": 0.3,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [
+        0.15,
+        0.45
+      ],
+      "description": "Spectral shift at grazing angles. Past about 0.6 it stops being a foil and becomes a hologram."
+    },
+    "lightHeight": {
+      "type": "number",
+      "default": 0.42,
+      "min": 0.05,
+      "max": 2,
+      "step": 0.01,
+      "sensible": [
+        0.3,
+        0.7
+      ],
+      "description": "How far above the surface the cursor's light sits. Low is a hard raking light that sweeps a narrow band; high floods the whole stamp at once."
+    },
+    "grain": {
+      "type": "number",
+      "default": 0.3,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Paper tooth. Static by design. Animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent."
+    },
+    "period": {
+      "type": "number",
+      "default": 5,
+      "min": 2,
+      "max": 60,
+      "step": 1,
+      "unit": "s",
+      "sensible": [
+        5,
+        20
+      ],
+      "description": "Seconds for one orbit of the idle light, which is the motion used when no pointer is present. Exactly periodic, so the loop has no seam."
+    },
+    "reducedMotionTime": {
+      "type": "number",
+      "default": 0.9,
+      "min": 0,
+      "max": 60,
+      "step": 0.1,
+      "unit": "s",
+      "description": "The single frame shown when the user prefers reduced motion. Pick a light angle where the relief is legible."
+    }
+  },
+  "instruction": "move the cursor. it carries the light",
+  "oneShot": false,
+  "cursor": {
+    "duration": 5,
+    "keys": [
+      {
+        "t": 0,
+        "x": 0.86,
+        "y": 0.5
+      },
+      {
+        "t": 0.625,
+        "x": 0.755,
+        "y": 0.641
+      },
+      {
+        "t": 1.25,
+        "x": 0.5,
+        "y": 0.7
+      },
+      {
+        "t": 1.875,
+        "x": 0.245,
+        "y": 0.641
+      },
+      {
+        "t": 2.5,
+        "x": 0.14,
+        "y": 0.5
+      },
+      {
+        "t": 3.125,
+        "x": 0.245,
+        "y": 0.359
+      },
+      {
+        "t": 3.75,
+        "x": 0.5,
+        "y": 0.3
+      },
+      {
+        "t": 4.375,
+        "x": 0.755,
+        "y": 0.359
+      },
+      {
+        "t": 5,
+        "x": 0.86,
+        "y": 0.5
+      }
+    ]
+  },
+  "record": {
+    "duration": 5,
+    "fps": 30,
+    "posterAt": 1.6
+  }
+}

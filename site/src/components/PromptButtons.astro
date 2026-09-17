@@ -7,7 +7,7 @@
  * The pills are Ember's own stylesheet, not a copy of it. If the button on this
  * page and the button in the prompt ever diverge, the site is lying.
  */
-import '@items/components/ember/styles.css'
+import '@items/components/glow-button/styles.css'
 
 type Props = {
   slug: string
@@ -27,10 +27,10 @@ const embed = (text: string) => JSON.stringify(text).replaceAll('</', '<\\/')
 ---
 
 <div class="prompt-buttons flex flex-wrap items-center gap-3" data-slug={slug}>
-  <button type="button" class="beamish-ember beamish-ember--solid" data-copy="linked">
+  <button type="button" class="beamish-glow-button beamish-glow-button--solid" data-copy="linked">
     <span data-label>Copy prompt</span>
   </button>
-  <button type="button" class="beamish-ember beamish-ember--quiet" data-copy="inlined">
+  <button type="button" class="beamish-glow-button beamish-glow-button--quiet" data-copy="inlined">
     <span data-label>Copy with code inlined</span>
   </button>
 
