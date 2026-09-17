@@ -182,7 +182,7 @@ backdrops. Codrops publishes cameras, meshes, depth maps and physics every week.
 | Swell | Interactive Wave Propagation Cube Grid, Jul 2026 | 1 | **done** |
 | Threshold | Persistent Page Transitions with WebGPU, Jun 2026 | 2 | Page transitions with a scene that survives navigation. **Recast** to WebGL2: WebGPU is Chrome-only for our purposes |
 | Teletype | Shape-Aware ASCII Renderer, Sep 2026 | 2 | Every cell picks the glyph whose shape fits, not the one whose brightness matches. Far better than the usual luminance ramp. **Recast**: ink on paper, not green on black |
-| Vellum | Infinite Liquid Glass Grid, Sep 2026 | 2 | Reinforces the Vellum entry above. Their glass becomes our translucent paper |
+| Vellum | Infinite Liquid Glass Grid, Sep 2026 | 2 | **done**. Their glass became our translucent paper, and the multiply blend turned out to be the whole design |
 | Facet | Procedural Geometry with Three.js and WebGPU, Aug 2026 | 3 | Surface picking and live procedural geometry. WebGPU, so it waits |
 | Vitrine | Scroll-Driven 3D Gallery on a Blender Camera Path, Jul 2026 | 3 | Needs an authored camera path and a model, which is a different kind of maintenance |
 | skip | Real-Time Datamosh, Sep 2026 | 3 | **skip**. Codec glitch aesthetics, dark by nature, and nothing to do with paper |
@@ -207,9 +207,12 @@ still life and the field, so it stretches the runtime rather than repeating it.
 Promote it out of Backdrops. As a 2D shader it was a P1 nobody would have
 noticed; as a lit relief it is a headline item.
 
-**Vellum** is next, from the Endless Glass Xylophone piece. Their glass is faked
-entirely in the shader with no refraction pass, which is the technique worth
-taking: translucent paper wants the same trick and costs the same nothing.
+**Vellum** is done. Their glass is faked entirely in the shader with no
+refraction pass, which was the technique worth taking, and translucent paper
+wanted the same trick for the same nothing. What was not obvious in advance is
+that multiplying rather than compositing makes the blend order-independent,
+which is what let the whole pile live in one InstancedMesh. That is the reusable
+finding, not the paper.
 
 **Vitrine** third, and only if a scroll-driven 3D gallery earns its keep. It
 needs an authored camera path, which is a different kind of maintenance from
