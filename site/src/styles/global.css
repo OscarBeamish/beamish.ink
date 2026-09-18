@@ -240,9 +240,9 @@
   .item {
     display: grid;
     grid-template-columns:
-      [full-start] minmax(1.25rem, 1fr)
-      [content-start] min(70ch, 100% - 2.5rem)
-      [content-end] minmax(1.25rem, 1fr)
+      [full-start] minmax(var(--gutter), 1fr)
+      [content-start] min(70ch, 100% - (var(--gutter) * 2))
+      [content-end] minmax(var(--gutter), 1fr)
       [full-end];
   }
 
@@ -256,22 +256,16 @@
      * sides of a 27-inch monitor reads as a background, not as an exhibit.
      */
     grid-column: full;
-    width: min(1180px, 100% - 2.5rem);
     margin-inline: auto;
   }
 
-  @media (min-width: 768px) {
-    .item {
-      grid-template-columns:
-        [full-start] minmax(2rem, 1fr)
-        [content-start] min(70ch, 100% - 4rem)
-        [content-end] minmax(2rem, 1fr)
-        [full-end];
-    }
-
-    .item__wide {
-      width: min(1180px, 100% - 4rem);
-    }
+  /*
+   * Never wider than the gutter allows. The cap is what stops a demo panel
+   * spanning a 27-inch monitor, but below that width it has to fall back to the
+   * spine or it stops lining up with the nav above it.
+   */
+  .item__wide {
+    width: min(1180px, 100% - (var(--gutter) * 2));
   }
 
   .item dd {
@@ -330,7 +324,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem calc(1.25rem - 0.5rem);
+  /*
+   * The gutter less the padding on each control, so the first letter of the
+   * wordmark lands on column one rather than a hit area inside it. Matching the
+   * padding boxes instead leaves the text visibly indented, which is the part
+   * anybody actually sees.
+   */
+  padding: 1rem calc(var(--gutter) - 0.5rem);
   font-size: 1rem;
 }
 
@@ -441,10 +441,9 @@
   border-style: solid;
 }
 
-/* Matches the pages, which go from px-5 to md:px-8 at this width. */
 @media (min-width: 48rem) {
   .site-nav__row {
-    padding: 1.5rem calc(2rem - 0.5rem);
+    padding-block: 1.5rem;
   }
 }
 
@@ -510,4 +509,65 @@
 .item-card:focus-visible::before {
   border-color: var(--label-1);
   border-style: solid;
+}
+
+/* --- the grid ------------------------------------------------------------ */
+
+/*
+ * One twelve-column grid, and one gutter, for the whole site.
+ *
+ * The gutter is a variable rather than a number repeated in four places. The nav
+ * reads it, every section reads it, and the item page's reading column reads it,
+ * which is the only way the wordmark and an h1 two hundred pixels below it stay
+ * on the same line when the breakpoint changes.
+ */
+:root {
+  --gutter: 1rem;
+  --column-gap: 1.25rem;
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --gutter: 3.5rem;
+    --column-gap: 1.5rem;
+  }
+}
+
+.spine {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--column-gap);
+  padding-inline: var(--gutter);
+}
+
+/*
+ * Anything in the grid without an explicit span fills the row.
+ *
+ * The grid default is one column, which for a paragraph is a twelfth of the
+ * page and about two characters wide. Adding the grid broke three sections that
+ * way, all of which built fine and passed review, because a column of single
+ * words is valid layout as far as anything automated is concerned.
+ *
+ * It has to live in a layer. Specificity is the wrong lever here: unlayered CSS
+ * beats layered CSS whatever its specificity, so as a plain rule at the end of
+ * this file it outranked every col-span utility and pinned all of them to full
+ * width. Even :where(), which carries no specificity at all, still won. In
+ * `components` the utilities layer comes later and takes precedence, which is
+ * what makes this a default rather than an override.
+ */
+@layer components {
+  :where(.spine) > * {
+    grid-column: 1 / -1;
+  }
+}
+
+/*
+ * A nested grid inside a full-width child of the spine. Its columns line up
+ * with the outer ones because it inherits the same count and the same gap, so
+ * a col-start inside it still means the same vertical line on the page.
+ */
+.subgrid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--column-gap);
 }

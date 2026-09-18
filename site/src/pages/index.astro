@@ -16,25 +16,25 @@ const groups = CATEGORY_ORDER.map(category => ({
   title="Beamish: web effects and components for AI agents"
   description="Three.js scenes, WebGL shaders and interface components. Nothing to install: copy a prompt, paste it into your AI agent, and it writes the code."
 >
-  <section class="px-5 pt-32 pb-16 md:px-8 md:pt-44">
+  <section class="spine pt-32 pb-16 md:pt-44">
     {/*
       A two-line lockup rather than one long string. Left to wrap on its own,
       "components for" put a preposition at the end of a line at every width
       tested. Each line is now a whole phrase, so the only break left is inside
       "Effects and components" on the narrowest screens.
     */}
-    <h1 class="text-[clamp(2.3rem,7vw,5rem)] leading-[0.95]">
+    <h1 class="col-span-12 text-[clamp(2.3rem,7vw,5rem)] leading-[0.95] lg:col-span-10">
       <span class="block">Effects and components</span>
       <span class="text-l3 block">for AI agents.</span>
     </h1>
-    <p class="text-l2 mt-8 max-w-[54ch] text-[1rem]">
+    <p class="text-l2 col-span-12 mt-8 text-[1rem] sm:col-span-9 lg:col-span-6">
       Three.js scenes, WebGL shaders, text animations and interface components.
       There is nothing to install. Pick one, press Copy prompt, and paste it into
       Claude Code or Cursor. Your agent fetches the source and writes it into your
       project.
     </p>
 
-    <ol class="text-l2 mt-10 grid max-w-[54ch] gap-3 text-[0.9rem]">
+    <ol class="text-l2 col-span-12 mt-10 grid gap-3 text-[0.9rem] sm:col-span-9 lg:col-span-5">
       <li class="border-line flex gap-4 border-t pt-3">
         <span class="tag flex-none pt-[0.15rem]">01</span>
         <span>Pick an effect and watch the video.</span>
@@ -49,28 +49,40 @@ const groups = CATEGORY_ORDER.map(category => ({
       </li>
     </ol>
 
-    <p class="tag mt-10">
+    <p class="tag col-span-12 mt-10">
       {items.length} items · MIT · works with Claude Code, Cursor, Copilot,
       Windsurf
     </p>
   </section>
 
-  <section id="catalogue" class="px-5 pb-16 md:px-8">
+  {/*
+    The cards sit directly in the page grid rather than in a grid of their own
+    inside each category. Nesting one meant a card's left edge was set by its
+    group's width instead of by the page, so the columns drifted out of step
+    with the heading above them at some widths. Fragment, so no wrapper element
+    breaks the grid flow.
+  */}
+  <section id="catalogue" class="spine gap-y-5 pb-16">
     {
-      groups.map(group => (
-        <div class="mb-16">
+      groups.map((group, index) => (
+        <Fragment>
           {/* The blurb is hidden below 640px. At 390px it collided with the
               heading, and it is a nicety rather than information. */}
-          <div class="border-line mb-6 flex items-baseline justify-between gap-6 border-b pb-3">
+          <div
+            class:list={[
+              'border-line col-span-12 flex items-baseline justify-between gap-6 border-b pb-3',
+              index > 0 && 'mt-11'
+            ]}
+          >
             <h2 class="text-[1.05rem]">{CATEGORY_LABELS[group.category]}</h2>
             <p class="tag hidden text-right sm:block">{CATEGORY_BLURBS[group.category]}</p>
           </div>
-          <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {group.items.map(item => (
+          {group.items.map(item => (
+            <div class="col-span-12 sm:col-span-6 lg:col-span-4">
               <ItemCard item={item} />
-            ))}
-          </div>
-        </div>
+            </div>
+          ))}
+        </Fragment>
       ))
     }
   </section>

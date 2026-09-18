@@ -5,6 +5,23 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.7.0, 18 September 2026
+
+### Changed
+
+- The site is laid out on one twelve-column grid with one gutter, after the
+  reference build. The gutter is a variable that the nav, every section and the
+  item page's reading column all read, which is the only way the wordmark and an
+  h1 two hundred pixels below it stay on the same line when the breakpoint
+  changes. Measured: nav and h1 both at 56px on the index and on how-it-works.
+- The catalogue cards sit directly in the page grid rather than in a grid of
+  their own inside each category, so a card's left edge is set by the page
+  rather than by its group.
+- How-it-works uses the reference's label-left, body-offset split for its steps.
+- Catalogue cards keep their video previews. The reference is a portfolio where
+  the work lives behind the link; this is a library of visual effects where the
+  preview is how you decide you want one.
+
 ## v0.6.4, 18 September 2026
 
 ### Changed

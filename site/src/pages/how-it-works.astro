@@ -9,55 +9,68 @@ const items = loadCatalogue()
   title="How it works: Beamish"
   description="Pick an effect, press Copy prompt, paste it into your AI agent. It fetches the source and writes it into your project. No package, no CLI."
 >
-  <article class="mx-auto max-w-[62ch] px-5 pt-32 pb-16 md:px-8 md:pt-44">
-    <h1 class="text-[clamp(2rem,6vw,3.4rem)] leading-[1]">How it works</h1>
+  <article class="spine pt-32 pb-16 md:pt-44">
+    <h1 class="col-span-12 text-[clamp(2rem,6vw,3.4rem)] leading-[1] lg:col-span-8">
+      How it works
+    </h1>
 
-    <p class="text-l2 mt-6 text-[1rem]">
+    <p class="text-l2 col-span-12 mt-6 text-[1rem] sm:col-span-9 lg:col-span-6">
       There is no package to install and no CLI to run. You copy a prompt and your
       agent does the work.
     </p>
 
-    <ol class="mt-12 grid gap-10">
-      <li>
-        <p class="tag">Step 01</p>
+    {/*
+      Label left, body offset to column five, which is the reference's own
+      split. At a reading measure the step number and its prose fought for the
+      same line; separated, the numbers make a column you can scan.
+    */}
+    <ol class="subgrid-12 col-span-12 mt-12 gap-y-10">
+      <li class="subgrid-12 col-span-12">
+        <p class="tag col-span-12 sm:col-span-3">Step 01</p>
+        <div class="col-span-12 sm:col-span-8 sm:col-start-5 lg:col-span-7">
         <h2 class="mt-2 text-[1.2rem]">Pick an effect</h2>
-        <p class="text-l2 mt-2 text-[0.9rem]">
-          Every item has a video, a live demo you can interact with, and a full
-          table of its options. There are {items.length} of them.
-        </p>
+            <p class="text-l2 mt-2 text-[0.9rem]">
+              Every item has a video, a live demo you can interact with, and a full
+              table of its options. There are {items.length} of them.
+            </p>
+        </div>
       </li>
 
-      <li>
-        <p class="tag">Step 02</p>
+      <li class="subgrid-12 col-span-12">
+        <p class="tag col-span-12 sm:col-span-3">Step 02</p>
+        <div class="col-span-12 sm:col-span-8 sm:col-start-5 lg:col-span-7">
         <h2 class="mt-2 text-[1.2rem]">Press Copy prompt</h2>
-        <p class="text-l2 mt-2 text-[0.9rem]">
-          You get roughly 10KB of instructions: two source URLs to fetch, every
-          option with its default and the range that actually looks good, wiring
-          for React, Vue and plain HTML, cleanup and SSR notes, and the three
-          mistakes most likely to be made with that particular effect.
-        </p>
-        <p class="text-l2 mt-3 text-[0.9rem]">
-          If your agent cannot reach the web, the second button gives the same
-          instructions with the source pasted in.
-        </p>
+            <p class="text-l2 mt-2 text-[0.9rem]">
+              You get roughly 10KB of instructions: two source URLs to fetch, every
+              option with its default and the range that actually looks good, wiring
+              for React, Vue and plain HTML, cleanup and SSR notes, and the three
+              mistakes most likely to be made with that particular effect.
+            </p>
+            <p class="text-l2 mt-3 text-[0.9rem]">
+              If your agent cannot reach the web, the second button gives the same
+              instructions with the source pasted in.
+            </p>
+        </div>
       </li>
 
-      <li>
-        <p class="tag">Step 03</p>
+      <li class="subgrid-12 col-span-12">
+        <p class="tag col-span-12 sm:col-span-3">Step 03</p>
+        <div class="col-span-12 sm:col-span-8 sm:col-start-5 lg:col-span-7">
         <h2 class="mt-2 text-[1.2rem]">Paste it into your agent</h2>
-        <p class="text-l2 mt-2 text-[0.9rem]">
-          Claude Code, Cursor, Copilot, Windsurf, or anything else that can read a
-          file and write one. It fetches the source, puts it where your project
-          keeps things, and wires it up to whatever framework you are already
-          using.
-        </p>
+            <p class="text-l2 mt-2 text-[0.9rem]">
+              Claude Code, Cursor, Copilot, Windsurf, or anything else that can read a
+              file and write one. It fetches the source, puts it where your project
+              keeps things, and wires it up to whatever framework you are already
+              using.
+            </p>
+        </div>
       </li>
     </ol>
 
-    <h2 class="border-line mt-16 border-b pb-3 text-[1.05rem]">
+    <h2 class="border-line col-span-12 mt-16 border-b pb-3 text-[1.05rem]">
       Why a prompt and not a package
     </h2>
-    <div class="text-l2 mt-5 grid gap-4 text-[0.9rem]">
+    <div class="text-l2 col-span-12 mt-5 grid gap-4 text-[0.9rem] sm:col-span-9 lg:col-span-7">
       <p>
         A component library has to guess your build, your framework and your
         styling system. It will be wrong about at least one of them, and you spend
@@ -76,8 +89,8 @@ const items = loadCatalogue()
       </p>
     </div>
 
-    <h2 class="border-line mt-16 border-b pb-3 text-[1.05rem]">What you get</h2>
-    <div class="text-l2 mt-5 grid gap-4 text-[0.9rem]">
+    <h2 class="border-line col-span-12 mt-16 border-b pb-3 text-[1.05rem]">What you get</h2>
+    <div class="text-l2 col-span-12 mt-5 grid gap-4 text-[0.9rem] sm:col-span-9 lg:col-span-7">
       <p>
         Two files, usually. The effect itself, and a shared runtime that handles
         the parts everyone gets wrong: capping device pixel ratio, pausing when
@@ -96,8 +109,8 @@ const items = loadCatalogue()
       </p>
     </div>
 
-    <h2 class="border-line mt-16 border-b pb-3 text-[1.05rem]">The name</h2>
-    <p class="text-l2 mt-5 text-[0.9rem]">
+    <h2 class="border-line col-span-12 mt-16 border-b pb-3 text-[1.05rem]">The name</h2>
+    <p class="text-l2 col-span-12 mt-5 text-[0.9rem] sm:col-span-9 lg:col-span-7">
       <em>Beamish</em> is a real English adjective meaning shining brightly, first
       recorded in 1530. It is also my surname.
     </p>
