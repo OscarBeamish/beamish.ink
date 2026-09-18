@@ -117,19 +117,39 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
         a git tag, so what you paste today still works next year.
       </p>
       <p class="text-l3 mt-6 text-[0.7rem] tracking-[0.1em] uppercase">
-        MIT · <a href="https://github.com/OscarBeamish/beamish.ink">GitHub</a> ·
-        <a href="https://oscarbeamish.dev">Oscar Beamish</a>
+        MIT · <a class="dotted-hit" href="https://github.com/OscarBeamish/beamish.ink">GitHub</a> ·
+        <a class="dotted-hit" href="https://oscarbeamish.dev">Oscar Beamish</a>
       </p>
     </footer>
 
     <script>
-      // Lenis drives scroll everywhere on the site. Reduced motion gets the
-      // native scroll instead. A smoothed scroll is still motion the user did not
-      // ask for.
+      /*
+       * Lenis drives scroll everywhere on the site. Reduced motion gets the
+       * native scroll instead: a smoothed scroll is still motion the user did
+       * not ask for.
+       *
+       * `lerp`, not `duration`. They are two different modes. A duration runs a
+       * fixed easing curve to the target, so every flick takes the same time
+       * however far it is going, and a short nudge feels syrupy. A lerp closes
+       * a fraction of the remaining distance per frame, so it is quick to leave
+       * and slow to arrive and the length of the gesture sets the length of the
+       * movement. 0.1 is the reference's value and it is the right one.
+       *
+       * `anchors` because the nav links to /#catalogue, and without it that one
+       * link jumps while every other movement on the site glides.
+       */
       const reduced = matchMedia('(prefers-reduced-motion: reduce)')
       if (!reduced.matches) {
         const { default: Lenis } = await import('lenis')
-        const lenis = new Lenis({ duration: 1.05 })
+        const lenis = new Lenis({
+          lerp: 0.1,
+          smoothWheel: true,
+          syncTouch: true,
+          anchors: true,
+          // The site owns the frame loop below rather than letting Lenis start
+          // a second one of its own.
+          autoRaf: false
+        })
         const raf = (time: number) => {
           lenis.raf(time)
           requestAnimationFrame(raf)

@@ -5,6 +5,21 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.6.4, 18 September 2026
+
+### Changed
+
+- Smooth scroll matches the reference: `lerp: 0.1` rather than
+  `duration: 1.05`. They are two different modes. A duration runs a fixed easing
+  curve to the target, so every flick takes the same time however far it is
+  going and a short nudge feels syrupy. A lerp closes a fraction of the
+  remaining distance per frame, so the length of the gesture sets the length of
+  the movement. Also turns on `anchors`, without which the nav's link to
+  /#catalogue was the one movement on the site that jumped.
+- The dotted rule is now the site's hover idiom rather than the nav's alone.
+  Catalogue cards and footer links take it too. On the cards it is drawn just
+  outside the existing border so the two lines do not stack into one thick one.
+
 ## v0.6.3, 17 September 2026
 
 ### Fixed

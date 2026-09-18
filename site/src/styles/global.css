@@ -383,6 +383,12 @@
  * a real input: on a touch screen it would either never show or stick after a
  * tap, and neither is worth having.
  */
+/*
+ * The dotted rule is the site's hover idiom, not just the nav's. Anything
+ * pressable gets it, which is why the shape of it lives here rather than in the
+ * nav block below.
+ */
+.dotted-hit,
 .site-nav__hit {
   position: relative;
   display: inline-block;
@@ -399,6 +405,7 @@
   white-space: nowrap;
 }
 
+.dotted-hit::before,
 .site-nav__hit::before {
   content: '';
   position: absolute;
@@ -408,17 +415,27 @@
   transition: border-color 0.2s linear;
 }
 
-@media (hover: hover) and (min-width: 64rem) {
+/*
+ * Only where hover is a real input. On a touch screen it would either never
+ * appear or stick after a tap, and neither is worth having.
+ */
+@media (hover: hover) {
+  .dotted-hit:hover::before,
   .site-nav__hit:hover::before {
     border-color: currentColor;
   }
 }
 
+.dotted-hit:focus-visible,
 .site-nav__hit:focus-visible {
   outline: none;
 }
 
-/* Focus gets the same rule, shown rather than hidden behind a hover query. */
+/*
+ * Focus gets the same rule rather than a separate ring, and solid rather than
+ * dotted so it is not mistaken for a hover that will not go away.
+ */
+.dotted-hit:focus-visible::before,
 .site-nav__hit:focus-visible::before {
   border-color: currentColor;
   border-style: solid;
@@ -460,4 +477,37 @@
   .site-nav__links {
     gap: 0.25rem;
   }
+}
+
+/*
+ * The catalogue card takes the same rule, drawn just outside its own edge so
+ * the two lines do not sit on top of each other and read as one thick border.
+ */
+.item-card {
+  position: relative;
+}
+
+.item-card::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border: 2px dotted transparent;
+  border-radius: 4px;
+  pointer-events: none;
+  transition: border-color 0.2s linear;
+}
+
+@media (hover: hover) {
+  .item-card:hover::before {
+    border-color: var(--label-3);
+  }
+}
+
+.item-card:focus-visible {
+  outline: none;
+}
+
+.item-card:focus-visible::before {
+  border-color: var(--label-1);
+  border-style: solid;
 }
