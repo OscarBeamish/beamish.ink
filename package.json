@@ -1,7 +1,7 @@
 {
   "name": "beamish",
   "private": true,
-  "version": "0.7.0",
+  "version": "0.7.1",
   "type": "module",
   "packageManager": "pnpm@10.29.2",
   "engines": {
@@ -9,6 +9,7 @@
   },
   "scripts": {
     "dev": "pnpm --filter @beamish/site dev",
+    "browsers": "playwright install chromium",
     "build": "pnpm generate && pnpm --filter @beamish/site build",
     "preview": "pnpm --filter @beamish/site preview",
     "generate": "tsx tools/generate/index.ts",

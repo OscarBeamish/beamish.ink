@@ -18,10 +18,15 @@ type Props = {
 const { slug, linked, inlined } = Astro.props
 
 /*
- * The prompts contain wiring examples, and those examples contain `</script>`.
- * Inside a <script> element the parser closes on that sequence wherever it
- * appears, string literal or not, so it has to be escaped. Nothing else about the
- * JSON changes, and JSON.parse reads `<\/` as `</`.
+ * The prompts contain wiring examples, and those examples contain a closing
+ * script tag. Inside a script element the parser closes on that sequence
+ * wherever it appears, string literal or not, so it has to be escaped. Nothing
+ * else about the JSON changes, and JSON.parse reads `<\/` as `</`.
+ *
+ * This comment is escaped for the same reason, which is not pedantry: written
+ * out plainly it ended the frontmatter early and Vite's dependency scanner
+ * failed to parse the file. The production build never hit it, and neither did
+ * a dev server with a warm cache, so it only appeared on a fresh clone.
  */
 const embed = (text: string) => JSON.stringify(text).replaceAll('</', '<\\/')
 ---

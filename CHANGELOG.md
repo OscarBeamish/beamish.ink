@@ -5,6 +5,24 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.7.1, 19 September 2026
+
+### Fixed
+
+- `pnpm dev` failed on a fresh clone. A comment in PromptButtons.astro
+  explaining why a closing script tag has to be escaped contained one, unescaped,
+  which ended the Astro frontmatter early and broke Vite's dependency scanner.
+  The production build never touched that path and neither did a dev server with
+  a warm Vite cache, so it only appeared on a machine that had never run the
+  project. Found by cloning from GitHub and building it.
+
+### Added
+
+- `pnpm browsers`, and a "Running it locally" section in the README. Playwright's
+  browsers live in a cache outside the project and this repo blocks post-install
+  scripts, so `pnpm install` does not fetch them and both `pnpm test` and
+  `pnpm review` fail on a new machine until it is run once.
+
 ## v0.7.0, 18 September 2026
 
 ### Changed

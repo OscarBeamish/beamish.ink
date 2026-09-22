@@ -7,6 +7,61 @@ is nothing to install. Browse [beamish.ink](https://beamish.ink), pick one, pres
 **Copy prompt**, and paste the result into Claude Code or Cursor. Your agent
 fetches the source from this repo and writes it into your project.
 
+## Running it locally
+
+```bash
+git clone https://github.com/OscarBeamish/beamish.ink.git
+cd beamish.ink
+
+# Node 22.14.0. The version is in .nvmrc, so `nvm use` reads it.
+nvm use
+
+# pnpm 10.29.2, pinned in package.json under packageManager.
+corepack enable
+pnpm install
+
+pnpm dev
+```
+
+That is enough for the site. It opens on port 4321 and the first start takes a
+few seconds longer than the rest, because Vite scans the dependency tree once.
+
+**Before `pnpm test` or `pnpm review`, run this once per machine:**
+
+```bash
+pnpm browsers
+```
+
+Both drive a real Chromium. Playwright is a dependency but its browsers are not:
+they live in a cache outside the project, and this repo blocks post-install
+scripts, so `pnpm install` does not fetch them. Without it both commands fail
+with `Executable doesn't exist at …`. It is about 150MB, once.
+
+Nothing else is needed. There are no environment variables to set: `.env.example`
+documents one optional override and the site runs without it.
+
+### What is not in the repo
+
+Four things are generated rather than committed, and all four are rebuilt on
+demand, so a fresh clone is never missing anything it cannot make:
+
+| Path | Made by |
+| --- | --- |
+| `node_modules/` | `pnpm install` |
+| `effects/*/demo.bundle.js` | `pnpm build:items`, and by the tests |
+| `site/public/media`, `site/public/fonts` | `sync-public`, on `predev` and `prebuild` |
+| `site/dist/` | `pnpm build` |
+
+The recorded videos in `effects/*/media` **are** committed. They take a GPU and
+several minutes to regenerate, which is not a reasonable thing to ask of a fresh
+clone.
+
+### If the dev server binds to IPv6
+
+Astro prints `http://localhost:4321`. On Windows that can resolve to `::1` only,
+so anything scripted against `127.0.0.1` gets a connection refused while the
+browser is perfectly happy. Use `localhost`, or `--host 127.0.0.1` to force it.
+
 ## Why a prompt and not a package
 
 A component library has to guess your build, your framework and your styling
