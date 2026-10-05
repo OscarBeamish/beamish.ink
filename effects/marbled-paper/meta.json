@@ -1,0 +1,155 @@
+{
+  "name": "MarbledPaper",
+  "slug": "marbled-paper",
+  "tier": 1,
+  "description": "Ink floated on size, dropped and then raked, the way marbled endpapers are made",
+  "category": "backdrops",
+  "tags": [
+    "webgl",
+    "shader",
+    "marbling",
+    "paper",
+    "ink",
+    "backdrop",
+    "hero",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "Every marbling operation has a closed-form inverse, so each pixel runs the session backwards instead of the tray being simulated forwards. One pass, no render targets, no feedback",
+      "The drop loop runs backwards and stops at the first drop that contains the point, so raising the count costs much less than it looks like it should",
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 2.0,
+    "contexts": 1,
+    "notes": [
+      "Measured 0.42ms at one drop and 0.64ms at seventy-two, at 1440 by 900 on an RTX 3080, timed with a readPixels sync because without one you are timing the dispatch rather than the shader",
+      "Cost rises with the drop count but far less than linearly: the loop breaks the moment a drop claims the point, so most pixels walk only the last few. The pixels that walk the whole list are the paper margins",
+      "One inverse-drop per step, which is a dot product and a square root. Nothing is uploaded per frame and only uniforms change"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/marbled-paper/core.ts",
+      "to": "src/beamish/effects/marbled-paper/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/marbled-paper/adapters/react.tsx",
+      "to": "src/beamish/effects/marbled-paper/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/marbled-paper/adapters/vue.ts",
+      "to": "src/beamish/effects/marbled-paper/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "paper": {
+      "type": "color",
+      "default": "#fbfaf4",
+      "description": "The size in the tray, and what shows wherever no ink reached. Match it to the page behind or the margins read as a panel."
+    },
+    "ink": {
+      "type": "color",
+      "default": "#36362f",
+      "description": "The main ink. Roughly two thirds of the drops are this, or this thinned toward the paper, which is what a second pass of one colour looks like once the first has spread."
+    },
+    "accent": {
+      "type": "color",
+      "default": "#c44400",
+      "description": "The second ink, on roughly a third of the drops."
+    },
+    "drops": {
+      "type": "number",
+      "default": 44,
+      "min": 1,
+      "max": 72,
+      "step": 1,
+      "description": "How many drops go into the tray. Each one pushes every earlier one outward, so this sets the density of the rings rather than just the amount of ink."
+    },
+    "scale": {
+      "type": "number",
+      "default": 1,
+      "min": 0.2,
+      "max": 4,
+      "step": 0.05,
+      "description": "How large the pattern reads. Higher zooms in on fewer, bigger shapes; lower pulls back and shows more of the tray, down to the paper margin round the edge of the ink."
+    },
+    "spread": {
+      "type": "number",
+      "default": 0.95,
+      "min": 0.1,
+      "max": 2,
+      "step": 0.05,
+      "description": "How far the drops are scattered. Low stacks them into a single rosette, which is the stone pattern; high covers the tray."
+    },
+    "size": {
+      "type": "number",
+      "default": 0.17,
+      "min": 0.05,
+      "max": 0.8,
+      "step": 0.01,
+      "description": "How big each drop is before anything pushes it. The ink conserves area, so the patch it finally covers is the sum of the drop areas: halving this and quadrupling the count gives the same coverage at four times the detail, which is the knob you actually want."
+    },
+    "rake": {
+      "type": "number",
+      "default": 0.25,
+      "min": 0,
+      "max": 0.6,
+      "step": 0.01,
+      "description": "How far the comb pulls the ink across. Zero leaves the drops as plain rings, which is a stone marble and a perfectly good thing to stop at."
+    },
+    "comb": {
+      "type": "number",
+      "default": 9,
+      "min": 0.5,
+      "max": 30,
+      "step": 0.5,
+      "description": "Teeth per unit across the comb. Higher is a finer comb and a tighter zigzag."
+    },
+    "swirl": {
+      "type": "number",
+      "default": 0.12,
+      "min": 0,
+      "max": 0.4,
+      "step": 0.01,
+      "description": "A second comb drawn at right angles to the first. Two passes crossed is how a gel-git pattern is made; leave it at zero for a single-direction nonpareil."
+    },
+    "grain": {
+      "type": "number",
+      "default": 0.5,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Paper tooth over the whole thing."
+    },
+    "period": {
+      "type": "number",
+      "default": 12,
+      "min": 2,
+      "max": 120,
+      "step": 1,
+      "description": "Seconds for one pass of the comb. Both combs run whole multiples of the same angle, so the pattern returns to exactly where it started and the loop is seamless. Behind content, raise it."
+    }
+  },
+  "instruction": "ambient, watch the comb draw through",
+  "oneShot": false,
+  "record": {
+    "duration": 12,
+    "fps": 30,
+    "posterAt": 4,
+    "crf": 32,
+    "webmCrf": 46
+  }
+}

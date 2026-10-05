@@ -71,7 +71,7 @@ dark-canvas assumption, so most entries here are recasts rather than ports.
 | --- | --- | --- | --- |
 | Overprint | Halftone Reveal, Dither | 1 | **done** |
 | Sundial | nothing comparable | 1 | **done**. Real 3D is the thing they do not have |
-| Marbling | Liquid Chrome, Ferrofluid | 1 | Paper marbling. Two of theirs, one of ours, and ours is paper-native |
+| MarbledPaper | Liquid Chrome, Ferrofluid | 1 | **done**. Real marbling: every tray operation has a closed-form inverse, so each pixel runs the session backwards |
 | Guilloche | Waves, Line Waves, Sliced Waves | 1 | The engraved wave pattern on a banknote. Three of theirs, one of ours |
 | Stipple | Dot Grid, Dot Field | 1 | |
 | Contour | Topography | 1 | **done**, as a lit relief rather than a flat shader |

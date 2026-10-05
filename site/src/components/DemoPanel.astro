@@ -94,7 +94,8 @@ const { slug, tier, instruction, oneShot } = Astro.props
     'guilloche-lines': () => import('@items/effects/guilloche-lines/core'),
     'translucent-sheets': () => import('@items/effects/translucent-sheets/core'),
     'scroll-slideshow': () => import('@items/effects/scroll-slideshow/core'),
-    'scroll-warp-image': () => import('@items/effects/scroll-warp-image/core')
+    'scroll-warp-image': () => import('@items/effects/scroll-warp-image/core'),
+    'marbled-paper': () => import('@items/effects/marbled-paper/core')
   }
 
   const COMPONENTS: Record<string, () => Promise<{ mount(el: HTMLElement): Mounted }>> = {
