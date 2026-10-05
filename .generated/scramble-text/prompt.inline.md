@@ -845,7 +845,7 @@ rather than sixty separate characters.
 finds.
 
 ```html
-<h1 id="headline">Come to my arms, my beamish boy</h1>
+<h1 id="headline">A headline sits here</h1>
 
 <script type="module">
   import { createScrambleText } from './beamish/effects/scramble-text/core.js'
@@ -900,7 +900,7 @@ onBeforeUnmount(() => sort?.destroy())
 </script>
 
 <template>
-  <h1 ref="host">Come to my arms, my beamish boy</h1>
+  <h1 ref="host">A headline sits here</h1>
 </template>
 ```
 

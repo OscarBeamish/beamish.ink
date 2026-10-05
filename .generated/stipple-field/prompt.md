@@ -154,7 +154,7 @@ as the second argument to the create function; anything omitted takes its defaul
 | `grain` | number | `0.4` | 0 to 1 | Paper tooth under the marks. |
 | `touch` | number | `0.65` | 0 to 1 | How much tone the cursor works up under itself. Tone is how many marks there are, so this is the hand adding marks, not a light being shone on the drawing. Zero leaves the field ambient. |
 | `reach` | number | `0.45` | 0.05 to 1.5 | How far the hand reaches, as a share of the short side. The falloff is a Gaussian and has no edge to find, so this is where it has mostly faded rather than where it stops. |
-| `period` | number | `18` | 2 to 120 | Seconds for one loop of the drift. The tone field travels a closed circle through noise space, so it returns to exactly where it began and the loop is seamless. |
+| `period` | number | `36` | 2 to 120 | Seconds for one loop of the drift. The tone field travels a closed circle through noise space, so it returns to exactly where it began and the loop is seamless. Slow on purpose: the marks should seem to be settling rather than moving. |
 
 ## 5. Cleanup and SSR
 

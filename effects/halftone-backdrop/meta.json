@@ -149,7 +149,7 @@
     },
     "period": {
       "type": "number",
-      "default": 5,
+      "default": 30,
       "min": 2,
       "max": 120,
       "step": 1,
@@ -158,7 +158,7 @@
         5,
         25
       ],
-      "description": "Seconds for one full loop. The animation is exactly periodic over this. The default is 5 so that the preview video is a whole cycle. Raise it to 15 or 25 for a page background you want to forget is moving."
+      "description": "Seconds for one full loop. The animation is exactly periodic over this. Slow on purpose: the plates should drift apart over half a minute, which reads as a press settling rather than as something happening."
     },
     "reducedMotionTime": {
       "type": "number",
@@ -173,8 +173,8 @@
   "instruction": "ambient, nothing to do",
   "oneShot": false,
   "record": {
-    "duration": 5,
-    "fps": 30,
+    "duration": 30,
+    "fps": 15,
     "posterAt": 2.05,
     "crf": 32,
     "webmCrf": 47

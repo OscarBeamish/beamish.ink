@@ -70,7 +70,7 @@ export const marbledPaperDefaults: MarbledPaperOptions = {
   comb: 9,
   swirl: 0.18,
   grain: 0.5,
-  period: 24,
+  period: 48,
   reducedMotionTime: 3
 }
 

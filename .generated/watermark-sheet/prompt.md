@@ -153,7 +153,7 @@ as the second argument to the create function; anything omitted takes its defaul
 | `deviceSize` | number | `0.4` | 0.05 to 0.6 | Size of the device, as a share of the short side. |
 | `angle` | number | `4` | -45 to 45 | Angle of the mould to the frame. A few degrees off square, because a sheet is not laid down obediently aligned to anything. |
 | `grain` | number | `0.35` | 0 to 1 | Paper tooth over the whole thing. |
-| `period` | number | `16` | 4 to 180 | Seconds for one slow tilt against the light. Nothing moves on the sheet; the sheet moves. A closed orbit, so it returns to exactly where it began. |
+| `period` | number | `40` | 4 to 180 | Seconds for one slow tilt against the light. Nothing moves on the sheet; the sheet moves. A closed orbit, so it returns to exactly where it began, and slow enough that nobody catches it at it. |
 
 ## 5. Cleanup and SSR
 

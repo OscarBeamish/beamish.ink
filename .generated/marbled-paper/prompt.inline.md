@@ -681,7 +681,7 @@ export const marbledPaperDefaults: MarbledPaperOptions = {
   comb: 9,
   swirl: 0.18,
   grain: 0.5,
-  period: 24,
+  period: 48,
   reducedMotionTime: 3
 }
 
@@ -1179,7 +1179,7 @@ as the second argument to the create function; anything omitted takes its defaul
 | `comb` | number | `9` | 0.5 to 30 | Teeth per unit across the comb. Higher is a finer comb and a tighter zigzag. |
 | `swirl` | number | `0.18` | 0 to 0.4 | A second comb drawn at right angles to the first. Two passes crossed is how a gel-git pattern is made; leave it at zero for a single-direction nonpareil. |
 | `grain` | number | `0.5` | 0 to 1 | Paper tooth over the whole thing. |
-| `period` | number | `24` | 2 to 120 | Seconds for one pass of the comb. Both combs run whole multiples of the same angle, so the pattern returns to exactly where it started and the loop is seamless. Behind content, raise it. |
+| `period` | number | `48` | 2 to 120 | Seconds for one pass of the comb. Both combs run whole multiples of the same angle, so the pattern returns to exactly where it started and the loop is seamless. Slow on purpose: a comb you can watch crossing the tray is the loudest thing on the page. |
 
 ## 5. Cleanup and SSR
 

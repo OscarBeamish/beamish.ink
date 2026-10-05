@@ -163,7 +163,8 @@ as the second argument to the create function; anything omitted takes its defaul
 | `azimuth` | number | `38` | 0 to 360 deg (looks right between 20 and 70) | Sun direction around the compass. Convention on a printed map is light from the north west, which is about 315. |
 | `tilt` | number | `0.72` | 0 to 1 (looks right between 0.3 and 0.7) | Camera height. Zero is down on the deck with a horizon, one looks straight down at a map. The interesting ground is in between. |
 | `zoom` | number | `1.3` | 0.3 to 2 (looks right between 0.45 and 0.8) | How much of the frame the land fills. |
-| `period` | number | `6` | 4 to 120 s (looks right between 6 and 40) | Seconds for one loop of the morph. The land travels a closed orbit through noise space and returns exactly. The default is 6 so the preview video is a whole cycle; 20 to 40 is right behind a page, where the land should be moving slowly enough that nobody catches it. |
+| `drift` | number | `0.2` | 0 to 1.5 | How far the land travels through noise space on its circuit. Separate from how fast it travels, and the one that matters behind a heading: a slow period still moves the same ground the same distance, and distance is what the eye catches. At 0 the land is fixed and the only thing that moves is nothing. |
+| `period` | number | `36` | 4 to 120 s (looks right between 6 and 40) | Seconds for one loop of the morph. The land travels a closed orbit through noise space and returns exactly. Slow on purpose: ground that visibly moves behind a heading is the fastest way to lose a reader. |
 | `reducedMotionTime` | number | `3` | 0 to 120 s | The single frame shown when the user prefers reduced motion. Any time works here: a still relief is a map, which is a finished thing to look at. |
 
 ## 5. Cleanup and SSR

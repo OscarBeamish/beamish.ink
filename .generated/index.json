@@ -135,8 +135,8 @@
       },
       "period": {
         "type": "number",
-        "default": 5,
-        "description": "Seconds for one full circuit of the sun. The default is 5 so the preview video is a whole cycle. Use 20 to 30 for something you leave running behind a page.",
+        "default": 40,
+        "description": "Seconds for one full circuit of the sun. Slow on purpose: this is meant to sit behind a heading, and the thing that pulls a reader off a headline is movement in the corner of their eye, so the shadows should creep rather than sweep. Below about 15 it reads as a time-lapse.",
         "min": 2,
         "max": 120,
         "step": 1,
@@ -159,9 +159,10 @@
     "instruction": "watch the shadows come round",
     "oneShot": false,
     "record": {
-      "duration": 5,
-      "fps": 30,
-      "posterAt": 1.1
+      "duration": 40,
+      "fps": 12,
+      "posterAt": 1.1,
+      "crf": 30
     },
     "group": "effects",
     "intro": "Sundial is a still life. Seven matte forms stand on paper, lit by one sun that\nmakes a complete circuit over the loop. The forms never move. The shadows are the\nsubject: they lengthen, swing round, cross each other, and arrive back exactly\nwhere they started.\n\nIt is a real three.js scene. A perspective camera, seven meshes, standard\nmaterials, a directional light with a shadow map, and a dim bounce light standing\nin for light coming back off the paper. Not a full-bleed shader pretending to be\nthree-dimensional.\n\nThe paper is never lit. It is the scene background, and the ground plane is a\n`ShadowMaterial` that draws nothing but the shadow. A lit plane picks up the sun\nat a grazing angle and lands around 85% of its own colour, which on warm paper is\na warm grey. This way the paper comes out the colour you asked for.\n\nThe forms sit in the middle and the sun keeps the edges clear, so there is room\nfor a headline over the top. That is what it is for."
@@ -656,8 +657,8 @@
       },
       "period": {
         "type": "number",
-        "default": 6,
-        "description": "Seconds for one turn of the gears. The pattern is exactly periodic over this. The default is 6 so the preview video is a whole turn; 30 to 60 is right behind a page, where the gears should be moving slowly enough that nobody catches them.",
+        "default": 60,
+        "description": "Seconds for one turn of the gears. The pattern is exactly periodic over this. Slow on purpose: a backdrop whose cycle you can follow is a backdrop competing with the page, and at a turn every few seconds the eye starts tracking the rosette instead of reading.",
         "min": 4,
         "max": 180,
         "step": 1,
@@ -680,8 +681,8 @@
     "instruction": "ambient, the gears are turning slowly",
     "oneShot": false,
     "record": {
-      "duration": 6,
-      "fps": 30,
+      "duration": 60,
+      "fps": 15,
       "posterAt": 2.2,
       "crf": 40,
       "webmCrf": 62
@@ -840,8 +841,8 @@
       },
       "period": {
         "type": "number",
-        "default": 5,
-        "description": "Seconds for one full loop. The animation is exactly periodic over this. The default is 5 so that the preview video is a whole cycle. Raise it to 15 or 25 for a page background you want to forget is moving.",
+        "default": 30,
+        "description": "Seconds for one full loop. The animation is exactly periodic over this. Slow on purpose: the plates should drift apart over half a minute, which reads as a press settling rather than as something happening.",
         "min": 2,
         "max": 120,
         "step": 1,
@@ -864,8 +865,8 @@
     "instruction": "ambient, nothing to do",
     "oneShot": false,
     "record": {
-      "duration": 5,
-      "fps": 30,
+      "duration": 30,
+      "fps": 15,
       "posterAt": 2.05,
       "crf": 32,
       "webmCrf": 47
@@ -1586,8 +1587,8 @@
       },
       "period": {
         "type": "number",
-        "default": 24,
-        "description": "Seconds for one pass of the comb. Both combs run whole multiples of the same angle, so the pattern returns to exactly where it started and the loop is seamless. Behind content, raise it.",
+        "default": 48,
+        "description": "Seconds for one pass of the comb. Both combs run whole multiples of the same angle, so the pattern returns to exactly where it started and the loop is seamless. Slow on purpose: a comb you can watch crossing the tray is the loudest thing on the page.",
         "min": 2,
         "max": 120,
         "step": 1
@@ -1596,8 +1597,8 @@
     "instruction": "ambient, watch the comb draw through",
     "oneShot": false,
     "record": {
-      "duration": 24,
-      "fps": 30,
+      "duration": 48,
+      "fps": 15,
       "posterAt": 4,
       "crf": 36,
       "webmCrf": 46
@@ -3525,8 +3526,8 @@
       },
       "period": {
         "type": "number",
-        "default": 18,
-        "description": "Seconds for one loop of the drift. The tone field travels a closed circle through noise space, so it returns to exactly where it began and the loop is seamless.",
+        "default": 36,
+        "description": "Seconds for one loop of the drift. The tone field travels a closed circle through noise space, so it returns to exactly where it began and the loop is seamless. Slow on purpose: the marks should seem to be settling rather than moving.",
         "min": 2,
         "max": 120,
         "step": 1
@@ -3565,8 +3566,8 @@
       ]
     },
     "record": {
-      "duration": 18,
-      "fps": 30,
+      "duration": 36,
+      "fps": 15,
       "posterAt": 5,
       "crf": 34,
       "webmCrf": 48
@@ -3750,10 +3751,18 @@
           0.8
         ]
       },
+      "drift": {
+        "type": "number",
+        "default": 0.2,
+        "description": "How far the land travels through noise space on its circuit. Separate from how fast it travels, and the one that matters behind a heading: a slow period still moves the same ground the same distance, and distance is what the eye catches. At 0 the land is fixed and the only thing that moves is nothing.",
+        "min": 0,
+        "max": 1.5,
+        "step": 0.01
+      },
       "period": {
         "type": "number",
-        "default": 6,
-        "description": "Seconds for one loop of the morph. The land travels a closed orbit through noise space and returns exactly. The default is 6 so the preview video is a whole cycle; 20 to 40 is right behind a page, where the land should be moving slowly enough that nobody catches it.",
+        "default": 36,
+        "description": "Seconds for one loop of the morph. The land travels a closed orbit through noise space and returns exactly. Slow on purpose: ground that visibly moves behind a heading is the fastest way to lose a reader.",
         "min": 4,
         "max": 120,
         "step": 1,
@@ -3776,8 +3785,8 @@
     "instruction": "ambient, watch the land breathe",
     "oneShot": false,
     "record": {
-      "duration": 6,
-      "fps": 30,
+      "duration": 36,
+      "fps": 12,
       "posterAt": 2.4,
       "crf": 29,
       "webmCrf": 44
@@ -4013,7 +4022,8 @@
         "three.js must already be a dependency of the project. It is not bundled",
         "The sheets multiply rather than composite, which is order-independent, so the whole pile is one InstancedMesh and there is no transparency sorting to get wrong",
         "Nothing in the scene can be brighter than the paper. A multiply has no way to add light, so there is no specular highlight and there cannot be one",
-        "No shadow map. Nothing here is opaque enough to cast one"
+        "No shadow map. Nothing here is opaque enough to cast one",
+        "Known limitation: with the grain on and the pile moving, a tenth of a millisecond of movement changes about a fifth of the frame. It is fizz rather than motion and it scales with the sheet count, measured at 0.12 mean for one sheet, 0.66 for four and 2.08 for the default twelve. fibre at 0 removes it, and so does drift at 0. Hashing the grain in screen space instead does not"
       ]
     },
     "perf": {
@@ -4144,10 +4154,18 @@
         "max": 1.4,
         "step": 0.01
       },
+      "drift": {
+        "type": "number",
+        "default": 0.2,
+        "description": "How far each sheet travels on its circuit. Separate from how fast it travels, and the one that matters behind a heading: slowing the period alone moves the same sheets across the same gap. At 0 the pile is still and you have a static collage, which is a perfectly good backdrop.",
+        "min": 0,
+        "max": 1.5,
+        "step": 0.01
+      },
       "period": {
         "type": "number",
-        "default": 12,
-        "description": "Seconds for one loop of the drift. Every sheet travels a closed circle, so the pile returns to exactly where it started and the loop is seamless. Behind content, raise it.",
+        "default": 36,
+        "description": "Seconds for one loop of the drift. Every sheet travels a closed circle, so the pile returns to exactly where it started and the loop is seamless. Slow on purpose: sheets that settle over half a minute read as paper, and sheets that cross the frame in ten seconds read as an animation.",
         "min": 2,
         "max": 60,
         "step": 0.5
@@ -4156,8 +4174,8 @@
     "instruction": "ambient, watch the overlaps build",
     "oneShot": false,
     "record": {
-      "duration": 12,
-      "fps": 30,
+      "duration": 36,
+      "fps": 15,
       "posterAt": 4.5,
       "crf": 34,
       "webmCrf": 44
@@ -4314,8 +4332,8 @@
       },
       "period": {
         "type": "number",
-        "default": 16,
-        "description": "Seconds for one slow tilt against the light. Nothing moves on the sheet; the sheet moves. A closed orbit, so it returns to exactly where it began.",
+        "default": 40,
+        "description": "Seconds for one slow tilt against the light. Nothing moves on the sheet; the sheet moves. A closed orbit, so it returns to exactly where it began, and slow enough that nobody catches it at it.",
         "min": 4,
         "max": 180,
         "step": 1
@@ -4324,8 +4342,8 @@
     "instruction": "ambient, the sheet tilts against the light",
     "oneShot": false,
     "record": {
-      "duration": 16,
-      "fps": 30,
+      "duration": 40,
+      "fps": 15,
       "posterAt": 5,
       "crf": 32,
       "webmCrf": 48

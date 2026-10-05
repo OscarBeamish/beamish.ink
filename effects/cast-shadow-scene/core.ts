@@ -47,7 +47,7 @@ export const castShadowSceneDefaults: CastShadowSceneOptions = {
   shadow: 0.26,
   zoom: 1.2,
   tilt: 0.4,
-  period: 5,
+  period: 40,
   reducedMotionTime: 1.1
 }
 

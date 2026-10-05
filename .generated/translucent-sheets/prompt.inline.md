@@ -18,6 +18,7 @@ Assume you have not seen this library before. Everything you need is below.
 - The sheets multiply rather than composite, which is order-independent, so the whole pile is one InstancedMesh and there is no transparency sorting to get wrong
 - Nothing in the scene can be brighter than the paper. A multiply has no way to add light, so there is no specular highlight and there cannot be one
 - No shadow map. Nothing here is opaque enough to cast one
+- Known limitation: with the grain on and the pile moving, a tenth of a millisecond of movement changes about a fifth of the frame. It is fizz rather than motion and it scales with the sheet count, measured at 0.12 mean for one sheet, 0.66 for four and 2.08 for the default twelve. fibre at 0 removes it, and so does drift at 0. Hashing the grain in screen space instead does not
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -665,6 +666,8 @@ export type TranslucentSheetsOptions = BaseOptions & {
   tilt: number
   /** How much of the frame the stack fills. */
   zoom: number
+  /** How far a sheet travels on its circuit. Separate from how fast. */
+  drift: number
   /** Seconds for one loop of the drift. Exactly periodic over this. */
   period: number
 }
@@ -687,7 +690,8 @@ export const translucentSheetsDefaults: TranslucentSheetsOptions = {
   azimuth: 42,
   tilt: 0.42,
   zoom: 0.62,
-  period: 12,
+  drift: 0.2,
+  period: 36,
   reducedMotionTime: 3
 }
 
@@ -774,6 +778,20 @@ const FRAGMENT = /* glsl */ `
     // the sheet toward no tint at all rather than toward white.
     float lift = pow(facing, 3.0) * u_sheen;
 
+    /*
+     * Tooth, in the sheet's own coordinates, because that is where tooth is.
+     *
+     * Known limitation, measured rather than guessed: with the grain on and the
+     * pile moving at all, a tenth of a millisecond of movement changes about a
+     * fifth of the frame. It is not motion, it is fizz, and it scales with the
+     * sheet count: 0.12 mean at one sheet, 0.66 at four, 2.08 at the default
+     * twelve. Turning fibre to 0 removes it completely and turning drift to 0
+     * removes it completely, so it needs both the grain and the movement.
+     *
+     * Moving the hash into screen space does not fix it, which is worth knowing
+     * before anyone tries. If this is sitting behind body copy and the fizz
+     * shows, fibre and sheets are the two levers.
+     */
     float grain = (hash12(floor(v_uv * 420.0) + v_seed * 37.0) - 0.5) * 0.35 * u_fibre;
 
     vec3 tint = mix(u_ink, u_accent, v_accent);
@@ -953,26 +971,31 @@ class TranslucentSheetsSurface implements Surface<TranslucentSheetsOptions> {
       const c = rand(i + 77)
 
       /*
-       * Every sheet travels a closed circle and every wobble is a sine of the
-       * same phase, so the whole pile returns to exactly where it started after
-       * `period` seconds. That is what makes renderAtTime pure in t, which is
-       * what the recorder is built on.
+       * Every sheet travels a closed circle, and every wobble is a whole number
+       * of turns of the same phase, so the pile returns to exactly where it
+       * started after `period` seconds.
+       *
+       * The multipliers used to be 0.7, 1.3, 1.1 and 0.6, which meant it did
+       * nothing of the kind: after one period four of the six wobbles were part
+       * way through a turn, and the looping video jumped by three and a half
+       * times a frame of ordinary motion. The comment claiming it closed has
+       * been here the whole time. A closed orbit has to be whole turns.
        */
       const own = phase + a * TAU
 
-      const drift = 0.7 * opts.spread
+      const travel = 0.7 * opts.spread * opts.drift
       this.position.set(
-        (a - 0.5) * 7.4 * opts.spread + Math.cos(own) * drift,
-        (b - 0.5) * 4.2 * opts.spread + Math.sin(own * 0.7 + b * TAU) * drift * 0.6,
+        (a - 0.5) * 7.4 * opts.spread + Math.cos(own) * travel,
+        (b - 0.5) * 4.2 * opts.spread + Math.sin(own + b * TAU) * travel * 0.6,
         // Depth is by index rather than random, so adding a sheet lays it on top
         // of the pile instead of shuffling the whole thing.
-        (i / count - 0.5) * 4.0 * opts.spread + Math.sin(own * 1.3) * 0.18
+        (i / count - 0.5) * 4.0 * opts.spread + Math.sin(own * 2) * 0.18 * opts.drift
       )
 
       this.euler.set(
-        (c - 0.5) * 0.9 + Math.sin(own) * 0.18,
-        (a - 0.5) * 0.9 + Math.cos(own * 1.1) * 0.18,
-        (b - 0.5) * TAU + Math.sin(own * 0.6) * 0.12
+        (c - 0.5) * 0.9 + Math.sin(own) * 0.18 * opts.drift,
+        (a - 0.5) * 0.9 + Math.cos(own) * 0.18 * opts.drift,
+        (b - 0.5) * TAU + Math.sin(own) * 0.12 * opts.drift
       )
       this.quaternion.setFromEuler(this.euler)
 
@@ -1173,7 +1196,8 @@ as the second argument to the create function; anything omitted takes its defaul
 | `azimuth` | number | `42` | 0 to 360 | Light direction around the compass, degrees. |
 | `tilt` | number | `0.42` | 0 to 1 | Camera height. 0 is edge on to the pile, which is mostly cut edges. 1 looks straight down at it. |
 | `zoom` | number | `0.62` | 0.15 to 1.4 | How much of the frame the stack fills. |
-| `period` | number | `12` | 2 to 60 | Seconds for one loop of the drift. Every sheet travels a closed circle, so the pile returns to exactly where it started and the loop is seamless. Behind content, raise it. |
+| `drift` | number | `0.2` | 0 to 1.5 | How far each sheet travels on its circuit. Separate from how fast it travels, and the one that matters behind a heading: slowing the period alone moves the same sheets across the same gap. At 0 the pile is still and you have a static collage, which is a perfectly good backdrop. |
+| `period` | number | `36` | 2 to 60 | Seconds for one loop of the drift. Every sheet travels a closed circle, so the pile returns to exactly where it started and the loop is seamless. Slow on purpose: sheets that settle over half a minute read as paper, and sheets that cross the frame in ten seconds read as an animation. |
 
 ## 5. Cleanup and SSR
 

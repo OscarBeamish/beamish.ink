@@ -138,18 +138,18 @@
     },
     "period": {
       "type": "number",
-      "default": 24,
+      "default": 48,
       "min": 2,
       "max": 120,
       "step": 1,
-      "description": "Seconds for one pass of the comb. Both combs run whole multiples of the same angle, so the pattern returns to exactly where it started and the loop is seamless. Behind content, raise it."
+      "description": "Seconds for one pass of the comb. Both combs run whole multiples of the same angle, so the pattern returns to exactly where it started and the loop is seamless. Slow on purpose: a comb you can watch crossing the tray is the loudest thing on the page."
     }
   },
   "instruction": "ambient, watch the comb draw through",
   "oneShot": false,
   "record": {
-    "duration": 24,
-    "fps": 30,
+    "duration": 48,
+    "fps": 15,
     "posterAt": 4,
     "crf": 36,
     "webmCrf": 46

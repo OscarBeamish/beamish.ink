@@ -174,9 +174,17 @@
       ],
       "description": "How much of the frame the land fills."
     },
+    "drift": {
+      "type": "number",
+      "default": 0.2,
+      "min": 0,
+      "max": 1.5,
+      "step": 0.01,
+      "description": "How far the land travels through noise space on its circuit. Separate from how fast it travels, and the one that matters behind a heading: a slow period still moves the same ground the same distance, and distance is what the eye catches. At 0 the land is fixed and the only thing that moves is nothing."
+    },
     "period": {
       "type": "number",
-      "default": 6,
+      "default": 36,
       "min": 4,
       "max": 120,
       "step": 1,
@@ -185,7 +193,7 @@
         6,
         40
       ],
-      "description": "Seconds for one loop of the morph. The land travels a closed orbit through noise space and returns exactly. The default is 6 so the preview video is a whole cycle; 20 to 40 is right behind a page, where the land should be moving slowly enough that nobody catches it."
+      "description": "Seconds for one loop of the morph. The land travels a closed orbit through noise space and returns exactly. Slow on purpose: ground that visibly moves behind a heading is the fastest way to lose a reader."
     },
     "reducedMotionTime": {
       "type": "number",
@@ -205,8 +213,8 @@
     "url": "https://tympanus.net/codrops/2026/07/22/building-ridgeline-engineering-a-real-time-3d-experience-in-webflow/"
   },
   "record": {
-    "duration": 6,
-    "fps": 30,
+    "duration": 36,
+    "fps": 12,
     "posterAt": 2.4,
     "crf": 29,
     "webmCrf": 44

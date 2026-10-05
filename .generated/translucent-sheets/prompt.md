@@ -18,6 +18,7 @@ Assume you have not seen this library before. Everything you need is below.
 - The sheets multiply rather than composite, which is order-independent, so the whole pile is one InstancedMesh and there is no transparency sorting to get wrong
 - Nothing in the scene can be brighter than the paper. A multiply has no way to add light, so there is no specular highlight and there cannot be one
 - No shadow map. Nothing here is opaque enough to cast one
+- Known limitation: with the grain on and the pile moving, a tenth of a millisecond of movement changes about a fifth of the frame. It is fizz rather than motion and it scales with the sheet count, measured at 0.12 mean for one sheet, 0.66 for four and 2.08 for the default twelve. fibre at 0 removes it, and so does drift at 0. Hashing the grain in screen space instead does not
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -171,7 +172,8 @@ as the second argument to the create function; anything omitted takes its defaul
 | `azimuth` | number | `42` | 0 to 360 | Light direction around the compass, degrees. |
 | `tilt` | number | `0.42` | 0 to 1 | Camera height. 0 is edge on to the pile, which is mostly cut edges. 1 looks straight down at it. |
 | `zoom` | number | `0.62` | 0.15 to 1.4 | How much of the frame the stack fills. |
-| `period` | number | `12` | 2 to 60 | Seconds for one loop of the drift. Every sheet travels a closed circle, so the pile returns to exactly where it started and the loop is seamless. Behind content, raise it. |
+| `drift` | number | `0.2` | 0 to 1.5 | How far each sheet travels on its circuit. Separate from how fast it travels, and the one that matters behind a heading: slowing the period alone moves the same sheets across the same gap. At 0 the pile is still and you have a static collage, which is a perfectly good backdrop. |
+| `period` | number | `36` | 2 to 60 | Seconds for one loop of the drift. Every sheet travels a closed circle, so the pile returns to exactly where it started and the loop is seamless. Slow on purpose: sheets that settle over half a minute read as paper, and sheets that cross the frame in ten seconds read as an animation. |
 
 ## 5. Cleanup and SSR
 

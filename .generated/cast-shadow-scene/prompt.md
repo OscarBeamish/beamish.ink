@@ -149,7 +149,7 @@ as the second argument to the create function; anything omitted takes its defaul
 | `shadow` | number | `0.26` | 0 to 1 (looks right between 0.18 and 0.45) | How dark the shadows fall on the paper. The paper is never lit. It stays exactly the colour you set, so the shadow is the only thing drawn on it. |
 | `zoom` | number | `1.2` | 0.3 to 1.6 (looks right between 0.6 and 1) | How much of the frame the group fills. |
 | `tilt` | number | `0.4` | 0 to 1 (looks right between 0.2 and 0.55) | Camera height. Zero is eye level with the paper, one looks straight down. Around 0.35 is a table seen from a chair. |
-| `period` | number | `5` | 2 to 120 s (looks right between 5 and 30) | Seconds for one full circuit of the sun. The default is 5 so the preview video is a whole cycle. Use 20 to 30 for something you leave running behind a page. |
+| `period` | number | `40` | 2 to 120 s (looks right between 5 and 30) | Seconds for one full circuit of the sun. Slow on purpose: this is meant to sit behind a heading, and the thing that pulls a reader off a headline is movement in the corner of their eye, so the shadows should creep rather than sweep. Below about 15 it reads as a time-lapse. |
 | `reducedMotionTime` | number | `1.1` | 0 to 120 s | The single frame shown when the user prefers reduced motion. Pick a sun angle that composes. For those users the still is the whole effect. |
 
 ## 5. Cleanup and SSR

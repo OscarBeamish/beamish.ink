@@ -54,6 +54,8 @@ export type TranslucentSheetsOptions = BaseOptions & {
   tilt: number
   /** How much of the frame the stack fills. */
   zoom: number
+  /** How far a sheet travels on its circuit. Separate from how fast. */
+  drift: number
   /** Seconds for one loop of the drift. Exactly periodic over this. */
   period: number
 }
@@ -76,7 +78,8 @@ export const translucentSheetsDefaults: TranslucentSheetsOptions = {
   azimuth: 42,
   tilt: 0.42,
   zoom: 0.62,
-  period: 12,
+  drift: 0.2,
+  period: 36,
   reducedMotionTime: 3
 }
 
@@ -163,6 +166,20 @@ const FRAGMENT = /* glsl */ `
     // the sheet toward no tint at all rather than toward white.
     float lift = pow(facing, 3.0) * u_sheen;
 
+    /*
+     * Tooth, in the sheet's own coordinates, because that is where tooth is.
+     *
+     * Known limitation, measured rather than guessed: with the grain on and the
+     * pile moving at all, a tenth of a millisecond of movement changes about a
+     * fifth of the frame. It is not motion, it is fizz, and it scales with the
+     * sheet count: 0.12 mean at one sheet, 0.66 at four, 2.08 at the default
+     * twelve. Turning fibre to 0 removes it completely and turning drift to 0
+     * removes it completely, so it needs both the grain and the movement.
+     *
+     * Moving the hash into screen space does not fix it, which is worth knowing
+     * before anyone tries. If this is sitting behind body copy and the fizz
+     * shows, fibre and sheets are the two levers.
+     */
     float grain = (hash12(floor(v_uv * 420.0) + v_seed * 37.0) - 0.5) * 0.35 * u_fibre;
 
     vec3 tint = mix(u_ink, u_accent, v_accent);
@@ -342,26 +359,31 @@ class TranslucentSheetsSurface implements Surface<TranslucentSheetsOptions> {
       const c = rand(i + 77)
 
       /*
-       * Every sheet travels a closed circle and every wobble is a sine of the
-       * same phase, so the whole pile returns to exactly where it started after
-       * `period` seconds. That is what makes renderAtTime pure in t, which is
-       * what the recorder is built on.
+       * Every sheet travels a closed circle, and every wobble is a whole number
+       * of turns of the same phase, so the pile returns to exactly where it
+       * started after `period` seconds.
+       *
+       * The multipliers used to be 0.7, 1.3, 1.1 and 0.6, which meant it did
+       * nothing of the kind: after one period four of the six wobbles were part
+       * way through a turn, and the looping video jumped by three and a half
+       * times a frame of ordinary motion. The comment claiming it closed has
+       * been here the whole time. A closed orbit has to be whole turns.
        */
       const own = phase + a * TAU
 
-      const drift = 0.7 * opts.spread
+      const travel = 0.7 * opts.spread * opts.drift
       this.position.set(
-        (a - 0.5) * 7.4 * opts.spread + Math.cos(own) * drift,
-        (b - 0.5) * 4.2 * opts.spread + Math.sin(own * 0.7 + b * TAU) * drift * 0.6,
+        (a - 0.5) * 7.4 * opts.spread + Math.cos(own) * travel,
+        (b - 0.5) * 4.2 * opts.spread + Math.sin(own + b * TAU) * travel * 0.6,
         // Depth is by index rather than random, so adding a sheet lays it on top
         // of the pile instead of shuffling the whole thing.
-        (i / count - 0.5) * 4.0 * opts.spread + Math.sin(own * 1.3) * 0.18
+        (i / count - 0.5) * 4.0 * opts.spread + Math.sin(own * 2) * 0.18 * opts.drift
       )
 
       this.euler.set(
-        (c - 0.5) * 0.9 + Math.sin(own) * 0.18,
-        (a - 0.5) * 0.9 + Math.cos(own * 1.1) * 0.18,
-        (b - 0.5) * TAU + Math.sin(own * 0.6) * 0.12
+        (c - 0.5) * 0.9 + Math.sin(own) * 0.18 * opts.drift,
+        (a - 0.5) * 0.9 + Math.cos(own) * 0.18 * opts.drift,
+        (b - 0.5) * TAU + Math.sin(own) * 0.12 * opts.drift
       )
       this.quaternion.setFromEuler(this.euler)
 

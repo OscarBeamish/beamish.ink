@@ -65,8 +65,8 @@ The card is your markup. It is lit, not replaced.
 
 ```html
 <article id="card">
-  <h2>Beamysshe as the sonne is</h2>
-  <p>John Palsgrave, 1530.</p>
+  <h2>A card title goes here</h2>
+  <p>A supporting line.</p>
 </article>
 ```
 

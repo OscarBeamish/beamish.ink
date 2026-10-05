@@ -56,7 +56,7 @@ export const halftoneBackdropDefaults: HalftoneBackdropOptions = {
   drift: 5,
   coverage: 0.14,
   grain: 0.35,
-  period: 5,
+  period: 30,
   reducedMotionTime: 1.4
 }
 

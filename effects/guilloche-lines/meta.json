@@ -164,7 +164,7 @@
     },
     "period": {
       "type": "number",
-      "default": 6,
+      "default": 60,
       "min": 4,
       "max": 180,
       "step": 1,
@@ -173,7 +173,7 @@
         6,
         60
       ],
-      "description": "Seconds for one turn of the gears. The pattern is exactly periodic over this. The default is 6 so the preview video is a whole turn; 30 to 60 is right behind a page, where the gears should be moving slowly enough that nobody catches them."
+      "description": "Seconds for one turn of the gears. The pattern is exactly periodic over this. Slow on purpose: a backdrop whose cycle you can follow is a backdrop competing with the page, and at a turn every few seconds the eye starts tracking the rosette instead of reading."
     },
     "reducedMotionTime": {
       "type": "number",
@@ -188,8 +188,8 @@
   "instruction": "ambient, the gears are turning slowly",
   "oneShot": false,
   "record": {
-    "duration": 6,
-    "fps": 30,
+    "duration": 60,
+    "fps": 15,
     "posterAt": 2.2,
     "crf": 40,
     "webmCrf": 62

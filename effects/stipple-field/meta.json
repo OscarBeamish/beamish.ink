@@ -145,18 +145,18 @@
     },
     "period": {
       "type": "number",
-      "default": 18,
+      "default": 36,
       "min": 2,
       "max": 120,
       "step": 1,
-      "description": "Seconds for one loop of the drift. The tone field travels a closed circle through noise space, so it returns to exactly where it began and the loop is seamless."
+      "description": "Seconds for one loop of the drift. The tone field travels a closed circle through noise space, so it returns to exactly where it began and the loop is seamless. Slow on purpose: the marks should seem to be settling rather than moving."
     }
   },
   "instruction": "move the cursor across it",
   "oneShot": false,
   "record": {
-    "duration": 18,
-    "fps": 30,
+    "duration": 36,
+    "fps": 15,
     "posterAt": 5,
     "crf": 34,
     "webmCrf": 48

@@ -134,7 +134,7 @@
     },
     "period": {
       "type": "number",
-      "default": 5,
+      "default": 40,
       "min": 2,
       "max": 120,
       "step": 1,
@@ -143,7 +143,7 @@
         5,
         30
       ],
-      "description": "Seconds for one full circuit of the sun. The default is 5 so the preview video is a whole cycle. Use 20 to 30 for something you leave running behind a page."
+      "description": "Seconds for one full circuit of the sun. Slow on purpose: this is meant to sit behind a heading, and the thing that pulls a reader off a headline is movement in the corner of their eye, so the shadows should creep rather than sweep. Below about 15 it reads as a time-lapse."
     },
     "reducedMotionTime": {
       "type": "number",
@@ -158,8 +158,9 @@
   "instruction": "watch the shadows come round",
   "oneShot": false,
   "record": {
-    "duration": 5,
-    "fps": 30,
-    "posterAt": 1.1
+    "duration": 40,
+    "fps": 12,
+    "posterAt": 1.1,
+    "crf": 30
   }
 }

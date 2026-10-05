@@ -147,18 +147,18 @@
     },
     "period": {
       "type": "number",
-      "default": 16,
+      "default": 40,
       "min": 4,
       "max": 180,
       "step": 1,
-      "description": "Seconds for one slow tilt against the light. Nothing moves on the sheet; the sheet moves. A closed orbit, so it returns to exactly where it began."
+      "description": "Seconds for one slow tilt against the light. Nothing moves on the sheet; the sheet moves. A closed orbit, so it returns to exactly where it began, and slow enough that nobody catches it at it."
     }
   },
   "instruction": "ambient, the sheet tilts against the light",
   "oneShot": false,
   "record": {
-    "duration": 16,
-    "fps": 30,
+    "duration": 40,
+    "fps": 15,
     "posterAt": 5,
     "crf": 32,
     "webmCrf": 48

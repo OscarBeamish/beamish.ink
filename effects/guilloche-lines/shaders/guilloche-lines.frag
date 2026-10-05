@@ -73,9 +73,22 @@ void main() {
   float lobesB = floor(u_lobes * 1.75) + 1.0;
   float lobesC = floor(u_lobes * 0.5) + 2.0;
 
+  /*
+   * Whole turns each, and that is not a detail. The phase multipliers used to be
+   * 1, -1.5 and 0.5, so after one period the first family was back where it
+   * started and the other two were half a turn out. The pattern never closed,
+   * and the looping video jumped once a cycle by twelve times the size of a
+   * frame of ordinary motion. A gear train is whole teeth meshing with whole
+   * teeth; it cannot be otherwise and neither can this.
+   *
+   * The speeds are 1, -1 and 1, the slowest train that still turns, because this
+   * sits behind a heading. The lobe counts are already coprime, which is what
+   * keeps the interference from reading as a grid, so no gear needs to race to
+   * earn its place.
+   */
   float waveA = sin(a * lobesA + phase) * u_depth;
-  float waveB = sin(a * lobesB - phase * 1.5) * u_depth * 0.55;
-  float waveC = cos(a * lobesC + phase * 0.5) * u_depth * 0.8;
+  float waveB = sin(a * lobesB - phase) * u_depth * 0.55;
+  float waveC = cos(a * lobesC + phase) * u_depth * 0.8;
 
   // Each family is the radius plus its own wobble, scaled into line spacing.
   float fieldA = (r + waveA) * u_pitch;

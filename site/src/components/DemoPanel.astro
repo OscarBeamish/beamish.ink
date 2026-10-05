@@ -82,13 +82,13 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     {
       inUse && (
         <div class="demo-use" data-use aria-hidden="true">
-          <p class="demo-use__tag">Beamish.ink</p>
+          <p class="demo-use__tag">Example</p>
           {/* A paragraph, not a heading. It is a picture of a hero rather than
               one, and a real h2 would put a second outline on the page. */}
-          <p class="demo-use__title">Come to my arms, my beamish boy</p>
+          <p class="demo-use__title">A headline sits here</p>
           <p class="demo-use__line">
-            Twenty-six effects. No package and no registry: you paste a prompt and your
-            agent writes the files into your own repo.
+            And a line of supporting copy under it, about the length a real one runs,
+            so the backdrop can be judged behind text rather than on its own.
           </p>
         </div>
       )
@@ -223,6 +223,14 @@ const tweakable = tier === 1 ? Object.entries(options) : []
   }
 
   /*
+   * Demo copy is deliberately generic. It used to be the library's own name and
+   * the 1530 citation the name comes from, which demonstrates the library
+   * rather than the effect: anyone looking at a type treatment is trying to see
+   * what it does to a heading on their page, not to read ours.
+   */
+  const HEADLINE = 'A headline sits here'
+
+  /*
    * A DOM effect animates content that is already there, so the panel has to
    * provide some. A shader effect gets an empty stage and fills it itself.
    */
@@ -247,9 +255,9 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       '<img class="demo-plate-fill" src="/plates/scroll-warp-image/grid.jpg" alt="A facade of small square windows punched in a dark grid, seen from above" />',
     'halftone-reveal':
       '<img class="demo-plate-fill" src="/plates/halftone-reveal/plate.jpg" alt="A spiral stair curving down the inside of a circular concrete well" />',
-    'scramble-text': '<h1 class="demo-heading">Come to my arms, my beamish boy</h1>',
-    'misprint-text': '<h1 class="demo-heading">Out of register</h1>',
-    'ink-bleed-text': '<h1 class="demo-heading">Blotting paper</h1>',
+    'scramble-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
+    'misprint-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
+    'ink-bleed-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     /*
      * Short labels, matching the item's own demo. The full names wrapped to two
      * lines in this column, which made every other row twice the height of the
@@ -275,18 +283,18 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'tilt-card': `<article class="demo-card">
       <div class="demo-card__mark"></div>
       <div>
-        <p class="demo-card__tag">Surfaces</p>
-        <h2>Beamysshe as the sonne is</h2>
+        <p class="demo-card__tag">Label</p>
+        <h2>A card title goes here</h2>
       </div>
-      <p class="demo-card__note">John Palsgrave, 1530.</p>
+      <p class="demo-card__note">A supporting line.</p>
     </article>`,
     'spotlight-card': `<article class="demo-card">
       <div class="demo-card__mark"></div>
       <div>
-        <p class="demo-card__tag">Surfaces</p>
-        <h2>Beamysshe as the sonne is</h2>
+        <p class="demo-card__tag">Label</p>
+        <h2>A card title goes here</h2>
       </div>
-      <p class="demo-card__note">John Palsgrave, 1530.</p>
+      <p class="demo-card__note">A supporting line.</p>
     </article>`
   }
 

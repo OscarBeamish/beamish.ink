@@ -154,7 +154,7 @@ as the second argument to the create function; anything omitted takes its defaul
 | `weight` | number | `0.18` | 0 to 1 (looks right between 0.2 and 0.55) | Weight of the engraved line. Heavy lines at a high pitch fill in solid, so raise one and lower the other. |
 | `accentBand` | number | `0.22` | 0 to 1.2 (looks right between 0.1 and 0.5) | Where the second colour sits, as a radius from the centre. Set it past the corner of the panel to switch the second colour off. |
 | `grain` | number | `0.28` | 0 to 1 | Paper tooth. Static by design. Animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent. |
-| `period` | number | `6` | 4 to 180 s (looks right between 6 and 60) | Seconds for one turn of the gears. The pattern is exactly periodic over this. The default is 6 so the preview video is a whole turn; 30 to 60 is right behind a page, where the gears should be moving slowly enough that nobody catches them. |
+| `period` | number | `60` | 4 to 180 s (looks right between 6 and 60) | Seconds for one turn of the gears. The pattern is exactly periodic over this. Slow on purpose: a backdrop whose cycle you can follow is a backdrop competing with the page, and at a turn every few seconds the eye starts tracking the rosette instead of reading. |
 | `reducedMotionTime` | number | `5` | 0 to 180 s | The single frame shown when the user prefers reduced motion. Any time works: a still guilloche is an engraving, which is a finished thing to look at. |
 
 ## 5. Cleanup and SSR

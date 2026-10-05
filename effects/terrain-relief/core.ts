@@ -46,6 +46,8 @@ export type TerrainReliefOptions = BaseOptions & {
   tilt: number
   /** How much of the frame the land fills. */
   zoom: number
+  /** How far the land travels through noise space on its circuit. */
+  drift: number
   /** Seconds for one loop of the morph. Exactly periodic over this. */
   period: number
 }
@@ -67,7 +69,8 @@ export const terrainReliefDefaults: TerrainReliefOptions = {
   azimuth: 38,
   tilt: 0.72,
   zoom: 1.3,
-  period: 6,
+  drift: 0.2,
+  period: 36,
   reducedMotionTime: 3
 }
 
@@ -311,9 +314,17 @@ class TerrainReliefSurface implements Surface<TerrainReliefOptions> {
     ;(u['u_ink']!.value as THREE.Color).set(opts.ink)
     ;(u['u_indexInk']!.value as THREE.Color).set(opts.indexInk)
 
-    // A closed orbit through noise space: the land morphs and returns exactly.
+    /*
+     * A closed orbit through noise space: the land morphs and returns exactly.
+     *
+     * The radius is `drift` rather than a constant, because how far the land
+     * travels and how long it takes are two different questions and only one of
+     * them was answerable. Slowing the period alone leaves the same ground
+     * crossing the same distance, and distance is what the eye catches.
+     */
     const phase = TAU * (t / Math.max(opts.period, 0.001))
-    ;(u['u_orbit']!.value as THREE.Vector2).set(Math.cos(phase) * 0.6, Math.sin(phase) * 0.6)
+    const radius = opts.drift
+    ;(u['u_orbit']!.value as THREE.Vector2).set(Math.cos(phase) * radius, Math.sin(phase) * radius)
 
     const elevation = opts.elevation * DEG
     const azimuth = opts.azimuth * DEG

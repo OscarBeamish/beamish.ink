@@ -65,7 +65,7 @@ export const watermarkSheetDefaults: WatermarkSheetOptions = {
   deviceSize: 0.4,
   angle: 4,
   grain: 0.35,
-  period: 16,
+  period: 40,
   reducedMotionTime: 5
 }
 

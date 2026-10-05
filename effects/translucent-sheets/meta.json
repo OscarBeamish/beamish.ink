@@ -22,7 +22,8 @@
       "three.js must already be a dependency of the project. It is not bundled",
       "The sheets multiply rather than composite, which is order-independent, so the whole pile is one InstancedMesh and there is no transparency sorting to get wrong",
       "Nothing in the scene can be brighter than the paper. A multiply has no way to add light, so there is no specular highlight and there cannot be one",
-      "No shadow map. Nothing here is opaque enough to cast one"
+      "No shadow map. Nothing here is opaque enough to cast one",
+      "Known limitation: with the grain on and the pile moving, a tenth of a millisecond of movement changes about a fifth of the frame. It is fizz rather than motion and it scales with the sheet count, measured at 0.12 mean for one sheet, 0.66 for four and 2.08 for the default twelve. fibre at 0 removes it, and so does drift at 0. Hashing the grain in screen space instead does not"
     ]
   },
   "perf": {
@@ -153,20 +154,28 @@
       "step": 0.01,
       "description": "How much of the frame the stack fills."
     },
+    "drift": {
+      "type": "number",
+      "default": 0.2,
+      "min": 0,
+      "max": 1.5,
+      "step": 0.01,
+      "description": "How far each sheet travels on its circuit. Separate from how fast it travels, and the one that matters behind a heading: slowing the period alone moves the same sheets across the same gap. At 0 the pile is still and you have a static collage, which is a perfectly good backdrop."
+    },
     "period": {
       "type": "number",
-      "default": 12,
+      "default": 36,
       "min": 2,
       "max": 60,
       "step": 0.5,
-      "description": "Seconds for one loop of the drift. Every sheet travels a closed circle, so the pile returns to exactly where it started and the loop is seamless. Behind content, raise it."
+      "description": "Seconds for one loop of the drift. Every sheet travels a closed circle, so the pile returns to exactly where it started and the loop is seamless. Slow on purpose: sheets that settle over half a minute read as paper, and sheets that cross the frame in ten seconds read as an animation."
     }
   },
   "instruction": "ambient, watch the overlaps build",
   "oneShot": false,
   "record": {
-    "duration": 12,
-    "fps": 30,
+    "duration": 36,
+    "fps": 15,
     "posterAt": 4.5,
     "crf": 34,
     "webmCrf": 44

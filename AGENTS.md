@@ -68,6 +68,21 @@ the intended cost. Do not inline the runtime into each effect.
   strobe-like shader before shipping it.
 - Design every effect for warm paper. A default palette that only reads on a dark
   background is a bug.
+- A backdrop has to survive being ignored. Movement at the edge of vision pulls a
+  reader off a headline, which is the one thing a background must not do, so an
+  ambient effect wants a long period and a short distance: tens of seconds rather
+  than a handful, and as little change of position as the idea allows. Period and
+  distance are two different questions. Give an effect a control for each.
+- Measure that rather than judging it. Mean absolute change per frame at 60Hz
+  across the whole canvas, 0 to 255: the quiet items here sit between 0.01 and
+  0.2, and anything past about 1 reads as something happening. Do not let the
+  recorder choose the default. Three of these shipped with a five second period
+  because that made a short preview video, which is the recorder setting the
+  design.
+- Phase multipliers in a looping effect have to be whole turns. Two items shipped
+  with fractional ones, so the loop never closed and the video jumped once a
+  cycle. `tools/tests/loop-closes.test.ts` checks this now; the schema cannot,
+  because it can only see `record.duration`.
 
 ## meta.json is the source of truth
 

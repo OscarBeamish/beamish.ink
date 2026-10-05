@@ -65,7 +65,7 @@ export const stippleFieldDefaults: StippleFieldOptions = {
   grain: 0.4,
   touch: 0.65,
   reach: 0.45,
-  period: 18,
+  period: 36,
   reducedMotionTime: 4
 }
 

@@ -665,7 +665,7 @@ export const halftoneBackdropDefaults: HalftoneBackdropOptions = {
   drift: 5,
   coverage: 0.14,
   grain: 0.35,
-  period: 5,
+  period: 30,
   reducedMotionTime: 1.4
 }
 
@@ -1123,7 +1123,7 @@ as the second argument to the create function; anything omitted takes its defaul
 | `drift` | number | `5` | 0 to 30 px (looks right between 4 and 12) | Registration error: how far the plates slide apart over a loop. Zero is a clean print and much duller. |
 | `coverage` | number | `0.14` | 0.1 to 0.9 (looks right between 0.35 and 0.6) | Ink density. Past 0.7 the plates flood and the paper stops showing through. |
 | `grain` | number | `0.35` | 0 to 1 | Paper tooth. Static by design. Animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent. |
-| `period` | number | `5` | 2 to 120 s (looks right between 5 and 25) | Seconds for one full loop. The animation is exactly periodic over this. The default is 5 so that the preview video is a whole cycle. Raise it to 15 or 25 for a page background you want to forget is moving. |
+| `period` | number | `30` | 2 to 120 s (looks right between 5 and 25) | Seconds for one full loop. The animation is exactly periodic over this. Slow on purpose: the plates should drift apart over half a minute, which reads as a press settling rather than as something happening. |
 | `reducedMotionTime` | number | `1.4` | 0 to 120 s | The single frame shown when the user prefers reduced motion. Pick one that composes rather than the frame at zero. |
 
 ## 5. Cleanup and SSR
