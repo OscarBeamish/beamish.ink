@@ -34,9 +34,9 @@ keeps them framework-free and recordable. Tier 2 only where they need state.
 | Beamish | React Bits | P | Note |
 | --- | --- | --- | --- |
 | Sort | Split Text | 1 | **done** |
-| Focus | Blur Text | 1 | Blur resolves to sharp |
+| Focus | Blur Text | 1 | **covered**. ScrambleText already has a `blur` option that resolves to sharp. Building this would be a second name for an option that exists |
 | Bleed | Fuzzy Text | 1 | Ink bleeding into paper fibres. Recast: theirs is a CRT wobble |
-| Misprint | Glitch Text | 1 | Recast as a plate slipping, not RGB channel split |
+| MisprintText | Glitch Text | 1 | **done**. A plate out of register, multiplied, so the overlap darkens. A channel split brightens, which is light rather than ink |
 | Impression | Text Pressure, Variable Proximity | 1 | Variable font weight under the cursor. Two of theirs, one of ours |
 | Tally | Count Up | 1 | **done** |
 | Fountain | Gradient Text | 2 | Split-fountain inking rather than an animated rainbow |
@@ -73,7 +73,7 @@ dark-canvas assumption, so most entries here are recasts rather than ports.
 | Sundial | nothing comparable | 1 | **done**. Real 3D is the thing they do not have |
 | MarbledPaper | Liquid Chrome, Ferrofluid | 1 | **done**. Real marbling: every tray operation has a closed-form inverse, so each pixel runs the session backwards |
 | Guilloche | Waves, Line Waves, Sliced Waves | 1 | The engraved wave pattern on a banknote. Three of theirs, one of ours |
-| Stipple | Dot Grid, Dot Field | 1 | |
+| StippleField | Dot Grid, Dot Field | 1 | **done**. Tone is the number of marks, not their size, which is what separates a stipple from a halftone |
 | Contour | Topography | 1 | **done**, as a lit relief rather than a flat shader |
 | Watermark | Silk | 2 | Light through paper. **recast** |
 | Weft | Threads, Web Threads, Floating Lines | 2 | Woven fibre. Three of theirs, one of ours |
@@ -101,7 +101,7 @@ dark-canvas assumption, so most entries here are recasts rather than ports.
 | Foil | Metallic Paint | 1 | **done** |
 | Spark | Click Spark | 1 | Cheap, popular, and genuinely useful |
 | Magnet | Magnet | 1 | **done** |
-| Filings | Magnet Lines | 1 | Iron filings around a magnet |
+| PointerFilings | Magnet Lines | 1 | **done**. The real dipole expression, so the field loops rather than radiating |
 | Trail | Image Trail, Pixel Trail | 1 | Two of theirs, one of ours |
 | Splash | Splash Cursor | 2 | Fluid sim. The most expensive item in this table |
 | Reticle | Target Cursor, Crosshair | 2 | |
@@ -133,7 +133,7 @@ Cards, panels, images.
 | Beamish | React Bits | P | Note |
 | --- | --- | --- | --- |
 | Tilt | Tilted Card | 1 | **done** |
-| Spotlight | Spotlight Card, Border Glow, Glare Hover | 1 | Three of theirs, one of ours |
+| SpotlightCard | Spotlight Card, Border Glow, Glare Hover | 1 | **done**. Light and shade, because a pale card lifted a few percent is still a pale card |
 | Contact | Chroma Grid | 1 | A contact sheet |
 | Vellum | Glass Surface, Fluid Glass, Reflective Card, Glass Icons | 1 | **recast**. Translucent paper, not frosted glass. Four of theirs, one of ours |
 | Mosaic | Pixel Card | 2 | |

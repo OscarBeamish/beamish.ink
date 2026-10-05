@@ -150,7 +150,11 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'scroll-slideshow': () => import('@items/effects/scroll-slideshow/core'),
     'scroll-warp-image': () => import('@items/effects/scroll-warp-image/core'),
     'marbled-paper': () => import('@items/effects/marbled-paper/core'),
-    'halftone-reveal': () => import('@items/effects/halftone-reveal/core')
+    'halftone-reveal': () => import('@items/effects/halftone-reveal/core'),
+    'stipple-field': () => import('@items/effects/stipple-field/core'),
+    'pointer-filings': () => import('@items/effects/pointer-filings/core'),
+    'misprint-text': () => import('@items/effects/misprint-text/core'),
+    'spotlight-card': () => import('@items/effects/spotlight-card/core')
   }
 
   const COMPONENTS: Record<string, () => Promise<{ mount(el: HTMLElement): Mounted }>> = {
@@ -227,6 +231,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'halftone-reveal':
       '<img class="demo-plate-fill" src="/plates/halftone-reveal/plate.jpg" alt="A spiral stair curving down the inside of a circular concrete well" />',
     'scramble-text': '<h1 class="demo-heading">Come to my arms, my beamish boy</h1>',
+    'misprint-text': '<h1 class="demo-heading">Out of register</h1>',
     'scroll-reveal-rows': `<div class="demo-list">
       <div><span>Halftone Backdrop</span><span>shader</span></div>
       <div><span>Cast Shadow Scene</span><span>three</span></div>
@@ -249,6 +254,14 @@ const tweakable = tier === 1 ? Object.entries(options) : []
         <h2>Beamysshe as the sonne is</h2>
       </div>
       <p class="demo-card__note">John Palsgrave, 1530.</p>
+    </article>`,
+    'spotlight-card': `<article class="demo-card">
+      <div class="demo-card__mark"></div>
+      <div>
+        <p class="demo-card__tag">Surfaces</p>
+        <h2>Beamysshe as the sonne is</h2>
+      </div>
+      <p class="demo-card__note">John Palsgrave, 1530.</p>
     </article>`
   }
 
@@ -264,7 +277,9 @@ const tweakable = tier === 1 ? Object.entries(options) : []
   /* Where inside the injected markup the effect actually mounts. */
   const MOUNT_ON: Record<string, string> = {
     'magnetic-button': '.beamish-glow-button',
-    'count-up-number': '.demo-count-up-number__value'
+    'count-up-number': '.demo-count-up-number__value',
+    // The lamp lights the card, not the stage around it.
+    'spotlight-card': '.demo-card'
   }
 
   /*

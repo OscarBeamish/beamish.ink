@@ -1,0 +1,147 @@
+{
+  "name": "StippleField",
+  "slug": "stipple-field",
+  "tier": 1,
+  "description": "A stipple drawing where tone is how many marks there are, not how big",
+  "category": "backdrops",
+  "tags": [
+    "webgl",
+    "shader",
+    "stipple",
+    "engraving",
+    "dots",
+    "paper",
+    "backdrop",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "Tone is carried by the number of marks rather than their size, which is what separates a stipple from a halftone: an engraver has one nib, so darker means more marks rather than fatter ones",
+      "Each mark is tested against the nine surrounding cells, because a mark thrown off centre crosses into its neighbour and testing only its own cell would slice it at the boundary",
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 1.5,
+    "contexts": 1,
+    "notes": [
+      "Nine cell tests per pixel, each a hash and a distance, plus four octaves of value noise for the tone field",
+      "Most cells fail the tone test and cost one hash, so the lighter the field the cheaper it is",
+      "Nothing is uploaded per frame. Only uniforms change"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/stipple-field/core.ts",
+      "to": "src/beamish/effects/stipple-field/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/stipple-field/adapters/react.tsx",
+      "to": "src/beamish/effects/stipple-field/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/stipple-field/adapters/vue.ts",
+      "to": "src/beamish/effects/stipple-field/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "paper": {
+      "type": "color",
+      "default": "#fbfaf4",
+      "description": "The paper behind the marks."
+    },
+    "ink": {
+      "type": "color",
+      "default": "#36362f",
+      "description": "The nib."
+    },
+    "accent": {
+      "type": "color",
+      "default": "#c44400",
+      "description": "A second nib, on a small share of the marks."
+    },
+    "pitch": {
+      "type": "number",
+      "default": 7,
+      "min": 3,
+      "max": 30,
+      "step": 0.5,
+      "description": "Cell size in CSS pixels. There is at most one mark per cell, so this is the spacing of the stipple rather than its weight. Laid out in pixels so the marks keep their size whatever shape the element is."
+    },
+    "jitter": {
+      "type": "number",
+      "default": 0.75,
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "description": "How far each mark is thrown off the centre of its cell. At 0 the marks sit on a grid and it stops being a stipple; at 1 they are anywhere in their cell and the grid is undetectable."
+    },
+    "scale": {
+      "type": "number",
+      "default": 1.6,
+      "min": 0.2,
+      "max": 8,
+      "step": 0.1,
+      "description": "Size of the tone field the marks follow. Lower is broader country with slower changes in density."
+    },
+    "weight": {
+      "type": "number",
+      "default": 0.19,
+      "min": 0.05,
+      "max": 0.45,
+      "step": 0.01,
+      "description": "Radius of a mark, measured in cells. Every mark is the same size, which is the point: an engraver has one nib. Past about 0.4 they touch at full density and it becomes a solid."
+    },
+    "contrast": {
+      "type": "number",
+      "default": 1.9,
+      "min": 0.5,
+      "max": 5,
+      "step": 0.1,
+      "description": "How hard the tone field pushes away from the midtone. Applied about 0.5, so raising it opens the field out rather than dragging the whole thing dark."
+    },
+    "accentShare": {
+      "type": "number",
+      "default": 0.06,
+      "min": 0,
+      "max": 0.5,
+      "step": 0.01,
+      "description": "Share of marks that take the second nib. Small: this is a second pass over a drawing, not a second drawing."
+    },
+    "grain": {
+      "type": "number",
+      "default": 0.4,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Paper tooth under the marks."
+    },
+    "period": {
+      "type": "number",
+      "default": 18,
+      "min": 2,
+      "max": 120,
+      "step": 1,
+      "description": "Seconds for one loop of the drift. The tone field travels a closed circle through noise space, so it returns to exactly where it began and the loop is seamless."
+    }
+  },
+  "instruction": "ambient, watch the density drift",
+  "oneShot": false,
+  "record": {
+    "duration": 18,
+    "fps": 30,
+    "posterAt": 5,
+    "crf": 34,
+    "webmCrf": 48
+  }
+}

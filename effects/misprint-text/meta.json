@@ -1,0 +1,121 @@
+{
+  "name": "MisprintText",
+  "slug": "misprint-text",
+  "tier": 1,
+  "description": "A printing plate slipping out of register, so the word prints twice in two inks",
+  "category": "type",
+  "tags": [
+    "type",
+    "text",
+    "print",
+    "misregistration",
+    "glitch",
+    "dom",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "No canvas and no WebGL. Three stacked copies of the text, moved with transforms",
+      "The offset plates use mix-blend-mode: multiply, because overlapping ink is darker than either colour. A channel split goes brighter where the channels meet, which is light rather than ink",
+      "The in-register plate stays in normal flow and is the one that can be selected. The other two are aria-hidden and pointer-events: none",
+      "Offsets are in em, so one setting works at every type size"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.15,
+    "contexts": 0,
+    "notes": [
+      "Two transforms per frame, composited. Nothing is measured and nothing reflows",
+      "The text is split once, not per frame. Rebuilding it would throw away the layout and make it unselectable"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/misprint-text/core.ts",
+      "to": "src/beamish/effects/misprint-text/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/misprint-text/adapters/react.tsx",
+      "to": "src/beamish/effects/misprint-text/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/misprint-text/adapters/vue.ts",
+      "to": "src/beamish/effects/misprint-text/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "ink": {
+      "type": "color",
+      "default": "#36362f",
+      "description": "The plate that is in register. This is the one in normal flow and the one a mouse can select; the other two are decoration."
+    },
+    "accent": {
+      "type": "color",
+      "default": "#c44400",
+      "description": "The first plate that is not in register."
+    },
+    "second": {
+      "type": "color",
+      "default": "#6f8fae",
+      "description": "The second plate that is not. Two is what makes it read as a press rather than as a drop shadow."
+    },
+    "slip": {
+      "type": "number",
+      "default": 0.045,
+      "min": 0,
+      "max": 0.3,
+      "step": 0.005,
+      "description": "How far a plate slips, in em, so it tracks the type size rather than needing a different number at every heading level. Past about 0.12 the words separate and you are reading three of them."
+    },
+    "hold": {
+      "type": "number",
+      "default": 1.4,
+      "min": 0.1,
+      "max": 10,
+      "step": 0.1,
+      "description": "Seconds a plate holds its position before being knocked. Registration does not drift: a plate sits wrong for a whole run and then moves, so this is a step rather than a speed."
+    },
+    "chance": {
+      "type": "number",
+      "default": 0.55,
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "description": "Share of runs where the plates are actually out. A press that is always wrong is not a press that is nearly right, and at 1 the text never settles."
+    },
+    "skew": {
+      "type": "number",
+      "default": 0.4,
+      "min": 0,
+      "max": 4,
+      "step": 0.1,
+      "description": "How far a slipped plate also turns, in degrees. Small: a plate that is out by a whole degree is a plate that has fallen off."
+    },
+    "seed": {
+      "type": "number",
+      "default": 7,
+      "min": 0,
+      "max": 999,
+      "step": 1,
+      "description": "Which runs slip and how far. Change it for a different sequence; the same seed always gives the same one."
+    }
+  },
+  "instruction": "ambient, watch the plates go in and out",
+  "oneShot": false,
+  "record": {
+    "duration": 8.4,
+    "fps": 30,
+    "posterAt": 0.4,
+    "crf": 28
+  }
+}

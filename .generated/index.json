@@ -1485,6 +1485,306 @@
     "intro": "Ink floated on size, dropped, and then raked. The pattern on a marbled endpaper,\nmade the way the endpaper was.\n\nThis is not noise dressed up as marbling. Every operation a marbler performs on a\ntray has a closed-form inverse, and that single fact is what the whole effect\nrests on. A drop of ink pushes everything already floating outward by an exact\namount, conserving area. A comb drawn through displaces points along its own\ndirection by an amount that depends only on how far from it they sit, so the\ndisplacement never changes the quantity the displacement was computed from. Both\nundo in one step, with no iteration and no search.\n\nSo the tray is never simulated forwards. Each pixel runs the session backwards:\nundo the combs, then undo the drops one at a time from the last to the first, and\nthe moment the point falls inside a drop you know which ink it was. That is the\ncolour. One pass, no render targets, no feedback, no history, and the result is\nexact rather than approximated.\n\nIt gives the rings away for free, too. A drop laid down later pushes an earlier\none into an annulus around itself, and walking the operations backwards\nreproduces that instead of having to draw it.\n\nMeasured at 0.42ms for one drop and 0.64ms for seventy-two, at 1440 by 900 on an\nRTX 3080. The count costs far less than it looks like it should, because the loop\nstops at the first drop that claims the point.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency."
   },
   {
+    "name": "MisprintText",
+    "slug": "misprint-text",
+    "tier": 1,
+    "description": "A printing plate slipping out of register, so the word prints twice in two inks",
+    "category": "type",
+    "tags": [
+      "type",
+      "text",
+      "print",
+      "misregistration",
+      "glitch",
+      "dom",
+      "no-dependencies"
+    ],
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "No canvas and no WebGL. Three stacked copies of the text, moved with transforms",
+        "The offset plates use mix-blend-mode: multiply, because overlapping ink is darker than either colour. A channel split goes brighter where the channels meet, which is light rather than ink",
+        "The in-register plate stays in normal flow and is the one that can be selected. The other two are aria-hidden and pointer-events: none",
+        "Offsets are in em, so one setting works at every type size"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.15,
+      "contexts": 0,
+      "notes": [
+        "Two transforms per frame, composited. Nothing is measured and nothing reflows",
+        "The text is split once, not per frame. Rebuilding it would throw away the layout and make it unselectable"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/misprint-text/core.ts",
+        "to": "src/beamish/effects/misprint-text/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/misprint-text/adapters/react.tsx",
+        "to": "src/beamish/effects/misprint-text/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/misprint-text/adapters/vue.ts",
+        "to": "src/beamish/effects/misprint-text/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "ink": {
+        "type": "color",
+        "default": "#36362f",
+        "description": "The plate that is in register. This is the one in normal flow and the one a mouse can select; the other two are decoration."
+      },
+      "accent": {
+        "type": "color",
+        "default": "#c44400",
+        "description": "The first plate that is not in register."
+      },
+      "second": {
+        "type": "color",
+        "default": "#6f8fae",
+        "description": "The second plate that is not. Two is what makes it read as a press rather than as a drop shadow."
+      },
+      "slip": {
+        "type": "number",
+        "default": 0.045,
+        "description": "How far a plate slips, in em, so it tracks the type size rather than needing a different number at every heading level. Past about 0.12 the words separate and you are reading three of them.",
+        "min": 0,
+        "max": 0.3,
+        "step": 0.005
+      },
+      "hold": {
+        "type": "number",
+        "default": 1.4,
+        "description": "Seconds a plate holds its position before being knocked. Registration does not drift: a plate sits wrong for a whole run and then moves, so this is a step rather than a speed.",
+        "min": 0.1,
+        "max": 10,
+        "step": 0.1
+      },
+      "chance": {
+        "type": "number",
+        "default": 0.55,
+        "description": "Share of runs where the plates are actually out. A press that is always wrong is not a press that is nearly right, and at 1 the text never settles.",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "skew": {
+        "type": "number",
+        "default": 0.4,
+        "description": "How far a slipped plate also turns, in degrees. Small: a plate that is out by a whole degree is a plate that has fallen off.",
+        "min": 0,
+        "max": 4,
+        "step": 0.1
+      },
+      "seed": {
+        "type": "number",
+        "default": 7,
+        "description": "Which runs slip and how far. Change it for a different sequence; the same seed always gives the same one.",
+        "min": 0,
+        "max": 999,
+        "step": 1
+      }
+    },
+    "instruction": "ambient, watch the plates go in and out",
+    "oneShot": false,
+    "record": {
+      "duration": 8.4,
+      "fps": 30,
+      "posterAt": 0.4,
+      "crf": 28
+    },
+    "group": "effects",
+    "intro": "A printing plate slipping out of register, so the word prints twice in two inks.\n\nThe usual version of this splits the red and blue channels apart and calls it a\nglitch. That is a television fault: an analogue signal arriving at the wrong\ntime. Paper has its own version of the same idea and it looks quite different. A\npress lays one plate per ink, and if a plate is a fraction out of position its\ncolour prints beside the others rather than on top of them.\n\nSo this is three copies of the same text, two of them coloured and offset, and\nthe stack **multiplies** rather than composites, because that is what overlapping\nink does. The overlap going darker is the whole tell. A channel split goes\nbrighter where the channels meet, which is light, not ink, and it is the thing\nthat makes the usual version read as a screen rather than as a page.\n\nRegistration does not drift, either. A plate sits wrong for a whole run and then\ngets knocked, so the offset holds still and then jumps. Easing it would turn a\npress into a wobble, and a wobble is a very different and much less interesting\nfault.\n\nNo canvas and no WebGL. Three stacked spans and two transforms per frame."
+  },
+  {
+    "name": "PointerFilings",
+    "slug": "pointer-filings",
+    "tier": 1,
+    "description": "Iron filings aligning to a magnetic field, with the cursor as the magnet",
+    "category": "pointer",
+    "tags": [
+      "webgl",
+      "shader",
+      "pointer",
+      "magnet",
+      "filings",
+      "physics",
+      "no-dependencies"
+    ],
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "The real dipole expression, not spokes radiating from a point. Filings align with the field rather than pointing at the magnet, and a dipole field loops: out of one pole, round, and back into the other",
+        "The field is sampled once per filing rather than per pixel. Per pixel each segment bends into a curve, which no single filing does",
+        "Window pointer scope, so the filings have begun to turn before the cursor reaches the element",
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 1.8,
+      "contexts": 1,
+      "notes": [
+        "Nine cells per pixel, each one dipole evaluation and one segment distance",
+        "Nothing is uploaded per frame. Only uniforms change",
+        "Cost is flat: every cell does the same work wherever the magnet is",
+        "Thousands of small hard-edged marks are difficult for a video codec, so the recording carries a per-item quality override. The effect itself is unaffected"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/pointer-filings/core.ts",
+        "to": "src/beamish/effects/pointer-filings/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/pointer-filings/adapters/react.tsx",
+        "to": "src/beamish/effects/pointer-filings/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/pointer-filings/adapters/vue.ts",
+        "to": "src/beamish/effects/pointer-filings/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "paper": {
+        "type": "color",
+        "default": "#fbfaf4",
+        "description": "The tray the filings are scattered on."
+      },
+      "ink": {
+        "type": "color",
+        "default": "#8d8577",
+        "description": "A filing lying flat, out where the field is weak."
+      },
+      "accent": {
+        "type": "color",
+        "default": "#36362f",
+        "description": "A filing standing up in a strong field. The pattern reads as much from this change in tone as from the alignment."
+      },
+      "pitch": {
+        "type": "number",
+        "default": 13,
+        "description": "Cell size in CSS pixels. There is one filing per cell, so this is how thickly they are scattered.",
+        "min": 5,
+        "max": 40,
+        "step": 1
+      },
+      "length": {
+        "type": "number",
+        "default": 0.42,
+        "description": "Length of a filing where the field is strongest, measured in cells. Past about 0.9 they overlap into continuous lines, which is a field diagram rather than a tray of filings.",
+        "min": 0.1,
+        "max": 1.2,
+        "step": 0.02
+      },
+      "weight": {
+        "type": "number",
+        "default": 0.055,
+        "description": "Half the thickness of a filing, in cells.",
+        "min": 0.01,
+        "max": 0.2,
+        "step": 0.005
+      },
+      "reach": {
+        "type": "number",
+        "default": 0.02,
+        "description": "How far the magnet reaches before the filings stop caring. The falloff saturates rather than multiplying, so close to the magnet the marks stand fully up instead of running away to a few enormous ones.",
+        "min": 0.002,
+        "max": 0.2,
+        "step": 0.002
+      },
+      "jitter": {
+        "type": "number",
+        "default": 0.6,
+        "description": "How far each filing is thrown off the centre of its cell. At 0 the grid they are organised by becomes visible, which no scattered tray has.",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "tilt": {
+        "type": "number",
+        "default": 0,
+        "description": "Angle of the bar magnet in degrees. Turns the whole pattern, the way turning the magnet on the bench would.",
+        "min": 0,
+        "max": 360,
+        "step": 1
+      },
+      "grain": {
+        "type": "number",
+        "default": 0.4,
+        "description": "Paper tooth under the filings.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      }
+    },
+    "instruction": "move the cursor across it",
+    "oneShot": false,
+    "cursor": {
+      "duration": 6,
+      "keys": [
+        {
+          "t": 0,
+          "x": 0.2,
+          "y": 0.3
+        },
+        {
+          "t": 1.2,
+          "x": 0.5,
+          "y": 0.25
+        },
+        {
+          "t": 2.4,
+          "x": 0.78,
+          "y": 0.5
+        },
+        {
+          "t": 3.6,
+          "x": 0.5,
+          "y": 0.78
+        },
+        {
+          "t": 4.8,
+          "x": 0.22,
+          "y": 0.6
+        },
+        {
+          "t": 6,
+          "x": 0.2,
+          "y": 0.3
+        }
+      ]
+    },
+    "record": {
+      "duration": 6,
+      "fps": 30,
+      "posterAt": 2.2,
+      "crf": 32,
+      "webmCrf": 58
+    },
+    "group": "effects",
+    "intro": "Iron filings scattered over a magnet, and the magnet is the cursor.\n\nFilings do not point at a magnet. That is the thing most versions of this get\nwrong, and it is why most of them look like a starburst rather than like a\nphysics demonstration. Filings align with the **field**, and the field of a\ndipole loops: out of one pole, round through the space beside it, and back into\nthe other. Spokes radiating from a point are what a single charge gives, and a\nsingle magnetic charge is not a thing that exists.\n\nSo this evaluates the real expression. For a moment **m** at displacement **r**\nthe field runs along `3(m · r̂)r̂ − m`, and every mark is a short segment laid\nalong it. The loops are a consequence of the maths rather than something drawn.\n\nThe field is sampled once per filing, at the filing, not per pixel. Sampling per\npixel bends each segment into a little curve, which no single filing does: a\nfiling is a rigid sliver of iron and it can only be straight.\n\nNear the magnet the dipole expression runs away to infinity, so the falloff is a\nratio rather than a product. It saturates at 1 instead of producing a handful of\nenormous marks on top of each other at the centre.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency."
+  },
+  {
     "name": "PointerFoilSheen",
     "slug": "pointer-foil-sheen",
     "tier": 1,
@@ -2644,6 +2944,297 @@
     },
     "group": "effects",
     "intro": "One picture on a paper web that bows on every edge as it accelerates.\n\nThe same press as ScrollSlideshow, and deliberately the same deformation. The\nsides lag behind the middle, the whole sheet slips against the direction of\ntravel, and the inks land a fraction apart while it moves. At rest it lies flat\nand there is no effect at all, which is the point: a reader who has stopped\nscrolling is looking at a photograph rather than at a filter.\n\nWhat is different is that there is one picture and it never changes, so there is\nno crossfade drawing the eye away from the edges, and the bow runs on **both**\naxes rather than one. The slideshow curves the top and bottom, which is all you\nsee of a sheet that is being replaced. Here every edge bends, because the sheet\nis the subject.\n\nThe cross-coupling is the whole trick. Each axis is displaced by how far the\n*other* axis is from the centre: displacing y by a function of x is what curves\nthe top and bottom, and doing the same the other way round curves the sides.\nDisplacing each axis by its own distance would only stretch the sheet, which\nreads as a zoom.\n\nThe edges deform with the picture. The bow is applied first and whatever falls\noutside the source is paper, so the boundary bends rather than staying a\nrectangle. There is no geometry here beyond one triangle: the shape of the sheet\nis a by-product of the sampling rather than a mesh.\n\nOne WebGL2 fragment shader. No three.js, no dependency, no render targets."
+  },
+  {
+    "name": "SpotlightCard",
+    "slug": "spotlight-card",
+    "tier": 1,
+    "description": "A card under a desk lamp, lit across the face and bright on the near edge",
+    "category": "surfaces",
+    "tags": [
+      "surfaces",
+      "card",
+      "pointer",
+      "light",
+      "dom",
+      "no-dependencies"
+    ],
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "No canvas and no WebGL. One added span whose background and box-shadow are painted by CSS from the pointer position",
+        "Two layers rather than one: a wide weak sheen across the face, and a hard highlight on whichever edge is turned toward the light. Paper is matte, so it scatters rather than reflecting a bright spot",
+        "Light and shade together. Lifting the face alone is what the physics says and what nothing in a light room can see, so the far side darkens as the near side brightens. Painted normally rather than screened, because screening cannot darken anything",
+        "Window pointer scope, so the sheen moves before the cursor reaches the card"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.2,
+      "contexts": 0,
+      "notes": [
+        "Two style writes per frame on one composited element. Nothing is measured and nothing reflows",
+        "The layer is added once, at setup, and removed on destroy"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/spotlight-card/core.ts",
+        "to": "src/beamish/effects/spotlight-card/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/spotlight-card/adapters/react.tsx",
+        "to": "src/beamish/effects/spotlight-card/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/spotlight-card/adapters/vue.ts",
+        "to": "src/beamish/effects/spotlight-card/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "light": {
+        "type": "color",
+        "default": "#fff6e4",
+        "description": "Colour of the lamp. Warm, unless the room is not. It is screened over the card rather than painted on it, so a saturated colour tints the whole face."
+      },
+      "sheen": {
+        "type": "number",
+        "default": 0.5,
+        "description": "How much the face lifts under the lamp. Paper scatters, so this wants to stay low and wide: a tight bright spot is a light source sitting on the card rather than a card being lit.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "spread": {
+        "type": "number",
+        "default": 0.85,
+        "description": "How wide the lift is, as a share of the card. Large and weak reads as a lamp; small and strong reads as a torch.",
+        "min": 0.1,
+        "max": 2,
+        "step": 0.05
+      },
+      "edge": {
+        "type": "number",
+        "default": 0.7,
+        "description": "How brightly the edge facing the lamp catches. This is the part that sells it: a glow with no lit edge reads as something emitting light, and a card does not emit anything.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "shade": {
+        "type": "number",
+        "default": 0.5,
+        "description": "How far the side away from the lamp falls into shade. This is what makes it read at all. A near white card lifted a few percent looks like a near white card; what you see when something is lit is the gradient across it, and half of that gradient is the dark half.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "ease": {
+        "type": "number",
+        "default": 0.12,
+        "description": "How fast the lamp catches up with the cursor, as a fraction of the remaining distance per frame. At 1 it is welded to the pointer and reads as a rectangle following the mouse.",
+        "min": 0.01,
+        "max": 1,
+        "step": 0.01
+      }
+    },
+    "instruction": "move the cursor over the card",
+    "oneShot": false,
+    "cursor": {
+      "duration": 6,
+      "keys": [
+        {
+          "t": 0,
+          "x": 0.15,
+          "y": 0.3
+        },
+        {
+          "t": 1.5,
+          "x": 0.5,
+          "y": 0.2
+        },
+        {
+          "t": 3,
+          "x": 0.85,
+          "y": 0.55
+        },
+        {
+          "t": 4.5,
+          "x": 0.45,
+          "y": 0.85
+        },
+        {
+          "t": 6,
+          "x": 0.15,
+          "y": 0.3
+        }
+      ]
+    },
+    "record": {
+      "duration": 6,
+      "fps": 30,
+      "posterAt": 2.6,
+      "crf": 28
+    },
+    "group": "effects",
+    "intro": "A card under a desk lamp, with the cursor as the lamp.\n\nThe usual version of this puts a bright radial glow on a dark card and calls it a\nspotlight. That is a light source sitting on the surface, which is not what a\nlamp does to paper. Paper is matte: it scatters. Move a lamp across a card and\nwhat you see is a broad, low-contrast lift across the face, a hard bright line on\nwhichever edge is turned toward the light, and the far side falling away into\nshade.\n\nAll three are here, and the third one is the one that makes it work. The first\nversion of this lifted the face and nothing else, which is what the physics says\nand what nothing in a light room can actually see: a near-white card lifted a few\npercent is indistinguishable from a near-white card. What you read when something\nis lit is the **gradient** across it, and half of that gradient is the dark half.\n\nThe edge matters too. A glow with no lit edge reads as something emitting light,\nand a card does not emit anything.\n\nNo canvas and no WebGL. One added span whose background and box-shadow are\nrepainted from the pointer position."
+  },
+  {
+    "name": "StippleField",
+    "slug": "stipple-field",
+    "tier": 1,
+    "description": "A stipple drawing where tone is how many marks there are, not how big",
+    "category": "backdrops",
+    "tags": [
+      "webgl",
+      "shader",
+      "stipple",
+      "engraving",
+      "dots",
+      "paper",
+      "backdrop",
+      "no-dependencies"
+    ],
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "Tone is carried by the number of marks rather than their size, which is what separates a stipple from a halftone: an engraver has one nib, so darker means more marks rather than fatter ones",
+        "Each mark is tested against the nine surrounding cells, because a mark thrown off centre crosses into its neighbour and testing only its own cell would slice it at the boundary",
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 1.5,
+      "contexts": 1,
+      "notes": [
+        "Nine cell tests per pixel, each a hash and a distance, plus four octaves of value noise for the tone field",
+        "Most cells fail the tone test and cost one hash, so the lighter the field the cheaper it is",
+        "Nothing is uploaded per frame. Only uniforms change"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/stipple-field/core.ts",
+        "to": "src/beamish/effects/stipple-field/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/stipple-field/adapters/react.tsx",
+        "to": "src/beamish/effects/stipple-field/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/stipple-field/adapters/vue.ts",
+        "to": "src/beamish/effects/stipple-field/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "paper": {
+        "type": "color",
+        "default": "#fbfaf4",
+        "description": "The paper behind the marks."
+      },
+      "ink": {
+        "type": "color",
+        "default": "#36362f",
+        "description": "The nib."
+      },
+      "accent": {
+        "type": "color",
+        "default": "#c44400",
+        "description": "A second nib, on a small share of the marks."
+      },
+      "pitch": {
+        "type": "number",
+        "default": 7,
+        "description": "Cell size in CSS pixels. There is at most one mark per cell, so this is the spacing of the stipple rather than its weight. Laid out in pixels so the marks keep their size whatever shape the element is.",
+        "min": 3,
+        "max": 30,
+        "step": 0.5
+      },
+      "jitter": {
+        "type": "number",
+        "default": 0.75,
+        "description": "How far each mark is thrown off the centre of its cell. At 0 the marks sit on a grid and it stops being a stipple; at 1 they are anywhere in their cell and the grid is undetectable.",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "scale": {
+        "type": "number",
+        "default": 1.6,
+        "description": "Size of the tone field the marks follow. Lower is broader country with slower changes in density.",
+        "min": 0.2,
+        "max": 8,
+        "step": 0.1
+      },
+      "weight": {
+        "type": "number",
+        "default": 0.19,
+        "description": "Radius of a mark, measured in cells. Every mark is the same size, which is the point: an engraver has one nib. Past about 0.4 they touch at full density and it becomes a solid.",
+        "min": 0.05,
+        "max": 0.45,
+        "step": 0.01
+      },
+      "contrast": {
+        "type": "number",
+        "default": 1.9,
+        "description": "How hard the tone field pushes away from the midtone. Applied about 0.5, so raising it opens the field out rather than dragging the whole thing dark.",
+        "min": 0.5,
+        "max": 5,
+        "step": 0.1
+      },
+      "accentShare": {
+        "type": "number",
+        "default": 0.06,
+        "description": "Share of marks that take the second nib. Small: this is a second pass over a drawing, not a second drawing.",
+        "min": 0,
+        "max": 0.5,
+        "step": 0.01
+      },
+      "grain": {
+        "type": "number",
+        "default": 0.4,
+        "description": "Paper tooth under the marks.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "period": {
+        "type": "number",
+        "default": 18,
+        "description": "Seconds for one loop of the drift. The tone field travels a closed circle through noise space, so it returns to exactly where it began and the loop is seamless.",
+        "min": 2,
+        "max": 120,
+        "step": 1
+      }
+    },
+    "instruction": "ambient, watch the density drift",
+    "oneShot": false,
+    "record": {
+      "duration": 18,
+      "fps": 30,
+      "posterAt": 5,
+      "crf": 34,
+      "webmCrf": 48
+    },
+    "group": "effects",
+    "intro": "A stipple drawing. Tone is carried by how many marks there are, not how big they\nare.\n\nThat is the whole distinction from a halftone, and it is worth being exact about,\nbecause the two look superficially alike and the difference is the entire reason\nthis exists alongside HalftoneBackdrop. A halftone puts a dot in the middle of\nevery cell of a regular grid and varies its size: the count is fixed and the area\ndoes the work. A stipple engraver has one nib. Every mark is the same size, and\ndarker means more marks, closer together.\n\nSo the grid here is only a way of avoiding a sort. Each cell holds at most one\nmark, thrown off the centre by a hash, and whether it exists at all comes from\ncomparing a second hash against the tone wanted at that point. Off-grid positions\nand a population that thins out is what reads as a hand rather than as a screen.\n\nEach pixel is tested against the nine cells around it rather than only its own. A\nmark thrown off centre crosses into its neighbour, and testing one cell would\nslice it at the boundary: the jitter would then read as marks being cut rather\nthan as marks being scattered.\n\nThe tone field drifts on a closed orbit through noise space, so the loop returns\nto exactly where it started rather than being crossfaded.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency."
   },
   {
     "name": "TerrainRelief",

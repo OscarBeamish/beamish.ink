@@ -1,0 +1,140 @@
+{
+  "name": "SpotlightCard",
+  "slug": "spotlight-card",
+  "tier": 1,
+  "description": "A card under a desk lamp, lit across the face and bright on the near edge",
+  "category": "surfaces",
+  "tags": [
+    "surfaces",
+    "card",
+    "pointer",
+    "light",
+    "dom",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "No canvas and no WebGL. One added span whose background and box-shadow are painted by CSS from the pointer position",
+      "Two layers rather than one: a wide weak sheen across the face, and a hard highlight on whichever edge is turned toward the light. Paper is matte, so it scatters rather than reflecting a bright spot",
+      "Light and shade together. Lifting the face alone is what the physics says and what nothing in a light room can see, so the far side darkens as the near side brightens. Painted normally rather than screened, because screening cannot darken anything",
+      "Window pointer scope, so the sheen moves before the cursor reaches the card"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.2,
+    "contexts": 0,
+    "notes": [
+      "Two style writes per frame on one composited element. Nothing is measured and nothing reflows",
+      "The layer is added once, at setup, and removed on destroy"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/spotlight-card/core.ts",
+      "to": "src/beamish/effects/spotlight-card/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/spotlight-card/adapters/react.tsx",
+      "to": "src/beamish/effects/spotlight-card/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/spotlight-card/adapters/vue.ts",
+      "to": "src/beamish/effects/spotlight-card/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "light": {
+      "type": "color",
+      "default": "#fff6e4",
+      "description": "Colour of the lamp. Warm, unless the room is not. It is screened over the card rather than painted on it, so a saturated colour tints the whole face."
+    },
+    "sheen": {
+      "type": "number",
+      "default": 0.5,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How much the face lifts under the lamp. Paper scatters, so this wants to stay low and wide: a tight bright spot is a light source sitting on the card rather than a card being lit."
+    },
+    "spread": {
+      "type": "number",
+      "default": 0.85,
+      "min": 0.1,
+      "max": 2,
+      "step": 0.05,
+      "description": "How wide the lift is, as a share of the card. Large and weak reads as a lamp; small and strong reads as a torch."
+    },
+    "edge": {
+      "type": "number",
+      "default": 0.7,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How brightly the edge facing the lamp catches. This is the part that sells it: a glow with no lit edge reads as something emitting light, and a card does not emit anything."
+    },
+    "shade": {
+      "type": "number",
+      "default": 0.5,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How far the side away from the lamp falls into shade. This is what makes it read at all. A near white card lifted a few percent looks like a near white card; what you see when something is lit is the gradient across it, and half of that gradient is the dark half."
+    },
+    "ease": {
+      "type": "number",
+      "default": 0.12,
+      "min": 0.01,
+      "max": 1,
+      "step": 0.01,
+      "description": "How fast the lamp catches up with the cursor, as a fraction of the remaining distance per frame. At 1 it is welded to the pointer and reads as a rectangle following the mouse."
+    }
+  },
+  "instruction": "move the cursor over the card",
+  "oneShot": false,
+  "cursor": {
+    "duration": 6,
+    "keys": [
+      {
+        "t": 0,
+        "x": 0.15,
+        "y": 0.3
+      },
+      {
+        "t": 1.5,
+        "x": 0.5,
+        "y": 0.2
+      },
+      {
+        "t": 3,
+        "x": 0.85,
+        "y": 0.55
+      },
+      {
+        "t": 4.5,
+        "x": 0.45,
+        "y": 0.85
+      },
+      {
+        "t": 6,
+        "x": 0.15,
+        "y": 0.3
+      }
+    ]
+  },
+  "record": {
+    "duration": 6,
+    "fps": 30,
+    "posterAt": 2.6,
+    "crf": 28
+  }
+}

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tilt: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        place-items: center;
+      }
+      .card {
+        width: min(26rem, 62vw);
+        aspect-ratio: 5 / 6;
+        padding: 1.8rem;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background: var(--background-elevated);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        box-shadow: 0 24px 60px rgba(54, 54, 48, 0.09);
+      }
+      .card h2 {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: 2.4rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 0.95;
+      }
+      .card .tag {
+        font-size: 0.68rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--label-3);
+      }
+      .card p {
+        margin: 0;
+        font-size: 0.82rem;
+        line-height: 1.5;
+        color: var(--label-2);
+      }
+      .card .mark {
+        width: 2.6rem;
+        height: 2.6rem;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+    -->
+    <div id="stage">
+      <article class="card">
+        <div class="mark"></div>
+        <div>
+          <p class="tag">Surfaces</p>
+          <h2>Beamysshe as the sonne is</h2>
+        </div>
+        <p>John Palsgrave, Lesclarcissement de la langue francoyse, 1530.</p>
+      </article>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const handle = window.Beamish.create(document.querySelector('.card'))
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      window.__beamish = handle
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
+    </script>
+  </body>
+</html>

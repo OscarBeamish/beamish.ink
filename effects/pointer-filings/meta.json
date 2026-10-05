@@ -1,0 +1,175 @@
+{
+  "name": "PointerFilings",
+  "slug": "pointer-filings",
+  "tier": 1,
+  "description": "Iron filings aligning to a magnetic field, with the cursor as the magnet",
+  "category": "pointer",
+  "tags": [
+    "webgl",
+    "shader",
+    "pointer",
+    "magnet",
+    "filings",
+    "physics",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "The real dipole expression, not spokes radiating from a point. Filings align with the field rather than pointing at the magnet, and a dipole field loops: out of one pole, round, and back into the other",
+      "The field is sampled once per filing rather than per pixel. Per pixel each segment bends into a curve, which no single filing does",
+      "Window pointer scope, so the filings have begun to turn before the cursor reaches the element",
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 1.8,
+    "contexts": 1,
+    "notes": [
+      "Nine cells per pixel, each one dipole evaluation and one segment distance",
+      "Nothing is uploaded per frame. Only uniforms change",
+      "Cost is flat: every cell does the same work wherever the magnet is",
+      "Thousands of small hard-edged marks are difficult for a video codec, so the recording carries a per-item quality override. The effect itself is unaffected"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/pointer-filings/core.ts",
+      "to": "src/beamish/effects/pointer-filings/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/pointer-filings/adapters/react.tsx",
+      "to": "src/beamish/effects/pointer-filings/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/pointer-filings/adapters/vue.ts",
+      "to": "src/beamish/effects/pointer-filings/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "paper": {
+      "type": "color",
+      "default": "#fbfaf4",
+      "description": "The tray the filings are scattered on."
+    },
+    "ink": {
+      "type": "color",
+      "default": "#8d8577",
+      "description": "A filing lying flat, out where the field is weak."
+    },
+    "accent": {
+      "type": "color",
+      "default": "#36362f",
+      "description": "A filing standing up in a strong field. The pattern reads as much from this change in tone as from the alignment."
+    },
+    "pitch": {
+      "type": "number",
+      "default": 13,
+      "min": 5,
+      "max": 40,
+      "step": 1,
+      "description": "Cell size in CSS pixels. There is one filing per cell, so this is how thickly they are scattered."
+    },
+    "length": {
+      "type": "number",
+      "default": 0.42,
+      "min": 0.1,
+      "max": 1.2,
+      "step": 0.02,
+      "description": "Length of a filing where the field is strongest, measured in cells. Past about 0.9 they overlap into continuous lines, which is a field diagram rather than a tray of filings."
+    },
+    "weight": {
+      "type": "number",
+      "default": 0.055,
+      "min": 0.01,
+      "max": 0.2,
+      "step": 0.005,
+      "description": "Half the thickness of a filing, in cells."
+    },
+    "reach": {
+      "type": "number",
+      "default": 0.02,
+      "min": 0.002,
+      "max": 0.2,
+      "step": 0.002,
+      "description": "How far the magnet reaches before the filings stop caring. The falloff saturates rather than multiplying, so close to the magnet the marks stand fully up instead of running away to a few enormous ones."
+    },
+    "jitter": {
+      "type": "number",
+      "default": 0.6,
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "description": "How far each filing is thrown off the centre of its cell. At 0 the grid they are organised by becomes visible, which no scattered tray has."
+    },
+    "tilt": {
+      "type": "number",
+      "default": 0,
+      "min": 0,
+      "max": 360,
+      "step": 1,
+      "description": "Angle of the bar magnet in degrees. Turns the whole pattern, the way turning the magnet on the bench would."
+    },
+    "grain": {
+      "type": "number",
+      "default": 0.4,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Paper tooth under the filings."
+    }
+  },
+  "instruction": "move the cursor across it",
+  "oneShot": false,
+  "cursor": {
+    "duration": 6,
+    "keys": [
+      {
+        "t": 0,
+        "x": 0.2,
+        "y": 0.3
+      },
+      {
+        "t": 1.2,
+        "x": 0.5,
+        "y": 0.25
+      },
+      {
+        "t": 2.4,
+        "x": 0.78,
+        "y": 0.5
+      },
+      {
+        "t": 3.6,
+        "x": 0.5,
+        "y": 0.78
+      },
+      {
+        "t": 4.8,
+        "x": 0.22,
+        "y": 0.6
+      },
+      {
+        "t": 6,
+        "x": 0.2,
+        "y": 0.3
+      }
+    ]
+  },
+  "record": {
+    "duration": 6,
+    "fps": 30,
+    "posterAt": 2.2,
+    "crf": 32,
+    "webmCrf": 58
+  }
+}

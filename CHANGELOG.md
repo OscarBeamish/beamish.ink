@@ -5,6 +5,34 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.9.0, 5 October 2026
+
+Twenty-three items. Four more P1 entries, one closed without building it.
+
+### Added
+
+- StippleField (backdrops): a stipple drawing where tone is how many marks there
+  are rather than how big. That is the whole distinction from a halftone and the
+  reason it exists alongside one: an engraver has one nib, so darker means more
+  marks rather than fatter ones.
+- PointerFilings (pointer): iron filings aligning to a magnetic field, with the
+  cursor as the magnet. The real dipole expression, so the field loops out of one
+  pole and back into the other. Filings do not point at a magnet, and spokes
+  radiating from a point would be a monopole, which does not exist.
+- MisprintText (type): a printing plate slipping out of register. The layers
+  multiply, so the overlap is darker than either ink. The usual channel split
+  goes brighter where the channels meet, which is light rather than ink, and that
+  is what makes it read as a screen instead of a page.
+- SpotlightCard (surfaces): a card under a desk lamp. Light and shade together,
+  because the first version lifted the face alone and a near-white card lifted a
+  few percent is indistinguishable from a near-white card.
+
+### Changed
+
+- The Focus entry is closed without being built. ScrambleText already has a
+  `blur` option that resolves to sharp, so it would have been a second name for
+  something that already exists.
+
 ## v0.8.0, 23 September 2026
 
 Nineteen items. Two of the longest-standing P1 entries, both paper-native.
