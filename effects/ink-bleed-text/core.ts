@@ -44,9 +44,9 @@ export type InkBleedTextOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const inkBleedTextDefaults: InkBleedTextOptions = {
-  bleed: 3.4,
-  floor: 1.1,
-  fibre: 0.035,
+  bleed: 9,
+  floor: 3,
+  fibre: 0.055,
   detail: 3,
   period: 9,
   seed: 4,

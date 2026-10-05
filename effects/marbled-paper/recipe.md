@@ -120,6 +120,25 @@ finally covers is the sum of the drop areas. Halving `size` and quadrupling
 `drops` gives the same coverage at four times the detail, which is almost always
 what you actually wanted when you reached for one of them.
 
+## Why it costs what it does
+
+Four samples per pixel, averaged, on a grid rotated off the axes.
+
+Whether a point sits inside a drop is a yes or no question, so one sample per
+pixel can only ever produce two answers and every boundary in the pattern comes
+back as a staircase. It is worse here than for a plain circle: the edge you see
+is a drop dragged through two combs and through every drop laid after it, so it
+arrives at the screen at an arbitrary angle and stretched to an arbitrary
+length. There is no analytic width to smoothstep against either, because the
+obvious `fwidth()` of the distance would be a derivative taken inside a loop
+that breaks per pixel, and that is undefined in non-uniform control flow.
+
+So the edge is measured rather than estimated, and the cost is roughly four
+times what one sample would be: 2.25ms at the default sixty drops, at 1440 by
+900 on an RTX 3080. If you are running this behind content on a page that is
+already busy, `scale` and `drops` are the two levers worth pulling before
+anything else.
+
 ## Behind content
 
 Bring the inks most of the way to the paper. The default palette is a cover, not

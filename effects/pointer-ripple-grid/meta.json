@@ -117,7 +117,7 @@
     },
     "amplitude": {
       "type": "number",
-      "default": 1.9,
+      "default": 1.0,
       "min": 0.1,
       "max": 4,
       "step": 0.05,
@@ -141,7 +141,7 @@
     },
     "falloff": {
       "type": "number",
-      "default": 0.26,
+      "default": 0.5,
       "min": 0.05,
       "max": 2,
       "step": 0.01,

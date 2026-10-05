@@ -72,7 +72,7 @@
     },
     "scale": {
       "type": "number",
-      "default": 0.92,
+      "default": 1.9,
       "min": 0.2,
       "max": 3,
       "step": 0.01,
@@ -84,7 +84,7 @@
     },
     "pitch": {
       "type": "number",
-      "default": 26,
+      "default": 10,
       "min": 4,
       "max": 80,
       "step": 1,
@@ -108,7 +108,7 @@
     },
     "waves": {
       "type": "number",
-      "default": 24,
+      "default": 9,
       "min": 4,
       "max": 80,
       "step": 1,
@@ -120,7 +120,7 @@
     },
     "depth": {
       "type": "number",
-      "default": 0.07,
+      "default": 0.12,
       "min": 0,
       "max": 0.4,
       "step": 0.005,
@@ -132,7 +132,7 @@
     },
     "weight": {
       "type": "number",
-      "default": 0.35,
+      "default": 0.18,
       "min": 0,
       "max": 1,
       "step": 0.01,

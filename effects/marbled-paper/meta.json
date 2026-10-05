@@ -20,14 +20,16 @@
     "notes": [
       "Every marbling operation has a closed-form inverse, so each pixel runs the session backwards instead of the tray being simulated forwards. One pass, no render targets, no feedback",
       "The drop loop runs backwards and stops at the first drop that contains the point, so raising the count costs much less than it looks like it should",
+      "Each pixel is sampled four times on a rotated grid and averaged. The edge you see is a circle dragged through two combs and through every drop laid after it, so it reaches the screen at an arbitrary angle, and there is no analytic width to smoothstep against: fwidth() of the distance would be a derivative taken inside a loop that breaks per pixel, which is undefined in non-uniform control flow",
       "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
     ]
   },
   "perf": {
-    "frameBudgetMs": 2.0,
+    "frameBudgetMs": 3.0,
     "contexts": 1,
     "notes": [
-      "Measured 0.42ms at one drop and 0.64ms at seventy-two, at 1440 by 900 on an RTX 3080, timed with a readPixels sync because without one you are timing the dispatch rather than the shader",
+      "Measured 0.45ms at one drop, 2.25ms at the default sixty and 2.63ms at seventy-two, at 1440 by 900 on an RTX 3080, timed with a readPixels sync because without one you are timing the dispatch rather than the shader",
+      "Four of those milliseconds in five are the four samples per pixel. Whether a point is inside a drop is a yes or no question, so one sample can only produce two answers and every boundary arrives as a staircase. The samples sit on a rotated grid, which is what 4x MSAA uses and for the same reason",
       "Cost rises with the drop count but far less than linearly: the loop breaks the moment a drop claims the point, so most pixels walk only the last few. The pixels that walk the whole list are the paper margins",
       "One inverse-drop per step, which is a dot product and a square root. Nothing is uploaded per frame and only uniforms change"
     ]
@@ -62,17 +64,17 @@
     },
     "ink": {
       "type": "color",
-      "default": "#36362f",
+      "default": "#6b675c",
       "description": "The main ink. Roughly two thirds of the drops are this, or this thinned toward the paper, which is what a second pass of one colour looks like once the first has spread."
     },
     "accent": {
       "type": "color",
-      "default": "#c44400",
+      "default": "#cf8458",
       "description": "The second ink, on roughly a third of the drops."
     },
     "drops": {
       "type": "number",
-      "default": 44,
+      "default": 60,
       "min": 1,
       "max": 72,
       "step": 1,
@@ -80,7 +82,7 @@
     },
     "scale": {
       "type": "number",
-      "default": 1,
+      "default": 0.8,
       "min": 0.2,
       "max": 4,
       "step": 0.05,
@@ -88,7 +90,7 @@
     },
     "spread": {
       "type": "number",
-      "default": 0.95,
+      "default": 1.4,
       "min": 0.1,
       "max": 2,
       "step": 0.05,
@@ -96,7 +98,7 @@
     },
     "size": {
       "type": "number",
-      "default": 0.17,
+      "default": 0.12,
       "min": 0.05,
       "max": 0.8,
       "step": 0.01,
@@ -104,7 +106,7 @@
     },
     "rake": {
       "type": "number",
-      "default": 0.25,
+      "default": 0.32,
       "min": 0,
       "max": 0.6,
       "step": 0.01,
@@ -120,7 +122,7 @@
     },
     "swirl": {
       "type": "number",
-      "default": 0.12,
+      "default": 0.18,
       "min": 0,
       "max": 0.4,
       "step": 0.01,
@@ -136,7 +138,7 @@
     },
     "period": {
       "type": "number",
-      "default": 12,
+      "default": 24,
       "min": 2,
       "max": 120,
       "step": 1,
@@ -146,10 +148,10 @@
   "instruction": "ambient, watch the comb draw through",
   "oneShot": false,
   "record": {
-    "duration": 12,
+    "duration": 24,
     "fps": 30,
     "posterAt": 4,
-    "crf": 32,
+    "crf": 36,
     "webmCrf": 46
   }
 }
