@@ -213,6 +213,9 @@
     align-items: baseline;
     justify-content: space-between;
     gap: 2rem;
+    /* A row that wraps is twice the height of the one above it, which is the
+       one thing a staggered list cannot survive. Balanced if it ever does. */
+    text-wrap: balance;
     padding: 0.7rem 0;
     border-top: 1px solid var(--label-4);
     font-size: clamp(0.95rem, 2.2vw, 1.4rem);

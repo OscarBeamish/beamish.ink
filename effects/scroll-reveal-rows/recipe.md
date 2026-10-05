@@ -112,6 +112,20 @@ has finished. The content simply appears. Do not set it to 0: that leaves the
 whole container invisible for anyone who has asked for less motion, which is the
 worst possible outcome of a motion preference.
 
+## The curve
+
+`cubic-bezier(0.66, 0, 0.01, 1)`, solved per frame rather than approximated.
+
+It matters more here than it would for one element. A row on this curve leaves
+at rest, so what you see is a row starting to move. On a curve that leaves at
+speed, a row is already half visible in the first frame, and six of those in
+sequence read as six separate pops with the stagger supplying all the rhythm.
+
+If you are matching this in CSS somewhere else on the page, that is the
+`--ease-66` token. Do not reach for a spring. A list arriving is a piece of
+choreography and it wants the same curve every time, which is the whole reason
+this library has two easings rather than a library of them.
+
 ## Common mistakes
 
 1. **Adding your own `IntersectionObserver`.** The runtime has one. Yours will
