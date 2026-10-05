@@ -1976,7 +1976,7 @@
       },
       "spokes": {
         "type": "number",
-        "default": 34,
+        "default": 28,
         "description": "Points on the rosette. Above about 24 the petals are narrower than the relief and it turns into a disc.",
         "min": 3,
         "max": 40,
@@ -1988,7 +1988,7 @@
       },
       "scale": {
         "type": "number",
-        "default": 1.6,
+        "default": 0.8,
         "description": "Size of the stamp relative to the shorter side of the element.",
         "min": 0.3,
         "max": 1.6,
@@ -2000,7 +2000,7 @@
       },
       "relief": {
         "type": "number",
-        "default": 0.2,
+        "default": 0.28,
         "description": "Depth of the brushed relief. At zero the foil is a flat shape that changes brightness, which reads as plastic rather than metal.",
         "min": 0,
         "max": 1,
@@ -2024,7 +2024,7 @@
       },
       "iridescence": {
         "type": "number",
-        "default": 0.5,
+        "default": 0.22,
         "description": "Spectral shift at grazing angles. Past about 0.6 it stops being a foil and becomes a hologram.",
         "min": 0,
         "max": 1,

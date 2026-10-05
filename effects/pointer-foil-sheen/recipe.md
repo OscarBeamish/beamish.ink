@@ -31,9 +31,9 @@ the WebGL context and a flat gold circle is not, and it is also why the thing
 should sit somewhere a cursor will pass: near a heading, near a link, not in a
 footer nobody tracks across.
 
-Give it room. At the default `scale` the emblem is cropped by the frame, which
-suits a panel; below about 1.0 it sits whole with paper around it, which suits a
-seal.
+Give it room. At the default `scale` the emblem sits whole with paper around it,
+which is what a seal does. Past about 1.2 the frame crops the ring and the hub
+blows out, and what you get is a sunburst rather than a stamp.
 
 ## Wiring
 
