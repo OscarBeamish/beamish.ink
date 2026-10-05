@@ -7,6 +7,21 @@ Published tags are never deleted or moved.
 
 ## Unreleased
 
+### Added
+
+- Loupe (surfaces): a printer's glass laid on a photograph. The picture is
+  continuous tone until you look closely and then it is dots, which is what a
+  printed photograph is and the one thing a screen never shows you. The screen
+  ruling belongs to the press, so the cell magnifies along with the picture:
+  turning the zoom up makes the dots bigger, never finer.
+
+- RelightImage (surfaces): a lamp moved across a printed photograph. It lights
+  the print rather than the scene, because there is no depth in a photograph and
+  no honest way to get one out of a single frame. Height is the picture's own
+  luminance, so what a raking light finds is relief in the sheet, and the limit
+  of that (lighting already in the picture becomes relief) is why the modelling
+  is laid over the photograph rather than replacing it.
+
 ### Changed
 
 - PointerTrail is now PointerSmoke, and what it draws is smoke rather than ink.
@@ -48,6 +63,17 @@ Published tags are never deleted or moved.
   register.
 
 ### Fixed
+
+- The React and Vue adapters for ScrollWarpImage, HalftoneReveal and
+  ScrollSlideshow rendered an empty div. All three read their pictures out of
+  the host element, so the adapter handed you a blank panel and no error. They
+  take children now, and the Vue ones render the default slot.
+
+- The recorder deleted its frames directory and recreated it, which on Windows
+  races the pending delete: the mkdir appears to succeed, the screenshots go
+  into a doomed directory, and ffmpeg fails with a file-not-found on a path that
+  existed a moment ago. It also trusted the capture's own frame count rather
+  than what reached the disk.
 
 - Tier-2 demos hydrate as Astro islands. Imported from the panel's own script
   and mounted by hand, they threw on every page load in dev, because the react

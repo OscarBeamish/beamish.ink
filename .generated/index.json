@@ -684,7 +684,7 @@
       "duration": 36,
       "fps": 15,
       "posterAt": 2.2,
-      "crf": 42,
+      "crf": 46,
       "webmCrf": 62
     },
     "group": "effects",
@@ -2781,6 +2781,176 @@
     },
     "group": "effects",
     "intro": "Smoke off the cursor, spreading and thinning as it drifts.\n\nNot a comet and not a glow. A puff of smoke does two things while it hangs\nthere. It **widens**, because nothing is holding it together. And it **thins**,\nbecause the same amount of it is spread over more room. So an older puff is\nbigger and fainter than a new one, which is the opposite of a particle trail,\nwhere older means smaller, and it is the single thing that makes this read as\nsmoke rather than as a cursor with a tail.\n\nThe puffs multiply rather than compositing, so two that overlap are denser than\neither. What warmth there is sits at the head, where the smoke has not yet had\nroom to spread.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency."
+  },
+  {
+    "name": "RelightImage",
+    "slug": "relight-image",
+    "tier": 1,
+    "description": "A lamp moved across a printed photograph, finding the relief in the impression",
+    "category": "surfaces",
+    "tags": [
+      "webgl",
+      "shader",
+      "image",
+      "pointer",
+      "light",
+      "print",
+      "no-dependencies"
+    ],
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "The picture is the host element's own <img> child. It is hidden from sight and left in the document, so the alt text is whatever you wrote and a page with no JavaScript still shows it",
+        "This lights the print rather than the scene. There is no depth in a photograph and no honest way to get one out of a single frame, so the height field is the picture's own luminance and what the lamp finds is relief in the sheet",
+        "Known limit, and the reason the modelling is laid over the picture rather than replacing it: lighting already in the photograph becomes relief, so a cast shadow across a wall turns into a step in the paper. A flat-lit image is the one this flatters most",
+        "The gradient is taken across several pixels rather than one, which low-passes the height field on the way and is what keeps sensor noise and compression blocks out of the normal",
+        "Nothing is integrated against the previous frame. The lamp is exactly where the pointer is, so renderAtTime is pure in t and a scripted path replays identically",
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.8,
+      "contexts": 1,
+      "notes": [
+        "Five texture reads per pixel: one for the picture and four for the central differences the normal is built from",
+        "No second pass and no render target. The normal is computed where it is used rather than baked, which costs four reads and saves a framebuffer",
+        "The image uploads once, on load. Nothing is uploaded per frame"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/relight-image/core.ts",
+        "to": "src/beamish/effects/relight-image/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/relight-image/adapters/react.tsx",
+        "to": "src/beamish/effects/relight-image/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/relight-image/adapters/vue.ts",
+        "to": "src/beamish/effects/relight-image/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "light": {
+        "type": "color",
+        "default": "#fff3df",
+        "description": "Colour of the lamp. Keep it close to white, warm or cool. It is painted over the picture as a sheen rather than mixed into it, so a saturated colour tints the highlights rather than reading as illumination."
+      },
+      "height": {
+        "type": "number",
+        "default": 0.32,
+        "description": "How far above the sheet the lamp is held, as a share of the frame's height. Low is a raking light that finds every ridge in the impression; high is a lamp overhead that finds almost none. This is the first dial to reach for and most of the character is in it.",
+        "min": 0.02,
+        "max": 2,
+        "step": 0.01
+      },
+      "relief": {
+        "type": "number",
+        "default": 7,
+        "description": "How much relief the impression has. At 0 the sheet is flat and all you have is a soft gradient moving about. Past about 15 the paper stops reading as paper and starts reading as hammered metal.",
+        "min": 0,
+        "max": 30,
+        "step": 0.5
+      },
+      "smooth": {
+        "type": "number",
+        "default": 2,
+        "description": "Pixels either side the gradient is taken across. Low-passes the height field on the way, so this is the difference between lighting the shape of the impression and lighting the noise in the file. Below about 1.5 you are mostly lighting JPEG blocks.",
+        "min": 0.5,
+        "max": 8,
+        "step": 0.5
+      },
+      "strength": {
+        "type": "number",
+        "default": 0.55,
+        "description": "How much modelling the lamp lays over the picture. The photograph is exactly itself at the midpoint of the light, so this opens the gradient out either side of it rather than re-exposing anything.",
+        "min": 0,
+        "max": 1.5,
+        "step": 0.01
+      },
+      "gloss": {
+        "type": "number",
+        "default": 0.3,
+        "description": "How much the ink catches the light that the paper does not. This is the part that says the dark areas are ink rather than dark paper, and it is what separates this from a gradient.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "shine": {
+        "type": "number",
+        "default": 26,
+        "description": "How tight that catch is. Low is a broad satin sheen; high is a small hard glint that only appears where a ridge faces the lamp exactly.",
+        "min": 2,
+        "max": 160,
+        "step": 1
+      },
+      "reach": {
+        "type": "number",
+        "default": 0.75,
+        "description": "How far the lamp throws, as a share of the frame's height. Small is a reading lamp held close with the corners falling away; large is a window on the far side of the room.",
+        "min": 0.1,
+        "max": 3,
+        "step": 0.01
+      },
+      "grain": {
+        "type": "number",
+        "default": 0.25,
+        "description": "Paper tooth over the whole thing.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      }
+    },
+    "instruction": "move the cursor over the picture",
+    "oneShot": false,
+    "cursor": {
+      "duration": 6,
+      "keys": [
+        {
+          "t": 0,
+          "x": 0.15,
+          "y": 0.75
+        },
+        {
+          "t": 1.5,
+          "x": 0.5,
+          "y": 0.22
+        },
+        {
+          "t": 3,
+          "x": 0.85,
+          "y": 0.6
+        },
+        {
+          "t": 4.5,
+          "x": 0.45,
+          "y": 0.85
+        },
+        {
+          "t": 6,
+          "x": 0.15,
+          "y": 0.75
+        }
+      ]
+    },
+    "record": {
+      "duration": 6,
+      "fps": 30,
+      "posterAt": 1.8,
+      "crf": 30
+    },
+    "group": "effects",
+    "intro": "A lamp moved across a printed photograph.\n\nIt does not relight the scene. There is no depth in a photograph and no honest\nway to get one out of a single frame, so anything that claims to move the sun\naround inside a picture is guessing at a shape it cannot see. What this lights\nis the print: the sheet the picture is on, which has relief wherever the\nimpression is heavy, and a raking light finds that relief the way a raking light\nfinds any other surface.\n\nHeight is the picture's own luminance. A shadow in the photograph is a hollow in\nthe sheet and a highlight stands proud, and the normal is the gradient of that\nheight taken across a few pixels rather than one, because a one-pixel difference\nis mostly sensor noise and compression blocks.\n\nThere is one thing the lamp adds that a gradient cannot, and it is the thing\nworth having: ink has a sheen that paper does not. The specular is what says the\ndark passages are ink sitting on a surface rather than dark paper, and without\nit this is a soft blob moving about.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency, no depth map to author or ship."
   },
   {
     "name": "ScrambleText",

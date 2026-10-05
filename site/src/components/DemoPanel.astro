@@ -220,7 +220,8 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'pointer-smoke': () => import('@items/effects/pointer-smoke/core'),
     'watermark-sheet': () => import('@items/effects/watermark-sheet/core'),
     'ink-bleed-text': () => import('@items/effects/ink-bleed-text/core'),
-    loupe: () => import('@items/effects/loupe/core')
+    loupe: () => import('@items/effects/loupe/core'),
+    'relight-image': () => import('@items/effects/relight-image/core')
   }
 
   /*
@@ -258,6 +259,8 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       '<img class="demo-plate-fill" src="/plates/halftone-reveal/plate.jpg" alt="A spiral stair curving down the inside of a circular concrete well" />',
     loupe:
       '<img class="demo-plate-fill" src="/plates/loupe/plate.jpg" alt="A spiral stair curving down the inside of a circular concrete well" />',
+    'relight-image':
+      '<img class="demo-plate-fill" src="/plates/relight-image/plate.jpg" alt="A facade of small square windows punched in a dark grid, seen from above" />',
     'scramble-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     'misprint-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     'ink-bleed-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
@@ -328,7 +331,8 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'scroll-slideshow',
     'scroll-warp-image',
     'halftone-reveal',
-    'loupe'
+    'loupe',
+    'relight-image'
   ])
 
   for (const panel of document.querySelectorAll<HTMLElement>('[data-demo]')) {

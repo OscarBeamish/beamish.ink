@@ -52,7 +52,7 @@ keeps them framework-free and recordable. Tier 2 only where they need state.
 | Caret | Text Cursor | 3 | |
 | Rota | Text Loop, Rotating Text | 3 | Two of theirs, one of ours |
 | Shuffle | Shuffle | 3 | Close to Cipher. Build only if it reads differently |
-| Loupe | True Focus | 3 | |
+| Loupe | True Focus | 3 | **covered** by the Codrops Loupe |
 | Riser | Scroll Reveal, Scroll Float | 3 | Belongs in Reveals, not here |
 | Skew | Scroll Velocity | 3 | |
 | Pennant | Curved Loop | 3 | Text on an SVG path |
@@ -177,8 +177,8 @@ backdrops. Codrops publishes cameras, meshes, depth maps and physics every week.
 
 | Beamish | Source | P | Note |
 | --- | --- | --- | --- |
-| Loupe | Mouse-Following Square Lens, Tomoyuki Nakata, Aug 2026 | 1 | Lens distortion and chromatic shift inside a shape that tracks the cursor. **Recast**: a magnifier over letterpress rather than a neon square. Merges with True Focus from the React Bits list |
-| Relight | Relighting Images with Depth Maps, Aug 2026 | 1 | A flat photograph plus a depth map, lit by a lamp that moves. Nothing in React Bits comes close, and it lands on paper without changing anything |
+| Loupe | Mouse-Following Square Lens, Tomoyuki Nakata, Aug 2026 | 1 | **done**. Recast completely: a printer's glass, so what the magnification reveals is the halftone rosette the picture is actually made of. The lens distortion and the lateral colour are still there, holding up a round barrel rather than a neon square |
+| RelightImage | Relighting Images with Depth Maps, Aug 2026 | 1 | **done**, without the depth map. It lights the print rather than the scene: height is the picture's own luminance, so what the lamp finds is relief in the sheet. Nothing to author and nothing extra to ship |
 | Swell | Interactive Wave Propagation Cube Grid, Jul 2026 | 1 | **done** |
 | Threshold | Persistent Page Transitions with WebGPU, Jun 2026 | 2 | Page transitions with a scene that survives navigation. **Recast** to WebGL2: WebGPU is Chrome-only for our purposes |
 | Teletype | Shape-Aware ASCII Renderer, Sep 2026 | 2 | Every cell picks the glyph whose shape fits, not the one whose brightness matches. Far better than the usual luminance ramp. **Recast**: ink on paper, not green on black |
