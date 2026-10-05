@@ -35,7 +35,7 @@ keeps them framework-free and recordable. Tier 2 only where they need state.
 | --- | --- | --- | --- |
 | Sort | Split Text | 1 | **done** |
 | Focus | Blur Text | 1 | **covered**. ScrambleText already has a `blur` option that resolves to sharp. Building this would be a second name for an option that exists |
-| Bleed | Fuzzy Text | 1 | Ink bleeding into paper fibres. Recast: theirs is a CRT wobble |
+| InkBleedText | Fuzzy Text | 1 | **done**. An SVG displacement filter, so the edge grows teeth rather than blurring. A blur is a lens out of focus, not ink spreading |
 | MisprintText | Glitch Text | 1 | **done**. A plate out of register, multiplied, so the overlap darkens. A channel split brightens, which is light rather than ink |
 | Impression | Text Pressure, Variable Proximity | 1 | Variable font weight under the cursor. Two of theirs, one of ours |
 | Tally | Count Up | 1 | **done** |
@@ -121,7 +121,7 @@ How things arrive on screen.
 | --- | --- | --- | --- |
 | Riser | Animated Content, Scroll Reveal, Scroll Float | 1 | **done** |
 | HalftoneReveal | Pixel Transition, Pixel Swap, Halftone Reveal | 1 | **done**. The dots grow rather than the opacity rising, which is how a halftone carries tone in the first place |
-| Fade | Fade Content | 1 | Trivial, and its absence would be noticed |
+| Fade | Fade Content | 1 | **covered**. ScrambleText with split line, rise 0 and blur 0 is a plain fade, and ScrollRevealRows covers the scroll-triggered one |
 | Haze | Gradual Blur | 2 | |
 | Expand | Scroll Expand | 2 | |
 | Curtain | Masked Heading | 2 | Shared with Type |

@@ -5,6 +5,24 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.11.0, 5 October 2026
+
+Twenty-six items.
+
+### Added
+
+- InkBleedText (type): type on paper too absorbent for it. An SVG displacement
+  filter, because that is the actual mechanism: turbulence supplies the fibre and
+  the glyph is pushed sideways by the amount of fibre under it. Deliberately not
+  a blur, which softens an edge evenly and reads as a lens out of focus rather
+  than as ink spreading.
+
+### Changed
+
+- The Fade entry is closed without being built, like Focus before it. ScrambleText
+  with split line, rise 0 and blur 0 is already a plain fade, and ScrollRevealRows
+  already covers the scroll-triggered one.
+
 ## v0.10.0, 5 October 2026
 
 Twenty-five items.

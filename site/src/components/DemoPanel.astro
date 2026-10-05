@@ -156,7 +156,8 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'misprint-text': () => import('@items/effects/misprint-text/core'),
     'spotlight-card': () => import('@items/effects/spotlight-card/core'),
     'pointer-trail': () => import('@items/effects/pointer-trail/core'),
-    'watermark-sheet': () => import('@items/effects/watermark-sheet/core')
+    'watermark-sheet': () => import('@items/effects/watermark-sheet/core'),
+    'ink-bleed-text': () => import('@items/effects/ink-bleed-text/core')
   }
 
   const COMPONENTS: Record<string, () => Promise<{ mount(el: HTMLElement): Mounted }>> = {
@@ -234,6 +235,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       '<img class="demo-plate-fill" src="/plates/halftone-reveal/plate.jpg" alt="A spiral stair curving down the inside of a circular concrete well" />',
     'scramble-text': '<h1 class="demo-heading">Come to my arms, my beamish boy</h1>',
     'misprint-text': '<h1 class="demo-heading">Out of register</h1>',
+    'ink-bleed-text': '<h1 class="demo-heading">Blotting paper</h1>',
     'scroll-reveal-rows': `<div class="demo-list">
       <div><span>Halftone Backdrop</span><span>shader</span></div>
       <div><span>Cast Shadow Scene</span><span>three</span></div>

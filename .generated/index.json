@@ -1140,6 +1140,125 @@
     "intro": "Plate is a contact sheet that opens into a lightbox. A grid of numbered plates,\nand an overlay you move through with the arrow keys, a swipe, the controls, or an\nautoplay you have to start yourself.\n\nThe overlay is a real `<dialog>` opened with `showModal()`. That is the decision\nthe rest of it hangs off. The browser then gives you the focus trap, Escape, the\ntop layer, inerting the page behind, and returning focus to where you came from.\nEvery one of those is something hand-rolled galleries get subtly wrong, and none\nof it is code in this repo or a package in yours. There is no carousel library\nhere, no focus-trap library, no portal and no scroll-lock.\n\nWhat is left is the part worth building. Arrow keys and Home and End. A swipe\nthat is ignored for mouse input, where a small drag is the start of a click\nrather than a gesture. Neighbour preload, so the next plate is already decoded\nbefore you ask for it. And a counter, because a gallery with no sense of how far\nthrough you are is a gallery you leave.\n\nThe overlay is paper rather than black. A dark lightbox is the convention and it\nis the wrong one here: it turns every warm image cold, and it makes the caption\nthe brightest thing on the screen. A plate in a book sits on the page, with a\nmargin, which is what this does."
   },
   {
+    "name": "InkBleedText",
+    "slug": "ink-bleed-text",
+    "tier": 1,
+    "description": "Type on paper too absorbent for it, the ink wicking along the fibres",
+    "category": "type",
+    "tags": [
+      "type",
+      "text",
+      "ink",
+      "bleed",
+      "svg",
+      "filter",
+      "dom",
+      "no-dependencies"
+    ],
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "No canvas and no WebGL. One SVG displacement filter, which is the honest mechanism: turbulence supplies the fibre and feDisplacementMap pushes each pixel of the glyph by the amount of fibre under it",
+        "Not a blur. A Gaussian softens an edge evenly, which is a lens out of focus rather than ink spreading, and it is what makes most attempts at this look photographic rather than printed",
+        "fractalNoise rather than turbulence: turbulence takes the modulus of each octave and leaves hard creases that read as cracks in the letter",
+        "The filter region is widened to 150%, because displaced pixels outside it are cut off and a heavily bled letter would come back with its edges sliced square",
+        "Each instance gets its own filter, so two bled headings on a page do not share one"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 1.5,
+      "contexts": 0,
+      "notes": [
+        "Holds 59.8fps at 1440 by 900 at 2x DPR, measured, which is indistinguishable from the same page with no filter on it",
+        "That is only true because the turbulence is cached. It is the expensive half, and the fibre of a sheet does not change between frames, so only the displacement scale is set per frame. Setting baseFrequency every frame instead costs a full filter rebuild each time",
+        "SVG filters are rasterised on the CPU in some browsers. Use it on a heading, not on a page of body text, and expect the cost to scale with the filtered area"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/ink-bleed-text/core.ts",
+        "to": "src/beamish/effects/ink-bleed-text/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/ink-bleed-text/adapters/react.tsx",
+        "to": "src/beamish/effects/ink-bleed-text/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/ink-bleed-text/adapters/vue.ts",
+        "to": "src/beamish/effects/ink-bleed-text/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "bleed": {
+        "type": "number",
+        "default": 3.4,
+        "description": "How far the ink creeps, in pixels, at its furthest. Past about 8 the counters of a and e close up and the word stops being readable, which is a real thing badly printed paper does and rarely a thing you want.",
+        "min": 0,
+        "max": 14,
+        "step": 0.1
+      },
+      "floor": {
+        "type": "number",
+        "default": 1.1,
+        "description": "How far it has crept at its least. Deliberately not zero: a sheet that has taken ink does not give it back, so the letter never returns to a clean edge.",
+        "min": 0,
+        "max": 8,
+        "step": 0.1
+      },
+      "fibre": {
+        "type": "number",
+        "default": 0.035,
+        "description": "Coarseness of the fibre, as a turbulence base frequency. Lower is a longer, rougher, more absorbent fibre. This is the one to reach for if the bleed looks like noise rather than paper.",
+        "min": 0.002,
+        "max": 0.2,
+        "step": 0.002
+      },
+      "detail": {
+        "type": "number",
+        "default": 3,
+        "description": "Layers of fibre. More is a finer, more tangled structure and more work for the filter; the gain above four is hard to see.",
+        "min": 1,
+        "max": 5,
+        "step": 1
+      },
+      "period": {
+        "type": "number",
+        "default": 9,
+        "description": "Seconds for one breath of the ink. Driven by a cosine, so it is exactly periodic and the loop closes.",
+        "min": 1,
+        "max": 60,
+        "step": 0.5
+      },
+      "seed": {
+        "type": "number",
+        "default": 4,
+        "description": "Which sheet of paper. Any two seeds give different fibre; the same seed always gives the same sheet.",
+        "min": 0,
+        "max": 999,
+        "step": 1
+      }
+    },
+    "instruction": "ambient, watch the ink creep",
+    "oneShot": false,
+    "record": {
+      "duration": 9,
+      "fps": 30,
+      "posterAt": 4.5,
+      "crf": 28
+    },
+    "group": "effects",
+    "intro": "Type printed on paper that is too absorbent for it.\n\nThe usual version of this is a CRT wobble: the glyph edges shimmer sideways like\na signal losing lock. Paper has its own way of ruining a letter and it is nothing\nlike that. Ink wicks along the fibres, so the edge does not move, it grows teeth.\nSerifs fill in, counters close up, and the letter gains a fuzz that is irregular\nat the scale of the fibre rather than smooth.\n\nAn SVG displacement filter is the honest way to draw it. Turbulence supplies the\nfibre and `feDisplacementMap` pushes each pixel of the glyph sideways by the\namount of fibre under it, which is exactly the mechanism: the ink goes where the\npaper lets it.\n\nIt is deliberately **not** a blur. A Gaussian softens an edge evenly, which is a\nlens out of focus rather than ink spreading, and it is the thing that makes most\nattempts at this look photographic rather than printed.\n\nIt also uses `fractalNoise` rather than turbulence proper. Turbulence takes the\nmodulus of each octave, which leaves hard creases that read as cracks in the\nletter rather than as fibre.\n\nNo canvas and no WebGL."
+  },
+  {
     "name": "MagneticButton",
     "slug": "magnetic-button",
     "tier": 1,
