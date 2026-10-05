@@ -48,7 +48,7 @@ export type ScrollSlideshowOptions = BaseOptions & {
  */
 export const scrollSlideshowDefaults: ScrollSlideshowOptions = {
   paper: '#fbfaf4',
-  bend: 0.09,
+  bend: 0,
   slip: 0.018,
   fringe: 0.004,
   grain: 0.4,

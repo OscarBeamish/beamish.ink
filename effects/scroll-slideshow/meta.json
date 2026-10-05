@@ -2,7 +2,7 @@
   "name": "ScrollSlideshow",
   "slug": "scroll-slideshow",
   "tier": 1,
-  "description": "A scroll-run slideshow on a paper web that bows as it accelerates",
+  "description": "A slideshow the page scroll runs, on a web that drags and fringes as it moves",
   "category": "surfaces",
   "tags": [
     "webgl",
@@ -59,15 +59,15 @@
     "paper": {
       "type": "color",
       "default": "#fbfaf4",
-      "description": "Shown wherever the bow has pulled the image away from the edge of the frame. Match it to the page behind, or the gap reads as a border that appears only while scrolling."
+      "description": "Shown wherever the web has pulled the image away from the edge of the frame. Match it to the page behind, or the gap reads as a border that appears only while scrolling."
     },
     "bend": {
       "type": "number",
-      "default": 0.09,
+      "default": 0,
       "min": 0,
       "max": 0.3,
       "step": 0.005,
-      "description": "How hard the sides lag behind the middle. This is the bow, and it is the option you came for. Past about 0.12 it stops being a press and starts being a fisheye."
+      "description": "How hard the sides lag behind the middle. Off by default: the bow is the loudest thing the press does and it competes with the picture, which is the thing you are actually showing. Turn it up to around 0.09 for the full press. Past about 0.12 it stops being a press and starts being a fisheye."
     },
     "slip": {
       "type": "number",

@@ -26,6 +26,27 @@ to exactly where it started rather than being crossfaded.
 One WebGL2 fragment shader on one full-screen triangle. No three.js, no
 dependency.
 
+## The hand
+
+The cursor works the drawing up where it sits.
+
+Tone is how many marks there are, so a hand shading a passage is adding marks to
+it, and that is literally what `touch` does: it raises the tone under the
+pointer and the population thickens to match. The falloff is a Gaussian, with no
+edge to find. A circle of denser stipple with a findable boundary reads as a
+torch being shone on the drawing rather than as somebody working on it.
+
+Raising the tone is not enough on its own, and this is worth knowing before you
+turn `touch` up and conclude it is broken. Tone saturates. A passage already
+carrying a mark in every cell cannot take another one, so the hand shows up
+beautifully in the light and does nothing at all in the darks. So it changes the
+nib as well: the share of marks taking the accent rises under the pointer, which
+is something a dense passage can answer to.
+
+Set `touch` to zero for a field that is purely ambient. Everything else carries
+on as before, and nothing about the pointer is integrated, so a scripted path
+replays exactly and `renderAtTime` is still pure in `t`.
+
 ## Wiring
 
 **Plain HTML.** The element needs a size of its own.
@@ -133,6 +154,11 @@ the loop never starts and one frame is drawn at `reducedMotionTime`.
 
 This effect needs no care here. Any frame of it is a finished drawing, so the
 default is as good as any other number.
+
+The hand does not work under reduced motion. The runtime draws one frame and
+never starts a loop, so there is nothing running to pick the pointer up. What
+you get is a finished stipple drawing, which is the right thing to be left
+with.
 
 ## Cleanup and SSR
 

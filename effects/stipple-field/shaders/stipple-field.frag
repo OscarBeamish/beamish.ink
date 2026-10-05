@@ -35,6 +35,10 @@ uniform float u_weight;
 uniform float u_contrast;
 uniform float u_accentShare;
 uniform float u_grain;
+uniform vec2  u_pointer;
+uniform float u_active;
+uniform float u_touch;
+uniform float u_reach;
 
 out vec4 fragColor;
 
@@ -91,6 +95,35 @@ void main() {
   tone = clamp((tone - 0.5) * u_contrast + 0.5, 0.0, 1.0);
 
   /*
+   * The hand. Tone is how many marks there are, so working an area up is adding
+   * marks to it, and that is exactly what the pointer does: it raises the tone
+   * it is over and the population thickens to match.
+   *
+   * Gaussian rather than a disc with a soft edge. An engraver working a passage
+   * has no boundary to their attention, and a circle of darker stipple with a
+   * findable edge reads as a torch being shone on the drawing instead.
+   *
+   * Nothing is integrated here. The tone under the cursor is a function of
+   * where the cursor is, so a scripted path replays identically and
+   * renderAtTime stays pure.
+   */
+  vec2 hand = p - (vec2(u_pointer.x, 1.0 - u_pointer.y) * cssRes - cssRes * 0.5) / (shortSide * 0.5);
+  float near = exp(-dot(hand, hand) / max(u_reach * u_reach, 0.0001));
+  float working = near * u_active;
+  tone = clamp(tone + u_touch * working, 0.0, 1.0);
+
+  /*
+   * And a second pass with the other nib where the hand is.
+   *
+   * Tone saturates, which is the whole problem with raising it alone: an area
+   * already carrying a mark in every cell cannot take another one, so the hand
+   * showed up beautifully in the light passages and did nothing whatever in the
+   * dark ones. Changing which nib is working is something the dense passages
+   * can answer to.
+   */
+  float share = u_accentShare + (0.8 - u_accentShare) * u_touch * working;
+
+  /*
    * The cell grid lives in CSS pixels rather than in the normalised space, so
    * the dots stay the same size on screen whatever shape the element is and
    * however the field is scaled.
@@ -126,7 +159,7 @@ void main() {
 
       float mark = smoothstep(u_weight + aa, u_weight - aa, length(f - centre));
       cover = max(cover, mark);
-      if (hash12(nid + 71.7) < u_accentShare) accent = max(accent, mark);
+      if (hash12(nid + 71.7) < share) accent = max(accent, mark);
     }
   }
 

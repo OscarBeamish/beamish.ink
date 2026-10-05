@@ -2,7 +2,7 @@
   "name": "StippleField",
   "slug": "stipple-field",
   "tier": 1,
-  "description": "A stipple drawing where tone is how many marks there are, not how big",
+  "description": "A stipple drawing where tone is how many marks there are, and the cursor works it up",
   "category": "backdrops",
   "tags": [
     "webgl",
@@ -20,7 +20,8 @@
     "notes": [
       "Tone is carried by the number of marks rather than their size, which is what separates a stipple from a halftone: an engraver has one nib, so darker means more marks rather than fatter ones",
       "Each mark is tested against the nine surrounding cells, because a mark thrown off centre crosses into its neighbour and testing only its own cell would slice it at the boundary",
-      "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes",
+      "The cursor raises the tone it is over, which adds marks rather than enlarging them. It is a plain function of the pointer position with nothing integrated, so a scripted path replays identically and renderAtTime stays pure"
     ]
   },
   "perf": {
@@ -126,6 +127,22 @@
       "step": 0.01,
       "description": "Paper tooth under the marks."
     },
+    "touch": {
+      "type": "number",
+      "default": 0.65,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How much tone the cursor works up under itself. Tone is how many marks there are, so this is the hand adding marks, not a light being shone on the drawing. Zero leaves the field ambient."
+    },
+    "reach": {
+      "type": "number",
+      "default": 0.45,
+      "min": 0.05,
+      "max": 1.5,
+      "step": 0.01,
+      "description": "How far the hand reaches, as a share of the short side. The falloff is a Gaussian and has no edge to find, so this is where it has mostly faded rather than where it stops."
+    },
     "period": {
       "type": "number",
       "default": 18,
@@ -135,7 +152,7 @@
       "description": "Seconds for one loop of the drift. The tone field travels a closed circle through noise space, so it returns to exactly where it began and the loop is seamless."
     }
   },
-  "instruction": "ambient, watch the density drift",
+  "instruction": "move the cursor across it",
   "oneShot": false,
   "record": {
     "duration": 18,
@@ -143,5 +160,35 @@
     "posterAt": 5,
     "crf": 34,
     "webmCrf": 48
+  },
+  "cursor": {
+    "duration": 18,
+    "keys": [
+      {
+        "t": 0,
+        "x": 0.12,
+        "y": 0.72
+      },
+      {
+        "t": 4.5,
+        "x": 0.38,
+        "y": 0.28
+      },
+      {
+        "t": 9,
+        "x": 0.68,
+        "y": 0.66
+      },
+      {
+        "t": 13.5,
+        "x": 0.9,
+        "y": 0.3
+      },
+      {
+        "t": 18,
+        "x": 0.12,
+        "y": 0.72
+      }
+    ]
   }
 }
