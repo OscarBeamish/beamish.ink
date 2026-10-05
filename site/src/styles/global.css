@@ -571,3 +571,248 @@
   grid-template-columns: repeat(12, minmax(0, 1fr));
   column-gap: var(--column-gap);
 }
+
+/* --- controls ------------------------------------------------------------ */
+
+/*
+ * A row per option, generated from the schema in meta.json.
+ *
+ * Laid out as a list under the demo rather than as a floating panel over it.
+ * A panel in the corner covers the thing you are adjusting, and on a shader
+ * that is usually the corner you most need to see. A list costs vertical space
+ * and nothing else.
+ */
+.controls {
+  margin-top: 0.75rem;
+  border: 1px solid var(--label-4);
+  border-radius: 2px;
+  background: rgb(var(--background-elevated));
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.controls__rows {
+  display: grid;
+  /*
+   * Name, control, value, lock. The value column is fixed so the numbers do not
+   * shuffle the row every time a slider moves, which is the single most
+   * distracting thing a panel like this can do.
+   */
+  grid-template-columns: minmax(5rem, 9rem) 1fr 4.5rem auto;
+  align-items: center;
+  gap: 0 0.75rem;
+  padding: 0.35rem 0.75rem;
+}
+
+.controls__row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.controls__row:last-child {
+  border-bottom: 0;
+}
+
+.controls__label {
+  color: var(--label-2);
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.controls__value {
+  color: var(--label-3);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- inputs -------------------------------------------------------------- */
+
+.controls__input {
+  font: inherit;
+  color: inherit;
+  min-width: 0;
+}
+
+.controls__input--number {
+  appearance: none;
+  width: 100%;
+  height: 1.5rem;
+  background: transparent;
+  cursor: ew-resize;
+}
+
+/*
+ * The track and thumb have to be written twice. The -webkit- and -moz- pseudos
+ * cannot be combined into one rule: a selector list containing a pseudo-element
+ * one engine does not recognise is dropped whole by that engine, so a combined
+ * rule styles neither.
+ */
+.controls__input--number::-webkit-slider-runnable-track {
+  height: 1px;
+  background: var(--control-line);
+}
+
+.controls__input--number::-moz-range-track {
+  height: 1px;
+  background: var(--control-line);
+}
+
+.controls__input--number::-webkit-slider-thumb {
+  appearance: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-top: -0.375rem;
+  border-radius: 50%;
+  background: var(--label-1);
+}
+
+.controls__input--number::-moz-range-thumb {
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--label-1);
+}
+
+.controls__input--color {
+  appearance: none;
+  width: 100%;
+  height: 1.4rem;
+  padding: 0;
+  border: 1px solid var(--label-4);
+  border-radius: 2px;
+  background: none;
+  cursor: pointer;
+}
+
+.controls__input--color::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+.controls__input--color::-webkit-color-swatch {
+  border: 0;
+  border-radius: 1px;
+}
+
+.controls__input--string,
+.controls__input--enum {
+  width: 100%;
+  padding: 0.25rem 0.4rem;
+  border: 1px solid var(--label-4);
+  border-radius: 2px;
+  background: rgb(var(--background-deep));
+}
+
+.controls__input--boolean {
+  width: 0.9rem;
+  height: 0.9rem;
+  accent-color: var(--accent);
+  justify-self: start;
+  cursor: pointer;
+}
+
+/* --- lock ---------------------------------------------------------------- */
+
+/*
+ * A drawn box, not a glyph and not a word.
+ *
+ * A padlock at this size is a smudge, and its open and closed forms are nearly
+ * the same smudge. The word worked but repeated down twelve rows it became the
+ * loudest thing in the panel while saying the same thing every time. A box that
+ * is empty or filled reads instantly and carries no weight; the state that
+ * matters is on aria-pressed, where a screen reader can get at it.
+ */
+.controls__lock {
+  appearance: none;
+  box-sizing: content-box;
+  width: 0.6rem;
+  height: 0.6rem;
+  padding: 0.3rem;
+  border: 0;
+  background:
+    linear-gradient(var(--lock-fill, transparent), var(--lock-fill, transparent)) content-box,
+    none;
+  box-shadow: inset 0 0 0 1px var(--label-4);
+  background-clip: content-box;
+  cursor: pointer;
+  transition: box-shadow 0.2s linear;
+}
+
+.controls__lock:hover {
+  box-shadow: inset 0 0 0 1px var(--label-2);
+}
+
+.controls__lock[aria-pressed='true'] {
+  --lock-fill: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+/* --- foot ---------------------------------------------------------------- */
+
+.controls__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-top: 1px solid var(--label-4);
+  padding: 0.5rem 0.75rem;
+}
+
+.controls__actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.controls__action {
+  appearance: none;
+  border: 1px solid var(--control-line);
+  border-radius: 100px;
+  background: transparent;
+  padding: 0.35rem 0.75rem;
+  font: inherit;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.25s var(--ease-66, cubic-bezier(0.66, 0, 0.01, 1));
+}
+
+.controls__action:hover {
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.controls__action--solid {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: rgb(var(--background-deep));
+}
+
+.controls__action--solid:hover {
+  background-color: color-mix(in srgb, var(--accent) 88%, #000);
+}
+
+.controls__action:focus-visible,
+.controls__lock:focus-visible,
+.controls__input:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* The hint is the first thing to go: the buttons explain themselves. */
+@media (max-width: 34rem) {
+  .controls__hint {
+    display: none;
+  }
+
+  .controls__rows {
+    grid-template-columns: minmax(4rem, 7rem) 1fr 3.25rem auto;
+  }
+}

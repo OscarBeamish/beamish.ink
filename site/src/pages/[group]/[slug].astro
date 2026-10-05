@@ -56,9 +56,11 @@ const notes = [...item.browser.notes, ...item.perf.notes]
     <div class="item__wide mt-10">
       <DemoPanel
         slug={item.slug}
+        name={item.name}
         tier={item.tier}
         instruction={item.instruction}
         oneShot={item.oneShot}
+        options={item.options}
       />
     </div>
 

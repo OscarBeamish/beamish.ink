@@ -14,12 +14,24 @@ import '@items/components/glow-button/styles.css'
 
 type Props = {
   slug: string
+  name: string
   tier: 1 | 2
   instruction?: string | undefined
   oneShot: boolean
+  options: Record<string, Record<string, unknown>>
 }
 
-const { slug, tier, instruction, oneShot } = Astro.props
+const { slug, name, tier, instruction, oneShot, options } = Astro.props
+
+/*
+ * Controls are generated from the option schema rather than written per item,
+ * because meta.json already carries the type, the range, the step and the
+ * default for every option. Writing them by hand would be nineteen copies of
+ * the same form that can drift from the thing they are driving.
+ *
+ * Tier 2 has no `update()` on its handle, so it gets no panel.
+ */
+const tweakable = tier === 1 ? Object.entries(options) : []
 ---
 
 <figure class="m-0">
@@ -33,6 +45,18 @@ const { slug, tier, instruction, oneShot } = Astro.props
     <div class="absolute inset-0" data-stage></div>
 
     <div class="absolute right-3 bottom-3 flex gap-2">
+      {
+        tweakable.length > 0 && (
+          <button
+            type="button"
+            class="border-control text-l1 rounded-full border bg-transparent px-3 py-1.5 text-[0.65rem] tracking-[0.1em] uppercase backdrop-blur-sm"
+            data-controls-toggle
+            aria-expanded="false"
+          >
+            Controls
+          </button>
+        )
+      }
       {
         oneShot ? (
           <button
@@ -55,6 +79,36 @@ const { slug, tier, instruction, oneShot } = Astro.props
       }
     </div>
   </div>
+
+  {
+    tweakable.length > 0 && (
+      <div class="controls" data-controls hidden>
+        <script type="application/json" data-schema set:html={JSON.stringify(options)} />
+        <div class="controls__rows" data-controls-rows />
+        <div class="controls__foot">
+          <span class="tag controls__hint">
+            Locked options are left alone by Randomise
+          </span>
+          <div class="controls__actions">
+            <button type="button" class="controls__action" data-controls-random>
+              Randomise
+            </button>
+            <button type="button" class="controls__action" data-controls-reset>
+              Reset
+            </button>
+            <button
+              type="button"
+              class="controls__action controls__action--solid"
+              data-controls-copy
+              data-factory={`create${name}`}
+            >
+              Copy options
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   {
     /*
@@ -277,5 +331,207 @@ const { slug, tier, instruction, oneShot } = Astro.props
       handle?.renderAtTime?.(0)
       handle?.start()
     })
+
+    // --- controls --------------------------------------------------------
+
+    /*
+     * Built from the option schema rather than written per item. meta.json
+     * already carries the type, range, step and default of every option, so the
+     * panel is a view of that and cannot drift from what the effect accepts.
+     */
+    const controls = panel.parentElement?.querySelector<HTMLElement>('[data-controls]')
+    const schemaTag = controls?.querySelector<HTMLScriptElement>('[data-schema]')
+    const rows = controls?.querySelector<HTMLElement>('[data-controls-rows]')
+
+    if (controls && schemaTag && rows && handle && 'update' in handle) {
+      type Spec = {
+        type: 'number' | 'color' | 'boolean' | 'string' | 'enum'
+        default: unknown
+        min?: number
+        max?: number
+        step?: number
+        values?: string[]
+        description?: string
+      }
+      const schema = JSON.parse(schemaTag.textContent || '{}') as Record<string, Spec>
+
+      // The panel mounts some items with overrides, so the starting point is
+      // what is actually on screen rather than what the schema says.
+      const start: Record<string, unknown> = {}
+      for (const [key, spec] of Object.entries(schema)) start[key] = spec.default
+      Object.assign(start, OPTIONS[slug] ?? {})
+
+      const current: Record<string, unknown> = { ...start }
+      const locked = new Set<string>()
+      const inputs = new Map<string, HTMLInputElement | HTMLSelectElement>()
+      const readouts = new Map<string, HTMLElement>()
+
+      const show = (key: string) => {
+        const v = current[key]
+        const out = readouts.get(key)
+        if (out) out.textContent = typeof v === 'number' ? String(Number(v.toFixed(4))) : String(v)
+      }
+
+      const apply = () => (handle as { update(o: Record<string, unknown>): void }).update(current)
+
+      for (const [key, spec] of Object.entries(schema)) {
+        const row = document.createElement('div')
+        row.className = 'controls__row'
+
+        const id = 'c-' + slug + '-' + key
+        const label = document.createElement('label')
+        label.className = 'controls__label'
+        label.textContent = key
+        label.htmlFor = id
+
+        let input: HTMLInputElement | HTMLSelectElement
+        if (spec.type === 'number') {
+          input = document.createElement('input')
+          input.type = 'range'
+          input.min = String(spec.min ?? 0)
+          input.max = String(spec.max ?? 1)
+          input.step = String(spec.step ?? 0.01)
+          input.value = String(current[key])
+        } else if (spec.type === 'color') {
+          input = document.createElement('input')
+          input.type = 'color'
+          input.value = String(current[key])
+        } else if (spec.type === 'boolean') {
+          input = document.createElement('input')
+          input.type = 'checkbox'
+          input.checked = Boolean(current[key])
+        } else if (spec.type === 'enum') {
+          input = document.createElement('select')
+          for (const value of spec.values ?? []) {
+            const opt = document.createElement('option')
+            opt.value = value
+            opt.textContent = value
+            input.append(opt)
+          }
+          input.value = String(current[key])
+        } else {
+          input = document.createElement('input')
+          input.type = 'text'
+          input.value = String(current[key])
+        }
+        input.id = id
+        input.className = 'controls__input controls__input--' + spec.type
+        // What Reset returns to, recorded on the element so the value is
+        // inspectable rather than only living in a closure.
+        input.dataset['start'] = String(current[key])
+        if (spec.description) input.title = spec.description
+
+        const readout = document.createElement('output')
+        readout.className = 'controls__value'
+        readout.htmlFor = id
+
+        /*
+         * A lock per row, so Randomise can leave the things you have already
+         * settled on. Without it randomising is all or nothing and you lose the
+         * one value you were happy with every time you press it.
+         */
+        const lock = document.createElement('button')
+        lock.type = 'button'
+        lock.className = 'controls__lock'
+        lock.setAttribute('aria-pressed', 'false')
+        /*
+         * No text. The state is carried by aria-pressed for anything reading
+         * the page and by a drawn box for anything looking at it. The word
+         * repeated down twelve rows was the loudest thing in the panel, and it
+         * was saying the same thing every time.
+         */
+        lock.setAttribute('aria-label', 'Lock ' + key + ' against randomise')
+        lock.addEventListener('click', () => {
+          const on = locked.has(key)
+          if (on) locked.delete(key)
+          else locked.add(key)
+          lock.setAttribute('aria-pressed', String(!on))
+        })
+
+        input.addEventListener('input', () => {
+          const el = input as HTMLInputElement
+          current[key] =
+            spec.type === 'number'
+              ? Number(el.value)
+              : spec.type === 'boolean'
+                ? el.checked
+                : el.value
+          show(key)
+          apply()
+        })
+
+        row.append(label, input, readout, lock)
+        rows.append(row)
+        inputs.set(key, input)
+        readouts.set(key, readout)
+        show(key)
+      }
+
+      const writeBack = () => {
+        for (const [key, input] of inputs) {
+          const spec = schema[key]!
+          if (spec.type === 'boolean') (input as HTMLInputElement).checked = Boolean(current[key])
+          else input.value = String(current[key])
+          show(key)
+        }
+        apply()
+      }
+
+      controls.parentElement
+        ?.querySelector<HTMLButtonElement>('[data-controls-toggle]')
+        ?.addEventListener('click', event => {
+          const button = event.currentTarget as HTMLButtonElement
+          const open = button.getAttribute('aria-expanded') === 'true'
+          button.setAttribute('aria-expanded', String(!open))
+          controls.hidden = open
+        })
+
+      controls.querySelector('[data-controls-reset]')?.addEventListener('click', () => {
+        Object.assign(current, start)
+        writeBack()
+      })
+
+      /*
+       * Numbers only, and inside the schema's own range. Randomising the
+       * colours as well produces something that is no longer on paper, which is
+       * the one thing every effect here is supposed to be.
+       */
+      controls.querySelector('[data-controls-random]')?.addEventListener('click', () => {
+        for (const [key, spec] of Object.entries(schema)) {
+          if (locked.has(key) || spec.type !== 'number') continue
+          const min = spec.min ?? 0
+          const max = spec.max ?? 1
+          const step = spec.step ?? 0.01
+          const steps = Math.max(1, Math.round((max - min) / step))
+          current[key] = Number((min + Math.round(Math.random() * steps) * step).toFixed(6))
+        }
+        writeBack()
+      })
+
+      /*
+       * Only what differs from the default. The whole point is to paste the
+       * result into your own code, and forty lines of values you never touched
+       * is not a thing anybody wants to read back.
+       */
+      controls.querySelector('[data-controls-copy]')?.addEventListener('click', async event => {
+        const button = event.currentTarget as HTMLButtonElement
+        const changed = Object.entries(current).filter(
+          ([key, value]) => String(value) !== String(schema[key]?.default)
+        )
+        const lines = changed.map(
+          ([k, v]) => '  ' + k + ': ' + (typeof v === 'string' ? "'" + v + "'" : v)
+        )
+        const body = changed.length ? ', {\n' + lines.join(',\n') + '\n}' : ''
+        const factory = button.dataset['factory'] ?? 'createEffect'
+        const text = factory + '(el' + body + ')'
+        try {
+          await navigator.clipboard.writeText(text)
+          button.textContent = changed.length ? 'Copied ' + changed.length : 'Copied defaults'
+        } catch {
+          button.textContent = 'Press ctrl C'
+        }
+        setTimeout(() => (button.textContent = 'Copy options'), 1600)
+      })
+    }
   }
 </script>
