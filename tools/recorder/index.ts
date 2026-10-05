@@ -91,12 +91,23 @@ const CLOCK_STUB = `
  * shell sitting in it, and rmdir fails with EBUSY where unlinking does not.
  * Frames are scratch either way, so a failure here must never fail a recording.
  */
+/*
+ * Empties a directory. Deliberately does not remove it.
+ *
+ * It used to remove it as well, with the failure swallowed, which contradicted
+ * the comment at its only call site and broke a batch roughly one run in two.
+ * On Windows a removed directory sits in a pending-delete state until the last
+ * handle on it closes: the mkdir that follows appears to succeed, the frames
+ * are written into a doomed directory, and ffmpeg then fails with a file-not-
+ * found on a path that was there a moment ago. It only showed up partway
+ * through a multi-item run, because that is when a sibling delete is still in
+ * flight.
+ */
 async function emptyDir(dir: string) {
   if (!existsSync(dir)) return
   await Promise.all(
     (await readdir(dir)).map(name => rm(path.join(dir, name), { recursive: true, force: true }))
   )
-  await rm(dir, { recursive: true, force: true }).catch(() => {})
 }
 
 async function openDemo(browser: Browser, item: ItemRef, ratio: Ratio): Promise<Page> {
@@ -407,6 +418,17 @@ async function recordItem(browser: Browser, item: ItemRef, only: string[], keepF
           ? await captureTier1(page, meta, framesDir)
           : await captureTier2(page, meta, framesDir, ratio)
       await page.context().close()
+    }
+
+    /*
+     * Say which step failed. Encoding an empty directory gives you an ffmpeg
+     * error about a missing %05d.png, which reads as a problem with ffmpeg and
+     * is in fact a capture that produced nothing.
+     */
+    if (frames === 0) {
+      throw new Error(
+        `${item.slug} ${ratio.key}: captured no frames, so there is nothing to encode`
+      )
     }
 
     await encode(framesDir, outDir, ratio, meta)
