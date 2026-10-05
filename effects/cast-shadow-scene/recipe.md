@@ -18,6 +18,22 @@ a warm grey. This way the paper comes out the colour you asked for.
 The forms sit in the middle and the sun keeps the edges clear, so there is room
 for a headline over the top. That is what it is for.
 
+## Where it goes
+
+A hero, or the top of a section, with the shapes cropped by the frame.
+
+The default camera is close enough that the forms run off the edges, which is
+what makes it read as a room the page is in rather than as a product shot. A
+still life sitting whole in the middle of a panel is a picture of some objects.
+The same objects cut by the frame are a set.
+
+The long shadows are the useful part. They sweep as the sun moves, so a heading
+placed on the lit side stays readable while the frame keeps changing, and
+nothing crosses the type.
+
+Drop `shadow` to around 0.15 and raise `elevation` if you are putting body copy
+over it. A low sun is better looking and much harder to read against.
+
 ## Wiring
 
 **Plain HTML.** three.js must already be available to your build. This file

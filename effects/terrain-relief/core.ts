@@ -65,8 +65,8 @@ export const terrainReliefDefaults: TerrainReliefOptions = {
   weight: 0.72,
   elevation: 26,
   azimuth: 38,
-  tilt: 0.5,
-  zoom: 0.55,
+  tilt: 0.72,
+  zoom: 1.3,
   period: 6,
   reducedMotionTime: 3
 }

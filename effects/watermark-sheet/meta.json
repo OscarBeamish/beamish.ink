@@ -67,7 +67,7 @@
     },
     "laid": {
       "type": "number",
-      "default": 0.18,
+      "default": 0.32,
       "min": 0,
       "max": 1,
       "step": 0.01,
@@ -83,7 +83,7 @@
     },
     "chain": {
       "type": "number",
-      "default": 0.3,
+      "default": 0.5,
       "min": 0,
       "max": 1,
       "step": 0.01,
@@ -115,7 +115,7 @@
     },
     "device": {
       "type": "number",
-      "default": 0.45,
+      "default": 0.75,
       "min": 0,
       "max": 1,
       "step": 0.01,
@@ -123,7 +123,7 @@
     },
     "deviceSize": {
       "type": "number",
-      "default": 0.26,
+      "default": 0.4,
       "min": 0.05,
       "max": 0.6,
       "step": 0.01,

@@ -25,6 +25,24 @@ sharply over thick ones.
 One WebGL2 fragment shader on one full-screen triangle. No three.js, no
 dependency.
 
+## Where it goes
+
+Under everything, at the full width of the page.
+
+A watermark is not a pattern you look at. It is the sheet the page is printed
+on, which means it belongs behind the whole document rather than inside a panel,
+and the test of it is that somebody scrolling past never consciously notices it
+and would notice at once if it were gone.
+
+So it wants to be larger than it looks like it should be. The laid lines read as
+texture at full page width and as stripes in a 600px box. Give it the viewport.
+
+The countermark is the one part that is meant to be found rather than felt. Put
+it where a watermark would actually sit: off to one side, around a third of the
+way down, well away from anything anyone has to read. `device` at zero turns it
+off entirely and leaves you the sheet, which is a perfectly good way to use
+this.
+
 ## Wiring
 
 **Plain HTML.** The element needs a size of its own.

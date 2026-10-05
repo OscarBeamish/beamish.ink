@@ -73,7 +73,7 @@
     },
     "elevation": {
       "type": "number",
-      "default": 30,
+      "default": 24,
       "min": 8,
       "max": 80,
       "step": 1,
@@ -98,7 +98,7 @@
     },
     "shadow": {
       "type": "number",
-      "default": 0.3,
+      "default": 0.26,
       "min": 0,
       "max": 1,
       "step": 0.01,
@@ -110,7 +110,7 @@
     },
     "zoom": {
       "type": "number",
-      "default": 0.66,
+      "default": 1.2,
       "min": 0.3,
       "max": 1.6,
       "step": 0.01,
@@ -122,7 +122,7 @@
     },
     "tilt": {
       "type": "number",
-      "default": 0.52,
+      "default": 0.4,
       "min": 0,
       "max": 1,
       "step": 0.01,

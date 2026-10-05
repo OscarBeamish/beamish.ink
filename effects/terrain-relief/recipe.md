@@ -23,6 +23,23 @@ blobs.
 The land morphs along a closed orbit through noise space, so the loop returns to
 its start exactly and any span of `period` seconds joins back on itself.
 
+## Where it goes
+
+A hero, full bleed, with the heading sitting in the flat ground at one side.
+
+The default framing is pulled in close and tilted most of the way over, so the
+relief fills the frame and runs off every edge. That is the difference between a
+backdrop and a render: a landform floating in the middle of a panel reads as an
+object you are being shown, and the moment it runs off the edges it reads as
+ground the page is standing on.
+
+Pull `zoom` back below about 0.8 and you get the object again, which is the
+right choice for a figure in an article and the wrong one behind a heading.
+
+For type over it, bring `ink` and `indexInk` towards the paper and drop
+`relief`. The contours are the busiest thing in the frame and they are what
+makes a line of body copy hard to hold.
+
 ## Wiring
 
 **Plain HTML.** three.js must already be available to your build. This file

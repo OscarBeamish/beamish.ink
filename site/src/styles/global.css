@@ -104,6 +104,83 @@
     padding: 0 6%;
   }
 
+  /*
+   * A hero laid over a backdrop panel, so the question a backdrop actually
+   * raises is answered on the page rather than left to the imagination.
+   *
+   * Inert on purpose: no pointer events, no focus stops, aria-hidden. It is a
+   * picture of a page, not a page, and a tab stop that goes nowhere is worse
+   * than no example at all.
+   */
+  /* So the hero over a backdrop scales with the panel rather than the window:
+     the panel is one width on an item page and another in a narrow column. */
+  [data-demo] {
+    container-type: inline-size;
+  }
+
+  .demo-use {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: clamp(1.25rem, 4%, 3rem);
+    pointer-events: none;
+  }
+
+  /*
+   * A scrim under the copy. Not a cheat: it is what you would do on the real
+   * page, because a backdrop calm enough to need no scrim anywhere is a
+   * backdrop with nothing in it. Paper rather than black, and only across the
+   * bottom third, so the pattern is still the thing you are looking at.
+   */
+  .demo-use::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--background-elevated) 88%, transparent) 0%,
+      color-mix(in srgb, var(--background-elevated) 55%, transparent) 26%,
+      transparent 58%
+    );
+  }
+
+  .demo-use > * {
+    position: relative;
+  }
+
+  .demo-use[hidden] {
+    display: none;
+  }
+
+  .demo-use__tag {
+    margin: 0;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--label-2);
+  }
+
+  .demo-use__title {
+    margin: 0;
+    max-width: 16ch;
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 5.2cqw, 4rem);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    color: var(--label-1);
+  }
+
+  .demo-use__line {
+    margin: 0;
+    max-width: 38ch;
+    font-size: clamp(0.75rem, 1.5cqw, 1rem);
+    line-height: 1.45;
+    color: var(--label-1);
+  }
+
   .demo-heading {
     margin: 0;
     max-width: 18ch;

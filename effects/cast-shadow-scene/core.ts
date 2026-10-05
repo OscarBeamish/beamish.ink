@@ -42,11 +42,11 @@ export const castShadowSceneDefaults: CastShadowSceneOptions = {
   paper: '#fbfaf4',
   stone: '#f5f2e9',
   accent: '#c44400',
-  elevation: 30,
+  elevation: 24,
   softness: 0.68,
-  shadow: 0.3,
-  zoom: 0.66,
-  tilt: 0.52,
+  shadow: 0.26,
+  zoom: 1.2,
+  tilt: 0.4,
   period: 5,
   reducedMotionTime: 1.1
 }

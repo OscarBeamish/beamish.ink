@@ -15,6 +15,26 @@ It is pointer-driven, never pointer-dependent. With no cursor, on touch, or
 before anyone has moved the mouse, the light takes a slow closed orbit of its
 own. The panel is alive on arrival and the loop still has no seam.
 
+## Where it goes
+
+As a mark rather than as a background. This is a stamped emblem, so it belongs
+where a stamped emblem belongs: a seal on a certificate, a device on a cover, a
+badge beside a company name, the thing in the middle of a holding page.
+
+It is not a backdrop. The emblem is one object with a defined edge, and tiling
+it or stretching it behind a paragraph gives you a large shiny shape with words
+on top.
+
+What it is for is the moment someone moves the cursor and the foil turns. Real
+foil only exists while the light is moving across it, which is why it is worth
+the WebGL context and a flat gold circle is not, and it is also why the thing
+should sit somewhere a cursor will pass: near a heading, near a link, not in a
+footer nobody tracks across.
+
+Give it room. At the default `scale` the emblem is cropped by the frame, which
+suits a panel; below about 1.0 it sits whole with paper around it, which suits a
+seal.
+
 ## Wiring
 
 **Plain HTML.** Give the host element a size. The canvas fills it, so an element

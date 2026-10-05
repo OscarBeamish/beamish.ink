@@ -19,12 +19,13 @@ type Props = {
   slug: string
   name: string
   tier: 1 | 2
+  category: string
   instruction?: string | undefined
   oneShot: boolean
   options: Record<string, Record<string, unknown>>
 }
 
-const { slug, name, tier, instruction, oneShot, options } = Astro.props
+const { slug, name, tier, category, instruction, oneShot, options } = Astro.props
 
 /*
  * Tier 2 is React, and the way Astro consumes React is an island. Mounting it
@@ -40,6 +41,18 @@ const { slug, name, tier, instruction, oneShot, options } = Astro.props
  * entry point at compile time and cannot follow a variable.
  */
 const island = tier === 2 ? slug : ''
+
+/*
+ * A backdrop shown on its own answers the wrong question. The one people ask
+ * first is what it would look like behind something, and a 16:9 swatch of
+ * pattern does not answer it: it reads as a poster, which is why the loud ones
+ * looked fine in isolation and wrong the moment you imagined type over them.
+ *
+ * So every backdrop is shown in use by default, with a bare view a click away
+ * rather than the other way round. The copy is this site's own, because filler
+ * is its own kind of lie about how something reads.
+ */
+const inUse = tier === 1 && category === 'backdrops'
 
 /*
  * Controls are generated from the option schema rather than written per item,
@@ -66,7 +79,32 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       {island === 'image-gallery-lightbox' && <PlateDemo client:only="react" />}
     </div>
 
+    {
+      inUse && (
+        <div class="demo-use" data-use aria-hidden="true">
+          <p class="demo-use__tag">Beamish.ink</p>
+          <h2 class="demo-use__title">Come to my arms, my beamish boy</h2>
+          <p class="demo-use__line">
+            Twenty-six effects. No package and no registry: you paste a prompt and your
+            agent writes the files into your own repo.
+          </p>
+        </div>
+      )
+    }
+
     <div class="absolute right-3 bottom-3 flex gap-2">
+      {
+        inUse && (
+          <button
+            type="button"
+            class="border-control text-l1 rounded-full border bg-transparent px-3 py-1.5 text-[0.65rem] tracking-[0.1em] uppercase backdrop-blur-sm"
+            data-use-toggle
+            aria-pressed="true"
+          >
+            Bare
+          </button>
+        )
+      }
       {
         tweakable.length > 0 && (
           <button
@@ -314,6 +352,15 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       else handle?.stop()
       toggle.setAttribute('aria-pressed', String(!paused))
       toggle.textContent = paused ? 'Pause' : 'Play'
+    })
+
+    const use = panel.querySelector<HTMLElement>('[data-use]')
+    const useToggle = panel.querySelector<HTMLButtonElement>('[data-use-toggle]')
+    useToggle?.addEventListener('click', () => {
+      const shown = useToggle.getAttribute('aria-pressed') === 'true'
+      use?.toggleAttribute('hidden', shown)
+      useToggle.setAttribute('aria-pressed', String(!shown))
+      useToggle.textContent = shown ? 'In use' : 'Bare'
     })
 
     const replay = panel.querySelector<HTMLButtonElement>('[data-replay]')
