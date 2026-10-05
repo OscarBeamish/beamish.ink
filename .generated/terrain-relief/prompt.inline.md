@@ -675,8 +675,8 @@ export const terrainReliefDefaults: TerrainReliefOptions = {
   weight: 0.72,
   elevation: 26,
   azimuth: 38,
-  tilt: 0.5,
-  zoom: 0.55,
+  tilt: 0.72,
+  zoom: 1.3,
   period: 6,
   reducedMotionTime: 3
 }
@@ -1114,8 +1114,8 @@ as the second argument to the create function; anything omitted takes its defaul
 | `weight` | number | `0.72` | 0 to 1 (looks right between 0.45 and 0.85) | Weight of the lines. Zero is bare land with no map printed on it, which is a perfectly good backdrop in its own right. |
 | `elevation` | number | `26` | 5 to 80 deg (looks right between 15 and 40) | Sun height above the horizon. Low rakes the ridges and is most of where the depth comes from. High flattens the whole thing into a map. |
 | `azimuth` | number | `38` | 0 to 360 deg (looks right between 20 and 70) | Sun direction around the compass. Convention on a printed map is light from the north west, which is about 315. |
-| `tilt` | number | `0.5` | 0 to 1 (looks right between 0.3 and 0.7) | Camera height. Zero is down on the deck with a horizon, one looks straight down at a map. The interesting ground is in between. |
-| `zoom` | number | `0.55` | 0.3 to 2 (looks right between 0.45 and 0.8) | How much of the frame the land fills. |
+| `tilt` | number | `0.72` | 0 to 1 (looks right between 0.3 and 0.7) | Camera height. Zero is down on the deck with a horizon, one looks straight down at a map. The interesting ground is in between. |
+| `zoom` | number | `1.3` | 0.3 to 2 (looks right between 0.45 and 0.8) | How much of the frame the land fills. |
 | `period` | number | `6` | 4 to 120 s (looks right between 6 and 40) | Seconds for one loop of the morph. The land travels a closed orbit through noise space and returns exactly. The default is 6 so the preview video is a whole cycle; 20 to 40 is right behind a page, where the land should be moving slowly enough that nobody catches it. |
 | `reducedMotionTime` | number | `3` | 0 to 120 s | The single frame shown when the user prefers reduced motion. Any time works here: a still relief is a map, which is a finished thing to look at. |
 

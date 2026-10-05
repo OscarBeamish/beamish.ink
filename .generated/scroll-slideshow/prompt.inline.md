@@ -1,6 +1,6 @@
 You are adding **ScrollSlideshow** from Beamish to this project.
 
-> A scroll-run slideshow on a paper web that bows as it accelerates. Surfaces · effect · MIT.
+> A slideshow the page scroll runs, on a web that drags and fringes as it moves. Surfaces · effect · MIT.
 > https://beamish.ink/effects/scroll-slideshow
 
 Beamish is not a package and there is nothing to install from npm. The source
@@ -659,7 +659,7 @@ export type ScrollSlideshowOptions = BaseOptions & {
  */
 export const scrollSlideshowDefaults: ScrollSlideshowOptions = {
   paper: '#fbfaf4',
-  bend: 0.09,
+  bend: 0,
   slip: 0.018,
   fringe: 0.004,
   grain: 0.4,
@@ -1071,11 +1071,12 @@ export default createScrollSlideshow
 
 ## 2. What it is
 
-A slideshow the page scroll runs, on a paper web that bows as it accelerates.
+A slideshow the page scroll runs, printed on a web rather than on sheets.
 
 A web press does not feed sheets. It feeds one continuous ribbon of paper off a
-reel, and at speed that ribbon bows between the rollers. The faster it runs the
-more it bows. When the press stops, the paper lies flat.
+reel, and everything this does follows from that: the ribbon has mass, so it
+drags against the direction of travel, and a press running colour work strikes
+one plate per ink, so a moving web lands them a fraction apart.
 
 That is the whole behaviour. At rest this draws an undistorted photograph and
 nothing else. The distortion is a function of scroll velocity, not of time and
@@ -1083,12 +1084,13 @@ not of position, so a reader who has stopped scrolling is looking at the picture
 rather than at an effect. Most WebGL sliders warp continuously and end up reading
 as a filter laid over the content. This one only exists while it is being pulled.
 
-Three things happen while it moves, and all three are the same press. The sides
-lag behind the middle, which curves the top and bottom edges. The whole web slides
-a little against the direction of travel, the way anything with mass does when it
-is pulled. And the colour channels separate slightly at the edges, because a press
-running colour work strikes one plate per ink and a moving web lands them a
-fraction apart.
+There is a third thing the press does, and it is off by default. At speed the
+ribbon bows between the rollers, the sides lagging behind the middle. It is a
+good effect and it is the loudest thing here by some distance, which is why
+`bend` starts at zero: a slideshow is for showing the pictures, and a picture
+that bends every time somebody scrolls past it is being shown second. Set `bend`
+to about 0.09 if you want the press rather than the pictures. ScrollWarpImage is
+the one that is actually about the distortion.
 
 One WebGL2 fragment shader on one full-screen triangle. No three.js, no
 dependency, no render targets.
@@ -1100,8 +1102,8 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | Shown wherever the bow has pulled the image away from the edge of the frame. Match it to the page behind, or the gap reads as a border that appears only while scrolling. |
-| `bend` | number | `0.09` | 0 to 0.3 | How hard the sides lag behind the middle. This is the bow, and it is the option you came for. Past about 0.12 it stops being a press and starts being a fisheye. |
+| `paper` | color | `#fbfaf4` | any CSS hex | Shown wherever the web has pulled the image away from the edge of the frame. Match it to the page behind, or the gap reads as a border that appears only while scrolling. |
+| `bend` | number | `0` | 0 to 0.3 | How hard the sides lag behind the middle. Off by default: the bow is the loudest thing the press does and it competes with the picture, which is the thing you are actually showing. Turn it up to around 0.09 for the full press. Past about 0.12 it stops being a press and starts being a fisheye. |
 | `slip` | number | `0.018` | 0 to 0.15 | How far the whole web slides against the direction of travel, the way anything with mass does when it is pulled. Small: this is the part you feel rather than see. |
 | `fringe` | number | `0.004` | 0 to 0.03 | Separation between the colour channels at the edges while moving. A press running colour work strikes one plate per ink, and a moving web lands them a fraction apart. Keep it under about 0.01 or it reads as a broken monitor. |
 | `grain` | number | `0.4` | 0 to 1 | Paper tooth over the image. Fixed per slide rather than per frame, because grain that crawls is a screen artefact and grain that sits still is paper. |
@@ -1138,7 +1140,7 @@ That is the correct outcome here and it needs no special case.
    and there is no room to build speed. Give it height before you touch `bend`.
    Past about 0.12 it stops being a press and starts being a fisheye.
 
-2. **Leaving `paper` on the default when the page is not.** The bow pulls the
+2. **Leaving `paper` on the default when the page is not.** The slip pulls the
    image away from the top and bottom of the frame and `paper` is what shows in
    the gap. If it does not match the page behind, a border appears out of nowhere
    whenever somebody scrolls.

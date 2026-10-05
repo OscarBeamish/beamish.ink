@@ -678,9 +678,9 @@ export const pointerRippleGridDefaults: PointerRippleGridOptions = {
   form: 'cylinder',
   thickness: 0.58,
   base: 0.14,
-  amplitude: 1.9,
+  amplitude: 1,
   frequency: 1.9,
-  falloff: 0.26,
+  falloff: 0.5,
   elevation: 36,
   shadow: 0.26,
   softness: 0.5,
@@ -1087,9 +1087,9 @@ as the second argument to the create function; anything omitted takes its defaul
 | `form` | enum | `cylinder` | `cylinder` · `box` | Shape of each form. Cylinders read as softer and hide the grid; boxes keep the rows visible, which suits a lower count. |
 | `thickness` | number | `0.58` | 0.1 to 0.95 (looks right between 0.4 and 0.7) | Width of each form as a fraction of its cell. Above 0.9 neighbours touch and the field becomes a surface. |
 | `base` | number | `0.14` | 0.01 to 1 (looks right between 0.05 and 0.3) | Height of a form at rest. Low is a floor that rises; high is a forest that sways. |
-| `amplitude` | number | `1.9` | 0.1 to 4 (looks right between 1.2 and 2.6) | How far the crest rises above the base. |
+| `amplitude` | number | `1` | 0.1 to 4 (looks right between 1.2 and 2.6) | How far the crest rises above the base. |
 | `frequency` | number | `1.9` | 0.5 to 8 (looks right between 1.5 and 3.5) | Rings per unit of distance. Above about 5 the rings are finer than the grid and it aliases into noise. |
-| `falloff` | number | `0.26` | 0.05 to 2 (looks right between 0.18 and 0.6) | How quickly the ripple fades away from the cursor. Low spreads across the whole field; high is a tight pool underneath it. |
+| `falloff` | number | `0.5` | 0.05 to 2 (looks right between 0.18 and 0.6) | How quickly the ripple fades away from the cursor. Low spreads across the whole field; high is a tight pool underneath it. |
 | `elevation` | number | `36` | 8 to 80 deg (looks right between 25 and 50) | Sun height above the horizon. Low throws long shadows between the forms, which is most of what gives the field depth. |
 | `shadow` | number | `0.26` | 0 to 1 (looks right between 0.15 and 0.4) | How dark the shadows fall on the paper. The paper is never lit, so this is the only thing drawn on it. |
 | `softness` | number | `0.5` | 0 to 1 (looks right between 0.3 and 0.7) | Shadow edge softness. Zero is a hard midday edge, one is heavy overcast. |

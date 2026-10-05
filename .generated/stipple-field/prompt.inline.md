@@ -1,6 +1,6 @@
 You are adding **StippleField** from Beamish to this project.
 
-> A stipple drawing where tone is how many marks there are, not how big. Backdrops · effect · MIT.
+> A stipple drawing where tone is how many marks there are, and the cursor works it up. Backdrops · effect · MIT.
 > https://beamish.ink/effects/stipple-field
 
 Beamish is not a package and there is nothing to install from npm. The source
@@ -17,6 +17,7 @@ Assume you have not seen this library before. Everything you need is below.
 - Tone is carried by the number of marks rather than their size, which is what separates a stipple from a halftone: an engraver has one nib, so darker means more marks rather than fatter ones
 - Each mark is tested against the nine surrounding cells, because a mark thrown off centre crosses into its neighbour and testing only its own cell would slice it at the boundary
 - One WebGL2 context, one full-screen triangle, no buffers and no attributes
+- The cursor raises the tone it is over, which adds marks rather than enlarging them. It is a plain function of the pointer position with nothing integrated, so a scripted path replays identically and renderAtTime stays pure
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -627,7 +628,7 @@ export function mount<O extends BaseOptions>(
  * as a screen.
  */
 
-import { mount, type BaseOptions, type EffectHandle, type Surface } from '../../shared/runtime'
+import { mount, type BaseOptions, type EffectHandle, type Pointer, type Surface } from '../../shared/runtime'
 
 export type StippleFieldOptions = BaseOptions & {
   /** The paper behind the marks. */
@@ -650,6 +651,10 @@ export type StippleFieldOptions = BaseOptions & {
   accentShare: number
   /** Paper tooth under the marks. */
   grain: number
+  /** How much tone the cursor works up under itself. Zero leaves it ambient. */
+  touch: number
+  /** How far the hand reaches, as a share of the short side. */
+  reach: number
   /** Seconds for one loop of the drift. Exactly periodic over this. */
   period: number
 }
@@ -669,6 +674,8 @@ export const stippleFieldDefaults: StippleFieldOptions = {
   contrast: 1.9,
   accentShare: 0.06,
   grain: 0.4,
+  touch: 0.65,
+  reach: 0.45,
   period: 18,
   reducedMotionTime: 4
 }
@@ -724,6 +731,10 @@ uniform float u_weight;
 uniform float u_contrast;
 uniform float u_accentShare;
 uniform float u_grain;
+uniform vec2  u_pointer;
+uniform float u_active;
+uniform float u_touch;
+uniform float u_reach;
 
 out vec4 fragColor;
 
@@ -780,6 +791,35 @@ void main() {
   tone = clamp((tone - 0.5) * u_contrast + 0.5, 0.0, 1.0);
 
   /*
+   * The hand. Tone is how many marks there are, so working an area up is adding
+   * marks to it, and that is exactly what the pointer does: it raises the tone
+   * it is over and the population thickens to match.
+   *
+   * Gaussian rather than a disc with a soft edge. An engraver working a passage
+   * has no boundary to their attention, and a circle of darker stipple with a
+   * findable edge reads as a torch being shone on the drawing instead.
+   *
+   * Nothing is integrated here. The tone under the cursor is a function of
+   * where the cursor is, so a scripted path replays identically and
+   * renderAtTime stays pure.
+   */
+  vec2 hand = p - (vec2(u_pointer.x, 1.0 - u_pointer.y) * cssRes - cssRes * 0.5) / (shortSide * 0.5);
+  float near = exp(-dot(hand, hand) / max(u_reach * u_reach, 0.0001));
+  float working = near * u_active;
+  tone = clamp(tone + u_touch * working, 0.0, 1.0);
+
+  /*
+   * And a second pass with the other nib where the hand is.
+   *
+   * Tone saturates, which is the whole problem with raising it alone: an area
+   * already carrying a mark in every cell cannot take another one, so the hand
+   * showed up beautifully in the light passages and did nothing whatever in the
+   * dark ones. Changing which nib is working is something the dense passages
+   * can answer to.
+   */
+  float share = u_accentShare + (0.8 - u_accentShare) * u_touch * working;
+
+  /*
    * The cell grid lives in CSS pixels rather than in the normalised space, so
    * the dots stay the same size on screen whatever shape the element is and
    * however the field is scaled.
@@ -815,7 +855,7 @@ void main() {
 
       float mark = smoothstep(u_weight + aa, u_weight - aa, length(f - centre));
       cover = max(cover, mark);
-      if (hash12(nid + 71.7) < u_accentShare) accent = max(accent, mark);
+      if (hash12(nid + 71.7) < share) accent = max(accent, mark);
     }
   }
 
@@ -844,7 +884,11 @@ const UNIFORMS = [
   'u_weight',
   'u_contrast',
   'u_accentShare',
-  'u_grain'
+  'u_grain',
+  'u_pointer',
+  'u_active',
+  'u_touch',
+  'u_reach'
 ] as const
 
 type UniformName = (typeof UNIFORMS)[number]
@@ -933,7 +977,7 @@ class StippleFieldSurface implements Surface<StippleFieldOptions> {
     this.gl?.viewport(0, 0, size.pixelWidth, size.pixelHeight)
   }
 
-  render(t: number, opts: StippleFieldOptions): void {
+  render(t: number, opts: StippleFieldOptions, pointer: Pointer): void {
     const gl = this.gl
     const program = this.program
     if (!gl || !program) return
@@ -957,6 +1001,10 @@ class StippleFieldSurface implements Surface<StippleFieldOptions> {
     gl.uniform1f(loc('u_contrast'), opts.contrast)
     gl.uniform1f(loc('u_accentShare'), opts.accentShare)
     gl.uniform1f(loc('u_grain'), opts.grain)
+    gl.uniform2f(loc('u_pointer'), pointer.x, pointer.y)
+    gl.uniform1f(loc('u_active'), pointer.active ? 1 : 0)
+    gl.uniform1f(loc('u_touch'), opts.touch)
+    gl.uniform1f(loc('u_reach'), opts.reach)
 
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
@@ -1117,6 +1165,8 @@ as the second argument to the create function; anything omitted takes its defaul
 | `contrast` | number | `1.9` | 0.5 to 5 | How hard the tone field pushes away from the midtone. Applied about 0.5, so raising it opens the field out rather than dragging the whole thing dark. |
 | `accentShare` | number | `0.06` | 0 to 0.5 | Share of marks that take the second nib. Small: this is a second pass over a drawing, not a second drawing. |
 | `grain` | number | `0.4` | 0 to 1 | Paper tooth under the marks. |
+| `touch` | number | `0.65` | 0 to 1 | How much tone the cursor works up under itself. Tone is how many marks there are, so this is the hand adding marks, not a light being shone on the drawing. Zero leaves the field ambient. |
+| `reach` | number | `0.45` | 0.05 to 1.5 | How far the hand reaches, as a share of the short side. The falloff is a Gaussian and has no edge to find, so this is where it has mostly faded rather than where it stops. |
 | `period` | number | `18` | 2 to 120 | Seconds for one loop of the drift. The tone field travels a closed circle through noise space, so it returns to exactly where it began and the loop is seamless. |
 
 ## 5. Cleanup and SSR
@@ -1145,6 +1195,11 @@ the loop never starts and one frame is drawn at `reducedMotionTime`.
 
 This effect needs no care here. Any frame of it is a finished drawing, so the
 default is as good as any other number.
+
+The hand does not work under reduced motion. The runtime draws one frame and
+never starts a loop, so there is nothing running to pick the pointer up. What
+you get is a finished stipple drawing, which is the right thing to be left
+with.
 
 ## 7. The three mistakes most likely to be made here
 

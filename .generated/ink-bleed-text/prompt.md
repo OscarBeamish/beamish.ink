@@ -69,9 +69,9 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `bleed` | number | `3.4` | 0 to 14 | How far the ink creeps, in pixels, at its furthest. Past about 8 the counters of a and e close up and the word stops being readable, which is a real thing badly printed paper does and rarely a thing you want. |
-| `floor` | number | `1.1` | 0 to 8 | How far it has crept at its least. Deliberately not zero: a sheet that has taken ink does not give it back, so the letter never returns to a clean edge. |
-| `fibre` | number | `0.035` | 0.002 to 0.2 | Coarseness of the fibre, as a turbulence base frequency. Lower is a longer, rougher, more absorbent fibre. This is the one to reach for if the bleed looks like noise rather than paper. |
+| `bleed` | number | `9` | 0 to 14 | How far the ink creeps, in pixels, at its furthest. Past about 8 the counters of a and e close up and the word stops being readable, which is a real thing badly printed paper does and rarely a thing you want. |
+| `floor` | number | `3` | 0 to 8 | How far it has crept at its least. Deliberately not zero: a sheet that has taken ink does not give it back, so the letter never returns to a clean edge. |
+| `fibre` | number | `0.055` | 0.002 to 0.2 | Coarseness of the fibre, as a turbulence base frequency. Lower is a longer, rougher, more absorbent fibre. This is the one to reach for if the bleed looks like noise rather than paper. |
 | `detail` | number | `3` | 1 to 5 | Layers of fibre. More is a finer, more tangled structure and more work for the filter; the gain above four is hard to see. |
 | `period` | number | `9` | 1 to 60 | Seconds for one breath of the ink. Driven by a cosine, so it is exactly periodic and the loop closes. |
 | `seed` | number | `4` | 0 to 999 | Which sheet of paper. Any two seeds give different fibre; the same seed always gives the same sheet. |

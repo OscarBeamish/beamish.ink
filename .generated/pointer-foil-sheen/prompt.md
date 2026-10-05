@@ -147,11 +147,11 @@ as the second argument to the create function; anything omitted takes its defaul
 | `paper` | color | `#fbfaf4` | any CSS hex | The paper the stamp is pressed into. Match it to your page background or the panel reads as a pasted-in rectangle. |
 | `foilLow` | color | `#7a3410` | any CSS hex | The foil where the light does not reach. Metal takes almost all its colour from the highlight, so this wants to be genuinely dark. |
 | `foilHigh` | color | `#f0b070` | any CSS hex | The foil at the highlight. Copper by default; a pale grey here gives silver, a yellow gives gold. |
-| `spokes` | number | `12` | 3 to 40 (looks right between 8 and 18) | Points on the rosette. Above about 24 the petals are narrower than the relief and it turns into a disc. |
-| `scale` | number | `0.86` | 0.3 to 1.6 (looks right between 0.7 and 1.1) | Size of the stamp relative to the shorter side of the element. |
-| `relief` | number | `0.38` | 0 to 1 (looks right between 0.35 and 0.7) | Depth of the brushed relief. At zero the foil is a flat shape that changes brightness, which reads as plastic rather than metal. |
+| `spokes` | number | `34` | 3 to 40 (looks right between 8 and 18) | Points on the rosette. Above about 24 the petals are narrower than the relief and it turns into a disc. |
+| `scale` | number | `1.6` | 0.3 to 1.6 (looks right between 0.7 and 1.1) | Size of the stamp relative to the shorter side of the element. |
+| `relief` | number | `0.2` | 0 to 1 (looks right between 0.35 and 0.7) | Depth of the brushed relief. At zero the foil is a flat shape that changes brightness, which reads as plastic rather than metal. |
 | `sharpness` | number | `0.42` | 0 to 1 (looks right between 0.3 and 0.65) | How tight the highlight is. High is a mirror finish, low is a brushed one. |
-| `iridescence` | number | `0.3` | 0 to 1 (looks right between 0.15 and 0.45) | Spectral shift at grazing angles. Past about 0.6 it stops being a foil and becomes a hologram. |
+| `iridescence` | number | `0.5` | 0 to 1 (looks right between 0.15 and 0.45) | Spectral shift at grazing angles. Past about 0.6 it stops being a foil and becomes a hologram. |
 | `lightHeight` | number | `0.42` | 0.05 to 2 (looks right between 0.3 and 0.7) | How far above the surface the cursor's light sits. Low is a hard raking light that sweeps a narrow band; high floods the whole stamp at once. |
 | `grain` | number | `0.3` | 0 to 1 | Paper tooth. Static by design. Animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent. |
 | `period` | number | `5` | 2 to 60 s (looks right between 5 and 20) | Seconds for one orbit of the idle light, which is the motion used when no pointer is present. Exactly periodic, so the loop has no seam. |

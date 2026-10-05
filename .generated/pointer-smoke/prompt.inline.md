@@ -1,7 +1,7 @@
-You are adding **PointerTrail** from Beamish to this project.
+You are adding **PointerSmoke** from Beamish to this project.
 
-> Marks pressed into the paper behind the cursor, spreading as they soak in. Pointer · effect · MIT.
-> https://beamish.ink/effects/pointer-trail
+> Smoke off the cursor, spreading and thinning as it drifts. Pointer · effect · MIT.
+> https://beamish.ink/effects/pointer-smoke
 
 Beamish is not a package and there is nothing to install from npm. The source
 lives in a public repo; you fetch the files, put them in this project, and wire
@@ -14,9 +14,10 @@ Assume you have not seen this library before. Everything you need is below.
 
 - **npm dependencies:** None. This file has no npm dependencies at all.
 - WebGL2. There is no WebGL1 fallback
-- An older mark is wider and paler than a new one, because paper draws ink sideways along its fibres while it sinks in. That is the opposite of a particle trail, where older means smaller
-- The marks multiply rather than compositing, so two that overlap are darker than either
-- A trail needs history, which is not a function of t. When pointerPath is set the whole track is known in advance and the trail is read backwards off it instead of accumulated, so a recorded take is identical however the frames are asked for. A live pointer falls back to a ring buffer
+- An older puff is wider and fainter than a new one, because nothing holds smoke together. That is the opposite of a particle trail, where older means smaller
+- The puffs multiply rather than compositing, so two that overlap are denser than either
+- Every puff carries its own age in seconds rather than taking it from its place in the list. The list version worked out to one puff per frame, which left a third of a second of smoke on a 60Hz display and a sixth on a 120Hz one
+- A trail needs history, which is not a function of t. When pointerPath is set the whole track is known in advance and the trail is read backwards off it instead of accumulated, so a recorded take is identical however the frames are asked for. A live pointer keeps its own stamps
 - One WebGL2 context, one full-screen triangle, no buffers and no attributes
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
@@ -606,20 +607,29 @@ export function mount<O extends BaseOptions>(
 }
 ```
 
-**`src/beamish/effects/pointer-trail/core.ts`**
+**`src/beamish/effects/pointer-smoke/core.ts`**
 
 ```ts
 /*
- * PointerTrail: Beamish
- * https://beamish.ink/effects/pointer-trail
+ * PointerSmoke: Beamish
+ * https://beamish.ink/effects/pointer-smoke
  *
- * Marks pressed into the paper, soaking in and fading.
+ * Smoke off the cursor, spreading and thinning as it drifts.
  *
- * Not a comet and not a glow. A nib touching down repeatedly leaves a row of
- * blots, and each one does two things while it sits there: it spreads, because
- * the paper draws the ink sideways along its fibres, and it lightens, because
- * the ink is sinking in. So an older mark is wider and paler than a new one,
- * which is the opposite of a particle trail, where older means smaller.
+ * Not a comet and not a glow. A puff of smoke does two things while it hangs
+ * there: it widens, because nothing is holding it together, and it thins,
+ * because the same amount of it is spread over more room. So an older puff is
+ * bigger and fainter than a new one, which is the opposite of a particle trail,
+ * where older means smaller.
+ *
+ * Every puff carries its own age in seconds. That is the part worth reading.
+ * The first version laid one puff per frame and took each one's age from its
+ * position in the list, which made the whole effect frame-rate dependent: the
+ * same gesture left a third of a second of smoke on a 60Hz display and a sixth
+ * of a second on a 120Hz one. The long version read as something heavy being
+ * dragged along behind the cursor, which is the one thing a pointer effect
+ * cannot afford. A trail measured in seconds behaves the same everywhere, and
+ * it thins out and goes when the cursor stops rather than hanging there.
  *
  * A trail needs history, and history is not a function of `t`. That is a problem
  * here, because the recorder asks for frames and expects the same answer every
@@ -627,10 +637,10 @@ export function mount<O extends BaseOptions>(
  *
  * The way out is that the recorder already supplies the history. When
  * `pointerPath` is set the whole cursor track is known in advance, so the trail
- * is read backwards off the path rather than accumulated: mark `i` is simply
- * where the cursor was at `t - i * spacing`. That is pure in `t`, and it means
- * the recorded take is identical however the frames are asked for. With a live
- * pointer there is no path to read, so it falls back to a ring buffer.
+ * is read backwards off the path rather than accumulated: puff `i` is simply
+ * where the cursor was at `t - i * life / marks`, aged to match. That is pure in
+ * `t`, so the recorded take is identical however the frames are asked for. With
+ * a live pointer there is no path to read, so it keeps its own stamps.
  */
 
 import {
@@ -645,26 +655,26 @@ import {
 /** Matches MARKS in the shader. Changing one without the other truncates the trail. */
 const MARKS = 28
 
-export type PointerTrailOptions = BaseOptions & {
-  /** The sheet the marks are pressed into. */
+export type PointerSmokeOptions = BaseOptions & {
+  /** The paper the smoke drifts over. */
   paper: string
-  /** Ink that has soaked in. */
-  ink: string
-  /** Ink that has only just landed. */
+  /** The body of it, once it has spread. */
+  smoke: string
+  /** What warmth the freshest smoke carries. */
   accent: string
-  /** How many marks the trail holds. */
+  /** How many puffs the trail holds. */
   marks: number
-  /** Radius of a fresh mark, as a share of the short side. */
+  /** Radius of a fresh puff, as a share of the short side. */
   size: number
-  /** How much wider a mark gets by the end of its life. */
+  /** How much wider a puff gets by the end of its life. */
   spread: number
-  /** How quickly a mark gives up. Higher is a shorter trail. */
+  /** How quickly a puff gives up. Higher is a shorter trail. */
   fade: number
-  /** How much of a mark is its soft shoulder rather than its body. */
+  /** How much of a puff is its soft shoulder rather than its body. */
   edge: number
-  /** Seconds between one mark and the next when replaying a path. */
-  spacing: number
-  /** Paper tooth under the marks. */
+  /** Seconds a puff lasts. This is the length of the trail. */
+  life: number
+  /** Paper tooth under the smoke. */
   grain: number
 }
 
@@ -672,16 +682,16 @@ export type PointerTrailOptions = BaseOptions & {
  * Kept in step with meta.json by `pnpm generate`, which fails if the two drift.
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
-export const pointerTrailDefaults: PointerTrailOptions = {
+export const pointerSmokeDefaults: PointerSmokeOptions = {
   paper: '#fbfaf4',
-  ink: '#8d8577',
-  accent: '#c44400',
-  marks: 22,
-  size: 0.032,
-  spread: 1.6,
-  fade: 1.8,
-  edge: 0.85,
-  spacing: 0.035,
+  smoke: '#b4afa4',
+  accent: '#bfae9e',
+  marks: 28,
+  size: 0.026,
+  spread: 2.4,
+  fade: 2.4,
+  edge: 0.95,
+  life: 0.45,
   grain: 0.4,
   reducedMotionTime: 0,
   pointerScope: 'window'
@@ -691,10 +701,11 @@ const UNIFORMS = [
   'u_resolution',
   'u_dpr',
   'u_marks',
+  'u_ages',
   'u_count',
   'u_active',
   'u_paper',
-  'u_ink',
+  'u_smoke',
   'u_accent',
   'u_size',
   'u_spread',
@@ -723,18 +734,18 @@ function rgb(value: string): [number, number, number] {
 
 function compile(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader {
   const shader = gl.createShader(type)
-  if (!shader) throw new Error('PointerTrail: could not create shader')
+  if (!shader) throw new Error('PointerSmoke: could not create shader')
   gl.shaderSource(shader, source)
   gl.compileShader(shader)
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
     const log = gl.getShaderInfoLog(shader)
     gl.deleteShader(shader)
-    throw new Error(`PointerTrail: shader failed to compile\n${log ?? ''}`)
+    throw new Error(`PointerSmoke: shader failed to compile\n${log ?? ''}`)
   }
   return shader
 }
 
-// beamish:shader-begin shaders/pointer-trail.vert
+// beamish:shader-begin shaders/pointer-smoke.vert
 const VERT = `#version 300 es
 
 // Full-screen triangle from gl_VertexID. No buffers, no attributes. Bind an
@@ -747,22 +758,29 @@ void main() {
 `
 // beamish:shader-end
 
-// beamish:shader-begin shaders/pointer-trail.frag
+// beamish:shader-begin shaders/pointer-smoke.frag
 const FRAG = `#version 300 es
 precision highp float;
 
 /*
- * PointerTrail: marks pressed into the paper, soaking in and fading.
+ * PointerSmoke: smoke off the cursor, spreading and thinning as it drifts.
  *
- * Not a comet and not a glow. A nib touching down repeatedly leaves a row of
- * blots, and each one does two things as it sits: it spreads a little as the
- * paper draws the ink sideways along the fibres, and it lightens as it sinks in.
- * So an older mark here is wider and paler than a new one, which is the opposite
- * of a particle trail, where older means smaller.
+ * Not a comet and not a glow. A puff of smoke does two things while it hangs
+ * there: it widens, because nothing is holding it together, and it thins,
+ * because the same amount of it is spread over more room. So an older puff is
+ * bigger and fainter than a new one, which is the opposite of a particle trail,
+ * where older means smaller, and it is the thing that makes this read as smoke
+ * rather than as a cursor with a tail.
  *
- * The marks multiply rather than compositing. Two blots that overlap are darker
- * than either, which is the behaviour that makes a trail of ink look wet rather
- * than look like a gradient.
+ * The puffs multiply rather than compositing. Two that overlap are denser than
+ * either, which is how smoke in front of smoke behaves and is what stops a
+ * doubled-back trail reading as a flat shape.
+ *
+ * Age is carried per puff rather than derived from its index. The index version
+ * worked out to one puff per frame, which made the whole effect frame-rate
+ * dependent: the same gesture left a third of a second of smoke on a 60Hz
+ * display and a sixth on a 120Hz one, and the long version read as something
+ * heavy being dragged along behind the cursor.
  */
 
 #define MARKS 28
@@ -770,11 +788,12 @@ precision highp float;
 uniform vec2  u_resolution;
 uniform float u_dpr;
 uniform vec2  u_marks[MARKS];
+uniform float u_ages[MARKS];
 uniform float u_count;
 uniform float u_active;
 
 uniform vec3  u_paper;
-uniform vec3  u_ink;
+uniform vec3  u_smoke;
 uniform vec3  u_accent;
 uniform float u_size;
 uniform float u_spread;
@@ -794,46 +813,47 @@ void main() {
   vec2 cssPx = gl_FragCoord.xy / max(u_dpr, 0.001);
 
   int count = int(clamp(u_count, 0.0, float(MARKS)));
-  float ink = 0.0;
+  float density = 0.0;
   float freshest = 0.0;
 
   for (int i = 0; i < MARKS; i++) {
     if (i >= count) break;
 
     /*
-     * Age runs 0 for the newest mark to 1 for the oldest. Index order is age
-     * order, because the trail is written newest first, which saves carrying a
-     * timestamp per mark.
+     * Age runs 0 for a puff that has just left to 1 for one that has gone. It
+     * is supplied per puff rather than taken from the index, which is what
+     * makes a trail the same length in seconds whatever the display is doing.
      */
-    float age = float(i) / max(float(count - 1), 1.0);
+    float age = u_ages[i];
+    if (age >= 1.0) continue;
 
     vec2 markPx = vec2(u_marks[i].x, 1.0 - u_marks[i].y) * cssRes;
     float d = length(cssPx - markPx) / shortSide;
 
-    // Spreading outward and sinking in. A mark that has been there longer is
-    // wider and weaker, which is what ink does and what a particle does not.
+    // Spreading and thinning. A puff that has been out longer is wider and
+    // weaker, which is what smoke does and what a particle does not.
     float radius = u_size * (1.0 + age * u_spread);
     float strength = pow(1.0 - age, max(u_fade, 0.01));
 
     /*
-     * A soft shoulder rather than a hard disc. Ink on a fibrous surface has no
-     * edge to speak of, and \`edge\` sets how much of the blot is that shoulder.
+     * A soft shoulder rather than a disc. Smoke has no edge at all, and \`edge\`
+     * sets how much of a puff is that shoulder: at 0 you get plates of grey.
      */
-    float blot = 1.0 - smoothstep(radius * (1.0 - u_edge), radius, d);
-    float mark = blot * strength;
+    float puff = 1.0 - smoothstep(radius * (1.0 - u_edge), radius, d);
+    float mark = puff * strength;
 
-    // Multiplied, not added: two blots crossing are darker than either, which
-    // is what makes a wet trail read as wet.
-    ink = 1.0 - (1.0 - ink) * (1.0 - mark);
+    // Multiplied, not added: two puffs crossing are denser than either, which
+    // is what stops a doubled-back trail reading as one flat shape.
+    density = 1.0 - (1.0 - density) * (1.0 - mark);
     freshest = max(freshest, mark * (1.0 - age));
   }
 
-  ink *= u_active;
+  density *= u_active;
 
-  // The freshest ink has not had time to sink, so it carries the accent and the
-  // rest of the trail settles back to the body colour.
-  vec3 colour = mix(u_ink, u_accent, smoothstep(0.25, 0.8, freshest));
-  vec3 col = mix(u_paper, colour, clamp(ink, 0.0, 1.0));
+  // The freshest smoke is the densest and carries what warmth there is. The
+  // rest of it settles back to the body colour as it thins.
+  vec3 colour = mix(u_smoke, u_accent, smoothstep(0.25, 0.8, freshest));
+  vec3 col = mix(u_paper, colour, clamp(density, 0.0, 1.0));
 
   float tooth = hash12(floor(cssPx * 0.5) + 19.0) - 0.5;
   col += tooth * 0.05 * u_grain;
@@ -843,20 +863,23 @@ void main() {
 `
 // beamish:shader-end
 
-class PointerTrailSurface implements Surface<PointerTrailOptions> {
+class PointerSmokeSurface implements Surface<PointerSmokeOptions> {
   private gl: WebGL2RenderingContext | null = null
   private program: WebGLProgram | null = null
   private vao: WebGLVertexArrayObject | null = null
   private locations = new Map<UniformName, WebGLUniformLocation | null>()
   private size = { pixelWidth: 1, pixelHeight: 1, dpr: 1 }
 
-  /* Newest first, so the index is also the age. */
+  /* Newest first. Each puff carries the time it was laid, not its rank. */
   private history: number[] = new Array(MARKS * 2).fill(0.5)
+  private stamps: number[] = new Array(MARKS).fill(-1e9)
   private held = 0
+  private lastAt = -1e9
   private readonly buffer = new Float32Array(MARKS * 2)
+  private readonly ages = new Float32Array(MARKS)
 
   setup(ctx: { canvas: HTMLCanvasElement | null }): void {
-    if (!ctx.canvas) throw new Error('PointerTrail needs a canvas')
+    if (!ctx.canvas) throw new Error('PointerSmoke needs a canvas')
     const gl = ctx.canvas.getContext('webgl2', {
       alpha: false,
       antialias: false,
@@ -867,12 +890,12 @@ class PointerTrailSurface implements Surface<PointerTrailOptions> {
       preserveDrawingBuffer: true,
       powerPreference: 'low-power'
     })
-    if (!gl) throw new Error('PointerTrail needs WebGL2, which this browser did not provide')
+    if (!gl) throw new Error('PointerSmoke needs WebGL2, which this browser did not provide')
 
     const vert = compile(gl, gl.VERTEX_SHADER, VERT)
     const frag = compile(gl, gl.FRAGMENT_SHADER, FRAG)
     const program = gl.createProgram()
-    if (!program) throw new Error('PointerTrail: could not create program')
+    if (!program) throw new Error('PointerSmoke: could not create program')
     gl.attachShader(program, vert)
     gl.attachShader(program, frag)
     gl.linkProgram(program)
@@ -881,7 +904,7 @@ class PointerTrailSurface implements Surface<PointerTrailOptions> {
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
       const log = gl.getProgramInfoLog(program)
       gl.deleteProgram(program)
-      throw new Error(`PointerTrail: program failed to link\n${log ?? ''}`)
+      throw new Error(`PointerSmoke: program failed to link\n${log ?? ''}`)
     }
 
     const vao = gl.createVertexArray()
@@ -900,7 +923,7 @@ class PointerTrailSurface implements Surface<PointerTrailOptions> {
     this.gl?.viewport(0, 0, size.pixelWidth, size.pixelHeight)
   }
 
-  render(t: number, opts: PointerTrailOptions, pointer: Pointer): void {
+  render(t: number, opts: PointerSmokeOptions, pointer: Pointer): void {
     const gl = this.gl
     const program = this.program
     if (!gl || !program) return
@@ -908,34 +931,56 @@ class PointerTrailSurface implements Surface<PointerTrailOptions> {
     const wanted = Math.max(1, Math.min(Math.round(opts.marks), MARKS))
     const path = opts.pointerPath
 
+    const life = Math.max(opts.life, 0.05)
+    // One puff per slice of the life, so the trail is always `marks` long and
+    // always `life` seconds old at its tail whatever the display is doing.
+    const gap = life / wanted
+
     if (path && path.length > 0) {
       /*
        * The path is known in advance, so the trail is read backwards off it
-       * rather than accumulated. Mark i is where the cursor was at
-       * t - i * spacing, which makes the whole thing a function of `t` and the
+       * rather than accumulated. Puff i is where the cursor was at t - i * gap,
+       * aged to match, which makes the whole thing a function of `t` and the
        * recorded take identical however the frames are asked for.
        */
       const duration = opts.pointerPathDuration ?? 0
       for (let i = 0; i < wanted; i++) {
-        const at = t - i * opts.spacing
-        const sample = samplePointerPath(path, at, duration)
+        const sample = samplePointerPath(path, t - i * gap, duration)
         this.buffer[i * 2] = sample.x
         this.buffer[i * 2 + 1] = sample.y
+        this.ages[i] = i / wanted
       }
       this.held = wanted
     } else {
-      // No path, so there is nothing to read backwards and the history has to
-      // be kept. Newest first: shift down, write the head.
-      for (let i = MARKS - 1; i > 0; i--) {
-        this.history[i * 2] = this.history[(i - 1) * 2]!
-        this.history[i * 2 + 1] = this.history[(i - 1) * 2 + 1]!
+      /*
+       * No path, so the history has to be kept. A puff is laid on a clock
+       * rather than once per frame, which is what makes the trail the same
+       * length in seconds on any display, and the ones that have outlived
+       * `life` simply stop being drawn.
+       *
+       * The clock is reset rather than caught up when `t` jumps, so a replay or
+       * a tab coming back from the background does not fire off a burst of
+       * puffs along a path the cursor never took.
+       */
+      if (t < this.lastAt || t - this.lastAt > life * 4) this.lastAt = t - gap
+
+      if (t - this.lastAt >= gap) {
+        for (let i = MARKS - 1; i > 0; i--) {
+          this.history[i * 2] = this.history[(i - 1) * 2]!
+          this.history[i * 2 + 1] = this.history[(i - 1) * 2 + 1]!
+          this.stamps[i] = this.stamps[i - 1]!
+        }
+        this.history[0] = pointer.x
+        this.history[1] = pointer.y
+        this.stamps[0] = t
+        this.held = Math.min(this.held + 1, wanted)
+        this.lastAt = t
       }
-      this.history[0] = pointer.x
-      this.history[1] = pointer.y
-      this.held = Math.min(this.held + 1, wanted)
+
       for (let i = 0; i < wanted; i++) {
         this.buffer[i * 2] = this.history[i * 2]!
         this.buffer[i * 2 + 1] = this.history[i * 2 + 1]!
+        this.ages[i] = Math.min((t - this.stamps[i]!) / life, 1)
       }
     }
 
@@ -947,10 +992,11 @@ class PointerTrailSurface implements Surface<PointerTrailOptions> {
     gl.uniform2f(loc('u_resolution'), this.size.pixelWidth, this.size.pixelHeight)
     gl.uniform1f(loc('u_dpr'), this.size.dpr)
     gl.uniform2fv(loc('u_marks'), this.buffer)
+    gl.uniform1fv(loc('u_ages'), this.ages)
     gl.uniform1f(loc('u_count'), this.held)
     gl.uniform1f(loc('u_active'), pointer.active || Boolean(path) ? 1 : 0)
     gl.uniform3fv(loc('u_paper'), rgb(opts.paper))
-    gl.uniform3fv(loc('u_ink'), rgb(opts.ink))
+    gl.uniform3fv(loc('u_smoke'), rgb(opts.smoke))
     gl.uniform3fv(loc('u_accent'), rgb(opts.accent))
     gl.uniform1f(loc('u_size'), opts.size)
     gl.uniform1f(loc('u_spread'), opts.spread)
@@ -980,41 +1026,41 @@ class PointerTrailSurface implements Surface<PointerTrailOptions> {
 }
 
 /**
- * Mount PointerTrail into `el`. The element needs a size, in CSS, not just
+ * Mount PointerSmoke into `el`. The element needs a size, in CSS, not just
  * content.
  *
  * ```ts
- * const trail = createPointerTrail(document.querySelector('#sheet')!)
+ * const trail = createPointerSmoke(document.querySelector('#sheet')!)
  * trail.start()
  * ```
  */
-export function createPointerTrail(
+export function createPointerSmoke(
   el: HTMLElement,
-  opts: Partial<PointerTrailOptions> = {}
+  opts: Partial<PointerSmokeOptions> = {}
 ): EffectHandle {
-  return mount<PointerTrailOptions>(el, opts, {
-    defaults: pointerTrailDefaults,
-    create: () => new PointerTrailSurface()
+  return mount<PointerSmokeOptions>(el, opts, {
+    defaults: pointerSmokeDefaults,
+    create: () => new PointerSmokeSurface()
   })
 }
 
-export default createPointerTrail
+export default createPointerSmoke
 ```
 
 ## 2. What it is
 
-Marks pressed into the paper behind the cursor, spreading as they soak in.
+Smoke off the cursor, spreading and thinning as it drifts.
 
-Not a comet and not a glow. A nib touching down repeatedly leaves a row of blots,
-and each one does two things while it sits there. It **spreads**, because the
-paper draws the ink sideways along its fibres. And it **lightens**, because the
-ink is sinking in. So an older mark here is wider and paler than a new one, which
-is the opposite of a particle trail, where older means smaller, and it is the
-single thing that makes this read as ink rather than as a cursor with a tail.
+Not a comet and not a glow. A puff of smoke does two things while it hangs
+there. It **widens**, because nothing is holding it together. And it **thins**,
+because the same amount of it is spread over more room. So an older puff is
+bigger and fainter than a new one, which is the opposite of a particle trail,
+where older means smaller, and it is the single thing that makes this read as
+smoke rather than as a cursor with a tail.
 
-The marks multiply rather than compositing, so two that overlap are darker than
-either. The head of the trail carries the accent, because ink that has only just
-landed has not had time to sink.
+The puffs multiply rather than compositing, so two that overlap are denser than
+either. What warmth there is sits at the head, where the smoke has not yet had
+room to spread.
 
 One WebGL2 fragment shader on one full-screen triangle. No three.js, no
 dependency.
@@ -1027,9 +1073,9 @@ dependency.
 <div id="sheet" style="position: relative; height: 70vh"></div>
 
 <script type="module">
-  import { createPointerTrail } from './beamish/effects/pointer-trail/core.js'
+  import { createPointerSmoke } from './beamish/effects/pointer-smoke/core.js'
 
-  const trail = createPointerTrail(document.querySelector('#sheet'))
+  const trail = createPointerSmoke(document.querySelector('#sheet'))
   trail.start()
 </script>
 ```
@@ -1040,14 +1086,14 @@ context.
 
 ```tsx
 import { useEffect, useRef } from 'react'
-import { createPointerTrail } from '@/beamish/effects/pointer-trail/core'
+import { createPointerSmoke } from '@/beamish/effects/pointer-smoke/core'
 
 export function Sheet() {
   const host = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!host.current) return
-    const trail = createPointerTrail(host.current)
+    const trail = createPointerSmoke(host.current)
     trail.start()
     return () => trail.destroy()
   }, [])
@@ -1064,7 +1110,7 @@ option is a uniform, so nothing rebuilds.
 ```vue
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
-import { createPointerTrail } from '@/beamish/effects/pointer-trail/core'
+import { createPointerSmoke } from '@/beamish/effects/pointer-smoke/core'
 import type { EffectHandle } from '@/beamish/shared/runtime'
 
 const host = ref<HTMLDivElement | null>(null)
@@ -1072,7 +1118,7 @@ let trail: EffectHandle | null = null
 
 onMounted(() => {
   if (!host.value) return
-  trail = createPointerTrail(host.value)
+  trail = createPointerSmoke(host.value)
   trail.start()
 })
 
@@ -1094,16 +1140,16 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | The sheet the marks are pressed into. |
-| `ink` | color | `#8d8577` | any CSS hex | Ink that has soaked in. Most of the trail is this. |
-| `accent` | color | `#c44400` | any CSS hex | Ink that has only just landed, at the head of the trail. |
-| `marks` | number | `22` | 2 to 28 | How many marks the trail holds. The shader has room for 28; asking for more silently gives you 28, because the array is a fixed size and growing it means editing the shader as well. |
-| `size` | number | `0.032` | 0.005 to 0.2 | Radius of a fresh mark, as a share of the short side, so it keeps its proportion when the element changes shape. |
-| `spread` | number | `1.6` | 0 to 4 | How much wider a mark gets by the end of its life. Paper draws ink sideways along its fibres, so an old mark is bigger than a new one. This is the opposite of a particle trail and it is the main thing that makes it read as ink. |
-| `fade` | number | `1.8` | 0.2 to 6 | How quickly a mark gives up. Higher is a shorter trail with a harder end; lower leaves a long tail that never quite goes. |
-| `edge` | number | `0.85` | 0 to 1 | How much of a mark is its soft shoulder rather than its body. Ink on a fibrous surface has no edge to speak of, so this wants to be high; at 0 you get discs. |
-| `spacing` | number | `0.035` | 0.005 to 0.2 | Seconds between one mark and the next when the trail is replayed from a scripted path. It has no effect on a live pointer, where one mark is laid per frame. |
-| `grain` | number | `0.4` | 0 to 1 | Paper tooth under the marks. |
+| `paper` | color | `#fbfaf4` | any CSS hex | The paper the smoke drifts over. |
+| `smoke` | color | `#b4afa4` | any CSS hex | The body of it, once it has spread. Keep it close to the paper: smoke is the absence of a clear view, not a dark shape, and a strong colour here reads as paint. |
+| `accent` | color | `#bfae9e` | any CSS hex | What warmth the freshest smoke carries, at the head of the trail. Only a little of the trail is ever this, so a saturated colour shows up as a bead following the cursor. |
+| `marks` | number | `28` | 2 to 28 | How many puffs the trail holds. The shader has room for 28; asking for more silently gives you 28, because the array is a fixed size and growing it means editing the shader as well. |
+| `size` | number | `0.026` | 0.005 to 0.2 | Radius of a fresh puff, as a share of the short side, so it keeps its proportion when the element changes shape. |
+| `spread` | number | `2.4` | 0 to 4 | How much wider a puff gets by the end of its life. Nothing holds smoke together, so this is the main thing that makes it read as smoke rather than as a cursor with a tail. At 0 you get a row of identical discs. |
+| `fade` | number | `2.4` | 0.2 to 6 | How quickly a puff gives up. Higher is a shorter trail with a cleaner end; lower leaves a tail that hangs about. |
+| `edge` | number | `0.95` | 0 to 1 | How much of a puff is its soft shoulder rather than its body. Smoke has no edge at all, so this wants to be near 1; at 0 you get plates of grey. |
+| `life` | number | `0.45` | 0.1 to 3 | Seconds a puff lasts, which is the length of the trail. This is measured in time rather than in frames, so the same gesture leaves the same trail on a 60Hz display and a 144Hz one. Past about a second the smoke starts to read as something heavy being dragged behind the cursor. |
+| `grain` | number | `0.4` | 0 to 1 | Paper tooth under the smoke. |
 
 ## 5. Cleanup and SSR
 
@@ -1126,23 +1172,23 @@ than exempting it from it. `stop()` and `start()` are still on the handle.
 Handled in the runtime. Under reduced motion the loop never starts and one frame
 is drawn.
 
-With no pointer the trail is not drawn at all, so what you get is a clean sheet.
+With no pointer the smoke is not drawn at all, so what you get is a clean sheet.
 That is the right resting state: a trail with nothing having moved would be a
-drawing of a gesture nobody made.
+picture of a gesture nobody made.
 
 ## 7. The three mistakes most likely to be made here
 
 1. **Setting `spread` to 0.** You get a row of identical discs. The widening is
-   what makes it ink; without it this is a cursor with a tail and there are
+   what makes it smoke; without it this is a cursor with a tail and there are
    simpler ways to draw one.
 
 2. **Raising `marks` past 28 and wondering why nothing changes.** The shader
    array is a fixed size. The constant is named in both files and they have to
    move together.
 
-3. **Expecting the live trail to match the recording exactly.** Live lays one
-   mark per frame; a scripted path lays one per `spacing`. They are the same
-   length only if `spacing` matches the frame interval.
+3. **Reaching for `life` to make it calmer.** A longer life is a longer trail,
+   not a gentler one. `size` and `spread` are the two that decide how much of
+   the panel it covers.
 
 4. **Mounting it into an element with no height.** The canvas is `width: 100%;
    height: 100%`, so a `<div>` with no content and no CSS height is zero pixels

@@ -1,21 +1,21 @@
 /*
- * React adapter for Foil. Thin on purpose. It wires a ref to the core and
+ * React adapter for Plume. Thin on purpose. It wires a ref to the core and
  * nothing else. If you find yourself adding logic here, it belongs in core.ts.
  */
 
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { createPointerTrail, type PointerTrailOptions } from '../core'
+import { createPointerSmoke, type PointerSmokeOptions } from '../core'
 import type { EffectHandle } from '../../../shared/runtime'
 
-export type PointerTrailProps = Partial<PointerTrailOptions> & {
+export type PointerSmokeProps = Partial<PointerSmokeOptions> & {
   className?: string
   /** Set false to mount without starting. Useful behind your own pause control. */
   autoStart?: boolean
 }
 
-export function Foil({ className, autoStart = true, ...options }: PointerTrailProps) {
+export function Plume({ className, autoStart = true, ...options }: PointerSmokeProps) {
   const host = useRef<HTMLDivElement>(null)
   const handle = useRef<EffectHandle | null>(null)
 
@@ -23,7 +23,7 @@ export function Foil({ className, autoStart = true, ...options }: PointerTrailPr
   // dependencies here, so changing one does not tear the GL context down.
   useEffect(() => {
     if (!host.current) return
-    const effect = createPointerTrail(host.current, options)
+    const effect = createPointerSmoke(host.current, options)
     handle.current = effect
     if (autoStart) effect.start()
     return () => {
@@ -40,4 +40,4 @@ export function Foil({ className, autoStart = true, ...options }: PointerTrailPr
   return <div ref={host} className={className} />
 }
 
-export default Foil
+export default Plume

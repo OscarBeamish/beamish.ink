@@ -666,14 +666,14 @@ export type WatermarkSheetOptions = BaseOptions & {
 export const watermarkSheetDefaults: WatermarkSheetOptions = {
   paper: '#efede7',
   light: '#fffdf6',
-  laid: 0.18,
+  laid: 0.32,
   laidPitch: 210,
-  chain: 0.3,
+  chain: 0.5,
   chainPitch: 1.6,
   formation: 0.5,
   cloud: 2.4,
-  device: 0.45,
-  deviceSize: 0.26,
+  device: 0.75,
+  deviceSize: 0.4,
   angle: 4,
   grain: 0.35,
   period: 16,
@@ -1121,14 +1121,14 @@ as the second argument to the create function; anything omitted takes its defaul
 | --- | --- | --- | --- | --- |
 | `paper` | color | `#efede7` | any CSS hex | The sheet seen front on, before any light comes through it. Slightly deeper than the page, so there is somewhere for the thin parts to brighten into. |
 | `light` | color | `#fffdf6` | any CSS hex | What comes through where the sheet is thinnest. Everything here lightens toward this; nothing darkens, because every feature is somewhere the paper is thinner. |
-| `laid` | number | `0.18` | 0 to 1 | How much light the close-set mould wires let through. A ripple rather than hard lines: the sheet follows fine wires rather than being drawn down over them. |
+| `laid` | number | `0.32` | 0 to 1 | How much light the close-set mould wires let through. A ripple rather than hard lines: the sheet follows fine wires rather than being drawn down over them. |
 | `laidPitch` | number | `210` | 40 to 600 | Laid wires across the sheet. A real mould has them roughly a millimetre apart, so this wants to be high enough that they are a texture rather than a pattern. |
-| `chain` | number | `0.3` | 0 to 1 | How much light the heavy cross wires let through. A narrow band rather than a ripple, because the sheet is drawn down sharply over a thick wire. |
+| `chain` | number | `0.5` | 0 to 1 | How much light the heavy cross wires let through. A narrow band rather than a ripple, because the sheet is drawn down sharply over a thick wire. |
 | `chainPitch` | number | `1.6` | 0.3 to 8 | Chain wires across the sheet. Rarely more than a handful: they sit about an inch apart on a real mould, and crowding them is the quickest way to stop it looking like paper. |
 | `formation` | number | `0.5` | 0 to 1.5 | How unevenly the fibres settled. This is most of what separates a handmade sheet from a machine one, and at 0 you have made cartridge paper. |
 | `cloud` | number | `2.4` | 0.3 to 10 | Size of the cloudiness. Lower is a coarser, blotchier sheet. |
-| `device` | number | `0.45` | 0 to 1 | How brightly the wire device shows. The sheet is much thinner there than anywhere else, so it is the brightest thing present. Zero for a plain laid sheet with no watermark. |
-| `deviceSize` | number | `0.26` | 0.05 to 0.6 | Size of the device, as a share of the short side. |
+| `device` | number | `0.75` | 0 to 1 | How brightly the wire device shows. The sheet is much thinner there than anywhere else, so it is the brightest thing present. Zero for a plain laid sheet with no watermark. |
+| `deviceSize` | number | `0.4` | 0.05 to 0.6 | Size of the device, as a share of the short side. |
 | `angle` | number | `4` | -45 to 45 | Angle of the mould to the frame. A few degrees off square, because a sheet is not laid down obediently aligned to anything. |
 | `grain` | number | `0.35` | 0 to 1 | Paper tooth over the whole thing. |
 | `period` | number | `16` | 4 to 180 | Seconds for one slow tilt against the light. Nothing moves on the sheet; the sheet moves. A closed orbit, so it returns to exactly where it began. |

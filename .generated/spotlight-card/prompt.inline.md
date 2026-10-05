@@ -754,16 +754,26 @@ class SpotlightCardSurface implements Surface<SpotlightCardOptions> {
      * side puts the bright line on the near edge, which is where it belongs:
      * the edge turned toward a light is the one that catches it. The second
      * shadow does the same in reverse and is what gives the card a thickness.
+     *
+     * The two are not drawn the same way, and the first version drawing them
+     * the same way is what made the card look like it had a misprinted border.
+     * A lit edge is a specular catch and it is genuinely sharp. The far side is
+     * not an edge at all, it is the face curving out of the light, so it is
+     * blurred over several pixels and pulled in off the border by a negative
+     * spread. At zero blur it reads as a second rule drawn one pixel out of
+     * register with the first.
      */
     const reach = 2 + opts.edge * 10
     const dx = (0.5 - this.x) * reach
     const dy = (0.5 - this.y) * reach
     const lit = (opts.edge * this.lit * 100).toFixed(1)
-    const dark = (opts.shade * this.lit * 40).toFixed(1)
+    const dark = (opts.shade * this.lit * 55).toFixed(1)
+    const falloff = (reach * 2.4).toFixed(1)
+    const pullIn = (-reach * 0.85).toFixed(1)
     layer.style.boxShadow =
       `inset ${dx.toFixed(2)}px ${dy.toFixed(2)}px 0 -1px ` +
       `color-mix(in srgb, ${opts.light} ${lit}%, transparent), ` +
-      `inset ${(-dx).toFixed(2)}px ${(-dy).toFixed(2)}px 0 -1px ` +
+      `inset ${(-dx * 1.6).toFixed(2)}px ${(-dy * 1.6).toFixed(2)}px ${falloff}px ${pullIn}px ` +
       `color-mix(in srgb, #201f1a ${dark}%, transparent)`
   }
 

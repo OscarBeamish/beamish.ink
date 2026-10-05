@@ -5,6 +5,59 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## Unreleased
+
+### Changed
+
+- PointerTrail is now PointerSmoke, and what it draws is smoke rather than ink.
+  It was never reading as ink on paper and the name was arguing with the picture.
+  Its options follow: `ink` is `smoke`, `spacing` is gone and `life` replaces it.
+  The old URL redirects. Prompts pinned to v0.11.0 and earlier are unaffected,
+  because they fetch from their own tag.
+
+- PointerSmoke measures its trail in seconds rather than in frames. A puff per
+  frame made the same gesture leave 300ms of smoke on a 60Hz display and 125ms
+  on a 144Hz one, and the long version read as something heavy being dragged
+  behind the cursor.
+
+- The loud backdrops are quieter: GuillocheLines, HalftoneBackdrop, MarbledPaper
+  and PointerRippleGrid. A backdrop you cannot set type over is a poster.
+
+- MarbledPaper is sampled four times per pixel on a rotated grid, which is what
+  it takes to antialias an edge that has been dragged through two combs and
+  every drop laid after it. 2.25ms at 1440x900 on an RTX 3080, up from 0.56ms,
+  and its perf note says so.
+
+- StippleField is interactive. The cursor works up the tone it sits over, which
+  adds marks rather than enlarging them, and changes which nib is working so the
+  dense passages answer to it too.
+
+- ScrollSlideshow starts with `bend` at zero. The bow is still there and it is
+  still good, but a slideshow is for showing the pictures.
+
+- ScrollRevealRows uses --ease-66, solved rather than approximated. The curve it
+  had was ninety-four percent done by a third of its duration, which made a
+  stagger of six rows read as six separate snaps.
+
+- Every backdrop's demo panel shows it in use behind a hero by default, with a
+  Bare button. TerrainRelief and CastShadowScene are framed to run off the edges
+  rather than sitting whole in the middle of a panel.
+
+- SpotlightCard's shade edge is blurred and pulled in off the border. Drawn with
+  the same zero blur as the lit edge, it read as a rule one pixel out of
+  register.
+
+### Fixed
+
+- Tier-2 demos hydrate as Astro islands. Imported from the panel's own script
+  and mounted by hand, they threw on every page load in dev, because the react
+  plugin only injects its refresh preamble into a page that has an island on it.
+  All three component demos were dead, the gallery most visibly.
+
+- Both card demos were showing a 163px card in a 1166px stage, because the stage
+  packed its single grid track to its content and the card's percentage cap
+  resolved against its own intrinsic width.
+
 ## v0.11.0, 5 October 2026
 
 Twenty-six items.

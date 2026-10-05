@@ -83,7 +83,9 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       inUse && (
         <div class="demo-use" data-use aria-hidden="true">
           <p class="demo-use__tag">Beamish.ink</p>
-          <h2 class="demo-use__title">Come to my arms, my beamish boy</h2>
+          {/* A paragraph, not a heading. It is a picture of a hero rather than
+              one, and a real h2 would put a second outline on the page. */}
+          <p class="demo-use__title">Come to my arms, my beamish boy</p>
           <p class="demo-use__line">
             Twenty-six effects. No package and no registry: you paste a prompt and your
             agent writes the files into your own repo.
@@ -215,7 +217,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'pointer-filings': () => import('@items/effects/pointer-filings/core'),
     'misprint-text': () => import('@items/effects/misprint-text/core'),
     'spotlight-card': () => import('@items/effects/spotlight-card/core'),
-    'pointer-trail': () => import('@items/effects/pointer-trail/core'),
+    'pointer-smoke': () => import('@items/effects/pointer-smoke/core'),
     'watermark-sheet': () => import('@items/effects/watermark-sheet/core'),
     'ink-bleed-text': () => import('@items/effects/ink-bleed-text/core')
   }

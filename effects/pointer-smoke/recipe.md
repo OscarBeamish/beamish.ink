@@ -1,20 +1,39 @@
 ## What it is
 
-Marks pressed into the paper behind the cursor, spreading as they soak in.
+Smoke off the cursor, spreading and thinning as it drifts.
 
-Not a comet and not a glow. A nib touching down repeatedly leaves a row of blots,
-and each one does two things while it sits there. It **spreads**, because the
-paper draws the ink sideways along its fibres. And it **lightens**, because the
-ink is sinking in. So an older mark here is wider and paler than a new one, which
-is the opposite of a particle trail, where older means smaller, and it is the
-single thing that makes this read as ink rather than as a cursor with a tail.
+Not a comet and not a glow. A puff of smoke does two things while it hangs
+there. It **widens**, because nothing is holding it together. And it **thins**,
+because the same amount of it is spread over more room. So an older puff is
+bigger and fainter than a new one, which is the opposite of a particle trail,
+where older means smaller, and it is the single thing that makes this read as
+smoke rather than as a cursor with a tail.
 
-The marks multiply rather than compositing, so two that overlap are darker than
-either. The head of the trail carries the accent, because ink that has only just
-landed has not had time to sink.
+The puffs multiply rather than compositing, so two that overlap are denser than
+either. What warmth there is sits at the head, where the smoke has not yet had
+room to spread.
 
 One WebGL2 fragment shader on one full-screen triangle. No three.js, no
 dependency.
+
+## The trail is measured in seconds
+
+`life` is how long a puff lasts, and it is the whole length of the trail.
+
+That sounds obvious and it was not true of the first version, which laid one
+puff per frame and read each one's age off its position in the list. A trail of
+eighteen puffs was then eighteen frames long, which is 300ms on a 60Hz display
+and 125ms on a 144Hz one: the same gesture, two different effects, and on the
+slower display a grey cloud that kept arriving after the cursor had stopped.
+That is what being told it felt laggy turned out to mean.
+
+Now a puff is laid on a clock and carries the time it was laid. The trail is
+`life` seconds long everywhere, it thins out and goes when the cursor stops, and
+`marks` is only how finely those seconds are divided.
+
+Keep `life` under about a second. Past that the smoke reads as something heavy
+being dragged along behind the cursor, which is the one thing a pointer effect
+cannot afford.
 
 ## How it stays recordable
 
@@ -23,18 +42,13 @@ because `renderAtTime` is supposed to give the same answer every time it is aske
 for a frame, and the recorder relies on it.
 
 The way out is that when a scripted path is supplied the history is already
-known. With `pointerPath` set, mark `i` is simply where the cursor was at
-`t - i * spacing`, read straight off the path. No accumulation, pure in `t`, and
-a recorded take is identical however the frames are asked for.
+known. With `pointerPath` set, puff `i` is simply where the cursor was at
+`t - i * life / marks`, read straight off the path and aged to match. No
+accumulation, pure in `t`, and a recorded take is identical however the frames
+are asked for.
 
-With a live pointer there is no path to read, so it keeps a ring buffer and lays
-one mark per frame. That is not pure, and it does not need to be: nothing is
-replaying a live cursor.
-
-One consequence worth knowing. `spacing` only applies to the scripted case. Live,
-the trail is one mark per frame, so it spans `marks` frames of real time, which
-is about a third of a second at the default count. If you want the recording to
-match what people see, leave `spacing` at roughly the recorder's frame interval.
+With a live pointer there is no path to read, so it keeps its own stamps. That
+is not pure, and it does not need to be: nothing is replaying a live cursor.
 
 ## Wiring
 
@@ -44,9 +58,9 @@ match what people see, leave `spacing` at roughly the recorder's frame interval.
 <div id="sheet" style="position: relative; height: 70vh"></div>
 
 <script type="module">
-  import { createPointerTrail } from './beamish/effects/pointer-trail/core.js'
+  import { createPointerSmoke } from './beamish/effects/pointer-smoke/core.js'
 
-  const trail = createPointerTrail(document.querySelector('#sheet'))
+  const trail = createPointerSmoke(document.querySelector('#sheet'))
   trail.start()
 </script>
 ```
@@ -57,14 +71,14 @@ context.
 
 ```tsx
 import { useEffect, useRef } from 'react'
-import { createPointerTrail } from '@/beamish/effects/pointer-trail/core'
+import { createPointerSmoke } from '@/beamish/effects/pointer-smoke/core'
 
 export function Sheet() {
   const host = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!host.current) return
-    const trail = createPointerTrail(host.current)
+    const trail = createPointerSmoke(host.current)
     trail.start()
     return () => trail.destroy()
   }, [])
@@ -81,7 +95,7 @@ option is a uniform, so nothing rebuilds.
 ```vue
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
-import { createPointerTrail } from '@/beamish/effects/pointer-trail/core'
+import { createPointerSmoke } from '@/beamish/effects/pointer-smoke/core'
 import type { EffectHandle } from '@/beamish/shared/runtime'
 
 const host = ref<HTMLDivElement | null>(null)
@@ -89,7 +103,7 @@ let trail: EffectHandle | null = null
 
 onMounted(() => {
   if (!host.value) return
-  trail = createPointerTrail(host.value)
+  trail = createPointerSmoke(host.value)
   trail.start()
 })
 
@@ -107,16 +121,22 @@ framework in it.
 ## Tuning it
 
 `spread` is the one that matters and the one most likely to be set wrong out of
-habit. It is how much **wider** an old mark gets, and turning it down to zero
-gives you a row of identical discs, which is a cursor trail rather than ink.
+habit. It is how much **wider** an old puff gets, and turning it down to zero
+gives you a row of identical discs, which is a cursor trail rather than smoke.
+
+`smoke` wants to stay close to the paper. Smoke is the absence of a clear view
+rather than a dark shape, and a strong colour here reads as paint being pushed
+around. The same goes double for `accent`: only a little of the trail is ever
+that colour, so a saturated one shows up as a bead following the cursor, which
+is exactly what this is not.
 
 `marks` is capped at 28, because the positions are a fixed-size array uniform in
 the shader. Asking for more silently gives you 28. Raising the ceiling means
 editing the `MARKS` constant in both the shader and the core, which are kept
 equal on purpose and documented in both places.
 
-`edge` wants to stay high. Ink on a fibrous surface has no edge to speak of, and
-at 0 you get hard discs that read as plastic.
+`edge` wants to stay near 1. Smoke has no edge at all, and at 0 you get plates
+of grey.
 
 ## Pausing
 
@@ -128,9 +148,9 @@ than exempting it from it. `stop()` and `start()` are still on the handle.
 Handled in the runtime. Under reduced motion the loop never starts and one frame
 is drawn.
 
-With no pointer the trail is not drawn at all, so what you get is a clean sheet.
+With no pointer the smoke is not drawn at all, so what you get is a clean sheet.
 That is the right resting state: a trail with nothing having moved would be a
-drawing of a gesture nobody made.
+picture of a gesture nobody made.
 
 ## Cleanup and SSR
 
@@ -148,16 +168,16 @@ a `client:*` island. Next.js App Router needs `'use client'`.
 ## Common mistakes
 
 1. **Setting `spread` to 0.** You get a row of identical discs. The widening is
-   what makes it ink; without it this is a cursor with a tail and there are
+   what makes it smoke; without it this is a cursor with a tail and there are
    simpler ways to draw one.
 
 2. **Raising `marks` past 28 and wondering why nothing changes.** The shader
    array is a fixed size. The constant is named in both files and they have to
    move together.
 
-3. **Expecting the live trail to match the recording exactly.** Live lays one
-   mark per frame; a scripted path lays one per `spacing`. They are the same
-   length only if `spacing` matches the frame interval.
+3. **Reaching for `life` to make it calmer.** A longer life is a longer trail,
+   not a gentler one. `size` and `spread` are the two that decide how much of
+   the panel it covers.
 
 4. **Mounting it into an element with no height.** The canvas is `width: 100%;
    height: 100%`, so a `<div>` with no content and no CSS height is zero pixels

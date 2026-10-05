@@ -661,12 +661,12 @@ export const guillocheLinesDefaults: GuillocheLinesOptions = {
   paper: '#fbfaf4',
   ink: '#2f2b26',
   accent: '#c44400',
-  scale: 0.92,
-  pitch: 26,
+  scale: 1.9,
+  pitch: 10,
   lobes: 7,
-  waves: 24,
-  depth: 0.07,
-  weight: 0.35,
+  waves: 9,
+  depth: 0.12,
+  weight: 0.18,
   accentBand: 0.22,
   grain: 0.28,
   period: 6,
@@ -1091,12 +1091,12 @@ as the second argument to the create function; anything omitted takes its defaul
 | `paper` | color | `#fbfaf4` | any CSS hex | The paper the plate is printed on. Match it to your page background. |
 | `ink` | color | `#2f2b26` | any CSS hex | The engraving. A desaturated near-black reads as ink; pure black reads as a wireframe. |
 | `accent` | color | `#c44400` | any CSS hex | The second colour, printed over one band of the pattern the way a share certificate prints one guilloche in red over the rest in black. |
-| `scale` | number | `0.92` | 0.2 to 3 (looks right between 0.6 and 1.4) | Size of the whole rosette. Below about 0.5 the lines are finer than the pixels and the plate turns grey. |
-| `pitch` | number | `26` | 4 to 80 (looks right between 14 and 40) | Lines per unit of radius. Higher is finer engraving, and past about 50 it stops resolving on anything but a retina screen. |
+| `scale` | number | `1.9` | 0.2 to 3 (looks right between 0.6 and 1.4) | Size of the whole rosette. Below about 0.5 the lines are finer than the pixels and the plate turns grey. |
+| `pitch` | number | `10` | 4 to 80 (looks right between 14 and 40) | Lines per unit of radius. Higher is finer engraving, and past about 50 it stops resolving on anything but a retina screen. |
 | `lobes` | number | `7` | 2 to 24 (looks right between 5 and 12) | Lobes on the first rosette. Whole numbers only: a fractional lobe count gives a curve that never closes, and an open curve reads as a mistake rather than as engraving. The other two families are derived from this and kept coprime to it. |
-| `waves` | number | `24` | 4 to 80 (looks right between 12 and 40) | Spokes in the family that runs around the circle rather than out from it. This is what turns two ring families into woven guilloche instead of a moire. |
-| `depth` | number | `0.07` | 0 to 0.4 (looks right between 0.04 and 0.14) | How far each rosette's radius wobbles. Zero is concentric circles. Past about 0.2 the curves cross themselves and the weave becomes a tangle. |
-| `weight` | number | `0.35` | 0 to 1 (looks right between 0.2 and 0.55) | Weight of the engraved line. Heavy lines at a high pitch fill in solid, so raise one and lower the other. |
+| `waves` | number | `9` | 4 to 80 (looks right between 12 and 40) | Spokes in the family that runs around the circle rather than out from it. This is what turns two ring families into woven guilloche instead of a moire. |
+| `depth` | number | `0.12` | 0 to 0.4 (looks right between 0.04 and 0.14) | How far each rosette's radius wobbles. Zero is concentric circles. Past about 0.2 the curves cross themselves and the weave becomes a tangle. |
+| `weight` | number | `0.18` | 0 to 1 (looks right between 0.2 and 0.55) | Weight of the engraved line. Heavy lines at a high pitch fill in solid, so raise one and lower the other. |
 | `accentBand` | number | `0.22` | 0 to 1.2 (looks right between 0.1 and 0.5) | Where the second colour sits, as a radius from the centre. Set it past the corner of the panel to switch the second colour off. |
 | `grain` | number | `0.28` | 0 to 1 | Paper tooth. Static by design. Animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent. |
 | `period` | number | `6` | 4 to 180 s (looks right between 6 and 60) | Seconds for one turn of the gears. The pattern is exactly periodic over this. The default is 6 so the preview video is a whole turn; 30 to 60 is right behind a page, where the gears should be moving slowly enough that nobody catches them. |

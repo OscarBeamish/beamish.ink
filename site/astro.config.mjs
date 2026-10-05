@@ -21,6 +21,14 @@ export default defineConfig({
    * auto-increment onto the one the review is waiting for.
    */
   server: { port: 4488 },
+  /*
+   * PointerTrail became PointerSmoke. Prompts already pasted are unaffected,
+   * because each one fetches from the tag it was generated against, but a link
+   * to the old page should still land somewhere.
+   */
+  redirects: {
+    '/effects/pointer-trail': '/effects/pointer-smoke'
+  },
   vite: {
     plugins: [tailwind()],
     resolve: {

@@ -74,7 +74,7 @@
       },
       "elevation": {
         "type": "number",
-        "default": 30,
+        "default": 24,
         "description": "How high the sun sits. Low is long dramatic shadows; above about 60 the shadows disappear under the objects and the whole thing goes flat.",
         "min": 8,
         "max": 80,
@@ -99,7 +99,7 @@
       },
       "shadow": {
         "type": "number",
-        "default": 0.3,
+        "default": 0.26,
         "description": "How dark the shadows fall on the paper. The paper is never lit. It stays exactly the colour you set, so the shadow is the only thing drawn on it.",
         "min": 0,
         "max": 1,
@@ -111,7 +111,7 @@
       },
       "zoom": {
         "type": "number",
-        "default": 0.66,
+        "default": 1.2,
         "description": "How much of the frame the group fills.",
         "min": 0.3,
         "max": 1.6,
@@ -123,7 +123,7 @@
       },
       "tilt": {
         "type": "number",
-        "default": 0.52,
+        "default": 0.4,
         "description": "Camera height. Zero is eye level with the paper, one looks straight down. Around 0.35 is a table seen from a chair.",
         "min": 0,
         "max": 1,
@@ -564,7 +564,7 @@
       },
       "scale": {
         "type": "number",
-        "default": 0.92,
+        "default": 1.9,
         "description": "Size of the whole rosette. Below about 0.5 the lines are finer than the pixels and the plate turns grey.",
         "min": 0.2,
         "max": 3,
@@ -576,7 +576,7 @@
       },
       "pitch": {
         "type": "number",
-        "default": 26,
+        "default": 10,
         "description": "Lines per unit of radius. Higher is finer engraving, and past about 50 it stops resolving on anything but a retina screen.",
         "min": 4,
         "max": 80,
@@ -600,7 +600,7 @@
       },
       "waves": {
         "type": "number",
-        "default": 24,
+        "default": 9,
         "description": "Spokes in the family that runs around the circle rather than out from it. This is what turns two ring families into woven guilloche instead of a moire.",
         "min": 4,
         "max": 80,
@@ -612,7 +612,7 @@
       },
       "depth": {
         "type": "number",
-        "default": 0.07,
+        "default": 0.12,
         "description": "How far each rosette's radius wobbles. Zero is concentric circles. Past about 0.2 the curves cross themselves and the weave becomes a tangle.",
         "min": 0,
         "max": 0.4,
@@ -624,7 +624,7 @@
       },
       "weight": {
         "type": "number",
-        "default": 0.35,
+        "default": 0.18,
         "description": "Weight of the engraved line. Heavy lines at a high pitch fill in solid, so raise one and lower the other.",
         "min": 0,
         "max": 1,
@@ -750,7 +750,7 @@
       },
       "inkA": {
         "type": "color",
-        "default": "#363630",
+        "default": "#5d5a52",
         "description": "First plate. A desaturated near-black reads as ink; pure black reads as a hole."
       },
       "inkB": {
@@ -760,7 +760,7 @@
       },
       "scale": {
         "type": "number",
-        "default": 1.9,
+        "default": 1.6,
         "description": "Size of the ink shapes. Lower is broader and calmer.",
         "min": 0.3,
         "max": 6,
@@ -772,7 +772,7 @@
       },
       "screen": {
         "type": "number",
-        "default": 8,
+        "default": 16,
         "description": "Halftone frequency. Above about 20 the screen stops reading as a screen and starts reading as noise.",
         "min": 2,
         "max": 40,
@@ -820,7 +820,7 @@
       },
       "coverage": {
         "type": "number",
-        "default": 0.32,
+        "default": 0.14,
         "description": "Ink density. Past 0.7 the plates flood and the paper stops showing through.",
         "min": 0.1,
         "max": 0.9,
@@ -1200,7 +1200,7 @@
     "options": {
       "bleed": {
         "type": "number",
-        "default": 3.4,
+        "default": 9,
         "description": "How far the ink creeps, in pixels, at its furthest. Past about 8 the counters of a and e close up and the word stops being readable, which is a real thing badly printed paper does and rarely a thing you want.",
         "min": 0,
         "max": 14,
@@ -1208,7 +1208,7 @@
       },
       "floor": {
         "type": "number",
-        "default": 1.1,
+        "default": 3,
         "description": "How far it has crept at its least. Deliberately not zero: a sheet that has taken ink does not give it back, so the letter never returns to a clean edge.",
         "min": 0,
         "max": 8,
@@ -1216,7 +1216,7 @@
       },
       "fibre": {
         "type": "number",
-        "default": 0.035,
+        "default": 0.055,
         "description": "Coarseness of the fibre, as a turbulence base frequency. Lower is a longer, rougher, more absorbent fibre. This is the one to reach for if the bleed looks like noise rather than paper.",
         "min": 0.002,
         "max": 0.2,
@@ -1468,14 +1468,16 @@
       "notes": [
         "Every marbling operation has a closed-form inverse, so each pixel runs the session backwards instead of the tray being simulated forwards. One pass, no render targets, no feedback",
         "The drop loop runs backwards and stops at the first drop that contains the point, so raising the count costs much less than it looks like it should",
+        "Each pixel is sampled four times on a rotated grid and averaged. The edge you see is a circle dragged through two combs and through every drop laid after it, so it reaches the screen at an arbitrary angle, and there is no analytic width to smoothstep against: fwidth() of the distance would be a derivative taken inside a loop that breaks per pixel, which is undefined in non-uniform control flow",
         "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
       ]
     },
     "perf": {
-      "frameBudgetMs": 2,
+      "frameBudgetMs": 3,
       "contexts": 1,
       "notes": [
-        "Measured 0.42ms at one drop and 0.64ms at seventy-two, at 1440 by 900 on an RTX 3080, timed with a readPixels sync because without one you are timing the dispatch rather than the shader",
+        "Measured 0.45ms at one drop, 2.25ms at the default sixty and 2.63ms at seventy-two, at 1440 by 900 on an RTX 3080, timed with a readPixels sync because without one you are timing the dispatch rather than the shader",
+        "Four of those milliseconds in five are the four samples per pixel. Whether a point is inside a drop is a yes or no question, so one sample can only produce two answers and every boundary arrives as a staircase. The samples sit on a rotated grid, which is what 4x MSAA uses and for the same reason",
         "Cost rises with the drop count but far less than linearly: the loop breaks the moment a drop claims the point, so most pixels walk only the last few. The pixels that walk the whole list are the paper margins",
         "One inverse-drop per step, which is a dot product and a square root. Nothing is uploaded per frame and only uniforms change"
       ]
@@ -1510,17 +1512,17 @@
       },
       "ink": {
         "type": "color",
-        "default": "#36362f",
+        "default": "#6b675c",
         "description": "The main ink. Roughly two thirds of the drops are this, or this thinned toward the paper, which is what a second pass of one colour looks like once the first has spread."
       },
       "accent": {
         "type": "color",
-        "default": "#c44400",
+        "default": "#cf8458",
         "description": "The second ink, on roughly a third of the drops."
       },
       "drops": {
         "type": "number",
-        "default": 44,
+        "default": 60,
         "description": "How many drops go into the tray. Each one pushes every earlier one outward, so this sets the density of the rings rather than just the amount of ink.",
         "min": 1,
         "max": 72,
@@ -1528,7 +1530,7 @@
       },
       "scale": {
         "type": "number",
-        "default": 1,
+        "default": 0.8,
         "description": "How large the pattern reads. Higher zooms in on fewer, bigger shapes; lower pulls back and shows more of the tray, down to the paper margin round the edge of the ink.",
         "min": 0.2,
         "max": 4,
@@ -1536,7 +1538,7 @@
       },
       "spread": {
         "type": "number",
-        "default": 0.95,
+        "default": 1.4,
         "description": "How far the drops are scattered. Low stacks them into a single rosette, which is the stone pattern; high covers the tray.",
         "min": 0.1,
         "max": 2,
@@ -1544,7 +1546,7 @@
       },
       "size": {
         "type": "number",
-        "default": 0.17,
+        "default": 0.12,
         "description": "How big each drop is before anything pushes it. The ink conserves area, so the patch it finally covers is the sum of the drop areas: halving this and quadrupling the count gives the same coverage at four times the detail, which is the knob you actually want.",
         "min": 0.05,
         "max": 0.8,
@@ -1552,7 +1554,7 @@
       },
       "rake": {
         "type": "number",
-        "default": 0.25,
+        "default": 0.32,
         "description": "How far the comb pulls the ink across. Zero leaves the drops as plain rings, which is a stone marble and a perfectly good thing to stop at.",
         "min": 0,
         "max": 0.6,
@@ -1568,7 +1570,7 @@
       },
       "swirl": {
         "type": "number",
-        "default": 0.12,
+        "default": 0.18,
         "description": "A second comb drawn at right angles to the first. Two passes crossed is how a gel-git pattern is made; leave it at zero for a single-direction nonpareil.",
         "min": 0,
         "max": 0.4,
@@ -1584,7 +1586,7 @@
       },
       "period": {
         "type": "number",
-        "default": 12,
+        "default": 24,
         "description": "Seconds for one pass of the comb. Both combs run whole multiples of the same angle, so the pattern returns to exactly where it started and the loop is seamless. Behind content, raise it.",
         "min": 2,
         "max": 120,
@@ -1594,10 +1596,10 @@
     "instruction": "ambient, watch the comb draw through",
     "oneShot": false,
     "record": {
-      "duration": 12,
+      "duration": 24,
       "fps": 30,
       "posterAt": 4,
-      "crf": 32,
+      "crf": 36,
       "webmCrf": 46
     },
     "group": "effects",
@@ -1974,7 +1976,7 @@
       },
       "spokes": {
         "type": "number",
-        "default": 12,
+        "default": 34,
         "description": "Points on the rosette. Above about 24 the petals are narrower than the relief and it turns into a disc.",
         "min": 3,
         "max": 40,
@@ -1986,7 +1988,7 @@
       },
       "scale": {
         "type": "number",
-        "default": 0.86,
+        "default": 1.6,
         "description": "Size of the stamp relative to the shorter side of the element.",
         "min": 0.3,
         "max": 1.6,
@@ -1998,7 +2000,7 @@
       },
       "relief": {
         "type": "number",
-        "default": 0.38,
+        "default": 0.2,
         "description": "Depth of the brushed relief. At zero the foil is a flat shape that changes brightness, which reads as plastic rather than metal.",
         "min": 0,
         "max": 1,
@@ -2022,7 +2024,7 @@
       },
       "iridescence": {
         "type": "number",
-        "default": 0.3,
+        "default": 0.5,
         "description": "Spectral shift at grazing angles. Past about 0.6 it stops being a foil and becomes a hologram.",
         "min": 0,
         "max": 1,
@@ -2254,7 +2256,7 @@
       },
       "amplitude": {
         "type": "number",
-        "default": 1.9,
+        "default": 1,
         "description": "How far the crest rises above the base.",
         "min": 0.1,
         "max": 4,
@@ -2278,7 +2280,7 @@
       },
       "falloff": {
         "type": "number",
-        "default": 0.26,
+        "default": 0.5,
         "description": "How quickly the ripple fades away from the cursor. Low spreads across the whole field; high is a tight pool underneath it.",
         "min": 0.05,
         "max": 2,
@@ -2428,26 +2430,27 @@
     "intro": "Swell is a field of matte forms standing on paper, rippling around the cursor.\n324 of them by default, drawn as one instanced mesh, lit by a single sun with a\nreal shadow map. Same family as Sundial: matte forms, warm paper, shadows doing\nthe work.\n\nThe ripple is a standing wave centred on the pointer rather than a propagating\none with memory. That is a deliberate constraint. A wave with history integrates\nagainst the previous frame, and `renderAtTime` has to be pure in `t` or the\neffect cannot be recorded or scrubbed. A standing wave that follows the cursor is\nindistinguishable at a glance and reproducible to the pixel.\n\nWith no pointer the field keeps a slow diagonal swell of its own, so it is alive\nbefore anyone touches it and the loop still closes.\n\nThe crest is tinted towards the accent colour. That is what makes the wave\nlegible in a still frame, which matters for the poster, for reduced motion, and\nfor anybody who arrives on a touch screen."
   },
   {
-    "name": "PointerTrail",
-    "slug": "pointer-trail",
+    "name": "PointerSmoke",
+    "slug": "pointer-smoke",
     "tier": 1,
-    "description": "Marks pressed into the paper behind the cursor, spreading as they soak in",
+    "description": "Smoke off the cursor, spreading and thinning as it drifts",
     "category": "pointer",
     "tags": [
       "webgl",
       "shader",
       "pointer",
+      "smoke",
       "trail",
-      "ink",
       "no-dependencies"
     ],
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
       "notes": [
-        "An older mark is wider and paler than a new one, because paper draws ink sideways along its fibres while it sinks in. That is the opposite of a particle trail, where older means smaller",
-        "The marks multiply rather than compositing, so two that overlap are darker than either",
-        "A trail needs history, which is not a function of t. When pointerPath is set the whole track is known in advance and the trail is read backwards off it instead of accumulated, so a recorded take is identical however the frames are asked for. A live pointer falls back to a ring buffer",
+        "An older puff is wider and fainter than a new one, because nothing holds smoke together. That is the opposite of a particle trail, where older means smaller",
+        "The puffs multiply rather than compositing, so two that overlap are denser than either",
+        "Every puff carries its own age in seconds rather than taking it from its place in the list. The list version worked out to one puff per frame, which left a third of a second of smoke on a 60Hz display and a sixth on a 120Hz one",
+        "A trail needs history, which is not a function of t. When pointerPath is set the whole track is known in advance and the trail is read backwards off it instead of accumulated, so a recorded take is identical however the frames are asked for. A live pointer keeps its own stamps",
         "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
       ]
     },
@@ -2455,9 +2458,9 @@
       "frameBudgetMs": 1.2,
       "contexts": 1,
       "notes": [
-        "One distance and one smoothstep per mark per pixel, and the loop stops at the number of marks actually held",
-        "The mark positions are a single vec2 array uniform, uploaded once per frame",
-        "Cost scales with the mark count rather than with how far the cursor has moved"
+        "One distance and one smoothstep per puff per pixel, and the loop stops at the number of puffs actually held",
+        "The puff positions and ages are two array uniforms, uploaded once per frame",
+        "Cost scales with the puff count rather than with how far the cursor has moved"
       ]
     },
     "files": [
@@ -2467,18 +2470,18 @@
         "role": "runtime"
       },
       {
-        "from": "effects/pointer-trail/core.ts",
-        "to": "src/beamish/effects/pointer-trail/core.ts",
+        "from": "effects/pointer-smoke/core.ts",
+        "to": "src/beamish/effects/pointer-smoke/core.ts",
         "role": "core"
       },
       {
-        "from": "effects/pointer-trail/adapters/react.tsx",
-        "to": "src/beamish/effects/pointer-trail/react.tsx",
+        "from": "effects/pointer-smoke/adapters/react.tsx",
+        "to": "src/beamish/effects/pointer-smoke/react.tsx",
         "role": "adapter"
       },
       {
-        "from": "effects/pointer-trail/adapters/vue.ts",
-        "to": "src/beamish/effects/pointer-trail/vue.ts",
+        "from": "effects/pointer-smoke/adapters/vue.ts",
+        "to": "src/beamish/effects/pointer-smoke/vue.ts",
         "role": "adapter"
       }
     ],
@@ -2486,70 +2489,70 @@
       "paper": {
         "type": "color",
         "default": "#fbfaf4",
-        "description": "The sheet the marks are pressed into."
+        "description": "The paper the smoke drifts over."
       },
-      "ink": {
+      "smoke": {
         "type": "color",
-        "default": "#8d8577",
-        "description": "Ink that has soaked in. Most of the trail is this."
+        "default": "#b4afa4",
+        "description": "The body of it, once it has spread. Keep it close to the paper: smoke is the absence of a clear view, not a dark shape, and a strong colour here reads as paint."
       },
       "accent": {
         "type": "color",
-        "default": "#c44400",
-        "description": "Ink that has only just landed, at the head of the trail."
+        "default": "#bfae9e",
+        "description": "What warmth the freshest smoke carries, at the head of the trail. Only a little of the trail is ever this, so a saturated colour shows up as a bead following the cursor."
       },
       "marks": {
         "type": "number",
-        "default": 22,
-        "description": "How many marks the trail holds. The shader has room for 28; asking for more silently gives you 28, because the array is a fixed size and growing it means editing the shader as well.",
+        "default": 28,
+        "description": "How many puffs the trail holds. The shader has room for 28; asking for more silently gives you 28, because the array is a fixed size and growing it means editing the shader as well.",
         "min": 2,
         "max": 28,
         "step": 1
       },
       "size": {
         "type": "number",
-        "default": 0.032,
-        "description": "Radius of a fresh mark, as a share of the short side, so it keeps its proportion when the element changes shape.",
+        "default": 0.026,
+        "description": "Radius of a fresh puff, as a share of the short side, so it keeps its proportion when the element changes shape.",
         "min": 0.005,
         "max": 0.2,
-        "step": 0.005
+        "step": 0.002
       },
       "spread": {
         "type": "number",
-        "default": 1.6,
-        "description": "How much wider a mark gets by the end of its life. Paper draws ink sideways along its fibres, so an old mark is bigger than a new one. This is the opposite of a particle trail and it is the main thing that makes it read as ink.",
+        "default": 2.4,
+        "description": "How much wider a puff gets by the end of its life. Nothing holds smoke together, so this is the main thing that makes it read as smoke rather than as a cursor with a tail. At 0 you get a row of identical discs.",
         "min": 0,
         "max": 4,
         "step": 0.1
       },
       "fade": {
         "type": "number",
-        "default": 1.8,
-        "description": "How quickly a mark gives up. Higher is a shorter trail with a harder end; lower leaves a long tail that never quite goes.",
+        "default": 2.4,
+        "description": "How quickly a puff gives up. Higher is a shorter trail with a cleaner end; lower leaves a tail that hangs about.",
         "min": 0.2,
         "max": 6,
         "step": 0.1
       },
       "edge": {
         "type": "number",
-        "default": 0.85,
-        "description": "How much of a mark is its soft shoulder rather than its body. Ink on a fibrous surface has no edge to speak of, so this wants to be high; at 0 you get discs.",
+        "default": 0.95,
+        "description": "How much of a puff is its soft shoulder rather than its body. Smoke has no edge at all, so this wants to be near 1; at 0 you get plates of grey.",
         "min": 0,
         "max": 1,
         "step": 0.05
       },
-      "spacing": {
+      "life": {
         "type": "number",
-        "default": 0.035,
-        "description": "Seconds between one mark and the next when the trail is replayed from a scripted path. It has no effect on a live pointer, where one mark is laid per frame.",
-        "min": 0.005,
-        "max": 0.2,
-        "step": 0.005
+        "default": 0.45,
+        "description": "Seconds a puff lasts, which is the length of the trail. This is measured in time rather than in frames, so the same gesture leaves the same trail on a 60Hz display and a 144Hz one. Past about a second the smoke starts to read as something heavy being dragged behind the cursor.",
+        "min": 0.1,
+        "max": 3,
+        "step": 0.02
       },
       "grain": {
         "type": "number",
         "default": 0.4,
-        "description": "Paper tooth under the marks.",
+        "description": "Paper tooth under the smoke.",
         "min": 0,
         "max": 1,
         "step": 0.01
@@ -2594,7 +2597,7 @@
       "crf": 30
     },
     "group": "effects",
-    "intro": "Marks pressed into the paper behind the cursor, spreading as they soak in.\n\nNot a comet and not a glow. A nib touching down repeatedly leaves a row of blots,\nand each one does two things while it sits there. It **spreads**, because the\npaper draws the ink sideways along its fibres. And it **lightens**, because the\nink is sinking in. So an older mark here is wider and paler than a new one, which\nis the opposite of a particle trail, where older means smaller, and it is the\nsingle thing that makes this read as ink rather than as a cursor with a tail.\n\nThe marks multiply rather than compositing, so two that overlap are darker than\neither. The head of the trail carries the accent, because ink that has only just\nlanded has not had time to sink.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency."
+    "intro": "Smoke off the cursor, spreading and thinning as it drifts.\n\nNot a comet and not a glow. A puff of smoke does two things while it hangs\nthere. It **widens**, because nothing is holding it together. And it **thins**,\nbecause the same amount of it is spread over more room. So an older puff is\nbigger and fainter than a new one, which is the opposite of a particle trail,\nwhere older means smaller, and it is the single thing that makes this read as\nsmoke rather than as a cursor with a tail.\n\nThe puffs multiply rather than compositing, so two that overlap are denser than\neither. What warmth there is sits at the head, where the smoke has not yet had\nroom to spread.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency."
   },
   {
     "name": "ScrambleText",
@@ -2917,7 +2920,7 @@
     "name": "ScrollSlideshow",
     "slug": "scroll-slideshow",
     "tier": 1,
-    "description": "A scroll-run slideshow on a paper web that bows as it accelerates",
+    "description": "A slideshow the page scroll runs, on a web that drags and fringes as it moves",
     "category": "surfaces",
     "tags": [
       "webgl",
@@ -2974,12 +2977,12 @@
       "paper": {
         "type": "color",
         "default": "#fbfaf4",
-        "description": "Shown wherever the bow has pulled the image away from the edge of the frame. Match it to the page behind, or the gap reads as a border that appears only while scrolling."
+        "description": "Shown wherever the web has pulled the image away from the edge of the frame. Match it to the page behind, or the gap reads as a border that appears only while scrolling."
       },
       "bend": {
         "type": "number",
-        "default": 0.09,
-        "description": "How hard the sides lag behind the middle. This is the bow, and it is the option you came for. Past about 0.12 it stops being a press and starts being a fisheye.",
+        "default": 0,
+        "description": "How hard the sides lag behind the middle. Off by default: the bow is the loudest thing the press does and it competes with the picture, which is the thing you are actually showing. Turn it up to around 0.09 for the full press. Past about 0.12 it stops being a press and starts being a fisheye.",
         "min": 0,
         "max": 0.3,
         "step": 0.005
@@ -3071,7 +3074,7 @@
       "crf": 32
     },
     "group": "effects",
-    "intro": "A slideshow the page scroll runs, on a paper web that bows as it accelerates.\n\nA web press does not feed sheets. It feeds one continuous ribbon of paper off a\nreel, and at speed that ribbon bows between the rollers. The faster it runs the\nmore it bows. When the press stops, the paper lies flat.\n\nThat is the whole behaviour. At rest this draws an undistorted photograph and\nnothing else. The distortion is a function of scroll velocity, not of time and\nnot of position, so a reader who has stopped scrolling is looking at the picture\nrather than at an effect. Most WebGL sliders warp continuously and end up reading\nas a filter laid over the content. This one only exists while it is being pulled.\n\nThree things happen while it moves, and all three are the same press. The sides\nlag behind the middle, which curves the top and bottom edges. The whole web slides\na little against the direction of travel, the way anything with mass does when it\nis pulled. And the colour channels separate slightly at the edges, because a press\nrunning colour work strikes one plate per ink and a moving web lands them a\nfraction apart.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency, no render targets."
+    "intro": "A slideshow the page scroll runs, printed on a web rather than on sheets.\n\nA web press does not feed sheets. It feeds one continuous ribbon of paper off a\nreel, and everything this does follows from that: the ribbon has mass, so it\ndrags against the direction of travel, and a press running colour work strikes\none plate per ink, so a moving web lands them a fraction apart.\n\nThat is the whole behaviour. At rest this draws an undistorted photograph and\nnothing else. The distortion is a function of scroll velocity, not of time and\nnot of position, so a reader who has stopped scrolling is looking at the picture\nrather than at an effect. Most WebGL sliders warp continuously and end up reading\nas a filter laid over the content. This one only exists while it is being pulled.\n\nThere is a third thing the press does, and it is off by default. At speed the\nribbon bows between the rollers, the sides lagging behind the middle. It is a\ngood effect and it is the loudest thing here by some distance, which is why\n`bend` starts at zero: a slideshow is for showing the pictures, and a picture\nthat bends every time somebody scrolls past it is being shown second. Set `bend`\nto about 0.09 if you want the press rather than the pictures. ScrollWarpImage is\nthe one that is actually about the distortion.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency, no render targets."
   },
   {
     "name": "ScrollWarpImage",
@@ -3379,7 +3382,7 @@
     "name": "StippleField",
     "slug": "stipple-field",
     "tier": 1,
-    "description": "A stipple drawing where tone is how many marks there are, not how big",
+    "description": "A stipple drawing where tone is how many marks there are, and the cursor works it up",
     "category": "backdrops",
     "tags": [
       "webgl",
@@ -3397,7 +3400,8 @@
       "notes": [
         "Tone is carried by the number of marks rather than their size, which is what separates a stipple from a halftone: an engraver has one nib, so darker means more marks rather than fatter ones",
         "Each mark is tested against the nine surrounding cells, because a mark thrown off centre crosses into its neighbour and testing only its own cell would slice it at the boundary",
-        "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes",
+        "The cursor raises the tone it is over, which adds marks rather than enlarging them. It is a plain function of the pointer position with nothing integrated, so a scripted path replays identically and renderAtTime stays pure"
       ]
     },
     "perf": {
@@ -3503,6 +3507,22 @@
         "max": 1,
         "step": 0.01
       },
+      "touch": {
+        "type": "number",
+        "default": 0.65,
+        "description": "How much tone the cursor works up under itself. Tone is how many marks there are, so this is the hand adding marks, not a light being shone on the drawing. Zero leaves the field ambient.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "reach": {
+        "type": "number",
+        "default": 0.45,
+        "description": "How far the hand reaches, as a share of the short side. The falloff is a Gaussian and has no edge to find, so this is where it has mostly faded rather than where it stops.",
+        "min": 0.05,
+        "max": 1.5,
+        "step": 0.01
+      },
       "period": {
         "type": "number",
         "default": 18,
@@ -3512,8 +3532,38 @@
         "step": 1
       }
     },
-    "instruction": "ambient, watch the density drift",
+    "instruction": "move the cursor across it",
     "oneShot": false,
+    "cursor": {
+      "duration": 18,
+      "keys": [
+        {
+          "t": 0,
+          "x": 0.12,
+          "y": 0.72
+        },
+        {
+          "t": 4.5,
+          "x": 0.38,
+          "y": 0.28
+        },
+        {
+          "t": 9,
+          "x": 0.68,
+          "y": 0.66
+        },
+        {
+          "t": 13.5,
+          "x": 0.9,
+          "y": 0.3
+        },
+        {
+          "t": 18,
+          "x": 0.12,
+          "y": 0.72
+        }
+      ]
+    },
     "record": {
       "duration": 18,
       "fps": 30,
@@ -3678,7 +3728,7 @@
       },
       "tilt": {
         "type": "number",
-        "default": 0.5,
+        "default": 0.72,
         "description": "Camera height. Zero is down on the deck with a horizon, one looks straight down at a map. The interesting ground is in between.",
         "min": 0,
         "max": 1,
@@ -3690,7 +3740,7 @@
       },
       "zoom": {
         "type": "number",
-        "default": 0.55,
+        "default": 1.3,
         "description": "How much of the frame the land fills.",
         "min": 0.3,
         "max": 2,
@@ -4184,7 +4234,7 @@
       },
       "laid": {
         "type": "number",
-        "default": 0.18,
+        "default": 0.32,
         "description": "How much light the close-set mould wires let through. A ripple rather than hard lines: the sheet follows fine wires rather than being drawn down over them.",
         "min": 0,
         "max": 1,
@@ -4200,7 +4250,7 @@
       },
       "chain": {
         "type": "number",
-        "default": 0.3,
+        "default": 0.5,
         "description": "How much light the heavy cross wires let through. A narrow band rather than a ripple, because the sheet is drawn down sharply over a thick wire.",
         "min": 0,
         "max": 1,
@@ -4232,7 +4282,7 @@
       },
       "device": {
         "type": "number",
-        "default": 0.45,
+        "default": 0.75,
         "description": "How brightly the wire device shows. The sheet is much thinner there than anywhere else, so it is the brightest thing present. Zero for a plain laid sheet with no watermark.",
         "min": 0,
         "max": 1,
@@ -4240,7 +4290,7 @@
       },
       "deviceSize": {
         "type": "number",
-        "default": 0.26,
+        "default": 0.4,
         "description": "Size of the device, as a share of the short side.",
         "min": 0.05,
         "max": 0.6,

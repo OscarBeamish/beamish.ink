@@ -16,6 +16,7 @@ Assume you have not seen this library before. Everything you need is below.
 - WebGL2. There is no WebGL1 fallback
 - Every marbling operation has a closed-form inverse, so each pixel runs the session backwards instead of the tray being simulated forwards. One pass, no render targets, no feedback
 - The drop loop runs backwards and stops at the first drop that contains the point, so raising the count costs much less than it looks like it should
+- Each pixel is sampled four times on a rotated grid and averaged. The edge you see is a circle dragged through two combs and through every drop laid after it, so it reaches the screen at an arbitrary angle, and there is no analytic width to smoothstep against: fwidth() of the distance would be a derivative taken inside a loop that breaks per pixel, which is undefined in non-uniform control flow
 - One WebGL2 context, one full-screen triangle, no buffers and no attributes
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
@@ -670,17 +671,17 @@ export type MarbledPaperOptions = BaseOptions & {
  */
 export const marbledPaperDefaults: MarbledPaperOptions = {
   paper: '#fbfaf4',
-  ink: '#36362f',
-  accent: '#c44400',
-  drops: 44,
-  scale: 1,
-  spread: 0.95,
-  size: 0.17,
-  rake: 0.25,
+  ink: '#6b675c',
+  accent: '#cf8458',
+  drops: 60,
+  scale: 0.8,
+  spread: 1.4,
+  size: 0.12,
+  rake: 0.32,
   comb: 9,
-  swirl: 0.12,
+  swirl: 0.18,
   grain: 0.5,
-  period: 12,
+  period: 24,
   reducedMotionTime: 3
 }
 
@@ -784,16 +785,11 @@ vec2 undrop(vec2 p, vec2 c, float r) {
   return c + d * sqrt(max(1.0 - (r * r) / m2, 0.0));
 }
 
-void main() {
-  vec2 cssRes = u_resolution / max(u_dpr, 0.001);
-  float shortSide = min(cssRes.x, cssRes.y);
-  vec2 cssPx = gl_FragCoord.xy / max(u_dpr, 0.001);
-
-  vec2 p = (cssPx - cssRes * 0.5) / (shortSide * 0.5);
-  p /= max(u_scale, 0.05);
-
-  float phase = TAU * u_time / max(u_period, 0.001);
-
+/*
+ * The ink at one point of the tray: undo both combs, then walk the drops
+ * backwards until one of them contains the point.
+ */
+vec3 inkAt(vec2 p, float phase) {
   /*
    * Two combs at right angles, which is how a gel-git pattern is made: one pass
    * across, one pass down. Undone in the reverse of the order a marbler would
@@ -806,8 +802,6 @@ void main() {
   p = uncomb(p, vec2(1.0, 0.0), u_rake, u_comb, -phase);
 
   int count = int(clamp(u_drops, 1.0, 72.0));
-  vec3 col = u_paper;
-  bool found = false;
 
   /*
    * Backwards through the drops. The first one that contains the point is the
@@ -827,16 +821,62 @@ void main() {
       // toward the paper, which is what a second pass of the same colour looks
       // like when the first has already spread.
       float pick = hash11(fi * 5.31 + 4.2);
-      col = pick < 0.3 ? u_accent : (pick < 0.68 ? u_ink : mix(u_ink, u_paper, 0.4));
-      found = true;
-      break;
+      return pick < 0.3 ? u_accent : (pick < 0.68 ? u_ink : mix(u_ink, u_paper, 0.4));
     }
 
     p = undrop(p, c, r);
   }
 
   // Anything that fell through every drop never had ink on it.
-  if (!found) col = u_paper;
+  return u_paper;
+}
+
+/*
+ * Four samples on a rotated grid, averaged.
+ *
+ * Whether a point is inside a drop is a yes or no question, so one sample per
+ * pixel can only ever produce two answers and every boundary in the pattern
+ * comes back as a staircase. It is worse here than it would be for a plain
+ * circle, because the edge you see is the circle dragged through two combs and
+ * through every drop laid after it, so it arrives at the screen at an arbitrary
+ * angle and stretched to an arbitrary length.
+ *
+ * There is no analytic width to smoothstep against either: the obvious
+ * fwidth() of the distance would be a derivative taken inside a loop that
+ * breaks per pixel, which is undefined in non-uniform control flow.
+ *
+ * So the edge is measured rather than estimated. The grid is rotated off the
+ * axes on purpose: four samples in a square give nothing extra on the near
+ * horizontal and near vertical edges that the eye objects to most, while the
+ * same four turned through about 26 degrees give four distinct coverage steps
+ * on both. It is the pattern 4x MSAA uses, for the same reason.
+ */
+const vec2 ROTATED_GRID[4] = vec2[4](
+  vec2( 0.125,  0.375),
+  vec2( 0.375, -0.125),
+  vec2(-0.125, -0.375),
+  vec2(-0.375,  0.125)
+);
+
+void main() {
+  vec2 cssRes = u_resolution / max(u_dpr, 0.001);
+  float shortSide = min(cssRes.x, cssRes.y);
+  vec2 cssPx = gl_FragCoord.xy / max(u_dpr, 0.001);
+
+  float zoom = max(u_scale, 0.05);
+  vec2 p = (cssPx - cssRes * 0.5) / (shortSide * 0.5) / zoom;
+
+  // One device pixel, in tray units, so the samples land inside the pixel being
+  // drawn whatever the element's size, the zoom or the display's density.
+  float pixel = 1.0 / (max(u_dpr, 0.001) * shortSide * 0.5 * zoom);
+
+  float phase = TAU * u_time / max(u_period, 0.001);
+
+  vec3 col = vec3(0.0);
+  for (int i = 0; i < 4; i++) {
+    col += inkAt(p + ROTATED_GRID[i] * pixel, phase);
+  }
+  col *= 0.25;
 
   float tooth = hash12(floor(cssPx * 0.5)) - 0.5;
   col += tooth * 0.05 * u_grain;
@@ -1129,17 +1169,17 @@ as the second argument to the create function; anything omitted takes its defaul
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
 | `paper` | color | `#fbfaf4` | any CSS hex | The size in the tray, and what shows wherever no ink reached. Match it to the page behind or the margins read as a panel. |
-| `ink` | color | `#36362f` | any CSS hex | The main ink. Roughly two thirds of the drops are this, or this thinned toward the paper, which is what a second pass of one colour looks like once the first has spread. |
-| `accent` | color | `#c44400` | any CSS hex | The second ink, on roughly a third of the drops. |
-| `drops` | number | `44` | 1 to 72 | How many drops go into the tray. Each one pushes every earlier one outward, so this sets the density of the rings rather than just the amount of ink. |
-| `scale` | number | `1` | 0.2 to 4 | How large the pattern reads. Higher zooms in on fewer, bigger shapes; lower pulls back and shows more of the tray, down to the paper margin round the edge of the ink. |
-| `spread` | number | `0.95` | 0.1 to 2 | How far the drops are scattered. Low stacks them into a single rosette, which is the stone pattern; high covers the tray. |
-| `size` | number | `0.17` | 0.05 to 0.8 | How big each drop is before anything pushes it. The ink conserves area, so the patch it finally covers is the sum of the drop areas: halving this and quadrupling the count gives the same coverage at four times the detail, which is the knob you actually want. |
-| `rake` | number | `0.25` | 0 to 0.6 | How far the comb pulls the ink across. Zero leaves the drops as plain rings, which is a stone marble and a perfectly good thing to stop at. |
+| `ink` | color | `#6b675c` | any CSS hex | The main ink. Roughly two thirds of the drops are this, or this thinned toward the paper, which is what a second pass of one colour looks like once the first has spread. |
+| `accent` | color | `#cf8458` | any CSS hex | The second ink, on roughly a third of the drops. |
+| `drops` | number | `60` | 1 to 72 | How many drops go into the tray. Each one pushes every earlier one outward, so this sets the density of the rings rather than just the amount of ink. |
+| `scale` | number | `0.8` | 0.2 to 4 | How large the pattern reads. Higher zooms in on fewer, bigger shapes; lower pulls back and shows more of the tray, down to the paper margin round the edge of the ink. |
+| `spread` | number | `1.4` | 0.1 to 2 | How far the drops are scattered. Low stacks them into a single rosette, which is the stone pattern; high covers the tray. |
+| `size` | number | `0.12` | 0.05 to 0.8 | How big each drop is before anything pushes it. The ink conserves area, so the patch it finally covers is the sum of the drop areas: halving this and quadrupling the count gives the same coverage at four times the detail, which is the knob you actually want. |
+| `rake` | number | `0.32` | 0 to 0.6 | How far the comb pulls the ink across. Zero leaves the drops as plain rings, which is a stone marble and a perfectly good thing to stop at. |
 | `comb` | number | `9` | 0.5 to 30 | Teeth per unit across the comb. Higher is a finer comb and a tighter zigzag. |
-| `swirl` | number | `0.12` | 0 to 0.4 | A second comb drawn at right angles to the first. Two passes crossed is how a gel-git pattern is made; leave it at zero for a single-direction nonpareil. |
+| `swirl` | number | `0.18` | 0 to 0.4 | A second comb drawn at right angles to the first. Two passes crossed is how a gel-git pattern is made; leave it at zero for a single-direction nonpareil. |
 | `grain` | number | `0.5` | 0 to 1 | Paper tooth over the whole thing. |
-| `period` | number | `12` | 2 to 120 | Seconds for one pass of the comb. Both combs run whole multiples of the same angle, so the pattern returns to exactly where it started and the loop is seamless. Behind content, raise it. |
+| `period` | number | `24` | 2 to 120 | Seconds for one pass of the comb. Both combs run whole multiples of the same angle, so the pattern returns to exactly where it started and the loop is seamless. Behind content, raise it. |
 
 ## 5. Cleanup and SSR
 

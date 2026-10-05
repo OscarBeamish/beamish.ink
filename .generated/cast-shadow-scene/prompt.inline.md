@@ -652,11 +652,11 @@ export const castShadowSceneDefaults: CastShadowSceneOptions = {
   paper: '#fbfaf4',
   stone: '#f5f2e9',
   accent: '#c44400',
-  elevation: 30,
+  elevation: 24,
   softness: 0.68,
-  shadow: 0.3,
-  zoom: 0.66,
-  tilt: 0.52,
+  shadow: 0.26,
+  zoom: 1.2,
+  tilt: 0.4,
   period: 5,
   reducedMotionTime: 1.1
 }
@@ -1032,11 +1032,11 @@ as the second argument to the create function; anything omitted takes its defaul
 | `paper` | color | `#fbfaf4` | any CSS hex | The paper the forms stand on. Match it to your page background or the panel reads as a pasted-in rectangle. |
 | `stone` | color | `#f5f2e9` | any CSS hex | The forms. Slightly lighter than the paper is what makes them read as objects standing on it rather than holes cut in it. |
 | `accent` | color | `#c44400` | any CSS hex | One form carries colour. This is the obvious place to put your own brand colour. |
-| `elevation` | number | `30` | 8 to 80 deg (looks right between 22 and 45) | How high the sun sits. Low is long dramatic shadows; above about 60 the shadows disappear under the objects and the whole thing goes flat. |
+| `elevation` | number | `24` | 8 to 80 deg (looks right between 22 and 45) | How high the sun sits. Low is long dramatic shadows; above about 60 the shadows disappear under the objects and the whole thing goes flat. |
 | `softness` | number | `0.68` | 0 to 1 (looks right between 0.35 and 0.75) | Shadow edge softness. Zero is a hard midday edge, one is heavy overcast. |
-| `shadow` | number | `0.3` | 0 to 1 (looks right between 0.18 and 0.45) | How dark the shadows fall on the paper. The paper is never lit. It stays exactly the colour you set, so the shadow is the only thing drawn on it. |
-| `zoom` | number | `0.66` | 0.3 to 1.6 (looks right between 0.6 and 1) | How much of the frame the group fills. |
-| `tilt` | number | `0.52` | 0 to 1 (looks right between 0.2 and 0.55) | Camera height. Zero is eye level with the paper, one looks straight down. Around 0.35 is a table seen from a chair. |
+| `shadow` | number | `0.26` | 0 to 1 (looks right between 0.18 and 0.45) | How dark the shadows fall on the paper. The paper is never lit. It stays exactly the colour you set, so the shadow is the only thing drawn on it. |
+| `zoom` | number | `1.2` | 0.3 to 1.6 (looks right between 0.6 and 1) | How much of the frame the group fills. |
+| `tilt` | number | `0.4` | 0 to 1 (looks right between 0.2 and 0.55) | Camera height. Zero is eye level with the paper, one looks straight down. Around 0.35 is a table seen from a chair. |
 | `period` | number | `5` | 2 to 120 s (looks right between 5 and 30) | Seconds for one full circuit of the sun. The default is 5 so the preview video is a whole cycle. Use 20 to 30 for something you leave running behind a page. |
 | `reducedMotionTime` | number | `1.1` | 0 to 120 s | The single frame shown when the user prefers reduced motion. Pick a sun angle that composes. For those users the still is the whole effect. |
 

@@ -102,7 +102,7 @@ dark-canvas assumption, so most entries here are recasts rather than ports.
 | Spark | Click Spark | 1 | Cheap, popular, and genuinely useful |
 | Magnet | Magnet | 1 | **done** |
 | PointerFilings | Magnet Lines | 1 | **done**. The real dipole expression, so the field loops rather than radiating |
-| PointerTrail | Image Trail, Pixel Trail | 1 | **done**. Marks that get wider and paler with age, which is ink soaking in rather than a particle dying |
+| PointerSmoke | Image Trail, Pixel Trail | 1 | **done**. Puffs that get wider and fainter with age, which is smoke spreading rather than a particle dying. Shipped as PointerTrail and renamed, because it was never reading as ink |
 | Splash | Splash Cursor | 2 | Fluid sim. The most expensive item in this table |
 | Reticle | Target Cursor, Crosshair | 2 | |
 | Comet | Blob Cursor, Ghost Cursor, Glow Cursor | 2 | Three of theirs, one of ours |

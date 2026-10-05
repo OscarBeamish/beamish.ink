@@ -1,0 +1,168 @@
+{
+  "name": "PointerSmoke",
+  "slug": "pointer-smoke",
+  "tier": 1,
+  "description": "Smoke off the cursor, spreading and thinning as it drifts",
+  "category": "pointer",
+  "tags": [
+    "webgl",
+    "shader",
+    "pointer",
+    "smoke",
+    "trail",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "An older puff is wider and fainter than a new one, because nothing holds smoke together. That is the opposite of a particle trail, where older means smaller",
+      "The puffs multiply rather than compositing, so two that overlap are denser than either",
+      "Every puff carries its own age in seconds rather than taking it from its place in the list. The list version worked out to one puff per frame, which left a third of a second of smoke on a 60Hz display and a sixth on a 120Hz one",
+      "A trail needs history, which is not a function of t. When pointerPath is set the whole track is known in advance and the trail is read backwards off it instead of accumulated, so a recorded take is identical however the frames are asked for. A live pointer keeps its own stamps",
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 1.2,
+    "contexts": 1,
+    "notes": [
+      "One distance and one smoothstep per puff per pixel, and the loop stops at the number of puffs actually held",
+      "The puff positions and ages are two array uniforms, uploaded once per frame",
+      "Cost scales with the puff count rather than with how far the cursor has moved"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/pointer-smoke/core.ts",
+      "to": "src/beamish/effects/pointer-smoke/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/pointer-smoke/adapters/react.tsx",
+      "to": "src/beamish/effects/pointer-smoke/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/pointer-smoke/adapters/vue.ts",
+      "to": "src/beamish/effects/pointer-smoke/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "paper": {
+      "type": "color",
+      "default": "#fbfaf4",
+      "description": "The paper the smoke drifts over."
+    },
+    "smoke": {
+      "type": "color",
+      "default": "#b4afa4",
+      "description": "The body of it, once it has spread. Keep it close to the paper: smoke is the absence of a clear view, not a dark shape, and a strong colour here reads as paint."
+    },
+    "accent": {
+      "type": "color",
+      "default": "#bfae9e",
+      "description": "What warmth the freshest smoke carries, at the head of the trail. Only a little of the trail is ever this, so a saturated colour shows up as a bead following the cursor."
+    },
+    "marks": {
+      "type": "number",
+      "default": 28,
+      "min": 2,
+      "max": 28,
+      "step": 1,
+      "description": "How many puffs the trail holds. The shader has room for 28; asking for more silently gives you 28, because the array is a fixed size and growing it means editing the shader as well."
+    },
+    "size": {
+      "type": "number",
+      "default": 0.026,
+      "min": 0.005,
+      "max": 0.2,
+      "step": 0.002,
+      "description": "Radius of a fresh puff, as a share of the short side, so it keeps its proportion when the element changes shape."
+    },
+    "spread": {
+      "type": "number",
+      "default": 2.4,
+      "min": 0,
+      "max": 4,
+      "step": 0.1,
+      "description": "How much wider a puff gets by the end of its life. Nothing holds smoke together, so this is the main thing that makes it read as smoke rather than as a cursor with a tail. At 0 you get a row of identical discs."
+    },
+    "fade": {
+      "type": "number",
+      "default": 2.4,
+      "min": 0.2,
+      "max": 6,
+      "step": 0.1,
+      "description": "How quickly a puff gives up. Higher is a shorter trail with a cleaner end; lower leaves a tail that hangs about."
+    },
+    "edge": {
+      "type": "number",
+      "default": 0.95,
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "description": "How much of a puff is its soft shoulder rather than its body. Smoke has no edge at all, so this wants to be near 1; at 0 you get plates of grey."
+    },
+    "life": {
+      "type": "number",
+      "default": 0.45,
+      "min": 0.1,
+      "max": 3,
+      "step": 0.02,
+      "description": "Seconds a puff lasts, which is the length of the trail. This is measured in time rather than in frames, so the same gesture leaves the same trail on a 60Hz display and a 144Hz one. Past about a second the smoke starts to read as something heavy being dragged behind the cursor."
+    },
+    "grain": {
+      "type": "number",
+      "default": 0.4,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Paper tooth under the smoke."
+    }
+  },
+  "instruction": "move the cursor across it",
+  "oneShot": false,
+  "cursor": {
+    "duration": 3,
+    "keys": [
+      {
+        "t": 0,
+        "x": 0.08,
+        "y": 0.62
+      },
+      {
+        "t": 0.75,
+        "x": 0.42,
+        "y": 0.18
+      },
+      {
+        "t": 1.5,
+        "x": 0.72,
+        "y": 0.78
+      },
+      {
+        "t": 2.25,
+        "x": 0.93,
+        "y": 0.3
+      },
+      {
+        "t": 3,
+        "x": 0.08,
+        "y": 0.62
+      }
+    ]
+  },
+  "record": {
+    "duration": 3,
+    "fps": 30,
+    "posterAt": 1.1,
+    "crf": 30
+  }
+}
