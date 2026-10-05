@@ -1,5 +1,8 @@
 ---
 import '@items/components/glow-button/styles.css'
+import ContentsDemo from '../demos/ContentsDemo'
+import EmberDemo from '../demos/EmberDemo'
+import PlateDemo from '../demos/PlateDemo'
 /*
  * One live demo, and never more than one on a page.
  *
@@ -24,6 +27,21 @@ type Props = {
 const { slug, name, tier, instruction, oneShot, options } = Astro.props
 
 /*
+ * Tier 2 is React, and the way Astro consumes React is an island. Mounting it
+ * from the panel's own <script> instead works in a build and breaks in dev: the
+ * react plugin injects its refresh preamble into a page only when there is an
+ * island on it, and the code it compiles the component into throws without one.
+ *
+ * `client:only` rather than `client:load`, because these are demos of
+ * interactive behaviour and there is nothing useful to prerender.
+ *
+ * Written out one per slug rather than looked up in a map, because `client:only`
+ * has to match an import statement: Astro resolves the renderer and the island's
+ * entry point at compile time and cannot follow a variable.
+ */
+const island = tier === 2 ? slug : ''
+
+/*
  * Controls are generated from the option schema rather than written per item,
  * because meta.json already carries the type, the range, the step and the
  * default for every option. Writing them by hand would be nineteen copies of
@@ -42,7 +60,11 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     data-tier={tier}
     style="aspect-ratio: 16 / 9"
   >
-    <div class="absolute inset-0" data-stage></div>
+    <div class="absolute inset-0" data-stage>
+      {island === 'fullscreen-menu' && <ContentsDemo client:only="react" />}
+      {island === 'glow-button' && <EmberDemo client:only="react" />}
+      {island === 'image-gallery-lightbox' && <PlateDemo client:only="react" />}
+    </div>
 
     <div class="absolute right-3 bottom-3 flex gap-2">
       {
@@ -58,7 +80,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
         )
       }
       {
-        oneShot ? (
+        tier === 2 ? null : oneShot ? (
           <button
             type="button"
             class="border-control text-l1 rounded-full border bg-transparent px-3 py-1.5 text-[0.65rem] tracking-[0.1em] uppercase backdrop-blur-sm"
@@ -160,54 +182,6 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'ink-bleed-text': () => import('@items/effects/ink-bleed-text/core')
   }
 
-  const COMPONENTS: Record<string, () => Promise<{ mount(el: HTMLElement): Mounted }>> = {
-    'fullscreen-menu': async () => {
-      const [{ Contents }, react, dom, demo] = await Promise.all([
-        import('@items/components/fullscreen-menu/react'),
-        import('react'),
-        import('react-dom/client'),
-        import('../demos/contents')
-      ])
-      return {
-        mount(el) {
-          const root = dom.createRoot(el)
-          root.render(react.createElement(Contents, demo.props))
-          return { start() {}, stop() {}, destroy: () => root.unmount() }
-        }
-      }
-    },
-    'glow-button': async () => {
-      const [{ Ember }, react, dom, demo] = await Promise.all([
-        import('@items/components/glow-button/react'),
-        import('react'),
-        import('react-dom/client'),
-        import('../demos/ember')
-      ])
-      return {
-        mount(el) {
-          const root = dom.createRoot(el)
-          root.render(demo.render(react.createElement, Ember))
-          return { start() {}, stop() {}, destroy: () => root.unmount() }
-        }
-      }
-    },
-    'image-gallery-lightbox': async () => {
-      const [{ Plate }, react, dom, demo] = await Promise.all([
-        import('@items/components/image-gallery-lightbox/react'),
-        import('react'),
-        import('react-dom/client'),
-        import('../demos/plate')
-      ])
-      return {
-        mount(el) {
-          const root = dom.createRoot(el)
-          root.render(react.createElement(Plate, demo.props))
-          return { start() {}, stop() {}, destroy: () => root.unmount() }
-        }
-      }
-    }
-  }
-
   /*
    * A DOM effect animates content that is already there, so the panel has to
    * provide some. A shader effect gets an empty stage and fills it itself.
@@ -300,9 +274,13 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     const stage = panel.querySelector<HTMLElement>('[data-stage]')
     if (!stage) continue
 
+    // Tier 2 is hydrated by Astro as an island. Nothing to mount, nothing to
+    // pause, and no option schema to drive.
+    if (tier !== 1) continue
+
     let handle: Mounted | null = null
 
-    if (tier === 1) {
+    {
       const load = EFFECTS[slug]
       if (!load) continue
       const markup = CONTENT[slug]
@@ -323,10 +301,6 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       const effect = module.default(target, OPTIONS[slug])
       effect.start()
       handle = effect
-    } else {
-      const load = COMPONENTS[slug]
-      if (!load) continue
-      handle = (await load()).mount(stage)
     }
 
     // One live context per page, released the moment the page goes away, so
