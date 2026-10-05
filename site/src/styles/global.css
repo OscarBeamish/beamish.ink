@@ -100,7 +100,15 @@
      to edge, and this padding was insetting it inside its own panel. */
   [data-stage][data-content] {
     display: grid;
-    place-content: center;
+    /*
+     * place-items, not place-content. Packing the tracks to their content makes
+     * the single column shrink to fit, so a percentage width on a child
+     * resolves against the child's own intrinsic size: a 19rem card capped at
+     * 70% came out 163px wide in a 1166px panel, which is how both card demos
+     * ended up the size of a postage stamp.
+     */
+    place-items: center;
+    align-content: center;
     padding: 0 6%;
   }
 
@@ -112,10 +120,17 @@
    * picture of a page, not a page, and a tab stop that goes nowhere is worse
    * than no example at all.
    */
-  /* So the hero over a backdrop scales with the panel rather than the window:
-     the panel is one width on an item page and another in a narrow column. */
+  /*
+   * So what sits on a panel scales with the panel rather than with the window:
+   * the panel is one width on an item page and another in a narrow column.
+   *
+   * size rather than inline-size, because the card demos are portrait inside a
+   * 16:9 frame and it is the height they run out of first. The panel's own
+   * height comes from its aspect ratio rather than from its contents, so size
+   * containment costs nothing here.
+   */
   [data-demo] {
-    container-type: inline-size;
+    container-type: size;
   }
 
   .demo-use {
@@ -215,11 +230,21 @@
 
 @layer components {
   /* The card the Tilt panel leans. */
+  /*
+   * Big enough to be a card rather than a thumbnail of one. Both card effects
+   * are about light falling across a surface, and there has to be enough
+   * surface for the gradient to fall across: at 160px the lit side and the
+   * shaded side are an inch apart and the whole thing reads as a tint.
+   *
+   * Sized off the panel height, because the panel is 16:9 and the card is
+   * portrait, so height is what runs out first.
+   */
   .demo-card {
-    width: min(19rem, 70%);
+    width: min(24rem, 42cqw);
     aspect-ratio: 5 / 6;
+    max-height: 82cqh;
     margin: 0 auto;
-    padding: 1.4rem;
+    padding: clamp(1.4rem, 2.6cqw, 2.2rem);
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -232,20 +257,20 @@
 
   .demo-card h2 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: clamp(1.5rem, 3cqw, 2.4rem);
     line-height: 0.98;
   }
 
   .demo-card__mark {
-    width: 2rem;
-    height: 2rem;
+    width: clamp(2rem, 3.6cqw, 2.9rem);
+    height: clamp(2rem, 3.6cqw, 2.9rem);
     border-radius: 50%;
     background: var(--accent);
   }
 
   .demo-card__tag {
     margin: 0 0 0.35rem;
-    font-size: 0.6rem;
+    font-size: clamp(0.6rem, 0.95cqw, 0.75rem);
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--label-3);
@@ -253,7 +278,7 @@
 
   .demo-card__note {
     margin: 0;
-    font-size: 0.7rem;
+    font-size: clamp(0.7rem, 1.1cqw, 0.9rem);
     color: var(--label-3);
   }
 }
