@@ -1,0 +1,127 @@
+{
+  "name": "HalftoneReveal",
+  "slug": "halftone-reveal",
+  "tier": 1,
+  "description": "A picture arriving dot by dot, the way a halftone comes up on press",
+  "category": "reveals",
+  "tags": [
+    "webgl",
+    "shader",
+    "halftone",
+    "reveal",
+    "image",
+    "print",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "The picture is the host element's own <img> child. It is hidden from sight and left in the document, so the alt text is whatever you wrote and a page with no JavaScript still shows it",
+      "renderAtTime is pure in t, so replaying is a matter of resetting the clock rather than restarting anything",
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.6,
+    "contexts": 1,
+    "notes": [
+      "One texture read and one hash per pixel. There is no loop and no second pass",
+      "The image uploads once, on load. Nothing is uploaded per frame",
+      "The screen is laid out in CSS pixels, so the cost is per pixel and does not change with the cell size"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/halftone-reveal/core.ts",
+      "to": "src/beamish/effects/halftone-reveal/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/halftone-reveal/adapters/react.tsx",
+      "to": "src/beamish/effects/halftone-reveal/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/halftone-reveal/adapters/vue.ts",
+      "to": "src/beamish/effects/halftone-reveal/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "paper": {
+      "type": "color",
+      "default": "#fbfaf4",
+      "description": "Shown wherever a dot has not grown yet, which at the start is the whole frame. Match it to the page behind or the reveal begins as a visible panel."
+    },
+    "screen": {
+      "type": "number",
+      "default": 14,
+      "min": 4,
+      "max": 48,
+      "step": 1,
+      "description": "Cell size in CSS pixels. Bigger cells are a coarser screen and a more obviously printed arrival. Laid out in pixels rather than in UV so the dots stay round and keep their size when the element changes shape."
+    },
+    "angle": {
+      "type": "number",
+      "default": 45,
+      "min": 0,
+      "max": 90,
+      "step": 1,
+      "description": "Screen angle in degrees. 45 is the one a printer reaches for, because a screen on the square reads as a grid and fights whatever is underneath it."
+    },
+    "sweep": {
+      "type": "number",
+      "default": 24,
+      "min": 0,
+      "max": 360,
+      "step": 1,
+      "description": "Direction the reveal travels, in degrees. 0 runs left to right. Only visible when scatter is below 1."
+    },
+    "scatter": {
+      "type": "number",
+      "default": 0.55,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "0 is a clean directional sweep, 1 is a random dissolve with no direction at all. Between the two the sweep keeps its direction but its leading edge is ragged, which is the part worth having."
+    },
+    "feather": {
+      "type": "number",
+      "default": 0.55,
+      "min": 0.05,
+      "max": 1,
+      "step": 0.01,
+      "description": "How much of the reveal has cells part way through at any one moment. Low is a hard edge travelling across; high has the whole frame coming up together."
+    },
+    "grain": {
+      "type": "number",
+      "default": 0.4,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Paper tooth over the whole thing."
+    },
+    "duration": {
+      "type": "number",
+      "default": 1800,
+      "min": 200,
+      "max": 8000,
+      "step": 50,
+      "description": "Milliseconds from blank paper to the finished picture."
+    }
+  },
+  "instruction": "press replay to run it again",
+  "oneShot": true,
+  "record": {
+    "duration": 3,
+    "fps": 30,
+    "posterAt": 1.1,
+    "crf": 30
+  }
+}

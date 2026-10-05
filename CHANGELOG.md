@@ -5,6 +5,25 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.8.0, 23 September 2026
+
+Nineteen items. Two of the longest-standing P1 entries, both paper-native.
+
+### Added
+
+- MarbledPaper (backdrops): ink floated on size, dropped and then raked. Real
+  marbling rather than noise dressed up as it. Every operation a marbler performs
+  on a tray has a closed-form inverse, so each pixel runs the session backwards
+  instead of the tray being simulated forwards: one pass, no render targets, no
+  feedback, and the pattern exact rather than approximated. The rings come free,
+  because a later drop pushing an earlier one into an annulus is exactly what
+  walking backwards reproduces.
+- HalftoneReveal (reveals): a picture arriving dot by dot. The dots grow rather
+  than the opacity rising, which is how a halftone carries tone in the first
+  place, so it reads as a press coming up to pressure. Tested against the whole
+  cell neighbourhood rather than one cell, so the dots merge the way ink does
+  instead of growing into squares.
+
 ## v0.7.1, 19 September 2026
 
 ### Fixed

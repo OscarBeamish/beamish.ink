@@ -120,7 +120,7 @@ How things arrive on screen.
 | Beamish | React Bits | P | Note |
 | --- | --- | --- | --- |
 | Riser | Animated Content, Scroll Reveal, Scroll Float | 1 | **done** |
-| Dissolve | Pixel Transition, Pixel Swap, Halftone Reveal | 1 | Halftone dissolve. Three of theirs, one of ours |
+| HalftoneReveal | Pixel Transition, Pixel Swap, Halftone Reveal | 1 | **done**. The dots grow rather than the opacity rising, which is how a halftone carries tone in the first place |
 | Fade | Fade Content | 1 | Trivial, and its absence would be noticed |
 | Haze | Gradual Blur | 2 | |
 | Expand | Scroll Expand | 2 | |

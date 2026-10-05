@@ -874,6 +874,135 @@
     "intro": "Overprint is a full-bleed background that behaves like a two-colour print. Two\nink plates, a desaturated near-black and a burnt orange, are screened into\nhalftone dots at different angles and multiplied over the paper colour. That is\nwhat a second pass of ink does to the first. Over the loop the plates slide\nfractionally out of registration, which is the misprint that makes a risograph\nlook alive.\n\nIt is one WebGL2 fragment shader on one full-screen triangle. No three.js, no\ntextures, no render targets, no npm dependencies.\n\nIt needs a light background. Multiplying ink into black gets you black.\n\nThe defaults are tuned to be looked at: dense, plenty of solid ink. If you are\nputting text on top, that is too much. Drop `coverage` to about 0.2 and raise\n`period` to 15. Do not reach for opacity instead. Opacity greys the paper and\nloses the thing that makes it look printed."
   },
   {
+    "name": "HalftoneReveal",
+    "slug": "halftone-reveal",
+    "tier": 1,
+    "description": "A picture arriving dot by dot, the way a halftone comes up on press",
+    "category": "reveals",
+    "tags": [
+      "webgl",
+      "shader",
+      "halftone",
+      "reveal",
+      "image",
+      "print",
+      "no-dependencies"
+    ],
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "The picture is the host element's own <img> child. It is hidden from sight and left in the document, so the alt text is whatever you wrote and a page with no JavaScript still shows it",
+        "renderAtTime is pure in t, so replaying is a matter of resetting the clock rather than restarting anything",
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.6,
+      "contexts": 1,
+      "notes": [
+        "One texture read and one hash per pixel. There is no loop and no second pass",
+        "The image uploads once, on load. Nothing is uploaded per frame",
+        "The screen is laid out in CSS pixels, so the cost is per pixel and does not change with the cell size"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/halftone-reveal/core.ts",
+        "to": "src/beamish/effects/halftone-reveal/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/halftone-reveal/adapters/react.tsx",
+        "to": "src/beamish/effects/halftone-reveal/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/halftone-reveal/adapters/vue.ts",
+        "to": "src/beamish/effects/halftone-reveal/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "paper": {
+        "type": "color",
+        "default": "#fbfaf4",
+        "description": "Shown wherever a dot has not grown yet, which at the start is the whole frame. Match it to the page behind or the reveal begins as a visible panel."
+      },
+      "screen": {
+        "type": "number",
+        "default": 14,
+        "description": "Cell size in CSS pixels. Bigger cells are a coarser screen and a more obviously printed arrival. Laid out in pixels rather than in UV so the dots stay round and keep their size when the element changes shape.",
+        "min": 4,
+        "max": 48,
+        "step": 1
+      },
+      "angle": {
+        "type": "number",
+        "default": 45,
+        "description": "Screen angle in degrees. 45 is the one a printer reaches for, because a screen on the square reads as a grid and fights whatever is underneath it.",
+        "min": 0,
+        "max": 90,
+        "step": 1
+      },
+      "sweep": {
+        "type": "number",
+        "default": 24,
+        "description": "Direction the reveal travels, in degrees. 0 runs left to right. Only visible when scatter is below 1.",
+        "min": 0,
+        "max": 360,
+        "step": 1
+      },
+      "scatter": {
+        "type": "number",
+        "default": 0.55,
+        "description": "0 is a clean directional sweep, 1 is a random dissolve with no direction at all. Between the two the sweep keeps its direction but its leading edge is ragged, which is the part worth having.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "feather": {
+        "type": "number",
+        "default": 0.55,
+        "description": "How much of the reveal has cells part way through at any one moment. Low is a hard edge travelling across; high has the whole frame coming up together.",
+        "min": 0.05,
+        "max": 1,
+        "step": 0.01
+      },
+      "grain": {
+        "type": "number",
+        "default": 0.4,
+        "description": "Paper tooth over the whole thing.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "duration": {
+        "type": "number",
+        "default": 1800,
+        "description": "Milliseconds from blank paper to the finished picture.",
+        "min": 200,
+        "max": 8000,
+        "step": 50
+      }
+    },
+    "instruction": "press replay to run it again",
+    "oneShot": true,
+    "record": {
+      "duration": 3,
+      "fps": 30,
+      "posterAt": 1.1,
+      "crf": 30
+    },
+    "group": "effects",
+    "intro": "A picture arriving the way a printed one does.\n\nNot a fade and not a wipe. The image is screened into halftone cells and each\ncell's dot grows from nothing to full. That is how a halftone carries tone in the\nfirst place, so growing the dots is the honest way to bring one in, and it reads\nas a press coming up to pressure rather than as opacity being turned up.\n\nThe cells do not all start together. Each gets an order, blended between where it\nsits along the sweep direction and a hash of its coordinates, so `scatter` runs\nfrom a clean directional sweep at 0 to a random dissolve at 1. Everything useful\nis in between: the sweep keeps its direction, but its leading edge is ragged\nrather than ruled.\n\nThe dots are tested against the whole neighbourhood rather than against their own\ncell. A dot only stays a dot while it fits inside its cell, and past half a cell\nwidth a single-cell test clips it against the edges, so the dots grow into\nrounded squares and then into plain squares and the whole thing ends up looking\nlike blocks. Taking the union over the nine cells around each pixel lets them\nspill over the boundaries and merge, which is what ink does. The star-shaped\nscraps of paper left between merged dots near the end are not an artefact: that\nis the shadow-dot stage of a real screen.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency, no render targets."
+  },
+  {
     "name": "ImageGalleryLightbox",
     "slug": "image-gallery-lightbox",
     "tier": 2,
