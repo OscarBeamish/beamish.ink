@@ -15,6 +15,7 @@ export const Spool = defineComponent({
     slip: { type: Number, default: scrollWarpImageDefaults.slip },
     fringe: { type: Number, default: scrollWarpImageDefaults.fringe },
     grain: { type: Number, default: scrollWarpImageDefaults.grain },
+    inset: { type: Number, default: scrollWarpImageDefaults.inset },
     reference: { type: Number, default: scrollWarpImageDefaults.reference },
     autoStart: { type: Boolean, default: true }
   },

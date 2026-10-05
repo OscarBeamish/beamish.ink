@@ -2580,6 +2580,14 @@
         "max": 1,
         "step": 0.01
       },
+      "inset": {
+        "type": "number",
+        "default": 0.09,
+        "description": "How far the sheet sits in from the frame. At 0 it fills the frame exactly, so the bent edge runs off the side and is chopped square by the canvas: a curve ending in a hard vertical cut, which reads as clipping rather than as paper. A small margin gives the bend somewhere to happen.",
+        "min": 0,
+        "max": 0.25,
+        "step": 0.005
+      },
       "reference": {
         "type": "number",
         "default": 1.6,

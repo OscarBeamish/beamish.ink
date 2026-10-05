@@ -78,6 +78,7 @@ as the second argument to the create function; anything omitted takes its defaul
 | `slip` | number | `0.02` | 0 to 0.15 | How far the whole sheet slides against the direction of travel, the way anything with mass does when it is pulled. Small: this is the part you feel rather than see. |
 | `fringe` | number | `0.005` | 0 to 0.03 | Separation between the colour channels while the sheet is moving. A press strikes one plate per ink and a moving web lands them a fraction apart. Keep it under about 0.01 or it reads as a broken monitor. |
 | `grain` | number | `0.4` | 0 to 1 | Paper tooth over the image. |
+| `inset` | number | `0.09` | 0 to 0.25 | How far the sheet sits in from the frame. At 0 it fills the frame exactly, so the bent edge runs off the side and is chopped square by the canvas: a curve ending in a hard vertical cut, which reads as clipping rather than as paper. A small margin gives the bend somewhere to happen. |
 | `reference` | number | `1.6` | 0.2 to 6 | The scroll velocity that counts as full speed, in screens per second. Above it the effect stops growing. Lower makes the sheet bow more readily; too low and an ordinary wheel click maxes it out. |
 
 ## 5. Cleanup and SSR

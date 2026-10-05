@@ -51,7 +51,12 @@
     <script>
       const handle = window.Beamish.create(document.getElementById('stage'))
       window.__beamish = handle
-      handle.start()
+      /*
+       * Not while recording. The recorder drives the effect one frame at a time
+       * through renderAtTime, and a live loop running alongside it will paint a
+       * frame of its own between that call and the screenshot.
+       */
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
     </script>
   </body>
 </html>

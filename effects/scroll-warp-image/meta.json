@@ -93,6 +93,14 @@
       "step": 0.01,
       "description": "Paper tooth over the image."
     },
+    "inset": {
+      "type": "number",
+      "default": 0.09,
+      "min": 0,
+      "max": 0.25,
+      "step": 0.005,
+      "description": "How far the sheet sits in from the frame. At 0 it fills the frame exactly, so the bent edge runs off the side and is chopped square by the canvas: a curve ending in a hard vertical cut, which reads as clipping rather than as paper. A small margin gives the bend somewhere to happen."
+    },
     "reference": {
       "type": "number",
       "default": 1.6,

@@ -38,6 +38,8 @@ export type ScrollWarpImageOptions = BaseOptions & {
   fringe: number
   /** Paper tooth over the image. */
   grain: number
+  /** How far the sheet sits in from the frame, so the bent edge is not cut. */
+  inset: number
   /**
    * Scroll velocity that counts as full speed. Above it the effect stops
    * growing, so a trackpad flick does not tear the picture in half.
@@ -55,6 +57,7 @@ export const scrollWarpImageDefaults: ScrollWarpImageOptions = {
   slip: 0.02,
   fringe: 0.005,
   grain: 0.4,
+  inset: 0.09,
   reference: 1.6,
   reducedMotionTime: 0
 }
@@ -101,11 +104,25 @@ uniform float u_bend;
 uniform float u_slip;
 uniform float u_fringe;
 uniform float u_grain;
+uniform float u_inset;
 
 out vec4 fragColor;
 
 float hash12(vec2 p) {
   return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+
+/*
+ * Pull the sheet in from the edges of the frame.
+ *
+ * Without this the sheet fills the frame exactly, so when it bows the bent edge
+ * runs straight off the side and is chopped square by the canvas. You get a
+ * curve that ends in a hard vertical cut, which reads as clipping rather than
+ * as paper. Insetting leaves a margin for the bend to happen in, and the whole
+ * boundary of the sheet stays visible however hard it is pulled.
+ */
+vec2 inset(vec2 uv) {
+  return (uv - 0.5) * (1.0 + u_inset * 2.0) + 0.5;
 }
 
 /* Cover fit, the CSS object-fit rule, in UV space. */
@@ -163,9 +180,9 @@ void main() {
    */
   float spread = u_fringe * abs(u_velocity);
 
-  vec2 rUv = cover(bow(uv, u_velocity * (1.0 + spread)), u_resolution, u_imageSize);
-  vec2 gUv = cover(bow(uv, u_velocity), u_resolution, u_imageSize);
-  vec2 bUv = cover(bow(uv, u_velocity * (1.0 - spread)), u_resolution, u_imageSize);
+  vec2 rUv = cover(inset(bow(uv, u_velocity * (1.0 + spread))), u_resolution, u_imageSize);
+  vec2 gUv = cover(inset(bow(uv, u_velocity)), u_resolution, u_imageSize);
+  vec2 bUv = cover(inset(bow(uv, u_velocity * (1.0 - spread))), u_resolution, u_imageSize);
 
   vec3 col = vec3(
     texture(u_image, rUv).r,
@@ -204,7 +221,8 @@ const UNIFORMS = [
   'u_bend',
   'u_slip',
   'u_fringe',
-  'u_grain'
+  'u_grain',
+  'u_inset'
 ] as const
 
 type UniformName = (typeof UNIFORMS)[number]
@@ -360,6 +378,7 @@ class ScrollWarpImageSurface implements Surface<ScrollWarpImageOptions> {
     gl.uniform1f(loc('u_slip'), opts.slip)
     gl.uniform1f(loc('u_fringe'), opts.fringe)
     gl.uniform1f(loc('u_grain'), opts.grain)
+    gl.uniform1f(loc('u_inset'), opts.inset)
 
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }

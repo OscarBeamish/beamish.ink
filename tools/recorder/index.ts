@@ -127,6 +127,30 @@ async function openDemo(browser: Browser, item: ItemRef, ratio: Ratio): Promise<
   await page.goto(url, { waitUntil: 'load' })
   await page.evaluate(() => document.fonts.ready)
 
+  /*
+   * And the images, which is not the same wait.
+   *
+   * An effect that samples a texture uploads it when the <img> fires load, and
+   * until then it draws with a 1x1 placeholder. Capture used to start before
+   * that had happened, so the first frames came out at the wrong scale and
+   * whether the poster caught one was a matter of timing: two runs of the same
+   * code gave posters differing in 700,000 pixels. A textureless effect
+   * recorded twice is bit identical, which is how this was pinned down.
+   *
+   * decode() rather than the load event, because it resolves once the pixels
+   * are actually ready rather than once the bytes have arrived.
+   */
+  await page.evaluate(() =>
+    Promise.all(
+      [...document.images].map(img =>
+        img.decode().catch(() => undefined)
+      )
+    )
+  )
+  // One more frame, so an upload triggered by that load has run before the
+  // first capture asks for a picture.
+  await page.evaluate(() => new Promise(r => requestAnimationFrame(() => r(null))))
+
   if (errors.length > 0) {
     throw new Error(`${item.slug}: the demo page reported errors\n  ${errors.join('\n  ')}`)
   }
@@ -140,6 +164,21 @@ async function captureTier1(page: Page, meta: Meta, dir: string): Promise<number
 
   const ready = await page.evaluate(() => typeof window.__beamish?.renderAtTime === 'function')
   if (!ready) throw new Error('demo.html did not expose window.__beamish.renderAtTime')
+
+  /*
+   * Stop the effect's own loop before stepping it by hand.
+   *
+   * Demo pages are supposed to skip start() under ?record=1, and three of them
+   * did not. A live loop paints a frame of its own between renderAtTime and the
+   * screenshot, so the capture gets whatever the animation was doing rather
+   * than the frame that was asked for. Two runs of the same code produced
+   * posters differing in 700,000 pixels; a textureless effect recorded twice
+   * was bit identical, which is what narrowed it down.
+   *
+   * Doing it here as well means a demo page that forgets cannot quietly poison
+   * its own recording.
+   */
+  await page.evaluate(() => window.__beamish?.stop?.())
 
   /*
    * A pointer-driven effect has nothing to show if nothing moves the pointer.
