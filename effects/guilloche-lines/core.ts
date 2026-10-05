@@ -59,7 +59,7 @@ export const guillocheLinesDefaults: GuillocheLinesOptions = {
   weight: 0.18,
   accentBand: 0.22,
   grain: 0.28,
-  period: 60,
+  period: 36,
   reducedMotionTime: 5
 }
 

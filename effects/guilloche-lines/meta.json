@@ -164,7 +164,7 @@
     },
     "period": {
       "type": "number",
-      "default": 60,
+      "default": 36,
       "min": 4,
       "max": 180,
       "step": 1,
@@ -173,7 +173,7 @@
         6,
         60
       ],
-      "description": "Seconds for one turn of the gears. The pattern is exactly periodic over this. Slow on purpose: a backdrop whose cycle you can follow is a backdrop competing with the page, and at a turn every few seconds the eye starts tracking the rosette instead of reading."
+      "description": "Seconds for one turn of the gears. The pattern is exactly periodic over this. Slow on purpose: a backdrop whose cycle you can follow is a backdrop competing with the page, and at a turn every few seconds the eye tracks the rosette instead of reading. 60 is better still and the only reason it is not the default is the preview video, which is fine lines at every scale and the worst thing there is to compress."
     },
     "reducedMotionTime": {
       "type": "number",
@@ -188,10 +188,10 @@
   "instruction": "ambient, the gears are turning slowly",
   "oneShot": false,
   "record": {
-    "duration": 60,
+    "duration": 36,
     "fps": 15,
     "posterAt": 2.2,
-    "crf": 40,
+    "crf": 42,
     "webmCrf": 62
   }
 }

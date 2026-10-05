@@ -219,7 +219,8 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'spotlight-card': () => import('@items/effects/spotlight-card/core'),
     'pointer-smoke': () => import('@items/effects/pointer-smoke/core'),
     'watermark-sheet': () => import('@items/effects/watermark-sheet/core'),
-    'ink-bleed-text': () => import('@items/effects/ink-bleed-text/core')
+    'ink-bleed-text': () => import('@items/effects/ink-bleed-text/core'),
+    loupe: () => import('@items/effects/loupe/core')
   }
 
   /*
@@ -255,6 +256,8 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       '<img class="demo-plate-fill" src="/plates/scroll-warp-image/grid.jpg" alt="A facade of small square windows punched in a dark grid, seen from above" />',
     'halftone-reveal':
       '<img class="demo-plate-fill" src="/plates/halftone-reveal/plate.jpg" alt="A spiral stair curving down the inside of a circular concrete well" />',
+    loupe:
+      '<img class="demo-plate-fill" src="/plates/loupe/plate.jpg" alt="A spiral stair curving down the inside of a circular concrete well" />',
     'scramble-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     'misprint-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     'ink-bleed-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
@@ -321,7 +324,12 @@ const tweakable = tier === 1 ? Object.entries(options) : []
    * being animated, so it mounts on the stage rather than on the first child,
    * and the centring styles for DOM content must not apply to it.
    */
-  const CANVAS_WITH_CONTENT = new Set(['scroll-slideshow', 'scroll-warp-image', 'halftone-reveal'])
+  const CANVAS_WITH_CONTENT = new Set([
+    'scroll-slideshow',
+    'scroll-warp-image',
+    'halftone-reveal',
+    'loupe'
+  ])
 
   for (const panel of document.querySelectorAll<HTMLElement>('[data-demo]')) {
     const slug = panel.dataset['slug'] ?? ''

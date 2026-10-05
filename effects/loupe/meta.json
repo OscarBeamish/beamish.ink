@@ -1,0 +1,180 @@
+{
+  "name": "Loupe",
+  "slug": "loupe",
+  "tier": 1,
+  "description": "A printer's glass on the page: continuous tone until you look closely, then dots",
+  "category": "surfaces",
+  "tags": [
+    "webgl",
+    "shader",
+    "halftone",
+    "image",
+    "pointer",
+    "print",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "The picture is the host element's own <img> child. It is hidden from sight and left in the document, so the alt text is whatever you wrote and a page with no JavaScript still shows it",
+      "The screen ruling belongs to the print rather than to the viewer, so the cell is magnified along with everything else and turning the zoom up makes the dots bigger rather than finer",
+      "Four plates at 15, 75, 0 and 45 degrees, with grey component replacement, so what resolves under the glass is a rosette rather than four screens fighting",
+      "Nothing is integrated against the previous frame. The glass is exactly where the pointer is, so renderAtTime is pure in t and a scripted path replays identically",
+      "No fwidth anywhere. The lens sits inside a branch and derivatives in non-uniform control flow are undefined, so every edge width is worked out from the device pixel ratio instead",
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 1.0,
+    "contexts": 1,
+    "notes": [
+      "Outside the glass it is one texture read per pixel. Everything expensive is inside a branch that most of the frame never takes",
+      "Inside the glass: three texture reads for the lateral colour, then four screens each testing nine neighbouring cells. The neighbours are what stop a dot past half a cell being clipped square",
+      "The image uploads once, on load. Nothing is uploaded per frame"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/loupe/core.ts",
+      "to": "src/beamish/effects/loupe/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/loupe/adapters/react.tsx",
+      "to": "src/beamish/effects/loupe/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/loupe/adapters/vue.ts",
+      "to": "src/beamish/effects/loupe/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "paper": {
+      "type": "color",
+      "default": "#fbfaf4",
+      "description": "The sheet the picture is printed on. It shows between the dots, so it is most of what you see in the light passages under the glass."
+    },
+    "cyan": {
+      "type": "color",
+      "default": "#1fb6e3",
+      "description": "The cyan plate."
+    },
+    "magenta": {
+      "type": "color",
+      "default": "#e5157f",
+      "description": "The magenta plate."
+    },
+    "yellow": {
+      "type": "color",
+      "default": "#ffe800",
+      "description": "The yellow plate. Barely visible on its own, which is why it goes at zero degrees where the interference would show most."
+    },
+    "black": {
+      "type": "color",
+      "default": "#2b2721",
+      "description": "The black plate, which also tints the barrel. A desaturated near-black reads as ink; pure black reads as a hole."
+    },
+    "size": {
+      "type": "number",
+      "default": 0.26,
+      "min": 0.05,
+      "max": 0.6,
+      "step": 0.01,
+      "description": "Radius of the glass, as a share of the short side, so it keeps its size when the element changes shape. Past about 0.4 it stops being a glass on a picture and becomes a picture with a border."
+    },
+    "zoom": {
+      "type": "number",
+      "default": 2.6,
+      "min": 1,
+      "max": 12,
+      "step": 0.5,
+      "description": "How much it magnifies. This magnifies the screen as well as the picture, because the ruling belongs to the press: turning it up makes the dots bigger, never finer."
+    },
+    "screen": {
+      "type": "number",
+      "default": 2,
+      "min": 1,
+      "max": 12,
+      "step": 0.5,
+      "description": "The print's screen ruling, as a cell in CSS pixels before magnification. Low is a fine screen and a magazine; high is a coarse one and a newspaper. Below about 2 the rosette is finer than the glass can show and you get tone under the glass as well as outside it, which is the one setting that defeats the whole thing."
+    },
+    "bulge": {
+      "type": "number",
+      "default": 0.35,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How much the magnification eases off towards the rim, the way a real lens does. At 0 the glass magnifies evenly and the edge reads as a hole cut in the picture rather than as something resting on it."
+    },
+    "fringe": {
+      "type": "number",
+      "default": 0.012,
+      "min": 0,
+      "max": 0.06,
+      "step": 0.001,
+      "description": "Lateral colour at the rim. Every simple lens has it and every one shows it most at the edge, so a little is what makes the glass read as glass. Past about 0.03 it reads as a broken monitor."
+    },
+    "rim": {
+      "type": "number",
+      "default": 0.8,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How strongly the barrel reads: the ring and the short fall into shade just inside it. This is what makes the glass an object sitting on the page rather than a filter applied to part of it."
+    },
+    "grain": {
+      "type": "number",
+      "default": 0.3,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Paper tooth over the whole thing, inside the glass and out."
+    }
+  },
+  "instruction": "move the cursor over the picture",
+  "oneShot": false,
+  "cursor": {
+    "duration": 6,
+    "keys": [
+      {
+        "t": 0,
+        "x": 0.22,
+        "y": 0.68
+      },
+      {
+        "t": 1.5,
+        "x": 0.45,
+        "y": 0.3
+      },
+      {
+        "t": 3,
+        "x": 0.72,
+        "y": 0.58
+      },
+      {
+        "t": 4.5,
+        "x": 0.56,
+        "y": 0.78
+      },
+      {
+        "t": 6,
+        "x": 0.22,
+        "y": 0.68
+      }
+    ]
+  },
+  "record": {
+    "duration": 6,
+    "fps": 30,
+    "posterAt": 2.2,
+    "crf": 30
+  }
+}

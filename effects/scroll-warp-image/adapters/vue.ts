@@ -19,7 +19,7 @@ export const Spool = defineComponent({
     reference: { type: Number, default: scrollWarpImageDefaults.reference },
     autoStart: { type: Boolean, default: true }
   },
-  setup(props) {
+  setup(props, { slots }) {
     const host = ref<HTMLDivElement | null>(null)
     let handle: EffectHandle | null = null
 
@@ -40,7 +40,12 @@ export const Spool = defineComponent({
       handle = null
     })
 
-    return () => h('div', { ref: host })
+    /*
+     * The slot carries the pictures. This effect reads them out of the host
+     * element rather than taking them as an option, so rendering an empty div
+     * gave you a blank panel and no error.
+     */
+    return () => h('div', { ref: host }, slots['default']?.())
   }
 })
 

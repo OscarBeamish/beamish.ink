@@ -1,7 +1,7 @@
-You are adding **GuillocheLines** from Beamish to this project.
+You are adding **Loupe** from Beamish to this project.
 
-> The engine-turned line work off a banknote, printed on paper. Backdrops · effect · MIT.
-> https://beamish.ink/effects/guilloche-lines
+> A printer's glass on the page: continuous tone until you look closely, then dots. Surfaces · effect · MIT.
+> https://beamish.ink/effects/loupe
 
 Beamish is not a package and there is nothing to install from npm. The source
 lives in a public repo; you fetch the files, put them in this project, and wire
@@ -14,9 +14,12 @@ Assume you have not seen this library before. Everything you need is below.
 
 - **npm dependencies:** None. This file has no npm dependencies at all.
 - WebGL2. There is no WebGL1 fallback
-- WebGL2 for gl_VertexID; there is no WebGL1 fallback and none is planned
-- The line width is derived from the screen-space derivative of the field, so the engraving stays one pixel wide at any DPR instead of filling in at the centre
-- Falls back to a still frame under prefers-reduced-motion, handled in the runtime
+- The picture is the host element's own <img> child. It is hidden from sight and left in the document, so the alt text is whatever you wrote and a page with no JavaScript still shows it
+- The screen ruling belongs to the print rather than to the viewer, so the cell is magnified along with everything else and turning the zoom up makes the dots bigger rather than finer
+- Four plates at 15, 75, 0 and 45 degrees, with grey component replacement, so what resolves under the glass is a rosette rather than four screens fighting
+- Nothing is integrated against the previous frame. The glass is exactly where the pointer is, so renderAtTime is pure in t and a scripted path replays identically
+- No fwidth anywhere. The lens sits inside a branch and derivatives in non-uniform control flow are undefined, so every edge width is worked out from the device pixel ratio instead
+- One WebGL2 context, one full-screen triangle, no buffers and no attributes
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -605,75 +608,85 @@ export function mount<O extends BaseOptions>(
 }
 ```
 
-**`src/beamish/effects/guilloche-lines/core.ts`**
+**`src/beamish/effects/loupe/core.ts`**
 
 ```ts
 /*
- * Guilloche: Beamish
- * https://beamish.ink/effects/guilloche-lines
+ * Loupe: Beamish
+ * https://beamish.ink/effects/loupe
  *
- * The engine-turned line work on a banknote, drawn on warm paper. WebGL2, no
- * three.js, no dependencies.
+ * A printer's glass laid on the page.
  *
- * The GL boilerplate is inline rather than imported. This file is published and
- * read on its own, and a reader should not have to fetch a second module to find
- * out how a program gets compiled.
+ * The picture is continuous tone until you look closely, and then it is dots.
+ * That is not a stylisation. It is what a printed photograph is, and it is the
+ * one thing a screen never shows you: away from the glass the halftone is finer
+ * than the eye resolves and reads as tone, which is the entire reason printing
+ * works, and under the glass it resolves into four screens at four angles.
  *
- * The shader source is generated from shaders/guilloche-lines.frag and
- * shaders/guilloche-lines.vert. Edit those, then run `pnpm generate`. The markers are
- * load-bearing.
+ * So the dots are not drawn at whatever size looks good. They are drawn at
+ * `screen` pixels in the print and magnified along with everything else, which
+ * is why turning `zoom` up makes them bigger rather than finer. A screen ruling
+ * belongs to the press, not to the person looking.
+ *
+ * The picture comes from the host element's own <img> child rather than from an
+ * option, so the alt text is whatever was written and a page whose script never
+ * runs still shows the photograph.
+ *
+ * Nothing is integrated against the previous frame. The glass is exactly where
+ * the pointer is, which is also what a glass held in a hand does, so
+ * `renderAtTime` stays pure and a scripted path replays identically.
  */
 
-import { mount, type BaseOptions, type EffectHandle, type Surface } from '../../shared/runtime'
+import { mount, type BaseOptions, type EffectHandle, type Pointer, type Surface } from '../../shared/runtime'
 
-export type GuillocheLinesOptions = BaseOptions & {
-  /** The paper the plate is printed on. */
+export type LoupeOptions = BaseOptions & {
+  /** The sheet the picture is printed on. */
   paper: string
-  /** The engraving. A desaturated near-black reads as ink. */
-  ink: string
-  /** The second colour, printed over one band of the pattern. */
-  accent: string
-  /** Size of the whole rosette. */
-  scale: number
-  /** Lines per unit of radius. Higher is finer engraving. */
-  pitch: number
-  /** Lobes on the first rosette. Whole numbers only, or the curve never closes. */
-  lobes: number
-  /** Spokes in the family that runs around the circle rather than out from it. */
-  waves: number
-  /** How far each rosette's radius wobbles. */
-  depth: number
-  /** Weight of the engraved line, 0 to 1. */
-  weight: number
-  /** Where the second colour band sits, as a radius. */
-  accentBand: number
-  /** Paper tooth, 0 to 1. Static, not film grain. */
+  /** The cyan plate. */
+  cyan: string
+  /** The magenta plate. */
+  magenta: string
+  /** The yellow plate. */
+  yellow: string
+  /** The black plate, which also tints the barrel. */
+  black: string
+  /** Radius of the glass, as a share of the short side. */
+  size: number
+  /** How much it magnifies. */
+  zoom: number
+  /** The print's screen ruling, as a cell in CSS pixels before magnification. */
+  screen: number
+  /** How much the magnification eases off towards the rim. */
+  bulge: number
+  /** Lateral colour at the rim, which every simple lens has. */
+  fringe: number
+  /** How strongly the barrel reads: the ring and the shade inside it. */
+  rim: number
+  /** Paper tooth over the whole thing. */
   grain: number
-  /** Seconds for one turn of the gears. Exactly periodic over this. */
-  period: number
 }
 
 /*
  * Kept in step with meta.json by `pnpm generate`, which fails if the two drift.
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
-export const guillocheLinesDefaults: GuillocheLinesOptions = {
+export const loupeDefaults: LoupeOptions = {
   paper: '#fbfaf4',
-  ink: '#2f2b26',
-  accent: '#c44400',
-  scale: 1.9,
-  pitch: 10,
-  lobes: 7,
-  waves: 9,
-  depth: 0.12,
-  weight: 0.18,
-  accentBand: 0.22,
-  grain: 0.28,
-  period: 36,
-  reducedMotionTime: 5
+  cyan: '#1fb6e3',
+  magenta: '#e5157f',
+  yellow: '#ffe800',
+  black: '#2b2721',
+  size: 0.26,
+  zoom: 2.6,
+  screen: 2,
+  bulge: 0.35,
+  fringe: 0.012,
+  rim: 0.8,
+  grain: 0.3,
+  reducedMotionTime: 0
 }
 
-// beamish:shader-begin shaders/guilloche-lines.vert
+// beamish:shader-begin shaders/loupe.vert
 const VERT = `#version 300 es
 
 // Full-screen triangle from gl_VertexID. No buffers, no attributes. Bind an
@@ -686,133 +699,246 @@ void main() {
 `
 // beamish:shader-end
 
-// beamish:shader-begin shaders/guilloche-lines.frag
+// beamish:shader-begin shaders/loupe.frag
 const FRAG = `#version 300 es
 precision highp float;
 
 /*
- * Guilloche: the engine-turned line work on a banknote, a share certificate or
- * the bezel of a watch.
+ * Loupe: a printer's glass laid on the page.
  *
- * It is not noise and it is not a gradient. A real rose engine cuts one
- * continuous line whose radius is modulated by a set of gears, so the pattern
- * is a family of curves with a strict harmonic relationship. That is exactly
- * what this draws: several rosettes, each a circle whose radius wobbles at an
- * integer number of lobes, rendered as a line field rather than a fill.
+ * The picture is continuous tone until you look closely, and then it is dots.
+ * That is not a stylisation, it is what a printed photograph is, and it is the
+ * one thing a screen never shows you. Away from the glass the halftone is finer
+ * than the eye resolves and reads as tone, which is exactly why printing works
+ * at all. Under the glass it resolves into four screens at four angles, and the
+ * rosette they make is the thing worth magnifying.
  *
- * The integer lobe counts are the whole thing. Fractional ones never close, and
- * an open curve reads as a mistake rather than as engraving.
+ * So the dots are not drawn at a size that looks good. They are drawn at
+ * \`screen\` CSS pixels in the print and magnified by \`zoom\` along with
+ * everything else, which is why turning the magnification up makes them bigger
+ * rather than finer.
+ *
+ * Nothing here is antialiased with fwidth. The whole lens sits inside a branch,
+ * and derivatives in non-uniform control flow are undefined, so the edge width
+ * is worked out from the device pixel ratio instead. It is exact rather than
+ * estimated, because a cell is a known size.
  */
 
+uniform sampler2D u_image;
 uniform vec2  u_resolution;
+uniform vec2  u_imageSize;
 uniform float u_dpr;
-uniform float u_time;
-uniform float u_period;
+uniform vec2  u_pointer;
+uniform float u_active;
+
 uniform vec3  u_paper;
-uniform vec3  u_ink;
-uniform vec3  u_accent;
-uniform float u_scale;
-uniform float u_pitch;
-uniform float u_lobes;
-uniform float u_waves;
-uniform float u_depth;
-uniform float u_weight;
-uniform float u_accentBand;
+uniform vec3  u_cyan;
+uniform vec3  u_magenta;
+uniform vec3  u_yellow;
+uniform vec3  u_black;
+uniform float u_size;
+uniform float u_zoom;
+uniform float u_screen;
+uniform float u_bulge;
+uniform float u_fringe;
+uniform float u_rim;
 uniform float u_grain;
 
 out vec4 fragColor;
 
-const float TAU = 6.28318530718;
+const float DEG = 0.01745329252;
 
 float hash12(vec2 p) {
   return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 
+vec2 rot(vec2 p, float a) {
+  float c = cos(a);
+  float s = sin(a);
+  return mat2(c, -s, s, c) * p;
+}
+
+/* Cover fit, the CSS object-fit rule, in UV space. */
+vec2 cover(vec2 uv, vec2 frame, vec2 image) {
+  float frameAspect = frame.x / max(frame.y, 1.0);
+  float imageAspect = image.x / max(image.y, 1.0);
+  vec2 scale = imageAspect > frameAspect
+    ? vec2(frameAspect / imageAspect, 1.0)
+    : vec2(1.0, imageAspect / frameAspect);
+  return (uv - 0.5) * scale + 0.5;
+}
+
+vec3 plate(vec2 uv, vec2 frame, vec2 image) {
+  return texture(u_image, cover(vec2(uv.x, 1.0 - uv.y), frame, image)).rgb;
+}
+
 /*
- * One engraved line family. \`spacing\` is how far apart the lines sit; the
- * derivative keeps them a constant width on screen however fast the field is
- * changing, which is what stops the centre turning into a solid disc.
+ * One screen's worth of dot coverage at a point.
+ *
+ * \`amount\` is how much ink that plate wants, 0 to 1, and the dot's *area* is
+ * what carries it, so the radius goes as its square root. A halftone that
+ * scales the radius instead is a third too dark in the midtones, which is the
+ * single most common way to get this wrong.
+ *
+ * Neighbours as well as the cell the point is in. Past half a cell a dot
+ * reaches into the next one, and testing only its own cell clips it square: at
+ * seventy percent coverage you get rounded boxes rather than dots touching.
  */
-float engrave(float field, float weight) {
-  float band = fract(field);
-  float aa = fwidth(field);
-  float edge = aa * (0.5 + weight * 2.0);
-  return 1.0 - smoothstep(0.0, edge, min(band, 1.0 - band));
+float screenDot(vec2 pagePx, float amount, float angleDeg, float cell, float aa) {
+  if (amount <= 0.0001) return 0.0;
+
+  vec2 p = rot(pagePx, angleDeg * DEG) / cell;
+  vec2 id = floor(p);
+  vec2 f = p - id;
+
+  /*
+   * Area, not radius, and with the right constant.
+   *
+   * A circle of radius r in a unit cell covers pi * r * r, so the radius that
+   * lays exactly \`amount\` of ink is sqrt(amount / pi). Writing it as
+   * sqrt(amount) * 0.5 instead, which is the version everybody writes, tops out
+   * at pi / 4 of the cell: every tone comes out at 78.5 percent of the ink it
+   * asked for and the whole screen sits visibly lighter than the picture it is
+   * made from.
+   *
+   * Past 0.7854 the dots touch and start to overlap, where the closed form
+   * stops being closed. The radius runs on to sqrt(2)/2, which is where four
+   * neighbours meet at the cell's corner and the last of the paper goes.
+   */
+  float a = clamp(amount, 0.0, 1.0);
+  float radius = a <= 0.7854
+    ? sqrt(a / 3.14159265)
+    : mix(0.5, 0.70711, (a - 0.7854) / 0.2146);
+
+  float cov = 0.0;
+  for (int oy = -1; oy <= 1; oy++) {
+    for (int ox = -1; ox <= 1; ox++) {
+      vec2 centre = vec2(float(ox), float(oy)) + 0.5;
+      cov = max(cov, smoothstep(radius + aa, radius - aa, length(f - centre)));
+    }
+  }
+  return cov;
 }
 
 void main() {
   vec2 cssRes = u_resolution / max(u_dpr, 0.001);
   float shortSide = min(cssRes.x, cssRes.y);
   vec2 cssPx = gl_FragCoord.xy / max(u_dpr, 0.001);
+  vec2 uv = cssPx / cssRes;
 
-  vec2 p = (cssPx - cssRes * 0.5) / (shortSide * 0.5);
-  p /= max(u_scale, 0.05);
-
-  float phase = TAU * u_time / max(u_period, 0.001);
-
-  float r = length(p);
-  float a = atan(p.y, p.x);
+  vec3 col = plate(uv, u_resolution, u_imageSize);
 
   /*
-   * Three rosettes turning against each other, the way a rose engine stacks
-   * gears. Their lobe counts are coprime, so the interference pattern takes a
-   * long time to repeat and never looks like a simple grid.
+   * The glass, in short-side units so it stays round and keeps its size when
+   * the element changes shape.
    */
-  float lobesA = floor(u_lobes);
-  float lobesB = floor(u_lobes * 1.75) + 1.0;
-  float lobesC = floor(u_lobes * 0.5) + 2.0;
+  vec2 centre = vec2(u_pointer.x, 1.0 - u_pointer.y) * cssRes;
+  vec2 fromCentre = (cssPx - centre) / shortSide;
+  float r = length(fromCentre);
+  float radius = max(u_size, 0.001);
+
+  // One CSS pixel, in the units the glass is measured in. Every edge below is
+  // specified in those, so the barrel is the same weight on any display.
+  float pixel = 1.0 / shortSide;
 
   /*
-   * Whole turns each, and that is not a detail. The phase multipliers used to be
-   * 1, -1.5 and 0.5, so after one period the first family was back where it
-   * started and the other two were half a turn out. The pattern never closed,
-   * and the looping video jumped once a cycle by twelve times the size of a
-   * frame of ordinary motion. A gear train is whole teeth meshing with whole
-   * teeth; it cannot be otherwise and neither can this.
-   *
-   * The speeds are 1, -1 and 1, the slowest train that still turns, because this
-   * sits behind a heading. The lobe counts are already coprime, which is what
-   * keeps the interference from reading as a grid, so no gear needs to race to
-   * earn its place.
+   * The shadow reaches outside the glass, so the branch has to as well. Still a
+   * branch: it is a ring a few pixels wide around a circle, and the rest of the
+   * frame pays one texture read.
    */
-  float waveA = sin(a * lobesA + phase) * u_depth;
-  float waveB = sin(a * lobesB - phase) * u_depth * 0.55;
-  float waveC = cos(a * lobesC + phase) * u_depth * 0.8;
+  float shadow = 7.0 * pixel * u_rim;
 
-  // Each family is the radius plus its own wobble, scaled into line spacing.
-  float fieldA = (r + waveA) * u_pitch;
-  float fieldB = (r + waveB) * u_pitch * 1.31;
+  if (u_active > 0.5 && r < radius + shadow) {
+    float k = r / radius;
 
-  // The third runs around the circle rather than out from the centre, which is
-  // what turns two ring families into woven guilloche instead of a moire.
-  float fieldC = (a / TAU * u_waves + waveC + r * 0.35) * u_pitch * 0.42;
+    /*
+     * A real loupe is a lens, so the magnification is not uniform across it:
+     * the middle is strongest and it eases off towards the rim, which is what
+     * stops the edge reading as a hole cut in the picture.
+     */
+    float lens = u_zoom * (1.0 - u_bulge * k * k);
+    vec2 lensPx = centre + (cssPx - centre) / max(lens, 1.0);
+    vec2 lensUV = lensPx / cssRes;
 
-  float lineA = engrave(fieldA, u_weight);
-  float lineB = engrave(fieldB, u_weight);
-  /*
-   * The angular family is singular at the origin: every spoke meets there, and
-   * without this the middle of the rosette collapses into a solid blot. A real
-   * rose engine has a centre finding of its own for the same reason.
-   */
-  float lineC = engrave(fieldC, u_weight) * smoothstep(0.0, 0.3, r);
+    /*
+     * Lateral colour, which every simple lens has and every one shows most at
+     * the rim. Sampling the three channels at three slightly different
+     * magnifications is the cheap and correct way round: the error is radial
+     * and it grows outward.
+     */
+    float shift = u_fringe * k * k;
+    vec2 red = centre + (cssPx - centre) / max(lens * (1.0 - shift), 1.0);
+    vec2 blue = centre + (cssPx - centre) / max(lens * (1.0 + shift), 1.0);
 
-  vec3 col = u_paper;
-  // Multiplied, not added: this is ink on paper, and two lines crossing are
-  // darker than one.
-  col *= mix(vec3(1.0), u_ink, lineA * 0.85);
-  col *= mix(vec3(1.0), u_ink, lineB * 0.7);
-  col *= mix(vec3(1.0), u_ink, lineC * 0.5);
+    vec3 ink = vec3(
+      plate(red / cssRes, u_resolution, u_imageSize).r,
+      plate(lensUV, u_resolution, u_imageSize).g,
+      plate(blue / cssRes, u_resolution, u_imageSize).b
+    );
 
-  /*
-   * A single band of the pattern printed in the second colour, the way a
-   * certificate prints one guilloche in red over the rest in black. It rides
-   * the same field, so it is part of the engraving rather than a highlight laid
-   * on top of it.
-   */
-  float ring = smoothstep(u_accentBand + 0.16, u_accentBand, abs(r - u_accentBand - 0.28));
-  col = mix(col, col * mix(vec3(1.0), u_accent, lineA * 0.9), ring);
+    /*
+     * Four plates off three channels. Grey component replacement: whatever
+     * amount of cyan, magenta and yellow all three have in common is pulled out
+     * and printed as black instead, which is what a press does and the reason a
+     * shadow in a printed photograph is not a muddy brown.
+     */
+    vec3 cmy = clamp(1.0 - ink, 0.0, 1.0);
+    float black = min(cmy.r, min(cmy.g, cmy.b));
+    cmy -= black;
 
-  float tooth = hash12(floor(cssPx * 0.5)) - 0.5;
+    /*
+     * Cell size in page pixels, magnified with everything else. The screen
+     * ruling belongs to the print, not to the viewer, so turning the
+     * magnification up has to make the dots bigger and not finer.
+     */
+    float cell = max(u_screen, 0.5) * max(lens, 1.0);
+    float aa = 0.8 / cell;
+    vec2 pagePx = cssPx - centre;
+
+    /*
+     * Fifteen, seventy-five, zero and forty-five degrees. Those four are not
+     * decoration: thirty degrees between the strong plates is what keeps their
+     * interference down to the fine rosette instead of a coarse plaid, and
+     * yellow goes at zero because it is the one you cannot see anyway.
+     */
+    float dc = screenDot(pagePx, cmy.r, 15.0, cell, aa);
+    float dm = screenDot(pagePx, cmy.g, 75.0, cell, aa);
+    float dy = screenDot(pagePx, cmy.b, 0.0, cell, aa);
+    float dk = screenDot(pagePx, black, 45.0, cell, aa);
+
+    // Multiplied, in plate order. Ink on ink subtracts; two dots crossing are
+    // darker than either, which is the whole reason a rosette reads as colour.
+    vec3 printed = u_paper;
+    printed *= mix(vec3(1.0), u_yellow, dy);
+    printed *= mix(vec3(1.0), u_cyan, dc);
+    printed *= mix(vec3(1.0), u_magenta, dm);
+    printed *= mix(vec3(1.0), u_black, dk);
+
+    // Inside the glass only, and antialiased against the page behind it.
+    float inside = smoothstep(radius + pixel, radius - pixel, r);
+    col = mix(col, printed, inside);
+
+    /*
+     * The barrel, which is three things rather than one.
+     *
+     * A shadow on the page outside it, because the glass is an object sitting
+     * on the paper and an object sitting on paper casts one. A rim, which is
+     * the tube itself. And a short fall into shade just inside the rim, because
+     * you are looking down a tube. Any one of them alone leaves the magnified
+     * patch floating, and a floating patch reads as a filter applied to part of
+     * the picture rather than as something resting on it.
+     */
+    float dropped = smoothstep(radius + shadow, radius, r) * (1.0 - inside);
+    col *= 1.0 - dropped * 0.3 * u_rim;
+
+    float ring = smoothstep(radius + pixel * 0.5, radius - pixel * 0.5, r)
+      * smoothstep(radius - pixel * 3.0, radius - pixel * 2.0, r);
+    float shade = smoothstep(radius * 0.74, radius, r) * inside;
+    col *= 1.0 - shade * 0.22 * u_rim;
+    col = mix(col, u_black * 0.5, ring * u_rim);
+  }
+
+  float tooth = hash12(floor(cssPx * 0.5) + 3.0) - 0.5;
   col += tooth * 0.05 * u_grain;
 
   fragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
@@ -821,34 +947,36 @@ void main() {
 // beamish:shader-end
 
 const UNIFORMS = [
+  'u_image',
   'u_resolution',
+  'u_imageSize',
   'u_dpr',
-  'u_time',
-  'u_period',
+  'u_pointer',
+  'u_active',
   'u_paper',
-  'u_ink',
-  'u_accent',
-  'u_scale',
-  'u_pitch',
-  'u_lobes',
-  'u_waves',
-  'u_depth',
-  'u_weight',
-  'u_accentBand',
+  'u_cyan',
+  'u_magenta',
+  'u_yellow',
+  'u_black',
+  'u_size',
+  'u_zoom',
+  'u_screen',
+  'u_bulge',
+  'u_fringe',
+  'u_rim',
   'u_grain'
 ] as const
 
 type UniformName = (typeof UNIFORMS)[number]
 
-/** '#rgb' | '#rrggbb' | 'rgb(r g b)' → linear-ish 0 to 1 triple. */
-function parseColor(input: string): [number, number, number] {
-  const value = input.trim()
-  if (value.startsWith('#')) {
-    let hex = value.slice(1)
-    if (hex.length === 3) hex = hex[0]! + hex[0]! + hex[1]! + hex[1]! + hex[2]! + hex[2]!
-    const n = Number.parseInt(hex.slice(0, 6), 16)
-    if (Number.isNaN(n)) return [0, 0, 0]
-    return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255]
+function rgb(value: string): [number, number, number] {
+  const hex = value.trim()
+  if (/^#[0-9a-f]{6}$/i.test(hex)) {
+    return [
+      parseInt(hex.slice(1, 3), 16) / 255,
+      parseInt(hex.slice(3, 5), 16) / 255,
+      parseInt(hex.slice(5, 7), 16) / 255
+    ]
   }
   const nums = value.match(/[\d.]+/g)
   if (nums && nums.length >= 3) {
@@ -859,26 +987,29 @@ function parseColor(input: string): [number, number, number] {
 
 function compile(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader {
   const shader = gl.createShader(type)
-  if (!shader) throw new Error('Guilloche: could not create shader')
+  if (!shader) throw new Error('Loupe: could not create shader')
   gl.shaderSource(shader, source)
   gl.compileShader(shader)
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
     const log = gl.getShaderInfoLog(shader)
     gl.deleteShader(shader)
-    throw new Error(`Guilloche: shader failed to compile\n${log ?? ''}`)
+    throw new Error(`Loupe: shader failed to compile\n${log ?? ''}`)
   }
   return shader
 }
 
-class GuillocheLinesSurface implements Surface<GuillocheLinesOptions> {
+class LoupeSurface implements Surface<LoupeOptions> {
   private gl: WebGL2RenderingContext | null = null
   private program: WebGLProgram | null = null
   private vao: WebGLVertexArrayObject | null = null
   private locations = new Map<UniformName, WebGLUniformLocation | null>()
   private size = { pixelWidth: 1, pixelHeight: 1, dpr: 1 }
+  private texture: WebGLTexture | null = null
+  private imageSize = { width: 1, height: 1 }
+  private image: HTMLImageElement | null = null
 
-  setup(ctx: { canvas: HTMLCanvasElement | null }): void {
-    if (!ctx.canvas) throw new Error('Guilloche needs a canvas')
+  setup(ctx: { canvas: HTMLCanvasElement | null; host: HTMLElement }): void {
+    if (!ctx.canvas) throw new Error('Loupe needs a canvas')
     const gl = ctx.canvas.getContext('webgl2', {
       alpha: false,
       antialias: false,
@@ -889,35 +1020,66 @@ class GuillocheLinesSurface implements Surface<GuillocheLinesOptions> {
       preserveDrawingBuffer: true,
       powerPreference: 'low-power'
     })
-    if (!gl) throw new Error('Guilloche needs WebGL2, which this browser did not provide')
+    if (!gl) throw new Error('Loupe needs WebGL2, which this browser did not provide')
 
     const vert = compile(gl, gl.VERTEX_SHADER, VERT)
     const frag = compile(gl, gl.FRAGMENT_SHADER, FRAG)
     const program = gl.createProgram()
-    if (!program) throw new Error('Guilloche: could not create program')
+    if (!program) throw new Error('Loupe: could not create program')
     gl.attachShader(program, vert)
     gl.attachShader(program, frag)
     gl.linkProgram(program)
-    // Shader objects are reference-counted by the program; drop our references
-    // now so they are freed the moment the program is.
     gl.deleteShader(vert)
     gl.deleteShader(frag)
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
       const log = gl.getProgramInfoLog(program)
       gl.deleteProgram(program)
-      throw new Error(`Guilloche: program failed to link\n${log ?? ''}`)
+      throw new Error(`Loupe: program failed to link\n${log ?? ''}`)
     }
-
-    // WebGL2 requires a bound VAO even when the draw uses no attributes.
-    const vao = gl.createVertexArray()
 
     this.gl = gl
     this.program = program
-    this.vao = vao
+    this.vao = gl.createVertexArray()
     this.locations.clear()
     for (const name of UNIFORMS) {
       this.locations.set(name, gl.getUniformLocation(program, name))
     }
+
+    /*
+     * The first <img> in the host, hidden from sight and left in the document.
+     * The alt text and the loading behaviour stay whatever was written, and a
+     * page whose script never runs still shows the picture.
+     */
+    const image = ctx.host.querySelector('img')
+    if (image) {
+      this.image = image
+      image.style.visibility = 'hidden'
+      if (image.complete && image.naturalWidth > 0) this.upload(image)
+      else image.addEventListener('load', () => this.upload(image), { once: true })
+    }
+  }
+
+  private upload(image: HTMLImageElement): void {
+    const gl = this.gl
+    if (!gl || this.texture || image.naturalWidth === 0) return
+
+    const texture = gl.createTexture()
+    if (!texture) return
+    gl.bindTexture(gl.TEXTURE_2D, texture)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    /*
+     * No mipmaps and a linear magnification filter. The glass samples the image
+     * at well under one texel per pixel, which is the case mipmaps are no help
+     * for, and a nearest filter would show the source image's own pixel grid
+     * under magnification rather than the screen the effect is drawing.
+     */
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+
+    this.texture = texture
+    this.imageSize = { width: image.naturalWidth, height: image.naturalHeight }
   }
 
   resize(size: { pixelWidth: number; pixelHeight: number; dpr: number }): void {
@@ -925,174 +1087,118 @@ class GuillocheLinesSurface implements Surface<GuillocheLinesOptions> {
     this.gl?.viewport(0, 0, size.pixelWidth, size.pixelHeight)
   }
 
-  render(t: number, opts: GuillocheLinesOptions): void {
+  render(_t: number, opts: LoupeOptions, pointer: Pointer): void {
     const gl = this.gl
     const program = this.program
     if (!gl || !program) return
 
+    // A late-decoding image still has to get in. Cheap: it returns at once once
+    // the texture exists.
+    if (this.image && !this.texture) this.upload(this.image)
+
     gl.useProgram(program)
     gl.bindVertexArray(this.vao)
 
-    const at = (name: UniformName) => this.locations.get(name) ?? null
-    gl.uniform2f(at('u_resolution'), this.size.pixelWidth, this.size.pixelHeight)
-    gl.uniform1f(at('u_dpr'), this.size.dpr)
-    gl.uniform1f(at('u_time'), t)
-    gl.uniform1f(at('u_period'), opts.period)
-    gl.uniform3fv(at('u_paper'), parseColor(opts.paper))
-    gl.uniform3fv(at('u_ink'), parseColor(opts.ink))
-    gl.uniform3fv(at('u_accent'), parseColor(opts.accent))
-    gl.uniform1f(at('u_scale'), opts.scale)
-    gl.uniform1f(at('u_pitch'), opts.pitch)
-    gl.uniform1f(at('u_lobes'), opts.lobes)
-    gl.uniform1f(at('u_waves'), opts.waves)
-    gl.uniform1f(at('u_depth'), opts.depth)
-    gl.uniform1f(at('u_weight'), opts.weight)
-    gl.uniform1f(at('u_accentBand'), opts.accentBand)
-    gl.uniform1f(at('u_grain'), opts.grain)
+    const loc = (name: UniformName) => this.locations.get(name) ?? null
+
+    if (this.texture) {
+      gl.activeTexture(gl.TEXTURE0)
+      gl.bindTexture(gl.TEXTURE_2D, this.texture)
+      gl.uniform1i(loc('u_image'), 0)
+    }
+
+    gl.uniform2f(loc('u_resolution'), this.size.pixelWidth, this.size.pixelHeight)
+    gl.uniform2f(loc('u_imageSize'), this.imageSize.width, this.imageSize.height)
+    gl.uniform1f(loc('u_dpr'), this.size.dpr)
+    gl.uniform2f(loc('u_pointer'), pointer.x, pointer.y)
+    gl.uniform1f(loc('u_active'), pointer.active ? 1 : 0)
+    gl.uniform3fv(loc('u_paper'), rgb(opts.paper))
+    gl.uniform3fv(loc('u_cyan'), rgb(opts.cyan))
+    gl.uniform3fv(loc('u_magenta'), rgb(opts.magenta))
+    gl.uniform3fv(loc('u_yellow'), rgb(opts.yellow))
+    gl.uniform3fv(loc('u_black'), rgb(opts.black))
+    gl.uniform1f(loc('u_size'), opts.size)
+    gl.uniform1f(loc('u_zoom'), opts.zoom)
+    gl.uniform1f(loc('u_screen'), opts.screen)
+    gl.uniform1f(loc('u_bulge'), opts.bulge)
+    gl.uniform1f(loc('u_fringe'), opts.fringe)
+    gl.uniform1f(loc('u_rim'), opts.rim)
+    gl.uniform1f(loc('u_grain'), opts.grain)
 
     gl.drawArrays(gl.TRIANGLES, 0, 3)
-    gl.bindVertexArray(null)
   }
 
-  context(): WebGL2RenderingContext | null {
+  context(): WebGLRenderingContext | WebGL2RenderingContext | null {
     return this.gl
   }
 
   teardown(): void {
     const gl = this.gl
-    if (!gl) return
-    if (this.vao) gl.deleteVertexArray(this.vao)
-    if (this.program) gl.deleteProgram(this.program)
-    this.vao = null
-    this.program = null
-    this.locations.clear()
+    if (gl) {
+      if (this.texture) gl.deleteTexture(this.texture)
+      if (this.program) gl.deleteProgram(this.program)
+      if (this.vao) gl.deleteVertexArray(this.vao)
+    }
+    // The markup was borrowed, not owned.
+    if (this.image) this.image.style.visibility = ''
     this.gl = null
+    this.program = null
+    this.vao = null
+    this.texture = null
+    this.image = null
+    this.locations.clear()
   }
 }
 
 /**
- * Mount Guilloche into `el`. The element needs a size. Give it width and height
- * in CSS, not just content.
+ * Mount Loupe into `el`. The element needs a size and one `<img>` child.
+ *
+ * ```html
+ * <figure id="plate" style="position: relative; aspect-ratio: 3 / 2">
+ *   <img src="/press.jpg" alt="What the picture shows" />
+ * </figure>
+ * ```
  *
  * ```ts
- * const guilloche = createGuillocheLines(document.querySelector('#bg')!)
- * guilloche.start()
- * // …later
- * guilloche.destroy()
+ * const loupe = createLoupe(document.querySelector('#plate')!)
+ * loupe.start()
  * ```
  */
-export function createGuillocheLines(
-  el: HTMLElement,
-  opts: Partial<GuillocheLinesOptions> = {}
-): EffectHandle {
-  return mount<GuillocheLinesOptions>(el, opts, {
-    defaults: guillocheLinesDefaults,
-    create: () => new GuillocheLinesSurface()
+export function createLoupe(el: HTMLElement, opts: Partial<LoupeOptions> = {}): EffectHandle {
+  return mount<LoupeOptions>(el, opts, {
+    defaults: loupeDefaults,
+    create: () => new LoupeSurface()
   })
 }
 
-export default createGuillocheLines
+export default createLoupe
 ```
 
 ## 2. What it is
 
-Guilloche is the engine-turned line work off a banknote, a share certificate or
-the bezel of a watch, drawn on warm paper.
+A printer's glass laid on the page.
 
-It is not noise and it is not a gradient. A real rose engine cuts one continuous
-line whose radius is modulated by a set of gears, so the result is a family of
-curves in a strict harmonic relationship. That is what this draws: three
-rosettes, each a circle whose radius wobbles at a whole number of lobes, rendered
-as a line field rather than a fill, and multiplied together the way overlapping
-ink actually behaves.
+The picture is continuous tone until you look closely, and then it is dots. That
+is not a stylisation. It is what a printed photograph is, and it is the one
+thing a screen never shows you: away from the glass the halftone is finer than
+the eye resolves and reads as tone, which is the entire reason printing works at
+all, and under the glass it resolves into four screens at four angles.
 
-The whole-number lobe counts matter. A fractional count gives a curve that never
-closes, and an open curve reads as a mistake rather than as engraving. The three
-families are kept coprime so their interference takes a long time to repeat and
-never settles into a grid.
+So the dots are not drawn at whatever size looks good. They are drawn at
+`screen` pixels in the print and magnified along with everything else, which is
+why turning `zoom` up makes them bigger rather than finer. A screen ruling
+belongs to the press, not to the person looking at it.
 
-One band is printed in a second colour, riding the same field, the way a
-certificate prints one guilloche in red over the rest in black. It is part of the
-engraving rather than a highlight laid on top of it.
+The four angles are 15, 75, 0 and 45 degrees, and they are not decoration.
+Thirty degrees between the strong plates is what keeps their interference down
+to a fine rosette instead of a coarse plaid, and yellow sits at zero because it
+is the plate you cannot see anyway. The ink that all three of cyan, magenta and
+yellow have in common is pulled out and printed as black instead, which is what
+a press does and the reason a shadow in a printed photograph is not a muddy
+brown.
 
-One WebGL2 fragment shader on one full-screen triangle. No noise, no textures, no
-render targets. It is the cheapest effect in the library.
-
-## 3. Wire it in
-
-**Plain HTML.** The element needs a size of its own.
-
-```html
-<div id="backdrop" style="position: fixed; inset: 0; z-index: -1"></div>
-
-<script type="module">
-  import { createGuillocheLines } from './beamish/effects/guilloche-lines/core.js'
-
-  const guilloche = createGuillocheLines(document.querySelector('#backdrop'), {
-    lobes: 7,
-    period: 40
-  })
-  guilloche.start()
-</script>
-```
-
-**React.** Start in an effect, destroy in its cleanup. StrictMode runs the effect
-twice in development, which is fine, because `destroy()` fully releases the
-context.
-
-```tsx
-import { useEffect, useRef } from 'react'
-import { createGuillocheLines } from '@/beamish/effects/guilloche-lines/core'
-
-export function Backdrop() {
-  const host = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!host.current) return
-    const guilloche = createGuillocheLines(host.current, { period: 40 })
-    guilloche.start()
-    return () => guilloche.destroy()
-  }, [])
-
-  return <div ref={host} className="fixed inset-0 -z-10" />
-}
-```
-
-Do not put option values in the dependency array. Call `update()` instead: every
-option is a uniform, so nothing rebuilds.
-
-**Vue.**
-
-```vue
-<script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref } from 'vue'
-import { createGuillocheLines } from '@/beamish/effects/guilloche-lines/core'
-import type { EffectHandle } from '@/beamish/shared/runtime'
-
-const host = ref<HTMLDivElement | null>(null)
-let guilloche: EffectHandle | null = null
-
-onMounted(() => {
-  if (!host.value) return
-  guilloche = createGuillocheLines(host.value, { period: 40 })
-  guilloche.start()
-})
-
-onBeforeUnmount(() => guilloche?.destroy())
-</script>
-
-<template>
-  <div ref="host" class="backdrop" />
-</template>
-```
-
-**Astro.** Nothing extra is required. The core is a standard ES module with no
-framework in it.
-
-**Behind content.** Raise `period` to 40 and drop `weight` to about 0.2. The
-engraving recedes into a watermark you stop noticing, which is what a certificate
-background is for. Do not reach for opacity: it greys the paper and loses the
-thing that makes it look printed.
+One WebGL2 fragment shader on one full-screen triangle. No three.js, no
+dependency.
 
 ## 4. Options
 
@@ -1101,61 +1207,60 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | The paper the plate is printed on. Match it to your page background. |
-| `ink` | color | `#2f2b26` | any CSS hex | The engraving. A desaturated near-black reads as ink; pure black reads as a wireframe. |
-| `accent` | color | `#c44400` | any CSS hex | The second colour, printed over one band of the pattern the way a share certificate prints one guilloche in red over the rest in black. |
-| `scale` | number | `1.9` | 0.2 to 3 (looks right between 0.6 and 1.4) | Size of the whole rosette. Below about 0.5 the lines are finer than the pixels and the plate turns grey. |
-| `pitch` | number | `10` | 4 to 80 (looks right between 14 and 40) | Lines per unit of radius. Higher is finer engraving, and past about 50 it stops resolving on anything but a retina screen. |
-| `lobes` | number | `7` | 2 to 24 (looks right between 5 and 12) | Lobes on the first rosette. Whole numbers only: a fractional lobe count gives a curve that never closes, and an open curve reads as a mistake rather than as engraving. The other two families are derived from this and kept coprime to it. |
-| `waves` | number | `9` | 4 to 80 (looks right between 12 and 40) | Spokes in the family that runs around the circle rather than out from it. This is what turns two ring families into woven guilloche instead of a moire. |
-| `depth` | number | `0.12` | 0 to 0.4 (looks right between 0.04 and 0.14) | How far each rosette's radius wobbles. Zero is concentric circles. Past about 0.2 the curves cross themselves and the weave becomes a tangle. |
-| `weight` | number | `0.18` | 0 to 1 (looks right between 0.2 and 0.55) | Weight of the engraved line. Heavy lines at a high pitch fill in solid, so raise one and lower the other. |
-| `accentBand` | number | `0.22` | 0 to 1.2 (looks right between 0.1 and 0.5) | Where the second colour sits, as a radius from the centre. Set it past the corner of the panel to switch the second colour off. |
-| `grain` | number | `0.28` | 0 to 1 | Paper tooth. Static by design. Animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent. |
-| `period` | number | `36` | 4 to 180 s (looks right between 6 and 60) | Seconds for one turn of the gears. The pattern is exactly periodic over this. Slow on purpose: a backdrop whose cycle you can follow is a backdrop competing with the page, and at a turn every few seconds the eye tracks the rosette instead of reading. 60 is better still and the only reason it is not the default is the preview video, which is fine lines at every scale and the worst thing there is to compress. |
-| `reducedMotionTime` | number | `5` | 0 to 180 s | The single frame shown when the user prefers reduced motion. Any time works: a still guilloche is an engraving, which is a finished thing to look at. |
+| `paper` | color | `#fbfaf4` | any CSS hex | The sheet the picture is printed on. It shows between the dots, so it is most of what you see in the light passages under the glass. |
+| `cyan` | color | `#1fb6e3` | any CSS hex | The cyan plate. |
+| `magenta` | color | `#e5157f` | any CSS hex | The magenta plate. |
+| `yellow` | color | `#ffe800` | any CSS hex | The yellow plate. Barely visible on its own, which is why it goes at zero degrees where the interference would show most. |
+| `black` | color | `#2b2721` | any CSS hex | The black plate, which also tints the barrel. A desaturated near-black reads as ink; pure black reads as a hole. |
+| `size` | number | `0.26` | 0.05 to 0.6 | Radius of the glass, as a share of the short side, so it keeps its size when the element changes shape. Past about 0.4 it stops being a glass on a picture and becomes a picture with a border. |
+| `zoom` | number | `2.6` | 1 to 12 | How much it magnifies. This magnifies the screen as well as the picture, because the ruling belongs to the press: turning it up makes the dots bigger, never finer. |
+| `screen` | number | `2` | 1 to 12 | The print's screen ruling, as a cell in CSS pixels before magnification. Low is a fine screen and a magazine; high is a coarse one and a newspaper. Below about 2 the rosette is finer than the glass can show and you get tone under the glass as well as outside it, which is the one setting that defeats the whole thing. |
+| `bulge` | number | `0.35` | 0 to 1 | How much the magnification eases off towards the rim, the way a real lens does. At 0 the glass magnifies evenly and the edge reads as a hole cut in the picture rather than as something resting on it. |
+| `fringe` | number | `0.012` | 0 to 0.06 | Lateral colour at the rim. Every simple lens has it and every one shows it most at the edge, so a little is what makes the glass read as glass. Past about 0.03 it reads as a broken monitor. |
+| `rim` | number | `0.8` | 0 to 1 | How strongly the barrel reads: the ring and the short fall into shade just inside it. This is what makes the glass an object sitting on the page rather than a filter applied to part of it. |
+| `grain` | number | `0.3` | 0 to 1 | Paper tooth over the whole thing, inside the glass and out. |
 
 ## 5. Cleanup and SSR
 
-`destroy()` releases the WebGL context, cancels the RAF, disconnects both
-observers and removes every listener. Call it.
+`destroy()` releases the WebGL context, deletes the texture, cancels the RAF,
+disconnects both observers, removes every listener and puts the `<img>` back the
+way it found it. Call it.
 
 A page that mounts and unmounts demos without destroying them will hit the
 browser's context limit, which is 16 contexts or 16,777,216 pixels, whichever
-runs out first. Past that the browser starts killing the oldest context.
+runs out first.
 
-None of this runs on the server. `createGuillocheLines` touches `document` and
-`matchMedia` at call time. Put the call inside `useEffect`, `onMounted`, or a
-`client:*` island. Next.js App Router needs `'use client'` at the top of the
-component file.
+None of this runs on the server. Put the call inside `useEffect`, `onMounted`,
+or a `client:*` island. Next.js App Router needs `'use client'`.
 
 ## 6. Pausing and reduced motion
 
-WCAG 2.2.2 is Level A: content that moves for more than five seconds must be
-pausable. `stop()` and `start()` are on the handle for that. Surface them as a
-real control in your own build. Reduced motion does not cover this, and plenty of
-people who need a pause button have not set that preference.
+Nothing moves unless the cursor does, which puts this outside WCAG 2.2.2 rather
+than exempting it from it. `stop()` and `start()` are still on the handle.
 
-Handled in the runtime with a live `matchMedia` listener. Under reduced motion
-the loop never starts and one frame is drawn at `reducedMotionTime`.
-
-This effect needs no care here. Any frame of it is an engraving, which is a
-finished thing to look at, so the default is as good as any other number.
+Handled in the runtime. Under reduced motion the loop never starts and one frame
+is drawn, which means the glass never appears and what you have is the
+photograph. That is the right resting state rather than a compromise: the
+picture is the content and the glass was always an extra.
 
 ## 7. The three mistakes most likely to be made here
 
-1. **Passing a fractional `lobes`.** The curve then never closes on itself, and
-   what you get is a spiral with a visible join rather than a rosette. The option
-   is stepped to whole numbers for that reason; if you set it from code, round it.
+1. **A cross-origin image.** `texImage2D` throws a SecurityError on an image
+   from another origin without CORS headers, and the catch is that it throws at
+   upload rather than at load, so the picture appears and the glass does not.
+   Serve the image from your own origin or set `crossorigin`.
 
-2. **Raising `pitch` and `weight` together.** Fine lines and heavy weight fill in
-   solid, and the centre of the rosette goes black first because that is where
-   the field changes fastest. Raise one and lower the other.
+2. **Setting `screen` very low to make it look sharper.** It makes the rosette
+   finer than the glass can show, so the magnified patch is tone and the whole
+   point of the thing is gone. Coarser is the direction that helps.
 
-3. **Mounting it into an element with no height.** The canvas is `width: 100%;
-   height: 100%`, so a `<div>` with no content and no CSS height is zero pixels
-   tall and renders nothing. Give the host `position: fixed; inset: 0`, or an
-   explicit height.
+3. **Expecting the dots to stay the same size as you zoom.** They are in the
+   print, so they magnify. An effect where they did not would be a screen laid
+   over the viewer's eye rather than over the paper.
+
+4. **Using it on a decorative background behind text.** It magnifies, so
+   whatever is under the glass moves, and moving the background of a paragraph
+   somebody is reading is the one thing a page should not do.
 
 ---
 

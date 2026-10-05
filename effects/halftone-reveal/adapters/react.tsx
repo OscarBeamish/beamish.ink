@@ -5,17 +5,24 @@
 
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { createHalftoneReveal, type HalftoneRevealOptions } from '../core'
 import type { EffectHandle } from '../../../shared/runtime'
 
 export type HalftoneRevealProps = Partial<HalftoneRevealOptions> & {
   className?: string
+  /*
+   * The pictures. This effect reads them out of the host element rather than
+   * taking them as an option, so an adapter that rendered an empty div gave
+   * you a blank panel and no error. Your own <img> markup, your own alt text,
+   * your own loading attribute.
+   */
+  children?: ReactNode
   /** Set false to mount without starting. Useful behind your own pause control. */
   autoStart?: boolean
 }
 
-export function Spool({ className, autoStart = true, ...options }: HalftoneRevealProps) {
+export function Spool({ className, children, autoStart = true, ...options }: HalftoneRevealProps) {
   const host = useRef<HTMLDivElement>(null)
   const handle = useRef<EffectHandle | null>(null)
 
@@ -37,7 +44,11 @@ export function Spool({ className, autoStart = true, ...options }: HalftoneRevea
     handle.current?.update(options)
   })
 
-  return <div ref={host} className={className} />
+  return (
+    <div ref={host} className={className}>
+      {children}
+    </div>
+  )
 }
 
 export default Spool

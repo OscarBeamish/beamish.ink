@@ -1,28 +1,27 @@
 /*
- * React adapter for Spool. Thin on purpose. It wires a ref to the core and
+ * React adapter for Glass. Thin on purpose. It wires a ref to the core and
  * nothing else. If you find yourself adding logic here, it belongs in core.ts.
  */
 
 'use client'
 
 import { useEffect, useRef, type ReactNode } from 'react'
-import { createScrollWarpImage, type ScrollWarpImageOptions } from '../core'
+import { createLoupe, type LoupeOptions } from '../core'
 import type { EffectHandle } from '../../../shared/runtime'
 
-export type ScrollWarpImageProps = Partial<ScrollWarpImageOptions> & {
+export type LoupeProps = Partial<LoupeOptions> & {
   className?: string
   /*
-   * The pictures. This effect reads them out of the host element rather than
-   * taking them as an option, so an adapter that rendered an empty div gave
-   * you a blank panel and no error. Your own <img> markup, your own alt text,
-   * your own loading attribute.
+   * The picture. The effect reads it out of the host element rather than taking
+   * it as an option, so this is your own <img> markup: your alt text, your
+   * loading attribute, and a page whose script never runs still shows it.
    */
   children?: ReactNode
   /** Set false to mount without starting. Useful behind your own pause control. */
   autoStart?: boolean
 }
 
-export function Spool({ className, children, autoStart = true, ...options }: ScrollWarpImageProps) {
+export function Glass({ className, children, autoStart = true, ...options }: LoupeProps) {
   const host = useRef<HTMLDivElement>(null)
   const handle = useRef<EffectHandle | null>(null)
 
@@ -30,7 +29,7 @@ export function Spool({ className, children, autoStart = true, ...options }: Scr
   // dependencies here, so changing one does not rebuild the whole scene.
   useEffect(() => {
     if (!host.current) return
-    const effect = createScrollWarpImage(host.current, options)
+    const effect = createLoupe(host.current, options)
     handle.current = effect
     if (autoStart) effect.start()
     return () => {
@@ -51,4 +50,4 @@ export function Spool({ className, children, autoStart = true, ...options }: Scr
   )
 }
 
-export default Spool
+export default Glass
