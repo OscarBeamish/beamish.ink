@@ -154,7 +154,9 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'stipple-field': () => import('@items/effects/stipple-field/core'),
     'pointer-filings': () => import('@items/effects/pointer-filings/core'),
     'misprint-text': () => import('@items/effects/misprint-text/core'),
-    'spotlight-card': () => import('@items/effects/spotlight-card/core')
+    'spotlight-card': () => import('@items/effects/spotlight-card/core'),
+    'pointer-trail': () => import('@items/effects/pointer-trail/core'),
+    'watermark-sheet': () => import('@items/effects/watermark-sheet/core')
   }
 
   const COMPONENTS: Record<string, () => Promise<{ mount(el: HTMLElement): Mounted }>> = {

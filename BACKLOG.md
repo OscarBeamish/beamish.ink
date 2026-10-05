@@ -75,7 +75,7 @@ dark-canvas assumption, so most entries here are recasts rather than ports.
 | Guilloche | Waves, Line Waves, Sliced Waves | 1 | The engraved wave pattern on a banknote. Three of theirs, one of ours |
 | StippleField | Dot Grid, Dot Field | 1 | **done**. Tone is the number of marks, not their size, which is what separates a stipple from a halftone |
 | Contour | Topography | 1 | **done**, as a lit relief rather than a flat shader |
-| Watermark | Silk | 2 | Light through paper. **recast** |
+| WatermarkSheet | Silk | 2 | **done**. Laid lines, chain lines, formation and a wire device. Everything lightens, because everything is somewhere the sheet is thinner |
 | Weft | Threads, Web Threads, Floating Lines | 2 | Woven fibre. Three of theirs, one of ours |
 | Rake | Light Rays, Side Rays, Light Pillar, Lightfall, Beams | 2 | Raking light across a surface. Five of theirs, one of ours |
 | Tooth | Noise, Grainient | 2 | Paper grain as the whole subject |
@@ -102,7 +102,7 @@ dark-canvas assumption, so most entries here are recasts rather than ports.
 | Spark | Click Spark | 1 | Cheap, popular, and genuinely useful |
 | Magnet | Magnet | 1 | **done** |
 | PointerFilings | Magnet Lines | 1 | **done**. The real dipole expression, so the field loops rather than radiating |
-| Trail | Image Trail, Pixel Trail | 1 | Two of theirs, one of ours |
+| PointerTrail | Image Trail, Pixel Trail | 1 | **done**. Marks that get wider and paler with age, which is ink soaking in rather than a particle dying |
 | Splash | Splash Cursor | 2 | Fluid sim. The most expensive item in this table |
 | Reticle | Target Cursor, Crosshair | 2 | |
 | Comet | Blob Cursor, Ghost Cursor, Glow Cursor | 2 | Three of theirs, one of ours |

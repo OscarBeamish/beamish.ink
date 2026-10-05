@@ -1,0 +1,166 @@
+{
+  "name": "WatermarkSheet",
+  "slug": "watermark-sheet",
+  "tier": 1,
+  "description": "Handmade paper held up to the light, with laid lines, chain lines and a wire device",
+  "category": "backdrops",
+  "tags": [
+    "webgl",
+    "shader",
+    "paper",
+    "watermark",
+    "laid",
+    "backdrop",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "Everything here is thickness rather than ink. Paper is translucent, so what shows against a light is where the sheet is thinner, and every term lightens rather than darkens",
+      "Laid lines are a ripple and chain lines are a band, because a sheet follows fine wires and is drawn down sharply over thick ones",
+      "The device is drawn as a signed distance, so the wire keeps an even thickness all the way round, which a wire does",
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 1.0,
+    "contexts": 1,
+    "notes": [
+      "Four octaves of value noise for the formation, two trigonometric terms for the wires, one distance for the device",
+      "Nothing is uploaded per frame. Only uniforms change",
+      "No loops and no branching, so the cost is flat across the frame"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/watermark-sheet/core.ts",
+      "to": "src/beamish/effects/watermark-sheet/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/watermark-sheet/adapters/react.tsx",
+      "to": "src/beamish/effects/watermark-sheet/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/watermark-sheet/adapters/vue.ts",
+      "to": "src/beamish/effects/watermark-sheet/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "paper": {
+      "type": "color",
+      "default": "#efede7",
+      "description": "The sheet seen front on, before any light comes through it. Slightly deeper than the page, so there is somewhere for the thin parts to brighten into."
+    },
+    "light": {
+      "type": "color",
+      "default": "#fffdf6",
+      "description": "What comes through where the sheet is thinnest. Everything here lightens toward this; nothing darkens, because every feature is somewhere the paper is thinner."
+    },
+    "laid": {
+      "type": "number",
+      "default": 0.18,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How much light the close-set mould wires let through. A ripple rather than hard lines: the sheet follows fine wires rather than being drawn down over them."
+    },
+    "laidPitch": {
+      "type": "number",
+      "default": 210,
+      "min": 40,
+      "max": 600,
+      "step": 10,
+      "description": "Laid wires across the sheet. A real mould has them roughly a millimetre apart, so this wants to be high enough that they are a texture rather than a pattern."
+    },
+    "chain": {
+      "type": "number",
+      "default": 0.3,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How much light the heavy cross wires let through. A narrow band rather than a ripple, because the sheet is drawn down sharply over a thick wire."
+    },
+    "chainPitch": {
+      "type": "number",
+      "default": 1.6,
+      "min": 0.3,
+      "max": 8,
+      "step": 0.1,
+      "description": "Chain wires across the sheet. Rarely more than a handful: they sit about an inch apart on a real mould, and crowding them is the quickest way to stop it looking like paper."
+    },
+    "formation": {
+      "type": "number",
+      "default": 0.5,
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05,
+      "description": "How unevenly the fibres settled. This is most of what separates a handmade sheet from a machine one, and at 0 you have made cartridge paper."
+    },
+    "cloud": {
+      "type": "number",
+      "default": 2.4,
+      "min": 0.3,
+      "max": 10,
+      "step": 0.1,
+      "description": "Size of the cloudiness. Lower is a coarser, blotchier sheet."
+    },
+    "device": {
+      "type": "number",
+      "default": 0.45,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How brightly the wire device shows. The sheet is much thinner there than anywhere else, so it is the brightest thing present. Zero for a plain laid sheet with no watermark."
+    },
+    "deviceSize": {
+      "type": "number",
+      "default": 0.26,
+      "min": 0.05,
+      "max": 0.6,
+      "step": 0.01,
+      "description": "Size of the device, as a share of the short side."
+    },
+    "angle": {
+      "type": "number",
+      "default": 4,
+      "min": -45,
+      "max": 45,
+      "step": 1,
+      "description": "Angle of the mould to the frame. A few degrees off square, because a sheet is not laid down obediently aligned to anything."
+    },
+    "grain": {
+      "type": "number",
+      "default": 0.35,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Paper tooth over the whole thing."
+    },
+    "period": {
+      "type": "number",
+      "default": 16,
+      "min": 4,
+      "max": 180,
+      "step": 1,
+      "description": "Seconds for one slow tilt against the light. Nothing moves on the sheet; the sheet moves. A closed orbit, so it returns to exactly where it began."
+    }
+  },
+  "instruction": "ambient, the sheet tilts against the light",
+  "oneShot": false,
+  "record": {
+    "duration": 16,
+    "fps": 30,
+    "posterAt": 5,
+    "crf": 32,
+    "webmCrf": 48
+  }
+}

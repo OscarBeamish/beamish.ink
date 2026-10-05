@@ -2309,6 +2309,175 @@
     "intro": "Swell is a field of matte forms standing on paper, rippling around the cursor.\n324 of them by default, drawn as one instanced mesh, lit by a single sun with a\nreal shadow map. Same family as Sundial: matte forms, warm paper, shadows doing\nthe work.\n\nThe ripple is a standing wave centred on the pointer rather than a propagating\none with memory. That is a deliberate constraint. A wave with history integrates\nagainst the previous frame, and `renderAtTime` has to be pure in `t` or the\neffect cannot be recorded or scrubbed. A standing wave that follows the cursor is\nindistinguishable at a glance and reproducible to the pixel.\n\nWith no pointer the field keeps a slow diagonal swell of its own, so it is alive\nbefore anyone touches it and the loop still closes.\n\nThe crest is tinted towards the accent colour. That is what makes the wave\nlegible in a still frame, which matters for the poster, for reduced motion, and\nfor anybody who arrives on a touch screen."
   },
   {
+    "name": "PointerTrail",
+    "slug": "pointer-trail",
+    "tier": 1,
+    "description": "Marks pressed into the paper behind the cursor, spreading as they soak in",
+    "category": "pointer",
+    "tags": [
+      "webgl",
+      "shader",
+      "pointer",
+      "trail",
+      "ink",
+      "no-dependencies"
+    ],
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "An older mark is wider and paler than a new one, because paper draws ink sideways along its fibres while it sinks in. That is the opposite of a particle trail, where older means smaller",
+        "The marks multiply rather than compositing, so two that overlap are darker than either",
+        "A trail needs history, which is not a function of t. When pointerPath is set the whole track is known in advance and the trail is read backwards off it instead of accumulated, so a recorded take is identical however the frames are asked for. A live pointer falls back to a ring buffer",
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 1.2,
+      "contexts": 1,
+      "notes": [
+        "One distance and one smoothstep per mark per pixel, and the loop stops at the number of marks actually held",
+        "The mark positions are a single vec2 array uniform, uploaded once per frame",
+        "Cost scales with the mark count rather than with how far the cursor has moved"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/pointer-trail/core.ts",
+        "to": "src/beamish/effects/pointer-trail/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/pointer-trail/adapters/react.tsx",
+        "to": "src/beamish/effects/pointer-trail/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/pointer-trail/adapters/vue.ts",
+        "to": "src/beamish/effects/pointer-trail/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "paper": {
+        "type": "color",
+        "default": "#fbfaf4",
+        "description": "The sheet the marks are pressed into."
+      },
+      "ink": {
+        "type": "color",
+        "default": "#8d8577",
+        "description": "Ink that has soaked in. Most of the trail is this."
+      },
+      "accent": {
+        "type": "color",
+        "default": "#c44400",
+        "description": "Ink that has only just landed, at the head of the trail."
+      },
+      "marks": {
+        "type": "number",
+        "default": 22,
+        "description": "How many marks the trail holds. The shader has room for 28; asking for more silently gives you 28, because the array is a fixed size and growing it means editing the shader as well.",
+        "min": 2,
+        "max": 28,
+        "step": 1
+      },
+      "size": {
+        "type": "number",
+        "default": 0.032,
+        "description": "Radius of a fresh mark, as a share of the short side, so it keeps its proportion when the element changes shape.",
+        "min": 0.005,
+        "max": 0.2,
+        "step": 0.005
+      },
+      "spread": {
+        "type": "number",
+        "default": 1.6,
+        "description": "How much wider a mark gets by the end of its life. Paper draws ink sideways along its fibres, so an old mark is bigger than a new one. This is the opposite of a particle trail and it is the main thing that makes it read as ink.",
+        "min": 0,
+        "max": 4,
+        "step": 0.1
+      },
+      "fade": {
+        "type": "number",
+        "default": 1.8,
+        "description": "How quickly a mark gives up. Higher is a shorter trail with a harder end; lower leaves a long tail that never quite goes.",
+        "min": 0.2,
+        "max": 6,
+        "step": 0.1
+      },
+      "edge": {
+        "type": "number",
+        "default": 0.85,
+        "description": "How much of a mark is its soft shoulder rather than its body. Ink on a fibrous surface has no edge to speak of, so this wants to be high; at 0 you get discs.",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "spacing": {
+        "type": "number",
+        "default": 0.035,
+        "description": "Seconds between one mark and the next when the trail is replayed from a scripted path. It has no effect on a live pointer, where one mark is laid per frame.",
+        "min": 0.005,
+        "max": 0.2,
+        "step": 0.005
+      },
+      "grain": {
+        "type": "number",
+        "default": 0.4,
+        "description": "Paper tooth under the marks.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      }
+    },
+    "instruction": "move the cursor across it",
+    "oneShot": false,
+    "cursor": {
+      "duration": 3,
+      "keys": [
+        {
+          "t": 0,
+          "x": 0.08,
+          "y": 0.62
+        },
+        {
+          "t": 0.75,
+          "x": 0.42,
+          "y": 0.18
+        },
+        {
+          "t": 1.5,
+          "x": 0.72,
+          "y": 0.78
+        },
+        {
+          "t": 2.25,
+          "x": 0.93,
+          "y": 0.3
+        },
+        {
+          "t": 3,
+          "x": 0.08,
+          "y": 0.62
+        }
+      ]
+    },
+    "record": {
+      "duration": 3,
+      "fps": 30,
+      "posterAt": 1.1,
+      "crf": 30
+    },
+    "group": "effects",
+    "intro": "Marks pressed into the paper behind the cursor, spreading as they soak in.\n\nNot a comet and not a glow. A nib touching down repeatedly leaves a row of blots,\nand each one does two things while it sits there. It **spreads**, because the\npaper draws the ink sideways along its fibres. And it **lightens**, because the\nink is sinking in. So an older mark here is wider and paler than a new one, which\nis the opposite of a particle trail, where older means smaller, and it is the\nsingle thing that makes this read as ink rather than as a cursor with a tail.\n\nThe marks multiply rather than compositing, so two that overlap are darker than\neither. The head of the trail carries the accent, because ink that has only just\nlanded has not had time to sink.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency."
+  },
+  {
     "name": "ScrambleText",
     "slug": "scramble-text",
     "tier": 1,
@@ -3826,5 +3995,173 @@
     },
     "group": "effects",
     "intro": "A loose stack of translucent paper, drifting. Where two sheets cross the paper\ngoes darker, and you can read the order of the pile by how dark it gets.\n\nThe blend mode is the whole design. These sheets multiply rather than composite:\nthe result is destination times source, which is what a diffusing sheet laid over\nanother one actually does. More usefully, multiplying is order-independent. Two\nsheets crossing give the same answer whichever is drawn first.\n\nThat matters more than it sounds. Ordinary alpha-blended transparency has to be\nsorted back to front, and there is no way to sort inside a single InstancedMesh,\nso stacked-plane scenes usually either flicker as the sort order flips or give up\non instancing and take a draw call per sheet. Multiplying sidesteps the problem\nrather than solving it. Fourteen sheets draw in one call, in any order, and the\npicture is the same.\n\nThe cost is real and worth stating. Nothing here can be brighter than the paper.\nA multiply has no way to add light, so there is no specular highlight and there\ncannot be one. Where a sheet turns into the light it fades toward no tint at all,\nwhich within a multiply is the only direction \"brighter\" exists in, and which\nhappens to be what paper catching a lamp looks like anyway.\n\nThere is no shadow map either. Nothing in the scene is opaque enough to cast one,\nand a translucent sheet throwing a hard shadow is the tell that gives these scenes\naway. The overlaps are the depth cue.\n\nConcept credit: [Infinite Liquid Glass\nGrid](https://tympanus.net/codrops/), Codrops, September 2026, for the idea that\nthe glass can be faked in the shader with no refraction pass at all. Written from\nscratch, and recast from glass to paper."
+  },
+  {
+    "name": "WatermarkSheet",
+    "slug": "watermark-sheet",
+    "tier": 1,
+    "description": "Handmade paper held up to the light, with laid lines, chain lines and a wire device",
+    "category": "backdrops",
+    "tags": [
+      "webgl",
+      "shader",
+      "paper",
+      "watermark",
+      "laid",
+      "backdrop",
+      "no-dependencies"
+    ],
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "Everything here is thickness rather than ink. Paper is translucent, so what shows against a light is where the sheet is thinner, and every term lightens rather than darkens",
+        "Laid lines are a ripple and chain lines are a band, because a sheet follows fine wires and is drawn down sharply over thick ones",
+        "The device is drawn as a signed distance, so the wire keeps an even thickness all the way round, which a wire does",
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 1,
+      "contexts": 1,
+      "notes": [
+        "Four octaves of value noise for the formation, two trigonometric terms for the wires, one distance for the device",
+        "Nothing is uploaded per frame. Only uniforms change",
+        "No loops and no branching, so the cost is flat across the frame"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/watermark-sheet/core.ts",
+        "to": "src/beamish/effects/watermark-sheet/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/watermark-sheet/adapters/react.tsx",
+        "to": "src/beamish/effects/watermark-sheet/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/watermark-sheet/adapters/vue.ts",
+        "to": "src/beamish/effects/watermark-sheet/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "paper": {
+        "type": "color",
+        "default": "#efede7",
+        "description": "The sheet seen front on, before any light comes through it. Slightly deeper than the page, so there is somewhere for the thin parts to brighten into."
+      },
+      "light": {
+        "type": "color",
+        "default": "#fffdf6",
+        "description": "What comes through where the sheet is thinnest. Everything here lightens toward this; nothing darkens, because every feature is somewhere the paper is thinner."
+      },
+      "laid": {
+        "type": "number",
+        "default": 0.18,
+        "description": "How much light the close-set mould wires let through. A ripple rather than hard lines: the sheet follows fine wires rather than being drawn down over them.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "laidPitch": {
+        "type": "number",
+        "default": 210,
+        "description": "Laid wires across the sheet. A real mould has them roughly a millimetre apart, so this wants to be high enough that they are a texture rather than a pattern.",
+        "min": 40,
+        "max": 600,
+        "step": 10
+      },
+      "chain": {
+        "type": "number",
+        "default": 0.3,
+        "description": "How much light the heavy cross wires let through. A narrow band rather than a ripple, because the sheet is drawn down sharply over a thick wire.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "chainPitch": {
+        "type": "number",
+        "default": 1.6,
+        "description": "Chain wires across the sheet. Rarely more than a handful: they sit about an inch apart on a real mould, and crowding them is the quickest way to stop it looking like paper.",
+        "min": 0.3,
+        "max": 8,
+        "step": 0.1
+      },
+      "formation": {
+        "type": "number",
+        "default": 0.5,
+        "description": "How unevenly the fibres settled. This is most of what separates a handmade sheet from a machine one, and at 0 you have made cartridge paper.",
+        "min": 0,
+        "max": 1.5,
+        "step": 0.05
+      },
+      "cloud": {
+        "type": "number",
+        "default": 2.4,
+        "description": "Size of the cloudiness. Lower is a coarser, blotchier sheet.",
+        "min": 0.3,
+        "max": 10,
+        "step": 0.1
+      },
+      "device": {
+        "type": "number",
+        "default": 0.45,
+        "description": "How brightly the wire device shows. The sheet is much thinner there than anywhere else, so it is the brightest thing present. Zero for a plain laid sheet with no watermark.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "deviceSize": {
+        "type": "number",
+        "default": 0.26,
+        "description": "Size of the device, as a share of the short side.",
+        "min": 0.05,
+        "max": 0.6,
+        "step": 0.01
+      },
+      "angle": {
+        "type": "number",
+        "default": 4,
+        "description": "Angle of the mould to the frame. A few degrees off square, because a sheet is not laid down obediently aligned to anything.",
+        "min": -45,
+        "max": 45,
+        "step": 1
+      },
+      "grain": {
+        "type": "number",
+        "default": 0.35,
+        "description": "Paper tooth over the whole thing.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "period": {
+        "type": "number",
+        "default": 16,
+        "description": "Seconds for one slow tilt against the light. Nothing moves on the sheet; the sheet moves. A closed orbit, so it returns to exactly where it began.",
+        "min": 4,
+        "max": 180,
+        "step": 1
+      }
+    },
+    "instruction": "ambient, the sheet tilts against the light",
+    "oneShot": false,
+    "record": {
+      "duration": 16,
+      "fps": 30,
+      "posterAt": 5,
+      "crf": 32,
+      "webmCrf": 48
+    },
+    "group": "effects",
+    "intro": "A sheet of handmade paper held up to the light.\n\nEverything here is thickness. Paper is translucent, so what you see against a\nlight is not ink but where the sheet is thinner and lets more through. That is\nthe whole premise, and it is why nothing in this effect darkens: every term\nlightens the paper, because every term is somewhere the paper is thinner.\n\nThree of them come from the mould the sheet was formed on, not from the pulp.\nThe **laid lines** are its close-set wires, so the sheet is very slightly thinner\nover each one. The **chain lines** are the heavier wires at right angles holding\nthose together, an inch or so apart. And the **formation** is the cloudiness:\nfibres never settle evenly, and that blotchy variation is most of what separates\na handmade sheet from a machine one.\n\nThe fourth is the watermark proper, a wire device sewn onto the mould. The sheet\nis much thinner there, which is why a watermark is brighter than everything\naround it and why it only shows against a light.\n\nLaid lines are drawn as a ripple and chain lines as a band, which is not an\narbitrary difference. A forming sheet follows fine wires and is drawn down\nsharply over thick ones.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency."
   }
 ]

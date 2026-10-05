@@ -5,6 +5,28 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.10.0, 5 October 2026
+
+Twenty-five items.
+
+### Added
+
+- PointerTrail (pointer): marks pressed into the paper behind the cursor. An
+  older mark is wider and paler than a new one, because paper draws ink sideways
+  along its fibres while it sinks in. That is the opposite of a particle trail
+  and it is the whole of why this reads as ink.
+- WatermarkSheet (backdrops): handmade paper held up to the light. Laid lines,
+  chain lines, formation and a wire device. Nothing in it darkens, because every
+  feature is somewhere the sheet is thinner and lets more light through.
+
+### Changed
+
+- PointerTrail resolves the one case where a trail cannot be pure in `t`. With a
+  scripted `pointerPath` the whole track is known in advance, so the trail is
+  read backwards off the path rather than accumulated, and a recorded take is
+  identical however the frames are asked for. A live pointer falls back to a ring
+  buffer, which does not need to be replayable.
+
 ## v0.9.0, 5 October 2026
 
 Twenty-three items. Four more P1 entries, one closed without building it.
