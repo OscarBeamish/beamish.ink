@@ -3368,6 +3368,185 @@
     "intro": "Smoke off the cursor, spreading and thinning as it drifts.\n\nNot a comet and not a glow. A puff of smoke does two things while it hangs\nthere. It **widens**, because nothing is holding it together. And it **thins**,\nbecause the same amount of it is spread over more room. So an older puff is\nbigger and fainter than a new one, which is the opposite of a particle trail,\nwhere older means smaller, and it is the single thing that makes this read as\nsmoke rather than as a cursor with a tail.\n\nThe puffs multiply rather than compositing, so two that overlap are denser than\neither. What warmth there is sits at the head, where the smoke has not yet had\nroom to spread.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency."
   },
   {
+    "name": "PrismSpectrum",
+    "slug": "prism-spectrum",
+    "tier": 1,
+    "description": "A beam of white light through a turning prism, split into a spectrum by tracing it rather than drawing it",
+    "category": "backdrops",
+    "tags": [
+      "webgl",
+      "shader",
+      "backdrop",
+      "prism",
+      "dispersion",
+      "spectrum",
+      "dark",
+      "no-dependencies"
+    ],
+    "ground": "dark",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "Built for a dark ground and declared as one. This is light on a ground rather than a pattern on a surface",
+        "The fan is traced, not drawn: sixteen wavelengths, each refracted at the entry face, carried through the glass and refracted again on the way out, each cast as its own ray",
+        "The index comes from Cauchy's equation, n = A + B over lambda squared, which is the two-term fit every glass catalogue starts with. Red bends least and violet most because the index rises towards the blue end, so the ordering is a consequence rather than a choice: reverse the dispersion constant and the spectrum reverses",
+        "The fan is narrow on purpose. A real 60 degree prism in crown glass spreads the visible band by about a degree, which is why a prism throws a long thin spectrum rather than a wide one",
+        "Total internal reflection is handled rather than papered over: where a wavelength cannot leave the second face, no ray is drawn for it, which is a real thing a prism does",
+        "The tints are the CIE 1931 colour matching functions converted to linear sRGB and evaluated at build time. Several are outside the gamut and clamp, which is unavoidable: a monitor cannot show a spectral green, and desaturating the whole spectrum to make it fit would be worse",
+        "The prism rocks rather than spins. A whole turn spends most of its time with the beam missing the glass or leaving by the face it came in through, and the pass through minimum deviation goes by in a moment",
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.6,
+      "contexts": 1,
+      "notes": [
+        "Two ray-triangle intersections for the beam itself, then sixteen refractions and sixteen distance-to-ray tests per pixel. No textures, no noise lookups, no render targets. Measured at 0.57ms for a 960 by 540 canvas, timed with a readPixels after each draw so the number includes the GPU, which makes this the most expensive backdrop in the library and still well inside a frame",
+        "Which face the beam leaves by is worked out once with the middle of the band rather than per wavelength, because the rays inside the glass arrive within a pixel of each other"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/prism-spectrum/core.ts",
+        "to": "src/beamish/effects/prism-spectrum/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/prism-spectrum/adapters/react.tsx",
+        "to": "src/beamish/effects/prism-spectrum/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/prism-spectrum/adapters/vue.ts",
+        "to": "src/beamish/effects/prism-spectrum/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "background": {
+        "type": "color",
+        "default": "#07080c",
+        "description": "The room behind it. Dark, because everything drawn here is light being added to it: on a pale ground the beams have nothing to be brighter than."
+      },
+      "apex": {
+        "type": "number",
+        "default": 60,
+        "description": "Apex angle of the prism. 60 is the one in every textbook and the one that spreads the band usefully; a shallow prism barely splits the light, and past about 75 degrees most of the beam is lost to total internal reflection.",
+        "min": 20,
+        "max": 110,
+        "step": 1,
+        "unit": "deg"
+      },
+      "incidence": {
+        "type": "number",
+        "default": 10,
+        "description": "The angle the beam arrives at. Together with the sway this decides how near the pass is to minimum deviation, which is where the fan is tightest and brightest.",
+        "min": -40,
+        "max": 40,
+        "step": 1,
+        "unit": "deg"
+      },
+      "tilt": {
+        "type": "number",
+        "default": -30,
+        "description": "How the prism is set in the frame. This is the aim: it decides where the spectrum lands and how much of the canvas it crosses, and together with incidence it sets how near the pass is to minimum deviation.",
+        "min": -90,
+        "max": 90,
+        "step": 1,
+        "unit": "deg"
+      },
+      "index": {
+        "type": "number",
+        "default": 1.52,
+        "description": "Cauchy's A, which is roughly the refractive index in the middle of the visible band. 1.52 is crown glass, 1.46 fused silica, 2.42 diamond.",
+        "min": 1.3,
+        "max": 2.2,
+        "step": 0.01
+      },
+      "dispersion": {
+        "type": "number",
+        "default": 0.012,
+        "description": "Cauchy's B, in micrometres squared, and the dispersion itself. 0.0045 is about right for crown glass; flint glass is two or three times that, which is why it is what you cut a chandelier from. At 0 the glass still bends the beam and no longer splits it.",
+        "min": 0,
+        "max": 0.05,
+        "step": 0.0005
+      },
+      "size": {
+        "type": "number",
+        "default": 0.34,
+        "description": "How large the prism is, as a share of the short side of the frame. Larger glass means a longer path inside it and a wider fan on the way out.",
+        "min": 0.1,
+        "max": 0.7,
+        "step": 0.01
+      },
+      "spread": {
+        "type": "number",
+        "default": 0.012,
+        "description": "Width of the beams. This is the one number here that is a drawing decision rather than an optical one: a real beam is as wide as its source, and this is how wide you want it to read.",
+        "min": 0.002,
+        "max": 0.05,
+        "step": 0.001
+      },
+      "brightness": {
+        "type": "number",
+        "default": 1,
+        "description": "Strength of the light. A soft shoulder keeps the crossings from clipping, so a high value goes white where the rays overlap the way a photograph does rather than flattening into a hard patch.",
+        "min": 0.1,
+        "max": 3,
+        "step": 0.01
+      },
+      "glass": {
+        "type": "number",
+        "default": 0.8,
+        "description": "How visible the prism itself is. Low on purpose: the light is the subject, and a prism drawn as a solid object in front of its own spectrum is a paperweight.",
+        "min": 0,
+        "max": 2,
+        "step": 0.01
+      },
+      "sway": {
+        "type": "number",
+        "default": 0.22,
+        "description": "How far the prism rocks, in radians, over one cycle. At 0 it is a still composition, which is a legitimate way to use this and the quietest thing in the library.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "grain": {
+        "type": "number",
+        "default": 0.3,
+        "description": "The sensor noise of a long exposure. Static rather than crawling: film grain that moves is a different effect and a far noisier one.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "period": {
+        "type": "number",
+        "default": 48,
+        "description": "Seconds for one full cycle, and the pace control. Long on purpose: a backdrop has to survive being ignored, and a spectrum sweeping across a page is about as distracting as a backdrop can be.",
+        "min": 12,
+        "max": 120,
+        "step": 1,
+        "unit": "s"
+      }
+    },
+    "instruction": "it rocks on its own",
+    "oneShot": false,
+    "record": {
+      "duration": 48,
+      "fps": 30,
+      "posterAt": 12,
+      "crf": 30
+    },
+    "group": "effects",
+    "intro": "A beam of white light through a slowly turning prism, on a dark ground.\n\nThe fan is **traced, not drawn**. Sixteen wavelengths, each with its own\nrefractive index, each refracted at the entry face, carried through the glass\nand refracted again on the way out, each cast as its own ray.\n\nThat matters because everything people recognise about a prism then falls out\nof it rather than being arranged:\n\n**Red bends least and violet most**, because the refractive index of glass rises\ntowards the blue end. The ordering is not a choice here. Reverse `dispersion`\nand the spectrum reverses, as it would in a material with anomalous dispersion.\n\n**The fan is narrow.** A real 60 degree prism in crown glass spreads the visible\nband by about one degree. That is why a prism throws a long thin spectrum rather\nthan a wide one, and why the picture everybody has in mind is of a spectrum cast\nseveral metres away.\n\n**The spread changes as it turns**, and it is tightest near minimum deviation,\nwhere the beam passes through symmetrically. That is the one moment in the cycle\nwhen the fan narrows and brightens, and it is the detail that says this is being\nworked out rather than painted.\n\n**Some wavelengths do not get out.** Where the angle inside the glass is past\nthe critical angle the ray is totally internally reflected and no line is drawn\nfor it, which is a real thing a prism does and not a case to paper over."
+  },
+  {
     "name": "RelightImage",
     "slug": "relight-image",
     "tier": 1,
