@@ -80,9 +80,11 @@ the intended cost. Do not inline the runtime into each effect.
   and does not read on it is still a bug.
 
   Each item declares its ground in `meta.json` as `ground`: `paper`, `dark`, or
-  `either`. The site panel uses it to decide what to put behind the demo, and
-  the index uses it to group. Say which you are building for before you tune the
-  defaults, because it is the decision the defaults hang off.
+  `either`. The field does not exist yet: it goes in with the first dark item,
+  along with the panel and card work to put something other than paper behind a
+  demo, and that is the first task of that piece rather than a later tidy-up.
+  Either way, say which ground you are building for before you tune anything,
+  because it is the decision the defaults hang off.
 - A backdrop has to survive being ignored. Movement at the edge of vision pulls a
   reader off a headline, which is the one thing a background must not do, so an
   ambient effect wants a long period and a short distance: tens of seconds rather
