@@ -1,29 +1,41 @@
 ## What it is
 
-One picture on a paper web that bows on every edge as it accelerates.
+A photograph on a sheet that is dragged by the scroll.
 
-The same press as ScrollSlideshow, and deliberately the same deformation. The
-sides lag behind the middle, the whole sheet slips against the direction of
-travel, and the inks land a fraction apart while it moves. At rest it lies flat
-and there is no effect at all, which is the point: a reader who has stopped
-scrolling is looking at a photograph rather than at a filter.
+One arc across the width. The sheet is held at its sides, the span between them
+trails behind the direction the page is travelling, and it settles flat the
+moment the scroll stops. Scroll down and it is pulled down; scroll back up and
+it hangs the other way. At rest there is no effect at all, which is the point: a
+reader who has stopped scrolling is looking at a photograph rather than at a
+filter.
 
-What is different is that there is one picture and it never changes, so there is
-no crossfade drawing the eye away from the edges, and the bow runs on **both**
-axes rather than one. The slideshow curves the top and bottom, which is all you
-see of a sheet that is being replaced. Here every edge bends, because the sheet
-is the subject.
+**The shape is the whole thing**, and it is worth saying what it is, because
+there are two curves you could draw here and only one of them is a sheet.
 
-The cross-coupling is the whole trick. Each axis is displaced by how far the
-*other* axis is from the centre: displacing y by a function of x is what curves
-the top and bottom, and doing the same the other way round curves the sides.
-Displacing each axis by its own distance would only stretch the sheet, which
-reads as a zoom.
+```glsl
+uv.y -= velocity * bend * sin(uv.x * PI);
+```
 
-The edges deform with the picture. The bow is applied first and whatever falls
-outside the source is paper, so the boundary bends rather than staying a
-rectangle. There is no geometry here beyond one triangle: the shape of the sheet
-is a by-product of the sampling rather than a mesh.
+Half a period of a sine: zero at both sides, one in the middle, one smooth curve
+with nothing in it to catch the eye. That is a sheet pinned at its edges and
+heavy in the middle, which is what hanging paper does and what the eye already
+knows.
+
+The other curve is the distance from the centre, squared, which is what this
+effect used to do. It pins the middle and throws the sides about, which is the
+same sheet inverted and reads as the frame wobbling rather than as the picture
+being pulled. It also used to bend both axes at once. A sideways bend has no
+edge to run along, so all it does is muddle the shape, and taking it out is most
+of what makes the arc read.
+
+The sign follows the scroll rather than being fixed, because a sheet that always
+sagged downward would be a sheet nothing was pulling.
+
+The edges deform with the picture. The sheet is a rectangle inset from the
+frame, the drag carries its boundary and its contents together, and whatever
+falls outside is paper, so the edges curve rather than staying square. There is
+no geometry here beyond one triangle: the shape of the sheet is a by-product of
+the sampling rather than a mesh.
 
 One WebGL2 fragment shader. No three.js, no dependency, no render targets.
 
@@ -85,14 +97,29 @@ blank texture. Serve the picture from your own origin, or set
 
 ## Tuning it
 
-`bend` is the bow and the first thing to reach for. `slip` is the secondary: the
-whole sheet sliding against the direction of travel, which you feel rather than
-see. Past about 0.15 on `bend` it stops being a press and starts being a
-fisheye.
+`bend` is the arc and the first thing to reach for. `slip` is the secondary: the
+whole sheet sliding against the direction of travel, flat across its width,
+which you feel rather than see.
 
-`reference` is the velocity that counts as full speed. Lower makes the sheet bow
-more readily; too low and an ordinary wheel click maxes it out, which loses you
-the difference between a nudge and a flick.
+Keep the two of them together under `inset * (1 - 2 * inset)`, which is about
+0.08 at the default margin. Past that a hard flick pushes the bent edge off the
+frame and the curve ends in a straight cut, which is the one thing the inset
+exists to prevent. Measured on the default plate: at rest the sheet sits 55px
+in on a 540px frame, an ordinary flick pulls it down 16px with 7px of sag in the
+middle, and a flick hard enough to saturate `reference` pulls it 27px with 14px
+of sag, which still leaves 14px of margin under it.
+
+`inset` is that margin, as a share of the frame and the same on all four sides
+whatever shape the picture is. Worth knowing if you are porting the earlier
+version of this: the margin used to be made by widening the sampling window,
+which only produced one on the axis the cover fit was not already cropping. A
+3:2 photograph in a 16:9 frame came out with paper down the sides and the sheet
+running edge to edge top and bottom, which is the one axis this effect needs
+room on.
+
+`reference` is the velocity that counts as full speed. Lower makes the sheet
+pull more readily; too low and an ordinary wheel click maxes it out, which loses
+you the difference between a nudge and a flick.
 
 If you cannot see it at all, the reason is almost always that the host is too
 short, so there is no room to build any speed. Give it height before you touch
@@ -145,7 +172,7 @@ a `client:*` island. Next.js App Router needs `'use client'`.
 
 ## Common mistakes
 
-1. **Leaving `paper` on the default when the page is not.** The bow pulls the
+1. **Leaving `paper` on the default when the page is not.** The drag pulls the
    sheet away from the frame and `paper` is what shows in the gap. If it does not
    match the page behind, a border appears out of nowhere whenever somebody
    scrolls, and only while they scroll, which is a maddening thing to debug.

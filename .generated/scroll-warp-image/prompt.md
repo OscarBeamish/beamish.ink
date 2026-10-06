@@ -1,6 +1,6 @@
 You are adding **ScrollWarpImage** from Beamish to this project.
 
-> One picture on a paper web that bows on every edge as it accelerates. Surfaces · effect · MIT.
+> A sheet that is dragged down by the scroll and settles flat when it stops. Surfaces · effect · MIT.
 > https://beamish.ink/effects/scroll-warp-image
 
 Beamish is not a package and there is nothing to install from npm. The source
@@ -15,7 +15,8 @@ Assume you have not seen this library before. Everything you need is below.
 - **npm dependencies:** None. This file has no npm dependencies at all.
 - WebGL2. There is no WebGL1 fallback
 - The picture is the host element's own <img> child. It is hidden from sight and left in the document, so the alt text is whatever you wrote and a page with no JavaScript still shows it
-- The same deformation as ScrollSlideshow, run on both axes rather than one, so every edge of the sheet bends instead of just the top and bottom
+- One arc across the width, sin(pi x), so the sheet is held at its sides and trails in the middle. The sign follows the scroll: down the page pulls it down, back up hangs it the other way
+- The sheet is a rectangle inset from the frame and the drag carries its boundary with its contents, so the edges curve rather than staying square. Nothing is done to the horizontal axis: a sideways bend has no edge to run along and reads as the picture breathing
 - At rest nothing is distorted. The whole effect is a function of scroll velocity, so a reader who has stopped scrolling is looking at a photograph
 - One WebGL2 context, one full-screen triangle, no buffers and no attributes
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
@@ -39,30 +40,42 @@ compiles and looks wrong.
 
 ## 2. What it is
 
-One picture on a paper web that bows on every edge as it accelerates.
+A photograph on a sheet that is dragged by the scroll.
 
-The same press as ScrollSlideshow, and deliberately the same deformation. The
-sides lag behind the middle, the whole sheet slips against the direction of
-travel, and the inks land a fraction apart while it moves. At rest it lies flat
-and there is no effect at all, which is the point: a reader who has stopped
-scrolling is looking at a photograph rather than at a filter.
+One arc across the width. The sheet is held at its sides, the span between them
+trails behind the direction the page is travelling, and it settles flat the
+moment the scroll stops. Scroll down and it is pulled down; scroll back up and
+it hangs the other way. At rest there is no effect at all, which is the point: a
+reader who has stopped scrolling is looking at a photograph rather than at a
+filter.
 
-What is different is that there is one picture and it never changes, so there is
-no crossfade drawing the eye away from the edges, and the bow runs on **both**
-axes rather than one. The slideshow curves the top and bottom, which is all you
-see of a sheet that is being replaced. Here every edge bends, because the sheet
-is the subject.
+**The shape is the whole thing**, and it is worth saying what it is, because
+there are two curves you could draw here and only one of them is a sheet.
 
-The cross-coupling is the whole trick. Each axis is displaced by how far the
-*other* axis is from the centre: displacing y by a function of x is what curves
-the top and bottom, and doing the same the other way round curves the sides.
-Displacing each axis by its own distance would only stretch the sheet, which
-reads as a zoom.
+```glsl
+uv.y -= velocity * bend * sin(uv.x * PI);
+```
 
-The edges deform with the picture. The bow is applied first and whatever falls
-outside the source is paper, so the boundary bends rather than staying a
-rectangle. There is no geometry here beyond one triangle: the shape of the sheet
-is a by-product of the sampling rather than a mesh.
+Half a period of a sine: zero at both sides, one in the middle, one smooth curve
+with nothing in it to catch the eye. That is a sheet pinned at its edges and
+heavy in the middle, which is what hanging paper does and what the eye already
+knows.
+
+The other curve is the distance from the centre, squared, which is what this
+effect used to do. It pins the middle and throws the sides about, which is the
+same sheet inverted and reads as the frame wobbling rather than as the picture
+being pulled. It also used to bend both axes at once. A sideways bend has no
+edge to run along, so all it does is muddle the shape, and taking it out is most
+of what makes the arc read.
+
+The sign follows the scroll rather than being fixed, because a sheet that always
+sagged downward would be a sheet nothing was pulling.
+
+The edges deform with the picture. The sheet is a rectangle inset from the
+frame, the drag carries its boundary and its contents together, and whatever
+falls outside is paper, so the edges curve rather than staying square. There is
+no geometry here beyond one triangle: the shape of the sheet is a by-product of
+the sampling rather than a mesh.
 
 One WebGL2 fragment shader. No three.js, no dependency, no render targets.
 
@@ -74,11 +87,11 @@ as the second argument to the create function; anything omitted takes its defaul
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
 | `paper` | color | `#fbfaf4` | any CSS hex | Shown wherever the warp has pulled the sheet away from the frame. Match it to the page behind, or a border appears out of nowhere as soon as anyone scrolls. |
-| `bend` | number | `0.07` | 0 to 0.3 | How hard the edges lag behind the middle. This is the bow, and it is the option you came for. Each axis is displaced by how far the other one is from the centre, which is what curves the edges rather than stretching the sheet. |
-| `slip` | number | `0.02` | 0 to 0.15 | How far the whole sheet slides against the direction of travel, the way anything with mass does when it is pulled. Small: this is the part you feel rather than see. |
+| `bend` | number | `0.06` | 0 to 0.3 | How far the middle of the sheet trails behind its sides. This is the arc, and it is the option you came for: half a period of a sine across the width, nothing at the edges and everything in the span between them, which is where a sheet being pulled gives. Keep it and slip together under about inset x (1 - 2 x inset), or a hard flick pushes the bent edge off the frame. |
+| `slip` | number | `0.015` | 0 to 0.15 | How far the whole sheet slides against the direction of travel, flat across its width, the way anything with mass does when it is pulled. Small: this is the part you feel rather than see, and it is kept apart from the bend so either can be turned off. |
 | `fringe` | number | `0.005` | 0 to 0.03 | Separation between the colour channels while the sheet is moving. A press strikes one plate per ink and a moving web lands them a fraction apart. Keep it under about 0.01 or it reads as a broken monitor. |
 | `grain` | number | `0.4` | 0 to 1 | Paper tooth over the image. |
-| `inset` | number | `0.09` | 0 to 0.25 | How far the sheet sits in from the frame. At 0 it fills the frame exactly, so the bent edge runs off the side and is chopped square by the canvas: a curve ending in a hard vertical cut, which reads as clipping rather than as paper. A small margin gives the bend somewhere to happen. |
+| `inset` | number | `0.1` | 0 to 0.25 | How far the sheet sits in from every edge of the frame, as a share of the frame. The margin is what the bend happens in: at 0 the bent edge runs off the canvas and is chopped square, which reads as clipping rather than as paper. Measured in the frame rather than in the picture, so a photograph of any shape is inset by the same amount on all four sides. |
 | `reference` | number | `1.6` | 0.2 to 6 | The scroll velocity that counts as full speed, in screens per second. Above it the effect stops growing. Lower makes the sheet bow more readily; too low and an ordinary wheel click maxes it out. |
 
 ## 5. Cleanup and SSR
@@ -109,7 +122,7 @@ somebody who has asked for less motion wants to see.
 
 ## 7. The three mistakes most likely to be made here
 
-1. **Leaving `paper` on the default when the page is not.** The bow pulls the
+1. **Leaving `paper` on the default when the page is not.** The drag pulls the
    sheet away from the frame and `paper` is what shows in the gap. If it does not
    match the page behind, a border appears out of nowhere whenever somebody
    scrolls, and only while they scroll, which is a maddening thing to debug.

@@ -2,7 +2,7 @@
   "name": "ScrollWarpImage",
   "slug": "scroll-warp-image",
   "tier": 1,
-  "description": "One picture on a paper web that bows on every edge as it accelerates",
+  "description": "A sheet that is dragged down by the scroll and settles flat when it stops",
   "category": "surfaces",
   "tags": [
     "webgl",
@@ -19,7 +19,8 @@
     "webgl": "webgl2",
     "notes": [
       "The picture is the host element's own <img> child. It is hidden from sight and left in the document, so the alt text is whatever you wrote and a page with no JavaScript still shows it",
-      "The same deformation as ScrollSlideshow, run on both axes rather than one, so every edge of the sheet bends instead of just the top and bottom",
+      "One arc across the width, sin(pi x), so the sheet is held at its sides and trails in the middle. The sign follows the scroll: down the page pulls it down, back up hangs it the other way",
+      "The sheet is a rectangle inset from the frame and the drag carries its boundary with its contents, so the edges curve rather than staying square. Nothing is done to the horizontal axis: a sideways bend has no edge to run along and reads as the picture breathing",
       "At rest nothing is distorted. The whole effect is a function of scroll velocity, so a reader who has stopped scrolling is looking at a photograph",
       "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
     ]
@@ -63,19 +64,19 @@
     },
     "bend": {
       "type": "number",
-      "default": 0.07,
+      "default": 0.06,
       "min": 0,
       "max": 0.3,
       "step": 0.005,
-      "description": "How hard the edges lag behind the middle. This is the bow, and it is the option you came for. Each axis is displaced by how far the other one is from the centre, which is what curves the edges rather than stretching the sheet."
+      "description": "How far the middle of the sheet trails behind its sides. This is the arc, and it is the option you came for: half a period of a sine across the width, nothing at the edges and everything in the span between them, which is where a sheet being pulled gives. Keep it and slip together under about inset x (1 - 2 x inset), or a hard flick pushes the bent edge off the frame."
     },
     "slip": {
       "type": "number",
-      "default": 0.02,
+      "default": 0.015,
       "min": 0,
       "max": 0.15,
       "step": 0.002,
-      "description": "How far the whole sheet slides against the direction of travel, the way anything with mass does when it is pulled. Small: this is the part you feel rather than see."
+      "description": "How far the whole sheet slides against the direction of travel, flat across its width, the way anything with mass does when it is pulled. Small: this is the part you feel rather than see, and it is kept apart from the bend so either can be turned off."
     },
     "fringe": {
       "type": "number",
@@ -95,11 +96,11 @@
     },
     "inset": {
       "type": "number",
-      "default": 0.09,
+      "default": 0.1,
       "min": 0,
       "max": 0.25,
       "step": 0.005,
-      "description": "How far the sheet sits in from the frame. At 0 it fills the frame exactly, so the bent edge runs off the side and is chopped square by the canvas: a curve ending in a hard vertical cut, which reads as clipping rather than as paper. A small margin gives the bend somewhere to happen."
+      "description": "How far the sheet sits in from every edge of the frame, as a share of the frame. The margin is what the bend happens in: at 0 the bent edge runs off the canvas and is chopped square, which reads as clipping rather than as paper. Measured in the frame rather than in the picture, so a photograph of any shape is inset by the same amount on all four sides."
     },
     "reference": {
       "type": "number",
