@@ -20,6 +20,23 @@ import {
 } from 'vue'
 import './styles.css'
 
+/*
+ * What counts as the space around the plate.
+ *
+ * The usual outside-click test for a dialog is `event.target === dialog`,
+ * because a click on the backdrop is attributed to the dialog element itself.
+ * It is the right test for a dialog that is a box with a backdrop round it,
+ * and it is useless here: this overlay fills the window, so every pixel of it
+ * is inside the dialog and the test never fires once. Asking what the click
+ * was *not* on is the question that survives a full-bleed overlay.
+ */
+const CONTENT =
+  '.beamish-image-gallery-lightbox__open, .beamish-image-gallery-lightbox__controls'
+
+function isEmptySpace(target: EventTarget | null) {
+  return target instanceof Element && !target.closest(CONTENT)
+}
+
 export type ImageGalleryLightboxItem = {
   src: string
   /** What the picture shows. An empty string is legitimate, but deliberate. */
@@ -166,7 +183,12 @@ export const Plate = defineComponent({
       if (isOpen.value) document.documentElement.style.overflow = previousOverflow
     })
 
-    let swipeStart: { x: number; y: number } | null = null
+    let press: {
+      x: number
+      y: number
+      pointerType: string
+      outside: boolean
+    } | null = null
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'ArrowRight') {
@@ -348,42 +370,58 @@ export const Plate = defineComponent({
           onCancel: () => setOpen(null),
           onClose: () => setOpen(null),
           onKeydown: onKeyDown,
-          // A backdrop click lands on the dialog element itself and never on
-          // its children, which is the cheapest reliable outside-click test
-          // there is.
-          onClick: (event: MouseEvent) => {
-            if (event.target === dialog.value) setOpen(null)
+          /*
+           * Press and release, on the dialog rather than on the stage, so a
+           * gesture that starts beside the plate is heard wherever it ends.
+           *
+           * Both ends matter. Closing on the release alone means a drag that
+           * started on the plate, or on a caption somebody was selecting,
+           * throws the overlay away when the mouse happens to come up beside
+           * it. Two targets and a small distance is the whole test.
+           */
+          onPointerdown: (event: PointerEvent) => {
+            press = {
+              x: event.clientX,
+              y: event.clientY,
+              pointerType: event.pointerType,
+              outside: isEmptySpace(event.target)
+            }
+          },
+          onPointercancel: () => {
+            press = null
+          },
+          onPointerup: (event: PointerEvent) => {
+            const start = press
+            press = null
+            if (!start) return
+
+            const dx = event.clientX - start.x
+            const dy = event.clientY - start.y
+
+            /*
+             * A swipe first, and touch only. A small drag with a mouse is the
+             * start of a click, and treating it as a swipe makes the overlay
+             * feel like it is jumping about under the cursor.
+             */
+            if (
+              start.pointerType !== 'mouse' &&
+              Math.abs(dx) >= 48 &&
+              Math.abs(dx) > Math.abs(dy)
+            ) {
+              go(dx < 0 ? 1 : -1)
+              return
+            }
+
+            // Otherwise a tap on the space around the plate, which closes.
+            if (!start.outside || !isEmptySpace(event.target)) return
+            if (Math.abs(dx) > 10 || Math.abs(dy) > 10) return
+            setOpen(null)
           }
         },
         [
           h('h2', { class: 'beamish-image-gallery-lightbox__sr', id: titleId }, props.label),
           h('div', { class: 'beamish-image-gallery-lightbox__inner' }, [
-            h(
-              'div',
-              {
-                class: 'beamish-image-gallery-lightbox__stage',
-                /*
-                 * Touch only. A pointerdown on a mouse is the start of a click,
-                 * and treating a small drag as a swipe there makes the overlay
-                 * feel like it is jumping about under the cursor.
-                 */
-                onPointerdown: (event: PointerEvent) => {
-                  if (event.pointerType === 'mouse') return
-                  swipeStart = { x: event.clientX, y: event.clientY }
-                },
-                onPointerup: (event: PointerEvent) => {
-                  const start = swipeStart
-                  swipeStart = null
-                  if (!start) return
-                  const dx = event.clientX - start.x
-                  const dy = event.clientY - start.y
-                  // Horizontal intent, not a scroll that happens to drift.
-                  if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return
-                  go(dx < 0 ? 1 : -1)
-                }
-              },
-              [renderOpen()]
-            ),
+            h('div', { class: 'beamish-image-gallery-lightbox__stage' }, [renderOpen()]),
             renderControls()
           ])
         ]

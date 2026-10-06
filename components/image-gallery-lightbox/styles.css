@@ -242,6 +242,28 @@
   --plate-from: -1;
 }
 
+/*
+ * The space around the plate closes the overlay, and the cursor is the only
+ * thing that says so before you try it. Nielsen Norman's finding on overlays
+ * is that plenty of people never discover a click outside at all, which is why
+ * it is an addition to the close button rather than a replacement for it.
+ *
+ * zoom-out answers the zoom-in on the sheet: the plate came out of the page
+ * and this is how it goes back.
+ */
+.beamish-image-gallery-lightbox__inner {
+  cursor: zoom-out;
+}
+
+.beamish-image-gallery-lightbox__image {
+  cursor: default;
+}
+
+/* A caption is text, and text that can be selected should say so. */
+.beamish-image-gallery-lightbox__bar {
+  cursor: auto;
+}
+
 .beamish-image-gallery-lightbox__bar {
   display: flex;
   align-items: baseline;

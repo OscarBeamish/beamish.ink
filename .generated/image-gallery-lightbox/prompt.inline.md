@@ -17,6 +17,10 @@ Assume you have not seen this library before. Everything you need is below.
 - The fade uses transition-behavior: allow-discrete and @starting-style; where those are unsupported the overlay appears instantly, which is a graceful loss
 - No carousel library, no focus-trap library, no portal, no scroll-lock package
 - Swipe is Pointer Events, and is ignored for mouse input, where a small drag is the start of a click rather than a gesture
+- The space around the plate closes the overlay, as an addition to the close button rather than a replacement: Nielsen Norman find that many readers never discover a click outside and others use it by accident, and a lightbox is the right place for it because a mistake costs one click to reopen
+- The usual event.target === dialog test does nothing for a full-bleed overlay, because there is no backdrop to click and every pixel is inside the dialog. What the press was not on is the question that survives, so it is a closest() test against the plate and the controls
+- Press and release, both ends checked, so a drag off the plate or a caption being selected does not throw the overlay away. The listener is on the dialog rather than the stage, so a gesture that starts beside the plate is heard wherever it ends
+- closedby=any is deliberately not used. Safari has it in preview only, and native light dismiss fires when press and release both land on the dialog, which is what a horizontal swipe beside the plate does: on a phone the gallery would close instead of moving on
 - React 18+ or Vue 3. This one is a component, not an imperative effect.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -91,6 +95,23 @@ export type ImageGalleryLightboxProps = {
   open?: number | null
   onOpenChange?: (index: number | null) => void
   className?: string
+}
+
+/*
+ * What counts as the space around the plate.
+ *
+ * The usual outside-click test for a dialog is `event.target === dialog`,
+ * because a click on the backdrop is attributed to the dialog element itself.
+ * It is the right test for a dialog that is a box with a backdrop round it,
+ * and it is useless here: this overlay fills the window, so every pixel of it
+ * is inside the dialog and the test never fires once. Asking what the click
+ * was *not* on is the question that survives a full-bleed overlay.
+ */
+const CONTENT =
+  '.beamish-image-gallery-lightbox__open, .beamish-image-gallery-lightbox__controls'
+
+function isEmptySpace(target: EventTarget | null) {
+  return target instanceof Element && !target.closest(CONTENT)
 }
 
 /*
@@ -228,7 +249,12 @@ export function Plate({
     target?.focus()
   }, [isOpen, index])
 
-  const swipeStart = useRef<{ x: number; y: number } | null>(null)
+  const press = useRef<{
+    x: number
+    y: number
+    pointerType: string
+    outside: boolean
+  } | null>(null)
 
   const current = isOpen ? plates[index as number] : undefined
 
@@ -288,10 +314,52 @@ export function Plate({
         data-direction={direction}
         onCancel={() => setOpen(null)}
         onClose={() => setOpen(null)}
-        // A backdrop click lands on the dialog element itself and never on its
-        // children, which is the cheapest reliable outside-click test there is.
-        onClick={event => {
-          if (event.target === dialog.current) setOpen(null)
+        /*
+         * Press and release, on the dialog rather than on the stage, so a
+         * gesture that starts beside the plate is heard wherever it ends.
+         *
+         * Both ends matter. Closing on the release alone means a drag that
+         * started on the plate, or on a caption somebody was selecting, throws
+         * the overlay away when the mouse happens to come up beside it. Two
+         * targets and a small distance is the whole test.
+         */
+        onPointerDown={event => {
+          press.current = {
+            x: event.clientX,
+            y: event.clientY,
+            pointerType: event.pointerType,
+            outside: isEmptySpace(event.target)
+          }
+        }}
+        onPointerCancel={() => {
+          press.current = null
+        }}
+        onPointerUp={event => {
+          const start = press.current
+          press.current = null
+          if (!start) return
+
+          const dx = event.clientX - start.x
+          const dy = event.clientY - start.y
+
+          /*
+           * A swipe first, and touch only. A small drag with a mouse is the
+           * start of a click, and treating it as a swipe makes the overlay
+           * feel like it is jumping about under the cursor.
+           */
+          if (
+            start.pointerType !== 'mouse' &&
+            Math.abs(dx) >= 48 &&
+            Math.abs(dx) > Math.abs(dy)
+          ) {
+            go(dx < 0 ? 1 : -1)
+            return
+          }
+
+          // Otherwise a tap on the space around the plate, which closes.
+          if (!start.outside || !isEmptySpace(event.target)) return
+          if (Math.abs(dx) > 10 || Math.abs(dy) > 10) return
+          setOpen(null)
         }}
         onKeyDown={event => {
           if (event.key === 'ArrowRight') {
@@ -319,28 +387,7 @@ export function Plate({
         </h2>
 
         <div className="beamish-image-gallery-lightbox__inner">
-          <div
-            className="beamish-image-gallery-lightbox__stage"
-            /*
-             * Touch only. A pointerdown on a mouse is the start of a click, and
-             * treating a small drag as a swipe there makes the overlay feel
-             * like it is jumping about under the cursor.
-             */
-            onPointerDown={event => {
-              if (event.pointerType === 'mouse') return
-              swipeStart.current = { x: event.clientX, y: event.clientY }
-            }}
-            onPointerUp={event => {
-              const start = swipeStart.current
-              swipeStart.current = null
-              if (!start) return
-              const dx = event.clientX - start.x
-              const dy = event.clientY - start.y
-              // Horizontal intent, not a scroll that happens to drift.
-              if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return
-              go(dx < 0 ? 1 : -1)
-            }}
-          >
+          <div className="beamish-image-gallery-lightbox__stage">
             {current ? (
               <figure className="beamish-image-gallery-lightbox__open">
                 <img
@@ -677,6 +724,28 @@ export default Plate
 
 .beamish-image-gallery-lightbox[data-direction='-1'] {
   --plate-from: -1;
+}
+
+/*
+ * The space around the plate closes the overlay, and the cursor is the only
+ * thing that says so before you try it. Nielsen Norman's finding on overlays
+ * is that plenty of people never discover a click outside at all, which is why
+ * it is an addition to the close button rather than a replacement for it.
+ *
+ * zoom-out answers the zoom-in on the sheet: the plate came out of the page
+ * and this is how it goes back.
+ */
+.beamish-image-gallery-lightbox__inner {
+  cursor: zoom-out;
+}
+
+.beamish-image-gallery-lightbox__image {
+  cursor: default;
+}
+
+/* A caption is text, and text that can be selected should say so. */
+.beamish-image-gallery-lightbox__bar {
+  cursor: auto;
 }
 
 .beamish-image-gallery-lightbox__bar {

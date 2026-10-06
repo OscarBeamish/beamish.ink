@@ -101,6 +101,52 @@ const [open, setOpen] = useState<number | null>(null)
 <Plate plates={plates} open={open} onOpenChange={setOpen} />
 ```
 
+## Closing it
+
+Four ways: the close button, Escape, the browser's own back gesture, and the
+space around the plate. The last one is the one people reach for without being
+told, and Nielsen Norman's work on overlays is the reason it is an addition
+rather than a replacement. Plenty of readers never discover a click outside, so
+a visible close button stays, and others dismiss by accident, so a lightbox is
+exactly the right place for it: the worst a mistake costs here is one click to
+reopen the plate, which is not true of a form.
+
+The usual test is `event.target === dialog`, because a click on a dialog's
+backdrop is attributed to the dialog element itself. That is right for a dialog
+that is a box with a backdrop around it, and it does nothing for this one. This
+overlay fills the window, so there is no backdrop to click: every pixel is
+inside the dialog, and that test never fires once. The question that survives a
+full-bleed overlay is what the press was *not* on.
+
+```ts
+const CONTENT = '.your-plate__open, .your-plate__controls'
+const isEmptySpace = (target: EventTarget | null) =>
+  target instanceof Element && !target.closest(CONTENT)
+```
+
+Press and release, not click, and both ends are checked. Closing on the release
+alone throws the overlay away when a drag that began on the plate, or on a
+caption somebody was selecting, happens to come up beside it. Both ends have to
+be on empty space and the pointer has to have stayed roughly still.
+
+The listener is on the dialog rather than on the stage, so a gesture that starts
+beside the plate is still heard wherever it ends.
+
+### Why not `closedby="any"`
+
+HTML has a declarative version of this now, and for most dialogs it is the right
+answer: `closedby="any"` gives you light dismiss with the press-and-release rule
+already correct. It is not used here, for two reasons.
+
+It is in Chrome and Edge 134, and Firefox 141. Safari has it in preview only, so
+it would need the fallback written anyway.
+
+More to the point, it would break the swipe. Native light dismiss fires when the
+press and the release both land on the dialog, and a horizontal swipe through
+the space beside the plate does exactly that, so on a phone the gallery would
+close instead of moving on. A full-bleed overlay that owns a gesture is the case
+the attribute is not for.
+
 ## Sizing
 
 The sheet fits its container, not the viewport. `columns` sets the most columns

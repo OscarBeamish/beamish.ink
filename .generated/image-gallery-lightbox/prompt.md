@@ -17,6 +17,10 @@ Assume you have not seen this library before. Everything you need is below.
 - The fade uses transition-behavior: allow-discrete and @starting-style; where those are unsupported the overlay appears instantly, which is a graceful loss
 - No carousel library, no focus-trap library, no portal, no scroll-lock package
 - Swipe is Pointer Events, and is ignored for mouse input, where a small drag is the start of a click rather than a gesture
+- The space around the plate closes the overlay, as an addition to the close button rather than a replacement: Nielsen Norman find that many readers never discover a click outside and others use it by accident, and a lightbox is the right place for it because a mistake costs one click to reopen
+- The usual event.target === dialog test does nothing for a full-bleed overlay, because there is no backdrop to click and every pixel is inside the dialog. What the press was not on is the question that survives, so it is a closest() test against the plate and the controls
+- Press and release, both ends checked, so a drag off the plate or a caption being selected does not throw the overlay away. The listener is on the dialog rather than the stage, so a gesture that starts beside the plate is heard wherever it ends
+- closedby=any is deliberately not used. Safari has it in preview only, and native light dismiss fires when press and release both land on the dialog, which is what a horizontal swipe beside the plate does: on a phone the gallery would close instead of moving on
 - React 18+ or Vue 3. This one is a component, not an imperative effect.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.

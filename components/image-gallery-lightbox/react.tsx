@@ -61,6 +61,23 @@ export type ImageGalleryLightboxProps = {
 }
 
 /*
+ * What counts as the space around the plate.
+ *
+ * The usual outside-click test for a dialog is `event.target === dialog`,
+ * because a click on the backdrop is attributed to the dialog element itself.
+ * It is the right test for a dialog that is a box with a backdrop round it,
+ * and it is useless here: this overlay fills the window, so every pixel of it
+ * is inside the dialog and the test never fires once. Asking what the click
+ * was *not* on is the question that survives a full-bleed overlay.
+ */
+const CONTENT =
+  '.beamish-image-gallery-lightbox__open, .beamish-image-gallery-lightbox__controls'
+
+function isEmptySpace(target: EventTarget | null) {
+  return target instanceof Element && !target.closest(CONTENT)
+}
+
+/*
  * Live, not read once. Someone can change the setting with the page open, and a
  * value captured at mount would then be wrong for the rest of the session.
  */
@@ -195,7 +212,12 @@ export function Plate({
     target?.focus()
   }, [isOpen, index])
 
-  const swipeStart = useRef<{ x: number; y: number } | null>(null)
+  const press = useRef<{
+    x: number
+    y: number
+    pointerType: string
+    outside: boolean
+  } | null>(null)
 
   const current = isOpen ? plates[index as number] : undefined
 
@@ -255,10 +277,52 @@ export function Plate({
         data-direction={direction}
         onCancel={() => setOpen(null)}
         onClose={() => setOpen(null)}
-        // A backdrop click lands on the dialog element itself and never on its
-        // children, which is the cheapest reliable outside-click test there is.
-        onClick={event => {
-          if (event.target === dialog.current) setOpen(null)
+        /*
+         * Press and release, on the dialog rather than on the stage, so a
+         * gesture that starts beside the plate is heard wherever it ends.
+         *
+         * Both ends matter. Closing on the release alone means a drag that
+         * started on the plate, or on a caption somebody was selecting, throws
+         * the overlay away when the mouse happens to come up beside it. Two
+         * targets and a small distance is the whole test.
+         */
+        onPointerDown={event => {
+          press.current = {
+            x: event.clientX,
+            y: event.clientY,
+            pointerType: event.pointerType,
+            outside: isEmptySpace(event.target)
+          }
+        }}
+        onPointerCancel={() => {
+          press.current = null
+        }}
+        onPointerUp={event => {
+          const start = press.current
+          press.current = null
+          if (!start) return
+
+          const dx = event.clientX - start.x
+          const dy = event.clientY - start.y
+
+          /*
+           * A swipe first, and touch only. A small drag with a mouse is the
+           * start of a click, and treating it as a swipe makes the overlay
+           * feel like it is jumping about under the cursor.
+           */
+          if (
+            start.pointerType !== 'mouse' &&
+            Math.abs(dx) >= 48 &&
+            Math.abs(dx) > Math.abs(dy)
+          ) {
+            go(dx < 0 ? 1 : -1)
+            return
+          }
+
+          // Otherwise a tap on the space around the plate, which closes.
+          if (!start.outside || !isEmptySpace(event.target)) return
+          if (Math.abs(dx) > 10 || Math.abs(dy) > 10) return
+          setOpen(null)
         }}
         onKeyDown={event => {
           if (event.key === 'ArrowRight') {
@@ -286,28 +350,7 @@ export function Plate({
         </h2>
 
         <div className="beamish-image-gallery-lightbox__inner">
-          <div
-            className="beamish-image-gallery-lightbox__stage"
-            /*
-             * Touch only. A pointerdown on a mouse is the start of a click, and
-             * treating a small drag as a swipe there makes the overlay feel
-             * like it is jumping about under the cursor.
-             */
-            onPointerDown={event => {
-              if (event.pointerType === 'mouse') return
-              swipeStart.current = { x: event.clientX, y: event.clientY }
-            }}
-            onPointerUp={event => {
-              const start = swipeStart.current
-              swipeStart.current = null
-              if (!start) return
-              const dx = event.clientX - start.x
-              const dy = event.clientY - start.y
-              // Horizontal intent, not a scroll that happens to drift.
-              if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return
-              go(dx < 0 ? 1 : -1)
-            }}
-          >
+          <div className="beamish-image-gallery-lightbox__stage">
             {current ? (
               <figure className="beamish-image-gallery-lightbox__open">
                 <img
