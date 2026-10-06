@@ -146,9 +146,13 @@
    * built for a dark ground is designed against the absence of light: it is
    * designed against a dark surface, which has a colour.
    */
+  /*
+   * The panel's own background and border are set as classes on the element,
+   * because they are Tailwind utilities and a utility beats a rule in this
+   * layer however specific it is. What is left here is everything that sits on
+   * the panel rather than being the panel.
+   */
   [data-demo][data-ground='dark'] {
-    background: #131316;
-    border-color: rgb(255 255 255 / 0.14);
     color-scheme: dark;
   }
 

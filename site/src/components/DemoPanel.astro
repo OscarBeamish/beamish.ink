@@ -88,7 +88,16 @@ const tweakable = tier === 1 ? Object.entries(options) : []
 
 <figure class="m-0">
   <div
-    class="border-line bg-be relative overflow-hidden rounded-[2px] border"
+    class:list={[
+      'relative overflow-hidden rounded-[2px] border',
+      /*
+       * The ground decides the panel, and it is set as a class rather than in
+       * the stylesheet because `bg-be` is a utility: utilities sit in a later
+       * cascade layer than components, so a rule in global.css loses to it
+       * whatever its specificity and does so silently.
+       */
+      ground === 'dark' ? 'border-white/15 bg-[#131316]' : 'border-line bg-be'
+    ]}
     data-demo
     data-slug={slug}
     data-tier={tier}
