@@ -1,7 +1,7 @@
-You are adding **Loupe** from Beamish to this project.
+You are adding **HalftoneMagnifier** from Beamish to this project.
 
 > A printer's glass on the page: continuous tone until you look closely, then dots. Surfaces · effect · MIT.
-> https://beamish.ink/effects/loupe
+> https://beamish.ink/effects/halftone-magnifier
 
 Beamish is not a package and there is nothing to install from npm. The source
 lives in a public repo; you fetch the files, put them in this project, and wire
@@ -33,7 +33,7 @@ import between them is relative.
 | Save as | Fetch from |
 | --- | --- |
 | `src/beamish/shared/runtime.ts` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/shared/runtime.ts |
-| `src/beamish/effects/loupe/core.ts` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/loupe/core.ts |
+| `src/beamish/effects/halftone-magnifier/core.ts` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/halftone-magnifier/core.ts |
 
 If you cannot fetch these URLs, say so. Do not write the file from memory. There
 is a version of this prompt with the source inlined, and a guessed shader
@@ -132,8 +132,8 @@ picture is the content and the glass was always an extra.
 If you would rather not hand-write the wiring, these are the same thing as a
 drop-in file. They contain no effect logic.
 
-- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/loupe/adapters/react.tsx
-- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/loupe/adapters/vue.ts
+- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/halftone-magnifier/adapters/react.tsx
+- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/halftone-magnifier/adapters/vue.ts
 
 ---
 

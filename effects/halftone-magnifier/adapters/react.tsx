@@ -1,15 +1,15 @@
 /*
- * React adapter for Glass. Thin on purpose. It wires a ref to the core and
+ * React adapter for Loupe. Thin on purpose. It wires a ref to the core and
  * nothing else. If you find yourself adding logic here, it belongs in core.ts.
  */
 
 'use client'
 
 import { useEffect, useRef, type ReactNode } from 'react'
-import { createLoupe, type LoupeOptions } from '../core'
+import { createHalftoneMagnifier, type HalftoneMagnifierOptions } from '../core'
 import type { EffectHandle } from '../../../shared/runtime'
 
-export type LoupeProps = Partial<LoupeOptions> & {
+export type HalftoneMagnifierProps = Partial<HalftoneMagnifierOptions> & {
   className?: string
   /*
    * The picture. The effect reads it out of the host element rather than taking
@@ -21,7 +21,7 @@ export type LoupeProps = Partial<LoupeOptions> & {
   autoStart?: boolean
 }
 
-export function Glass({ className, children, autoStart = true, ...options }: LoupeProps) {
+export function Loupe({ className, children, autoStart = true, ...options }: HalftoneMagnifierProps) {
   const host = useRef<HTMLDivElement>(null)
   const handle = useRef<EffectHandle | null>(null)
 
@@ -29,7 +29,7 @@ export function Glass({ className, children, autoStart = true, ...options }: Lou
   // dependencies here, so changing one does not rebuild the whole scene.
   useEffect(() => {
     if (!host.current) return
-    const effect = createLoupe(host.current, options)
+    const effect = createHalftoneMagnifier(host.current, options)
     handle.current = effect
     if (autoStart) effect.start()
     return () => {
@@ -50,4 +50,4 @@ export function Glass({ className, children, autoStart = true, ...options }: Lou
   )
 }
 
-export default Glass
+export default Loupe

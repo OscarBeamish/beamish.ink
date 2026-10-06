@@ -52,7 +52,7 @@ keeps them framework-free and recordable. Tier 2 only where they need state.
 | Caret | Text Cursor | 3 | |
 | Rota | Text Loop, Rotating Text | 3 | Two of theirs, one of ours |
 | Shuffle | Shuffle | 3 | Close to Cipher. Build only if it reads differently |
-| Loupe | True Focus | 3 | **covered** by the Codrops Loupe |
+| HalftoneMagnifier | True Focus | 3 | **covered** by the Codrops HalftoneMagnifier |
 | Riser | Scroll Reveal, Scroll Float | 3 | Belongs in Reveals, not here |
 | Skew | Scroll Velocity | 3 | |
 | Pennant | Curved Loop | 3 | Text on an SVG path |
@@ -177,7 +177,7 @@ backdrops. Codrops publishes cameras, meshes, depth maps and physics every week.
 
 | Beamish | Source | P | Note |
 | --- | --- | --- | --- |
-| Loupe | Mouse-Following Square Lens, Tomoyuki Nakata, Aug 2026 | 1 | **done**. Recast completely: a printer's glass, so what the magnification reveals is the halftone rosette the picture is actually made of. The lens distortion and the lateral colour are still there, holding up a round barrel rather than a neon square |
+| HalftoneMagnifier | Mouse-Following Square Lens, Tomoyuki Nakata, Aug 2026 | 1 | **done**. Recast completely: a printer's glass, so what the magnification reveals is the halftone rosette the picture is actually made of. The lens distortion and the lateral colour are still there, holding up a round barrel rather than a neon square |
 | RelightImage | Relighting Images with Depth Maps, Aug 2026 | 1 | **done**, without the depth map. It lights the print rather than the scene: height is the picture's own luminance, so what the lamp finds is relief in the sheet. Nothing to author and nothing extra to ship |
 | Swell | Interactive Wave Propagation Cube Grid, Jul 2026 | 1 | **done** |
 | Threshold | Persistent Page Transitions with WebGPU, Jun 2026 | 2 | Page transitions with a scene that survives navigation. **Recast** to WebGL2: WebGPU is Chrome-only for our purposes |

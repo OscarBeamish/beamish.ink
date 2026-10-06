@@ -2,7 +2,7 @@
 precision highp float;
 
 /*
- * Loupe: a printer's glass laid on the page.
+ * HalftoneMagnifier: a printer's glass laid on the page.
  *
  * The picture is continuous tone until you look closely, and then it is dots.
  * That is not a stylisation, it is what a printed photograph is, and it is the
@@ -150,7 +150,7 @@ void main() {
     float k = r / radius;
 
     /*
-     * A real loupe is a lens, so the magnification is not uniform across it:
+     * A real halftone-magnifier is a lens, so the magnification is not uniform across it:
      * the middle is strongest and it eases off towards the rim, which is what
      * stops the edge reading as a hole cut in the picture.
      */

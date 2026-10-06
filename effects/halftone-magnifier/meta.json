@@ -1,6 +1,6 @@
 {
-  "name": "Loupe",
-  "slug": "loupe",
+  "name": "HalftoneMagnifier",
+  "slug": "halftone-magnifier",
   "tier": 1,
   "description": "A printer's glass on the page: continuous tone until you look closely, then dots",
   "category": "surfaces",
@@ -41,18 +41,18 @@
       "role": "runtime"
     },
     {
-      "from": "effects/loupe/core.ts",
-      "to": "src/beamish/effects/loupe/core.ts",
+      "from": "effects/halftone-magnifier/core.ts",
+      "to": "src/beamish/effects/halftone-magnifier/core.ts",
       "role": "core"
     },
     {
-      "from": "effects/loupe/adapters/react.tsx",
-      "to": "src/beamish/effects/loupe/react.tsx",
+      "from": "effects/halftone-magnifier/adapters/react.tsx",
+      "to": "src/beamish/effects/halftone-magnifier/react.tsx",
       "role": "adapter"
     },
     {
-      "from": "effects/loupe/adapters/vue.ts",
-      "to": "src/beamish/effects/loupe/vue.ts",
+      "from": "effects/halftone-magnifier/adapters/vue.ts",
+      "to": "src/beamish/effects/halftone-magnifier/vue.ts",
       "role": "adapter"
     }
   ],

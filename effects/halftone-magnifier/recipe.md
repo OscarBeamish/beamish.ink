@@ -49,10 +49,10 @@ The picture comes from the host element's own `<img>` child, not from an option.
 ```
 
 ```ts
-import { createLoupe } from './beamish/effects/loupe/core'
+import { createHalftoneMagnifier } from './beamish/effects/halftone-magnifier/core'
 
-const loupe = createLoupe(document.querySelector('#plate'))
-loupe.start()
+const halftone-magnifier = createHalftoneMagnifier(document.querySelector('#plate'))
+halftone-magnifier.start()
 ```
 
 The image is hidden from sight once it has been uploaded and left in the
@@ -67,16 +67,16 @@ so a `<figure>` with no aspect ratio and no height is zero pixels tall.
 
 ```tsx
 import { useEffect, useRef } from 'react'
-import { createLoupe } from '@/beamish/effects/loupe/core'
+import { createHalftoneMagnifier } from '@/beamish/effects/halftone-magnifier/core'
 
 export function Plate() {
   const host = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!host.current) return
-    const loupe = createLoupe(host.current)
-    loupe.start()
-    return () => loupe.destroy()
+    const halftone-magnifier = createHalftoneMagnifier(host.current)
+    halftone-magnifier.start()
+    return () => halftone-magnifier.destroy()
   }, [])
 
   return (
@@ -95,19 +95,19 @@ option is a uniform, so nothing rebuilds.
 ```vue
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
-import { createLoupe } from '@/beamish/effects/loupe/core'
+import { createHalftoneMagnifier } from '@/beamish/effects/halftone-magnifier/core'
 import type { EffectHandle } from '@/beamish/shared/runtime'
 
 const host = ref<HTMLElement | null>(null)
-let loupe: EffectHandle | null = null
+let halftone-magnifier: EffectHandle | null = null
 
 onMounted(() => {
   if (!host.value) return
-  loupe = createLoupe(host.value)
-  loupe.start()
+  halftone-magnifier = createHalftoneMagnifier(host.value)
+  halftone-magnifier.start()
 })
 
-onBeforeUnmount(() => loupe?.destroy())
+onBeforeUnmount(() => halftone-magnifier?.destroy())
 </script>
 
 <template>

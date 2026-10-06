@@ -9,7 +9,7 @@ Published tags are never deleted or moved.
 
 ### Added
 
-- Loupe (surfaces): a printer's glass laid on a photograph. The picture is
+- HalftoneMagnifier (surfaces): a printer's glass laid on a photograph. The picture is
   continuous tone until you look closely and then it is dots, which is what a
   printed photograph is and the one thing a screen never shows you. The screen
   ruling belongs to the press, so the cell magnifies along with the picture:

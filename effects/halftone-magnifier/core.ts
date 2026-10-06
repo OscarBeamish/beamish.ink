@@ -1,6 +1,6 @@
 /*
- * Loupe: Beamish
- * https://beamish.ink/effects/loupe
+ * HalftoneMagnifier: Beamish
+ * https://beamish.ink/effects/halftone-magnifier
  *
  * A printer's glass laid on the page.
  *
@@ -26,7 +26,7 @@
 
 import { mount, type BaseOptions, type EffectHandle, type Pointer, type Surface } from '../../shared/runtime'
 
-export type LoupeOptions = BaseOptions & {
+export type HalftoneMagnifierOptions = BaseOptions & {
   /** The sheet the picture is printed on. */
   paper: string
   /** The cyan plate. */
@@ -57,7 +57,7 @@ export type LoupeOptions = BaseOptions & {
  * Kept in step with meta.json by `pnpm generate`, which fails if the two drift.
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
-export const loupeDefaults: LoupeOptions = {
+export const halftoneMagnifierDefaults: HalftoneMagnifierOptions = {
   paper: '#fbfaf4',
   cyan: '#1fb6e3',
   magenta: '#e5157f',
@@ -73,7 +73,7 @@ export const loupeDefaults: LoupeOptions = {
   reducedMotionTime: 0
 }
 
-// beamish:shader-begin shaders/loupe.vert
+// beamish:shader-begin shaders/halftone-magnifier.vert
 const VERT = `#version 300 es
 
 // Full-screen triangle from gl_VertexID. No buffers, no attributes. Bind an
@@ -86,12 +86,12 @@ void main() {
 `
 // beamish:shader-end
 
-// beamish:shader-begin shaders/loupe.frag
+// beamish:shader-begin shaders/halftone-magnifier.frag
 const FRAG = `#version 300 es
 precision highp float;
 
 /*
- * Loupe: a printer's glass laid on the page.
+ * HalftoneMagnifier: a printer's glass laid on the page.
  *
  * The picture is continuous tone until you look closely, and then it is dots.
  * That is not a stylisation, it is what a printed photograph is, and it is the
@@ -239,7 +239,7 @@ void main() {
     float k = r / radius;
 
     /*
-     * A real loupe is a lens, so the magnification is not uniform across it:
+     * A real halftone-magnifier is a lens, so the magnification is not uniform across it:
      * the middle is strongest and it eases off towards the rim, which is what
      * stops the edge reading as a hole cut in the picture.
      */
@@ -374,18 +374,18 @@ function rgb(value: string): [number, number, number] {
 
 function compile(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader {
   const shader = gl.createShader(type)
-  if (!shader) throw new Error('Loupe: could not create shader')
+  if (!shader) throw new Error('HalftoneMagnifier: could not create shader')
   gl.shaderSource(shader, source)
   gl.compileShader(shader)
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
     const log = gl.getShaderInfoLog(shader)
     gl.deleteShader(shader)
-    throw new Error(`Loupe: shader failed to compile\n${log ?? ''}`)
+    throw new Error(`HalftoneMagnifier: shader failed to compile\n${log ?? ''}`)
   }
   return shader
 }
 
-class LoupeSurface implements Surface<LoupeOptions> {
+class HalftoneMagnifierSurface implements Surface<HalftoneMagnifierOptions> {
   private gl: WebGL2RenderingContext | null = null
   private program: WebGLProgram | null = null
   private vao: WebGLVertexArrayObject | null = null
@@ -396,7 +396,7 @@ class LoupeSurface implements Surface<LoupeOptions> {
   private image: HTMLImageElement | null = null
 
   setup(ctx: { canvas: HTMLCanvasElement | null; host: HTMLElement }): void {
-    if (!ctx.canvas) throw new Error('Loupe needs a canvas')
+    if (!ctx.canvas) throw new Error('HalftoneMagnifier needs a canvas')
     const gl = ctx.canvas.getContext('webgl2', {
       alpha: false,
       antialias: false,
@@ -407,12 +407,12 @@ class LoupeSurface implements Surface<LoupeOptions> {
       preserveDrawingBuffer: true,
       powerPreference: 'low-power'
     })
-    if (!gl) throw new Error('Loupe needs WebGL2, which this browser did not provide')
+    if (!gl) throw new Error('HalftoneMagnifier needs WebGL2, which this browser did not provide')
 
     const vert = compile(gl, gl.VERTEX_SHADER, VERT)
     const frag = compile(gl, gl.FRAGMENT_SHADER, FRAG)
     const program = gl.createProgram()
-    if (!program) throw new Error('Loupe: could not create program')
+    if (!program) throw new Error('HalftoneMagnifier: could not create program')
     gl.attachShader(program, vert)
     gl.attachShader(program, frag)
     gl.linkProgram(program)
@@ -421,7 +421,7 @@ class LoupeSurface implements Surface<LoupeOptions> {
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
       const log = gl.getProgramInfoLog(program)
       gl.deleteProgram(program)
-      throw new Error(`Loupe: program failed to link\n${log ?? ''}`)
+      throw new Error(`HalftoneMagnifier: program failed to link\n${log ?? ''}`)
     }
 
     this.gl = gl
@@ -474,7 +474,7 @@ class LoupeSurface implements Surface<LoupeOptions> {
     this.gl?.viewport(0, 0, size.pixelWidth, size.pixelHeight)
   }
 
-  render(_t: number, opts: LoupeOptions, pointer: Pointer): void {
+  render(_t: number, opts: HalftoneMagnifierOptions, pointer: Pointer): void {
     const gl = this.gl
     const program = this.program
     if (!gl || !program) return
@@ -538,7 +538,7 @@ class LoupeSurface implements Surface<LoupeOptions> {
 }
 
 /**
- * Mount Loupe into `el`. The element needs a size and one `<img>` child.
+ * Mount HalftoneMagnifier into `el`. The element needs a size and one `<img>` child.
  *
  * ```html
  * <figure id="plate" style="position: relative; aspect-ratio: 3 / 2">
@@ -547,15 +547,15 @@ class LoupeSurface implements Surface<LoupeOptions> {
  * ```
  *
  * ```ts
- * const loupe = createLoupe(document.querySelector('#plate')!)
- * loupe.start()
+ * const halftone-magnifier = createHalftoneMagnifier(document.querySelector('#plate')!)
+ * halftone-magnifier.start()
  * ```
  */
-export function createLoupe(el: HTMLElement, opts: Partial<LoupeOptions> = {}): EffectHandle {
-  return mount<LoupeOptions>(el, opts, {
-    defaults: loupeDefaults,
-    create: () => new LoupeSurface()
+export function createHalftoneMagnifier(el: HTMLElement, opts: Partial<HalftoneMagnifierOptions> = {}): EffectHandle {
+  return mount<HalftoneMagnifierOptions>(el, opts, {
+    defaults: halftoneMagnifierDefaults,
+    create: () => new HalftoneMagnifierSurface()
   })
 }
 
-export default createLoupe
+export default createHalftoneMagnifier
