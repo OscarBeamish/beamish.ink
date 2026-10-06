@@ -18,3 +18,9 @@ site/public/media/
 site/public/fonts/
 site/.astro/
 tools/review/.shots/
+
+# Scratch from measurement runs. See AGENTS.md on measuring.
+.shots/
+.tmp/
+.paste/
+.*.mjs
