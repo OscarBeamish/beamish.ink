@@ -15,8 +15,8 @@ export default function CrossbarDemo() {
     <div className="demo-glass-nav">
       <img
         className="demo-plate-fill"
-        src="/plates/relight-image/plate.jpg"
-        alt="A facade of small square windows punched in a dark grid, seen from above"
+        src="/plates/glass-panel/mountain.jpg"
+        alt="Mountain ridges at dawn, lit from behind by a pink sky"
       />
       <div className="demo-glass-nav__bar">
         <Crossbar

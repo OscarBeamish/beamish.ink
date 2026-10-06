@@ -225,7 +225,8 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'watermark-sheet': () => import('@items/effects/watermark-sheet/core'),
     'ink-bleed-text': () => import('@items/effects/ink-bleed-text/core'),
     'halftone-magnifier': () => import('@items/effects/halftone-magnifier/core'),
-    'relight-image': () => import('@items/effects/relight-image/core')
+    'relight-image': () => import('@items/effects/relight-image/core'),
+    'glass-panel': () => import('@items/effects/glass-panel/core')
   }
 
   /*
@@ -265,6 +266,8 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       '<img class="demo-plate-fill" src="/plates/halftone-magnifier/plate.jpg" alt="A spiral stair curving down the inside of a circular concrete well" />',
     'relight-image':
       '<img class="demo-plate-fill" src="/plates/relight-image/plate.jpg" alt="A facade of small square windows punched in a dark grid, seen from above" />',
+    'glass-panel':
+      '<img class="demo-plate-fill" src="/plates/glass-panel/mountain.jpg" alt="Mountain ridges at dawn, lit from behind by a pink sky" />',
     'scramble-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     'misprint-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     'ink-bleed-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
@@ -336,7 +339,8 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'scroll-warp-image',
     'halftone-reveal',
     'halftone-magnifier',
-    'relight-image'
+    'relight-image',
+    'glass-panel'
   ])
 
   for (const panel of document.querySelectorAll<HTMLElement>('[data-demo]')) {
