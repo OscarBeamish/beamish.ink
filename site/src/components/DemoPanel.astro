@@ -29,7 +29,7 @@ const { slug, name, tier, category, instruction, oneShot, options } = Astro.prop
 
 /*
  * Tier 2 is React, and the way Astro consumes React is an island. Mounting it
- * from the panel's own <script> instead works in a build and breaks in dev: the
+ * from the panel's own script tag instead works in a build and breaks in dev: the
  * react plugin injects its refresh preamble into a page only when there is an
  * island on it, and the code it compiles the component into throws without one.
  *

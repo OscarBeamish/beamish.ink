@@ -2856,7 +2856,7 @@
       },
       "relief": {
         "type": "number",
-        "default": 7,
+        "default": 4,
         "description": "How much relief the impression has. At 0 the sheet is flat and all you have is a soft gradient moving about. Past about 15 the paper stops reading as paper and starts reading as hammered metal.",
         "min": 0,
         "max": 30,
@@ -2864,7 +2864,7 @@
       },
       "smooth": {
         "type": "number",
-        "default": 2,
+        "default": 4,
         "description": "Pixels either side the gradient is taken across. Low-passes the height field on the way, so this is the difference between lighting the shape of the impression and lighting the noise in the file. Below about 1.5 you are mostly lighting JPEG blocks.",
         "min": 0.5,
         "max": 8,
@@ -2872,15 +2872,23 @@
       },
       "strength": {
         "type": "number",
-        "default": 0.55,
+        "default": 0.45,
         "description": "How much modelling the lamp lays over the picture. The photograph is exactly itself at the midpoint of the light, so this opens the gradient out either side of it rather than re-exposing anything.",
         "min": 0,
         "max": 1.5,
         "step": 0.01
       },
+      "ambient": {
+        "type": "number",
+        "default": 0.35,
+        "description": "How much light the room has already, which is the point either side of which the lamp works. The light a lamp delivers across a frame averages nothing like a half, so leaving the neutral at a half dims the whole picture before it lights anything. Near the average gives you a gradient; at 0 the lamp only ever adds.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
       "gloss": {
         "type": "number",
-        "default": 0.3,
+        "default": 0.18,
         "description": "How much the ink catches the light that the paper does not. This is the part that says the dark areas are ink rather than dark paper, and it is what separates this from a gradient.",
         "min": 0,
         "max": 1,
@@ -2896,7 +2904,7 @@
       },
       "reach": {
         "type": "number",
-        "default": 0.75,
+        "default": 1.1,
         "description": "How far the lamp throws, as a share of the frame's height. Small is a reading lamp held close with the corners falling away; large is a window on the far side of the room.",
         "min": 0.1,
         "max": 3,

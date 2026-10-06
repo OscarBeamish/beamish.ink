@@ -72,12 +72,13 @@ as the second argument to the create function; anything omitted takes its defaul
 | --- | --- | --- | --- | --- |
 | `light` | color | `#fff3df` | any CSS hex | Colour of the lamp. Keep it close to white, warm or cool. It is painted over the picture as a sheen rather than mixed into it, so a saturated colour tints the highlights rather than reading as illumination. |
 | `height` | number | `0.32` | 0.02 to 2 | How far above the sheet the lamp is held, as a share of the frame's height. Low is a raking light that finds every ridge in the impression; high is a lamp overhead that finds almost none. This is the first dial to reach for and most of the character is in it. |
-| `relief` | number | `7` | 0 to 30 | How much relief the impression has. At 0 the sheet is flat and all you have is a soft gradient moving about. Past about 15 the paper stops reading as paper and starts reading as hammered metal. |
-| `smooth` | number | `2` | 0.5 to 8 | Pixels either side the gradient is taken across. Low-passes the height field on the way, so this is the difference between lighting the shape of the impression and lighting the noise in the file. Below about 1.5 you are mostly lighting JPEG blocks. |
-| `strength` | number | `0.55` | 0 to 1.5 | How much modelling the lamp lays over the picture. The photograph is exactly itself at the midpoint of the light, so this opens the gradient out either side of it rather than re-exposing anything. |
-| `gloss` | number | `0.3` | 0 to 1 | How much the ink catches the light that the paper does not. This is the part that says the dark areas are ink rather than dark paper, and it is what separates this from a gradient. |
+| `relief` | number | `4` | 0 to 30 | How much relief the impression has. At 0 the sheet is flat and all you have is a soft gradient moving about. Past about 15 the paper stops reading as paper and starts reading as hammered metal. |
+| `smooth` | number | `4` | 0.5 to 8 | Pixels either side the gradient is taken across. Low-passes the height field on the way, so this is the difference between lighting the shape of the impression and lighting the noise in the file. Below about 1.5 you are mostly lighting JPEG blocks. |
+| `strength` | number | `0.45` | 0 to 1.5 | How much modelling the lamp lays over the picture. The photograph is exactly itself at the midpoint of the light, so this opens the gradient out either side of it rather than re-exposing anything. |
+| `ambient` | number | `0.35` | 0 to 1 | How much light the room has already, which is the point either side of which the lamp works. The light a lamp delivers across a frame averages nothing like a half, so leaving the neutral at a half dims the whole picture before it lights anything. Near the average gives you a gradient; at 0 the lamp only ever adds. |
+| `gloss` | number | `0.18` | 0 to 1 | How much the ink catches the light that the paper does not. This is the part that says the dark areas are ink rather than dark paper, and it is what separates this from a gradient. |
 | `shine` | number | `26` | 2 to 160 | How tight that catch is. Low is a broad satin sheen; high is a small hard glint that only appears where a ridge faces the lamp exactly. |
-| `reach` | number | `0.75` | 0.1 to 3 | How far the lamp throws, as a share of the frame's height. Small is a reading lamp held close with the corners falling away; large is a window on the far side of the room. |
+| `reach` | number | `1.1` | 0.1 to 3 | How far the lamp throws, as a share of the frame's height. Small is a reading lamp held close with the corners falling away; large is a window on the far side of the room. |
 | `grain` | number | `0.25` | 0 to 1 | Paper tooth over the whole thing. |
 
 ## 5. Cleanup and SSR

@@ -373,7 +373,56 @@ mistakes list above, not in the shader.`)
 
 type Output = { file: string; contents: string }
 
+/*
+ * A literal script tag written inside an Astro comment.
+ *
+ * Astro's compiler finds script elements by scanning the file, and it does not
+ * know a comment from markup. One written in prose opens a script block that
+ * runs to the next closing tag, so the rest of the comment becomes JavaScript
+ * and esbuild's dependency scan fails on the first word that is not a
+ * statement. `astro build` survives it. `astro dev` does not, which is the
+ * worst way round: it goes unnoticed until somebody tries to work on the site.
+ *
+ * This has now broken the dev server twice, once in PromptButtons and once in
+ * DemoPanel, so it is a check rather than a thing to remember. Write "script
+ * tag" in prose.
+ */
+async function checkAstroComments(): Promise<void> {
+  const dir = path.join(ROOT, 'site', 'src')
+  if (!existsSync(dir)) return
+
+  const found: string[] = []
+
+  async function walk(at: string): Promise<void> {
+    for (const entry of await readdir(at, { withFileTypes: true })) {
+      const full = path.join(at, entry.name)
+      if (entry.isDirectory()) {
+        await walk(full)
+      } else if (entry.name.endsWith('.astro')) {
+        const source = await readFile(full, 'utf8')
+        for (const comment of source.match(/\/\*[\s\S]*?\*\//g) ?? []) {
+          if (!/<\/?script/i.test(comment)) continue
+          const line = source.slice(0, source.indexOf(comment)).split('\n').length
+          found.push(`${path.relative(ROOT, full)}:${line}`)
+        }
+      }
+    }
+  }
+
+  await walk(dir)
+
+  if (found.length > 0) {
+    throw new Error(
+      'A literal script tag inside an Astro comment breaks the dev server, ' +
+        'though not the build. Write "script tag" in prose instead.\n  ' +
+        found.join('\n  ')
+    )
+  }
+}
+
 async function generate(check: boolean, pin: string) {
+  await checkAstroComments()
+
   const items = await loadItems()
   if (items.length === 0) throw new Error('No items found under effects/ or components/')
 

@@ -657,6 +657,8 @@ export type RelightImageOptions = BaseOptions & {
   smooth: number
   /** How much modelling the lamp lays over the picture. */
   strength: number
+  /** How much light the room has already. The lamp works either side of it. */
+  ambient: number
   /** How much the ink catches the light that the paper does not. */
   gloss: number
   /** How tight that catch is. Higher is a harder, smaller glint. */
@@ -674,12 +676,13 @@ export type RelightImageOptions = BaseOptions & {
 export const relightImageDefaults: RelightImageOptions = {
   light: '#fff3df',
   height: 0.32,
-  relief: 7,
-  smooth: 2,
-  strength: 0.55,
-  gloss: 0.3,
+  relief: 4,
+  smooth: 4,
+  strength: 0.45,
+  ambient: 0.35,
+  gloss: 0.18,
   shine: 26,
-  reach: 0.75,
+  reach: 1.1,
   grain: 0.25,
   reducedMotionTime: 0
 }
@@ -738,6 +741,7 @@ uniform float u_height;
 uniform float u_relief;
 uniform float u_smooth;
 uniform float u_strength;
+uniform float u_ambient;
 uniform float u_gloss;
 uniform float u_shine;
 uniform float u_reach;
@@ -822,13 +826,21 @@ void main() {
   float spec = pow(max(dot(normal, halfway), 0.0), max(u_shine, 1.0)) * u_gloss * fall;
 
   /*
-   * Modelling around the picture rather than instead of it. At \`lit\` of a half
-   * the photograph is exactly itself, above that it lifts and below it falls,
-   * so what the lamp adds is a gradient across the sheet and never a new
-   * exposure. Multiplied, because light on a surface scales what is there.
+   * Modelling around the picture rather than instead of it. Where the lamp
+   * delivers exactly \`ambient\` the photograph is itself, above that it lifts
+   * and below it falls, so what the lamp adds is a gradient across the sheet
+   * and never a new exposure. Multiplied, because light on a surface scales
+   * what is already there.
+   *
+   * The neutral point is a setting rather than a half, and that is not a
+   * detail. The light a lamp actually delivers across a frame averages nothing
+   * like a half, so fixing the neutral there dimmed the whole picture by a
+   * tenth before it lit anything. \`ambient\` is how much light the room has
+   * already: set it near the average and the lamp gives you a gradient, set it
+   * at zero and the lamp only ever adds.
    */
   float on = clamp(u_active, 0.0, 1.0);
-  float model = 1.0 + on * u_strength * (lit - 0.5);
+  float model = 1.0 + on * u_strength * (lit - u_ambient);
   vec3 col = base * model + u_light * spec * on;
 
   float tooth = hash12(floor(cssPx * 0.5) + 11.0) - 0.5;
@@ -851,6 +863,7 @@ const UNIFORMS = [
   'u_relief',
   'u_smooth',
   'u_strength',
+  'u_ambient',
   'u_gloss',
   'u_shine',
   'u_reach',
@@ -1007,6 +1020,7 @@ class RelightImageSurface implements Surface<RelightImageOptions> {
     gl.uniform1f(loc('u_relief'), opts.relief)
     gl.uniform1f(loc('u_smooth'), opts.smooth)
     gl.uniform1f(loc('u_strength'), opts.strength)
+    gl.uniform1f(loc('u_ambient'), opts.ambient)
     gl.uniform1f(loc('u_gloss'), opts.gloss)
     gl.uniform1f(loc('u_shine'), opts.shine)
     gl.uniform1f(loc('u_reach'), opts.reach)
@@ -1094,12 +1108,13 @@ as the second argument to the create function; anything omitted takes its defaul
 | --- | --- | --- | --- | --- |
 | `light` | color | `#fff3df` | any CSS hex | Colour of the lamp. Keep it close to white, warm or cool. It is painted over the picture as a sheen rather than mixed into it, so a saturated colour tints the highlights rather than reading as illumination. |
 | `height` | number | `0.32` | 0.02 to 2 | How far above the sheet the lamp is held, as a share of the frame's height. Low is a raking light that finds every ridge in the impression; high is a lamp overhead that finds almost none. This is the first dial to reach for and most of the character is in it. |
-| `relief` | number | `7` | 0 to 30 | How much relief the impression has. At 0 the sheet is flat and all you have is a soft gradient moving about. Past about 15 the paper stops reading as paper and starts reading as hammered metal. |
-| `smooth` | number | `2` | 0.5 to 8 | Pixels either side the gradient is taken across. Low-passes the height field on the way, so this is the difference between lighting the shape of the impression and lighting the noise in the file. Below about 1.5 you are mostly lighting JPEG blocks. |
-| `strength` | number | `0.55` | 0 to 1.5 | How much modelling the lamp lays over the picture. The photograph is exactly itself at the midpoint of the light, so this opens the gradient out either side of it rather than re-exposing anything. |
-| `gloss` | number | `0.3` | 0 to 1 | How much the ink catches the light that the paper does not. This is the part that says the dark areas are ink rather than dark paper, and it is what separates this from a gradient. |
+| `relief` | number | `4` | 0 to 30 | How much relief the impression has. At 0 the sheet is flat and all you have is a soft gradient moving about. Past about 15 the paper stops reading as paper and starts reading as hammered metal. |
+| `smooth` | number | `4` | 0.5 to 8 | Pixels either side the gradient is taken across. Low-passes the height field on the way, so this is the difference between lighting the shape of the impression and lighting the noise in the file. Below about 1.5 you are mostly lighting JPEG blocks. |
+| `strength` | number | `0.45` | 0 to 1.5 | How much modelling the lamp lays over the picture. The photograph is exactly itself at the midpoint of the light, so this opens the gradient out either side of it rather than re-exposing anything. |
+| `ambient` | number | `0.35` | 0 to 1 | How much light the room has already, which is the point either side of which the lamp works. The light a lamp delivers across a frame averages nothing like a half, so leaving the neutral at a half dims the whole picture before it lights anything. Near the average gives you a gradient; at 0 the lamp only ever adds. |
+| `gloss` | number | `0.18` | 0 to 1 | How much the ink catches the light that the paper does not. This is the part that says the dark areas are ink rather than dark paper, and it is what separates this from a gradient. |
 | `shine` | number | `26` | 2 to 160 | How tight that catch is. Low is a broad satin sheen; high is a small hard glint that only appears where a ridge faces the lamp exactly. |
-| `reach` | number | `0.75` | 0.1 to 3 | How far the lamp throws, as a share of the frame's height. Small is a reading lamp held close with the corners falling away; large is a window on the far side of the room. |
+| `reach` | number | `1.1` | 0.1 to 3 | How far the lamp throws, as a share of the frame's height. Small is a reading lamp held close with the corners falling away; large is a window on the far side of the room. |
 | `grain` | number | `0.25` | 0 to 1 | Paper tooth over the whole thing. |
 
 ## 5. Cleanup and SSR

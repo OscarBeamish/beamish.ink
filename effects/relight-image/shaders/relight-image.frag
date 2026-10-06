@@ -38,6 +38,7 @@ uniform float u_height;
 uniform float u_relief;
 uniform float u_smooth;
 uniform float u_strength;
+uniform float u_ambient;
 uniform float u_gloss;
 uniform float u_shine;
 uniform float u_reach;
@@ -122,13 +123,21 @@ void main() {
   float spec = pow(max(dot(normal, halfway), 0.0), max(u_shine, 1.0)) * u_gloss * fall;
 
   /*
-   * Modelling around the picture rather than instead of it. At `lit` of a half
-   * the photograph is exactly itself, above that it lifts and below it falls,
-   * so what the lamp adds is a gradient across the sheet and never a new
-   * exposure. Multiplied, because light on a surface scales what is there.
+   * Modelling around the picture rather than instead of it. Where the lamp
+   * delivers exactly `ambient` the photograph is itself, above that it lifts
+   * and below it falls, so what the lamp adds is a gradient across the sheet
+   * and never a new exposure. Multiplied, because light on a surface scales
+   * what is already there.
+   *
+   * The neutral point is a setting rather than a half, and that is not a
+   * detail. The light a lamp actually delivers across a frame averages nothing
+   * like a half, so fixing the neutral there dimmed the whole picture by a
+   * tenth before it lit anything. `ambient` is how much light the room has
+   * already: set it near the average and the lamp gives you a gradient, set it
+   * at zero and the lamp only ever adds.
    */
   float on = clamp(u_active, 0.0, 1.0);
-  float model = 1.0 + on * u_strength * (lit - 0.5);
+  float model = 1.0 + on * u_strength * (lit - u_ambient);
   vec3 col = base * model + u_light * spec * on;
 
   float tooth = hash12(floor(cssPx * 0.5) + 11.0) - 0.5;
