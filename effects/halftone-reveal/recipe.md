@@ -25,6 +25,47 @@ is the shadow-dot stage of a real screen.
 One WebGL2 fragment shader on one full-screen triangle. No three.js, no
 dependency, no render targets.
 
+## Choosing the reveal
+
+`order` is the queue the cells arrive in, and it is the setting that decides
+what the reveal is about.
+
+**sweep** runs across the frame along `sweep`, which is the plain one and the
+default.
+
+**centre** starts in the middle and works out. **edges** does the reverse and
+closes in. Both are about the frame rather than the picture, so they suit an
+image with nothing in particular in the middle.
+
+**shadows** brings the dark areas up first. This is the order a press actually
+lays ink down in: the heavy areas are the ones that take it, and the picture
+builds out of its own blacks.
+
+**highlights** does the reverse, and reads completely differently. The lights
+arrive first, so the picture seems to emerge out of the paper rather than to be
+printed onto it.
+
+Both tonal orders pay attention to the photograph, which means they look
+deliberate on a picture with real tonal structure and look like nothing much on
+a flat one. Turn `scatter` down to 0 with either of them and you get a clean
+tonal separation, which is the most striking thing this effect does.
+
+## Choosing the dot
+
+`shape` is the screen itself, and all three are ones a press has used.
+
+**round** is the default everywhere and the one to leave alone unless you have a
+reason.
+
+**square** holds its shape into the shadows instead of merging with its
+neighbours, which is why newspapers used it. It reads as coarser at the same
+`screen` value.
+
+**diamond** exists to solve a real problem: round dots all touch their
+neighbours at the same moment, around fifty percent coverage, so the midtone
+takes a visible step. A diamond meets two neighbours before the other two and
+spreads that jump over a wider range of tones.
+
 ## The picture is your markup
 
 It comes from the host element's first `<img>` child, not from an option.

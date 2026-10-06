@@ -26,6 +26,8 @@ uniform float u_screen;
 uniform float u_angle;
 uniform float u_sweep;
 uniform float u_scatter;
+uniform float u_order;
+uniform float u_shape;
 uniform float u_feather;
 uniform float u_grain;
 
@@ -82,6 +84,17 @@ void main() {
   float coverage = 0.0;
 
   /*
+   * Tone, for the two orders that arrive by density rather than by position.
+   * Rec. 601 weights: a flat average makes a saturated blue as dark as a
+   * saturated yellow and the eye says otherwise by a factor of six.
+   *
+   * Read at this pixel rather than at each cell's centre, which would be nine
+   * more texture samples. The difference is sub-cell on a photograph and the
+   * ordering is a soft field, so it costs nothing visible and saves the reads.
+   */
+  float tone = dot(ink, vec3(0.299, 0.587, 0.114));
+
+  /*
    * The nine cells around this pixel, not just the one it sits in.
    *
    * A dot only stays a dot while it fits inside its own cell. Past a radius of
@@ -101,7 +114,27 @@ void main() {
       vec2 cellPx = rot(centre * max(u_screen, 1.0), -u_angle * DEG);
       float along = dot(cellPx / cssRes - 0.5, dir) + 0.5;
 
-      float order = mix(clamp(along, 0.0, 1.0), hash12(c), u_scatter);
+      /*
+       * Where this cell sits in the queue, 0 first and 1 last.
+       *
+       * 0 sweep: across the frame along `sweep`.
+       * 1 centre: the middle first, working out.
+       * 2 edges: the border first, closing in.
+       * 3 shadows: the darks first, which is the order a press lays ink down
+       *   in: the heavy areas are the ones that take it.
+       * 4 highlights: the lights first, which reads as a picture emerging out
+       *   of the paper rather than being printed onto it.
+       */
+      vec2 fromMiddle = cellPx / cssRes - 0.5;
+      float radial = clamp(length(fromMiddle * vec2(1.0, cssRes.y / max(cssRes.x, 1.0))) * 2.0, 0.0, 1.0);
+
+      float place = clamp(along, 0.0, 1.0);
+      if (u_order > 0.5 && u_order < 1.5) place = radial;
+      else if (u_order > 1.5 && u_order < 2.5) place = 1.0 - radial;
+      else if (u_order > 2.5 && u_order < 3.5) place = tone;
+      else if (u_order > 3.5) place = 1.0 - tone;
+
+      float order = mix(place, hash12(c), u_scatter);
 
       /*
        * Scaled by 1 + feather so that at progress 1 every cell has finished,
@@ -110,10 +143,34 @@ void main() {
        */
       float local = clamp((u_progress * (1.0 + feather) - order) / feather, 0.0, 1.0);
 
-      // 0.707 reaches the corner of a cell, so 0.72 is the first radius that
-      // leaves no paper behind once the neighbours have met.
-      float radius = local * 0.72;
-      float d = length(screen - centre);
+      /*
+       * The dot's shape, and the radius that fills a cell with it.
+       *
+       * These are real screens rather than decoration. A round dot is the
+       * default everywhere. A square dot holds its shape into the shadows
+       * instead of merging, which is why newspapers used it. A diamond is the
+       * one that breaks up the jump at fifty percent, where round dots all
+       * touch their neighbours at once and the midtone goes abruptly dark.
+       *
+       * Each needs a different radius to leave no paper behind: a circle has to
+       * reach the corner at 0.707, a square fills at 0.5, and a diamond needs
+       * 1.0 because its distance is measured along the axes.
+       */
+      vec2 q = screen - centre;
+      float d;
+      float fill;
+      if (u_shape > 1.5) {
+        d = abs(q.x) + abs(q.y);
+        fill = 1.02;
+      } else if (u_shape > 0.5) {
+        d = max(abs(q.x), abs(q.y));
+        fill = 0.52;
+      } else {
+        d = length(q);
+        fill = 0.72;
+      }
+
+      float radius = local * fill;
       coverage = max(coverage, smoothstep(radius + aa, radius - aa, d));
     }
   }

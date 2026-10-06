@@ -15,6 +15,8 @@ export const Spool = defineComponent({
     angle: { type: Number, default: halftoneRevealDefaults.angle },
     sweep: { type: Number, default: halftoneRevealDefaults.sweep },
     scatter: { type: Number, default: halftoneRevealDefaults.scatter },
+    order: { type: String, default: halftoneRevealDefaults.order },
+    shape: { type: String, default: halftoneRevealDefaults.shape },
     feather: { type: Number, default: halftoneRevealDefaults.feather },
     grain: { type: Number, default: halftoneRevealDefaults.grain },
     duration: { type: Number, default: halftoneRevealDefaults.duration },

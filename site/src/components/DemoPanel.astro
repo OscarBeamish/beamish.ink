@@ -103,7 +103,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
         inUse && (
           <button
             type="button"
-            class="border-control text-l1 rounded-full border bg-transparent px-3 py-1.5 text-[0.65rem] tracking-[0.1em] uppercase backdrop-blur-sm"
+            class="demo-control"
             data-use-toggle
             aria-pressed="true"
           >
@@ -115,7 +115,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
         tweakable.length > 0 && (
           <button
             type="button"
-            class="border-control text-l1 rounded-full border bg-transparent px-3 py-1.5 text-[0.65rem] tracking-[0.1em] uppercase backdrop-blur-sm"
+            class="demo-control"
             data-controls-toggle
             aria-expanded="false"
           >
@@ -127,7 +127,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
         tier === 2 ? null : oneShot ? (
           <button
             type="button"
-            class="border-control text-l1 rounded-full border bg-transparent px-3 py-1.5 text-[0.65rem] tracking-[0.1em] uppercase backdrop-blur-sm"
+            class="demo-control"
             data-replay
           >
             Replay
@@ -135,7 +135,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
         ) : (
           <button
             type="button"
-            class="border-control text-l1 rounded-full border bg-transparent px-3 py-1.5 text-[0.65rem] tracking-[0.1em] uppercase backdrop-blur-sm"
+            class="demo-control"
             data-toggle
             aria-pressed="false"
           >
@@ -365,6 +365,22 @@ const tweakable = tier === 1 ? Object.entries(options) : []
         // Marks the stage as holding DOM content, so the centring styles apply
         // to it and not to a canvas that should fill the panel.
         if (!drawsToCanvas) stage.setAttribute('data-content', '')
+
+        /*
+         * Hide the picture now rather than letting the effect do it on mount.
+         *
+         * There is an await between this line and the mount, and the image
+         * decodes and paints during it, so a reveal that is supposed to start
+         * from blank paper showed the finished photograph for a frame first and
+         * then blanked it. The effect hides it too, for anyone using it
+         * directly; this is about the gap.
+         *
+         * Only for the effects that draw the picture themselves. A DOM effect's
+         * images are its content and hiding them would leave an empty panel.
+         */
+        if (drawsToCanvas) {
+          for (const img of stage.querySelectorAll('img')) img.style.visibility = 'hidden'
+        }
       }
       const module = await load()
       // A DOM effect wants the element holding the content, not the stage.

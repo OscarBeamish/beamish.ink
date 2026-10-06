@@ -197,6 +197,36 @@
   }
 
   /* Glass has to have something behind it, so the panel supplies a picture. */
+  /*
+   * The panel's own controls: Pause, Replay, Controls, Bare.
+   *
+   * Opaque, not glass. They were transparent with a backdrop blur, which made
+   * them read as part of whatever effect they were sitting on rather than as
+   * the page's furniture, and on a photograph they were close to unreadable.
+   * Chrome is chrome. These match the prompt buttons.
+   */
+  .demo-control {
+    border: 1px solid var(--label-1);
+    border-radius: 100px;
+    background: rgb(var(--background-deep));
+    color: var(--label-1);
+    padding: 0.4rem 0.8rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.25s var(--ease-66, cubic-bezier(0.66, 0, 0.01, 1));
+  }
+
+  .demo-control:hover {
+    background: var(--background-elevated);
+  }
+
+  .demo-control:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
   .demo-glass-nav {
     position: absolute;
     inset: 0;

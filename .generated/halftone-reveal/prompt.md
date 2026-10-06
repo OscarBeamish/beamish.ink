@@ -15,6 +15,7 @@ Assume you have not seen this library before. Everything you need is below.
 - **npm dependencies:** None. This file has no npm dependencies at all.
 - WebGL2. There is no WebGL1 fallback
 - The picture is the host element's own <img> child. It is hidden from sight and left in the document, so the alt text is whatever you wrote and a page with no JavaScript still shows it
+- The two tonal orders read the tone at the pixel rather than at each cell centre, which would be nine more texture samples. The difference is sub-cell on a photograph and the ordering is a soft field, so it costs nothing visible
 - renderAtTime is pure in t, so replaying is a matter of resetting the clock rather than restarting anything
 - One WebGL2 context, one full-screen triangle, no buffers and no attributes
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
@@ -75,6 +76,8 @@ as the second argument to the create function; anything omitted takes its defaul
 | `angle` | number | `45` | 0 to 90 | Screen angle in degrees. 45 is the one a printer reaches for, because a screen on the square reads as a grid and fights whatever is underneath it. |
 | `sweep` | number | `24` | 0 to 360 | Direction the reveal travels, in degrees. 0 runs left to right. Only visible when scatter is below 1. |
 | `scatter` | number | `0.55` | 0 to 1 | 0 is a clean directional sweep, 1 is a random dissolve with no direction at all. Between the two the sweep keeps its direction but its leading edge is ragged, which is the part worth having. |
+| `order` | enum | `sweep` | `sweep` · `centre` · `edges` · `shadows` · `highlights` | The queue the cells arrive in. sweep runs across the frame along `sweep`; centre works outward from the middle and edges closes inward from the border; shadows brings the dark areas up first, which is the order a press lays ink down in, and highlights does the reverse, which reads as a picture emerging out of the paper rather than being printed onto it. |
+| `shape` | enum | `round` | `round` · `square` · `diamond` | The shape of the dot. All three are screens a press has actually used: round is the default everywhere, square holds its shape into the shadows instead of merging, which is why newspapers used it, and diamond breaks up the jump at fifty percent where round dots all meet their neighbours at once and the midtone goes abruptly dark. |
 | `feather` | number | `0.55` | 0.05 to 1 | How much of the reveal has cells part way through at any one moment. Low is a hard edge travelling across; high has the whole frame coming up together. |
 | `grain` | number | `0.4` | 0 to 1 | Paper tooth over the whole thing. |
 | `duration` | number | `1800` | 200 to 8000 | Milliseconds from blank paper to the finished picture. |

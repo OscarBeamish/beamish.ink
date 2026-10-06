@@ -1593,6 +1593,7 @@
       "webgl": "webgl2",
       "notes": [
         "The picture is the host element's own <img> child. It is hidden from sight and left in the document, so the alt text is whatever you wrote and a page with no JavaScript still shows it",
+        "The two tonal orders read the tone at the pixel rather than at each cell centre, which would be nine more texture samples. The difference is sub-cell on a photograph and the ordering is a soft field, so it costs nothing visible",
         "renderAtTime is pure in t, so replaying is a matter of resetting the clock rather than restarting anything",
         "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
       ]
@@ -1601,7 +1602,7 @@
       "frameBudgetMs": 0.6,
       "contexts": 1,
       "notes": [
-        "One texture read and one hash per pixel. There is no loop and no second pass",
+        "One texture read and one hash per pixel, and a union over the nine cells around it. The neighbours are what stop a dot past half a cell being clipped square",
         "The image uploads once, on load. Nothing is uploaded per frame",
         "The screen is laid out in CSS pixels, so the cost is per pixel and does not change with the cell size"
       ]
@@ -1665,6 +1666,28 @@
         "min": 0,
         "max": 1,
         "step": 0.01
+      },
+      "order": {
+        "type": "enum",
+        "default": "sweep",
+        "description": "The queue the cells arrive in. sweep runs across the frame along `sweep`; centre works outward from the middle and edges closes inward from the border; shadows brings the dark areas up first, which is the order a press lays ink down in, and highlights does the reverse, which reads as a picture emerging out of the paper rather than being printed onto it.",
+        "values": [
+          "sweep",
+          "centre",
+          "edges",
+          "shadows",
+          "highlights"
+        ]
+      },
+      "shape": {
+        "type": "enum",
+        "default": "round",
+        "description": "The shape of the dot. All three are screens a press has actually used: round is the default everywhere, square holds its shape into the shadows instead of merging, which is why newspapers used it, and diamond breaks up the jump at fifty percent where round dots all meet their neighbours at once and the midtone goes abruptly dark.",
+        "values": [
+          "round",
+          "square",
+          "diamond"
+        ]
       },
       "feather": {
         "type": "number",

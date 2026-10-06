@@ -15,6 +15,7 @@ Assume you have not seen this library before. Everything you need is below.
 - **npm dependencies:** None. This file has no npm dependencies at all.
 - WebGL2. There is no WebGL1 fallback
 - The picture is the host element's own <img> child. It is hidden from sight and left in the document, so the alt text is whatever you wrote and a page with no JavaScript still shows it
+- The two tonal orders read the tone at the pixel rather than at each cell centre, which would be nine more texture samples. The difference is sub-cell on a photograph and the ordering is a soft field, so it costs nothing visible
 - renderAtTime is pure in t, so replaying is a matter of resetting the clock rather than restarting anything
 - One WebGL2 context, one full-screen triangle, no buffers and no attributes
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
@@ -631,6 +632,15 @@ export function mount<O extends BaseOptions>(
 
 import { mount, type BaseOptions, type EffectHandle, type Surface } from '../../shared/runtime'
 
+/** The queue the cells arrive in. */
+export type HalftoneRevealOrder = 'sweep' | 'centre' | 'edges' | 'shadows' | 'highlights'
+
+/** Dot shapes a press has actually used. */
+export type HalftoneRevealShape = 'round' | 'square' | 'diamond'
+
+const ORDERS: HalftoneRevealOrder[] = ['sweep', 'centre', 'edges', 'shadows', 'highlights']
+const SHAPES: HalftoneRevealShape[] = ['round', 'square', 'diamond']
+
 export type HalftoneRevealOptions = BaseOptions & {
   /** Shown wherever a dot has not grown yet. */
   paper: string
@@ -642,6 +652,10 @@ export type HalftoneRevealOptions = BaseOptions & {
   sweep: number
   /** 0 is a clean sweep, 1 is a random dissolve. The useful part is between. */
   scatter: number
+  /** The queue the cells arrive in. */
+  order: HalftoneRevealOrder
+  /** The shape of the dot. All three are screens a press has actually used. */
+  shape: HalftoneRevealShape
   /** How much of the reveal has cells part way through at any moment. */
   feather: number
   /** Paper tooth over the whole thing. */
@@ -660,6 +674,8 @@ export const halftoneRevealDefaults: HalftoneRevealOptions = {
   angle: 45,
   sweep: 24,
   scatter: 0.55,
+  order: 'sweep',
+  shape: 'round',
   feather: 0.55,
   grain: 0.4,
   duration: 1800,
@@ -708,6 +724,8 @@ uniform float u_screen;
 uniform float u_angle;
 uniform float u_sweep;
 uniform float u_scatter;
+uniform float u_order;
+uniform float u_shape;
 uniform float u_feather;
 uniform float u_grain;
 
@@ -764,6 +782,17 @@ void main() {
   float coverage = 0.0;
 
   /*
+   * Tone, for the two orders that arrive by density rather than by position.
+   * Rec. 601 weights: a flat average makes a saturated blue as dark as a
+   * saturated yellow and the eye says otherwise by a factor of six.
+   *
+   * Read at this pixel rather than at each cell's centre, which would be nine
+   * more texture samples. The difference is sub-cell on a photograph and the
+   * ordering is a soft field, so it costs nothing visible and saves the reads.
+   */
+  float tone = dot(ink, vec3(0.299, 0.587, 0.114));
+
+  /*
    * The nine cells around this pixel, not just the one it sits in.
    *
    * A dot only stays a dot while it fits inside its own cell. Past a radius of
@@ -783,7 +812,27 @@ void main() {
       vec2 cellPx = rot(centre * max(u_screen, 1.0), -u_angle * DEG);
       float along = dot(cellPx / cssRes - 0.5, dir) + 0.5;
 
-      float order = mix(clamp(along, 0.0, 1.0), hash12(c), u_scatter);
+      /*
+       * Where this cell sits in the queue, 0 first and 1 last.
+       *
+       * 0 sweep: across the frame along \`sweep\`.
+       * 1 centre: the middle first, working out.
+       * 2 edges: the border first, closing in.
+       * 3 shadows: the darks first, which is the order a press lays ink down
+       *   in: the heavy areas are the ones that take it.
+       * 4 highlights: the lights first, which reads as a picture emerging out
+       *   of the paper rather than being printed onto it.
+       */
+      vec2 fromMiddle = cellPx / cssRes - 0.5;
+      float radial = clamp(length(fromMiddle * vec2(1.0, cssRes.y / max(cssRes.x, 1.0))) * 2.0, 0.0, 1.0);
+
+      float place = clamp(along, 0.0, 1.0);
+      if (u_order > 0.5 && u_order < 1.5) place = radial;
+      else if (u_order > 1.5 && u_order < 2.5) place = 1.0 - radial;
+      else if (u_order > 2.5 && u_order < 3.5) place = tone;
+      else if (u_order > 3.5) place = 1.0 - tone;
+
+      float order = mix(place, hash12(c), u_scatter);
 
       /*
        * Scaled by 1 + feather so that at progress 1 every cell has finished,
@@ -792,10 +841,34 @@ void main() {
        */
       float local = clamp((u_progress * (1.0 + feather) - order) / feather, 0.0, 1.0);
 
-      // 0.707 reaches the corner of a cell, so 0.72 is the first radius that
-      // leaves no paper behind once the neighbours have met.
-      float radius = local * 0.72;
-      float d = length(screen - centre);
+      /*
+       * The dot's shape, and the radius that fills a cell with it.
+       *
+       * These are real screens rather than decoration. A round dot is the
+       * default everywhere. A square dot holds its shape into the shadows
+       * instead of merging, which is why newspapers used it. A diamond is the
+       * one that breaks up the jump at fifty percent, where round dots all
+       * touch their neighbours at once and the midtone goes abruptly dark.
+       *
+       * Each needs a different radius to leave no paper behind: a circle has to
+       * reach the corner at 0.707, a square fills at 0.5, and a diamond needs
+       * 1.0 because its distance is measured along the axes.
+       */
+      vec2 q = screen - centre;
+      float d;
+      float fill;
+      if (u_shape > 1.5) {
+        d = abs(q.x) + abs(q.y);
+        fill = 1.02;
+      } else if (u_shape > 0.5) {
+        d = max(abs(q.x), abs(q.y));
+        fill = 0.52;
+      } else {
+        d = length(q);
+        fill = 0.72;
+      }
+
+      float radius = local * fill;
       coverage = max(coverage, smoothstep(radius + aa, radius - aa, d));
     }
   }
@@ -821,6 +894,8 @@ const UNIFORMS = [
   'u_angle',
   'u_sweep',
   'u_scatter',
+  'u_order',
+  'u_shape',
   'u_feather',
   'u_grain'
 ] as const
@@ -985,6 +1060,10 @@ class HalftoneRevealSurface implements Surface<HalftoneRevealOptions> {
     gl.uniform1f(loc('u_angle'), opts.angle)
     gl.uniform1f(loc('u_sweep'), opts.sweep)
     gl.uniform1f(loc('u_scatter'), opts.scatter)
+    // Sent as an index. A shader has no strings, and a lookup here keeps the
+    // option readable in the markup rather than making people remember a number.
+    gl.uniform1f(loc('u_order'), Math.max(ORDERS.indexOf(opts.order), 0))
+    gl.uniform1f(loc('u_shape'), Math.max(SHAPES.indexOf(opts.shape), 0))
     gl.uniform1f(loc('u_feather'), opts.feather)
     gl.uniform1f(loc('u_grain'), opts.grain)
 
@@ -1081,6 +1160,8 @@ as the second argument to the create function; anything omitted takes its defaul
 | `angle` | number | `45` | 0 to 90 | Screen angle in degrees. 45 is the one a printer reaches for, because a screen on the square reads as a grid and fights whatever is underneath it. |
 | `sweep` | number | `24` | 0 to 360 | Direction the reveal travels, in degrees. 0 runs left to right. Only visible when scatter is below 1. |
 | `scatter` | number | `0.55` | 0 to 1 | 0 is a clean directional sweep, 1 is a random dissolve with no direction at all. Between the two the sweep keeps its direction but its leading edge is ragged, which is the part worth having. |
+| `order` | enum | `sweep` | `sweep` · `centre` · `edges` · `shadows` · `highlights` | The queue the cells arrive in. sweep runs across the frame along `sweep`; centre works outward from the middle and edges closes inward from the border; shadows brings the dark areas up first, which is the order a press lays ink down in, and highlights does the reverse, which reads as a picture emerging out of the paper rather than being printed onto it. |
+| `shape` | enum | `round` | `round` · `square` · `diamond` | The shape of the dot. All three are screens a press has actually used: round is the default everywhere, square holds its shape into the shadows instead of merging, which is why newspapers used it, and diamond breaks up the jump at fifty percent where round dots all meet their neighbours at once and the midtone goes abruptly dark. |
 | `feather` | number | `0.55` | 0.05 to 1 | How much of the reveal has cells part way through at any one moment. Low is a hard edge travelling across; high has the whole frame coming up together. |
 | `grain` | number | `0.4` | 0 to 1 | Paper tooth over the whole thing. |
 | `duration` | number | `1800` | 200 to 8000 | Milliseconds from blank paper to the finished picture. |
