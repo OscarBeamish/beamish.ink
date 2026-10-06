@@ -389,6 +389,134 @@
     "intro": "Contents is a full-viewport index: a small trigger, and an overlay that takes the\nwhole screen and lists everything in mono with hairline rules between the rows.\nThe rows cascade in on a 26ms stagger counted across every section, so the reveal\nreads as one movement down the page rather than several.\n\nThe overlay is a real `<dialog>` opened with `showModal()`. That is the whole\ndesign. The browser then provides the focus trap, Escape, the top layer,\ninerting the rest of the page, and returning focus to the trigger on close. Every\none of those is something hand-rolled menus get subtly wrong, and none of them is\nour code. There is no focus-trap library, no portal, and no scroll-lock package.\n\nWhat is left is layout, type, and one transition."
   },
   {
+    "name": "GlassModal",
+    "slug": "glass-modal",
+    "tier": 2,
+    "description": "A sheet of glass over the page, on a native dialog so the browser handles the hard part",
+    "category": "navigation",
+    "tags": [
+      "react",
+      "vue",
+      "glass",
+      "dialog",
+      "modal",
+      "backdrop-filter",
+      "refraction"
+    ],
+    "peerDependencies": {
+      "react": ">=18"
+    },
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "A native dialog opened with showModal(), so the top layer, the backdrop, the focus trap, the inert background, Escape and returning focus to the opener are all the browser's. There is no focus-trap library here and there should not be one",
+        "showModal() does not stop the page behind from scrolling, which is the one thing it leaves you, so the component locks the body and puts it back on close",
+        "The blur is backdrop-filter, which every current browser supports. The refraction is an SVG filter inside backdrop-filter, which only Chromium applies: Safari ignores it and Firefox parses the value, passes an @supports test and renders nothing",
+        "A dialog is display:none when shut, so an opening transition has nothing to run between. It animates on a class either side of the frame and waits for animationend before calling close(), with a timer behind it because an interrupted animation never fires one",
+        "Escape fires cancel rather than close, so that is what is intercepted. The default would skip the leaving animation and never tell the parent the dialog had gone",
+        "prefers-reduced-transparency turns the sheet opaque and takes the specular with it. forced-colors falls back to a border, which is the one thing that mode keeps"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.1,
+      "contexts": 0,
+      "notes": [
+        "Nothing runs per frame. The glass is CSS and the lens map is drawn once per resize at quarter scale",
+        "backdrop-filter is not free: it forces the backdrop into its own layer. A modal is one element and it is only there while it is open"
+      ]
+    },
+    "files": [
+      {
+        "from": "components/glass-modal/react.tsx",
+        "to": "src/beamish/components/glass-modal/react.tsx",
+        "role": "component"
+      },
+      {
+        "from": "components/glass-modal/glass.ts",
+        "to": "src/beamish/components/glass-modal/glass.ts",
+        "role": "core"
+      },
+      {
+        "from": "components/glass-modal/styles.css",
+        "to": "src/beamish/components/glass-modal/styles.css",
+        "role": "style"
+      },
+      {
+        "from": "components/glass-modal/vue.ts",
+        "to": "src/beamish/components/glass-modal/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "blur": {
+        "type": "number",
+        "default": 18,
+        "description": "Blur of the page showing through. Past about 24 the page behind stops being recognisable, and a modal whose backdrop is unrecognisable may as well be opaque.",
+        "min": 0,
+        "max": 40,
+        "step": 1
+      },
+      "tint": {
+        "type": "number",
+        "default": 0.72,
+        "description": "How milky the sheet is. This is the contrast control and a modal needs more of it than a nav does, because a modal carries body copy rather than three words of navigation.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "refract": {
+        "type": "boolean",
+        "default": true,
+        "description": "Bend the backdrop as well as blurring it. Chromium only. Everywhere else you get the blur and the edge, which is most of the effect, and nothing looks broken."
+      },
+      "refraction": {
+        "type": "number",
+        "default": 22,
+        "description": "How far the rim bends what is behind it, in pixels. A modal can take more of this than a nav because its edge is further from the text.",
+        "min": 0,
+        "max": 60,
+        "step": 1
+      },
+      "lightDismiss": {
+        "type": "boolean",
+        "default": true,
+        "description": "Close when the page behind is clicked. Leave it on unless the dialog is asking something that should not be dismissed by accident, in which case the question is whether it should be a dialog at all."
+      }
+    },
+    "instruction": "open it, then press escape",
+    "oneShot": false,
+    "record": {
+      "duration": 6,
+      "fps": 30,
+      "posterAt": 2.8,
+      "crf": 30,
+      "interactions": [
+        {
+          "at": 0.5,
+          "action": "hover",
+          "target": ".demo-open"
+        },
+        {
+          "at": 1.1,
+          "action": "click",
+          "target": ".demo-open"
+        },
+        {
+          "at": 3.2,
+          "action": "hover",
+          "target": ".beamish-glass-modal__close"
+        },
+        {
+          "at": 4.3,
+          "action": "key",
+          "key": "Escape"
+        }
+      ]
+    },
+    "group": "components",
+    "intro": "A sheet of glass over the page, on a native `<dialog>`.\n\n`showModal()` is doing the hard part and it is worth saying what that covers,\nbecause it is most of what a modal is: the browser promotes the dialog into the\ntop layer, makes the rest of the document inert so nothing behind it is\nfocusable or reachable by a screen reader, traps focus inside, closes on Escape,\nand hands focus back to whatever opened it.\n\nThere is no focus-trap library here and there should not be one. Every line of\nthat behaviour is something the platform now gets right, including for the\nscreen readers a hand-rolled trap tends to miss.\n\nWhat is left is the glass, the light dismiss, and stopping the page behind from\nscrolling, which `showModal()` does not do."
+  },
+  {
     "name": "GlassNav",
     "slug": "glass-nav",
     "tier": 2,

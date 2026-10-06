@@ -375,7 +375,18 @@ export function attachRefraction(el: HTMLElement, strength: number, radius: numb
    * because there is usually a hero behind it worth seeing; once it is over
    * body copy it has to earn its contrast.
    */
-  background: rgba(255, 253, 247, calc(0.1 + var(--crossbar-tint) * var(--crossbar-settle)));
+  /*
+   * A floor, not a ramp from nothing. Clear glass over a photograph puts
+   * two-to-one text on the page, and the bar at the top of a hero was the worst
+   * case rather than the exception. It starts at a quarter and settles from
+   * there, which still reads as nearly clear over a picture and still passes.
+   */
+  background: rgba(
+    255,
+    253,
+    247,
+    calc(0.26 + var(--crossbar-tint) * var(--crossbar-settle) * 0.7)
+  );
 
   /*
    * The lens is appended by the component when refraction is on, and the empty
@@ -384,11 +395,11 @@ export function attachRefraction(el: HTMLElement, strength: number, radius: numb
    * of glass does and the other way round smears the bend.
    */
   -webkit-backdrop-filter: var(--crossbar-lens, )
-    blur(calc(var(--crossbar-blur) * var(--crossbar-settle)))
-    saturate(calc(100% + 70% * var(--crossbar-settle)));
+    blur(calc(4px + var(--crossbar-blur) * var(--crossbar-settle)))
+    saturate(calc(110% + 60% * var(--crossbar-settle)));
   backdrop-filter: var(--crossbar-lens, )
-    blur(calc(var(--crossbar-blur) * var(--crossbar-settle)))
-    saturate(calc(100% + 70% * var(--crossbar-settle)));
+    blur(calc(4px + var(--crossbar-blur) * var(--crossbar-settle)))
+    saturate(calc(110% + 60% * var(--crossbar-settle)));
 
   /*
    * The edge, in three parts. The first inset line is the specular: a sheet of
@@ -397,9 +408,9 @@ export function attachRefraction(el: HTMLElement, strength: number, radius: numb
    * rim. The third sits it above the page.
    */
   box-shadow:
-    inset 0 1.5px 0 rgba(255, 255, 255, calc(0.9 * var(--crossbar-settle))),
-    inset 0 0 0 1px rgba(255, 255, 255, calc(0.3 * var(--crossbar-settle))),
-    0 10px 30px -12px rgba(38, 36, 31, calc(0.3 * var(--crossbar-settle)));
+    inset 0 1.5px 0 rgba(255, 255, 255, calc(0.55 + 0.35 * var(--crossbar-settle))),
+    inset 0 0 0 1px rgba(255, 255, 255, calc(0.22 + 0.18 * var(--crossbar-settle))),
+    0 10px 30px -12px rgba(38, 36, 31, calc(0.18 + 0.2 * var(--crossbar-settle)));
 
   transition:
     background-color 0.5s var(--crossbar-ease),
@@ -427,13 +438,14 @@ export function attachRefraction(el: HTMLElement, strength: number, radius: numb
   position: relative;
   display: inline-block;
   padding: 0.35rem 0;
-  color: var(--crossbar-quiet);
+  color: var(--crossbar-ink);
+  opacity: 0.72;
   text-decoration: none;
-  transition: color 0.3s var(--crossbar-ease);
+  transition: opacity 0.3s var(--crossbar-ease);
 }
 
 .beamish-glass-nav__link:hover {
-  color: var(--crossbar-ink);
+  opacity: 1;
 }
 
 /*
@@ -441,7 +453,7 @@ export function attachRefraction(el: HTMLElement, strength: number, radius: numb
  * screen reader announces cannot drift apart. There is no separate class.
  */
 .beamish-glass-nav__link[aria-current='page'] {
-  color: var(--crossbar-ink);
+  opacity: 1;
 }
 
 .beamish-glass-nav__link[aria-current='page']::after {

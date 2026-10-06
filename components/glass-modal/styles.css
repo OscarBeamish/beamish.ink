@@ -1,0 +1,193 @@
+/*
+ * Pane: Beamish
+ *
+ * Every custom property has a fallback, so the component looks right dropped
+ * into a project that has never heard of Beamish tokens.
+ *
+ * A native <dialog> opened with showModal(), so the browser supplies the top
+ * layer, the backdrop, the focus trap, the inert background, Escape, and
+ * returning focus to whatever opened it. None of that is worth hand-rolling and
+ * all of it is worth having.
+ *
+ * What is left to do is the glass: a blur of the page showing through, and the
+ * edge that makes it read as a sheet rather than as a translucent div.
+ */
+
+.beamish-glass-modal {
+  --pane-ink: var(--label-1, #26241f);
+  --pane-quiet: var(--label-2, rgba(38, 36, 31, 0.68));
+  --pane-accent: var(--accent, #c44400);
+  --pane-ease: var(--ease-66, cubic-bezier(0.66, 0, 0.01, 1));
+
+  --pane-blur: 18px;
+  --pane-tint: 0.72;
+
+  width: min(34rem, calc(100vw - 2.5rem));
+  max-height: min(80vh, 44rem);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  color: var(--pane-ink);
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+
+  background: rgba(255, 253, 247, var(--pane-tint));
+
+  -webkit-backdrop-filter: var(--pane-lens, ) blur(var(--pane-blur)) saturate(170%);
+  backdrop-filter: var(--pane-lens, ) blur(var(--pane-blur)) saturate(170%);
+
+  /*
+   * The specular first. A sheet of glass catches a hairline of light along its
+   * top edge, and that one line is the difference between this and a panel with
+   * some opacity on it. Then the rim, then the shadow that lifts it off.
+   */
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.9),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35),
+    0 40px 80px -30px rgba(38, 36, 31, 0.5);
+}
+
+/*
+ * The page behind, dimmed and pushed back. Keeping a little of it visible is
+ * the point: a modal over a solid scrim is a card on a grey screen, and the
+ * glass has nothing to be glass about.
+ */
+.beamish-glass-modal::backdrop {
+  background: rgba(38, 36, 31, 0.32);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+.beamish-glass-modal__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.6rem 1.6rem 0.9rem;
+}
+
+.beamish-glass-modal__title {
+  margin: 0;
+  font-family: var(--font-display, ui-sans-serif, system-ui, sans-serif);
+  font-size: 1.35rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.beamish-glass-modal__close {
+  margin-inline-start: auto;
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(38, 36, 31, 0.2);
+  border-radius: 100px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 0.3s var(--pane-ease),
+    border-color 0.3s var(--pane-ease);
+}
+
+.beamish-glass-modal__close:hover {
+  background: rgba(38, 36, 31, 0.08);
+  border-color: rgba(38, 36, 31, 0.4);
+}
+
+.beamish-glass-modal__body {
+  padding: 0 1.6rem 1.6rem;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--pane-quiet);
+}
+
+.beamish-glass-modal__close:focus-visible {
+  outline: 2px solid var(--pane-accent);
+  outline-offset: 3px;
+}
+
+/*
+ * Opening and closing. A dialog is display:none when shut, so a plain
+ * transition has nothing to run between; the component adds and removes a
+ * class either side of the frame and waits for the transition before calling
+ * close(), which keeps it to properties every browser animates.
+ */
+.beamish-glass-modal[open] {
+  animation: beamish-glass-modal-in 0.4s var(--pane-ease);
+}
+
+.beamish-glass-modal[open]::backdrop {
+  animation: beamish-glass-modal-backdrop-in 0.4s var(--pane-ease);
+}
+
+.beamish-glass-modal--leaving {
+  animation: beamish-glass-modal-out 0.25s var(--pane-ease) forwards;
+}
+
+.beamish-glass-modal--leaving::backdrop {
+  animation: beamish-glass-modal-backdrop-in 0.25s var(--pane-ease) reverse forwards;
+}
+
+@keyframes beamish-glass-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+
+@keyframes beamish-glass-modal-out {
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+}
+
+@keyframes beamish-glass-modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/*
+ * Reduced transparency is a real system setting and a modal is exactly what it
+ * exists for: this one sits over whatever somebody was reading. Opaque, and the
+ * specular goes with it, because a highlight on something that is not
+ * transparent is a lie about the material.
+ */
+@media (prefers-reduced-transparency: reduce) {
+  .beamish-glass-modal {
+    background: rgb(255, 253, 247);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    --pane-lens: ;
+    box-shadow: 0 40px 80px -30px rgba(38, 36, 31, 0.5);
+  }
+
+  .beamish-glass-modal::backdrop {
+    background: rgba(38, 36, 31, 0.6);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .beamish-glass-modal {
+    border: 1px solid CanvasText;
+    background: Canvas;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beamish-glass-modal[open],
+  .beamish-glass-modal[open]::backdrop,
+  .beamish-glass-modal--leaving,
+  .beamish-glass-modal--leaving::backdrop {
+    animation-duration: 0.01ms;
+  }
+}
