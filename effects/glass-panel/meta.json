@@ -2,7 +2,7 @@
   "name": "GlassPanel",
   "slug": "glass-panel",
   "tier": 1,
-  "description": "A slab of glass laid on a picture, bending and splitting what scrolls behind it",
+  "description": "A slab of glass over a picture, holding a control and bending what scrolls behind it",
   "category": "surfaces",
   "tags": [
     "webgl",
@@ -24,7 +24,9 @@
       "The slab is a signed distance field for a rounded rectangle, and its gradient is analytic rather than sampled, because an approximate normal shows up at once as a wobble along the straight runs",
       "Dispersion is three samples at three offsets along that normal, taken per tap inside the blur so the fringe survives it rather than being averaged away",
       "One WebGL2 context, one full-screen triangle, no buffers and no attributes",
-      "Legibility is a luminosity compression rather than a tint: the backdrop's brightness is scaled toward a level, so the hue and the detail survive. Mixing toward white measures the same and looks dead, because it desaturates the picture and flattens what the glass is supposed to be bending"
+      "Legibility is a luminosity compression rather than a tint: the backdrop's brightness is scaled toward a level, so the hue and the detail survive. Mixing toward white measures the same and looks dead, because it desaturates the picture and flattens what the glass is supposed to be bending",
+      "The material belongs to the layer floating above content rather than to content itself, which is the rule Apple states for it, so what sits on the panel is a control: a search field, a toolbar, a nav. The demo is a search capsule, inset and low in the frame, which is where a thumb reaches",
+      "Measured rather than judged: dark text on clear glass over this photograph is about 1.5:1, and the default luminosity brings the worst tile under the capsule to 5.99:1. That setting is the first one with real margin rather than the most it could take"
     ]
   },
   "perf": {
@@ -66,7 +68,7 @@
     },
     "panelX": {
       "type": "number",
-      "default": 0.36,
+      "default": 0.5,
       "min": 0,
       "max": 1,
       "step": 0.01,
@@ -74,7 +76,7 @@
     },
     "panelY": {
       "type": "number",
-      "default": 0.63,
+      "default": 0.82,
       "min": 0,
       "max": 1,
       "step": 0.01,
@@ -82,7 +84,7 @@
     },
     "panelWidth": {
       "type": "number",
-      "default": 0.54,
+      "default": 0.44,
       "min": 0.05,
       "max": 1,
       "step": 0.01,
@@ -90,7 +92,7 @@
     },
     "panelHeight": {
       "type": "number",
-      "default": 0.42,
+      "default": 0.115,
       "min": 0.03,
       "max": 1,
       "step": 0.01,
@@ -98,7 +100,7 @@
     },
     "radius": {
       "type": "number",
-      "default": 26,
+      "default": 200,
       "min": 0,
       "max": 200,
       "step": 1,
@@ -106,7 +108,7 @@
     },
     "bevel": {
       "type": "number",
-      "default": 22,
+      "default": 14,
       "min": 1,
       "max": 120,
       "step": 1,
@@ -114,7 +116,7 @@
     },
     "refraction": {
       "type": "number",
-      "default": 40,
+      "default": 30,
       "min": 0,
       "max": 120,
       "step": 1,
@@ -122,7 +124,7 @@
     },
     "dispersion": {
       "type": "number",
-      "default": 8,
+      "default": 6,
       "min": 0,
       "max": 30,
       "step": 0.5,
@@ -130,7 +132,7 @@
     },
     "frost": {
       "type": "number",
-      "default": 3,
+      "default": 2,
       "min": 0,
       "max": 40,
       "step": 0.5,
@@ -210,7 +212,7 @@
     },
     "shadow": {
       "type": "number",
-      "default": 26,
+      "default": 22,
       "min": 0,
       "max": 80,
       "step": 1,

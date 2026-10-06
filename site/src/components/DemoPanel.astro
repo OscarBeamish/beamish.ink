@@ -272,12 +272,12 @@ const tweakable = tier === 1 ? Object.entries(options) : []
      * aloud, so anything practical sitting on glass has to be DOM.
      */
     'glass-panel': `<img class="demo-plate-fill" src="/plates/glass-panel/mountain.jpg" alt="Mountain ridges at dawn, lit from behind by a pink sky" />
-      <div class="demo-glass-plate">
-        <p class="demo-glass-plate__eyebrow">Field notes</p>
-        <p class="demo-glass-plate__title">A headline sits here</p>
-        <p class="demo-glass-plate__line">And a line of supporting copy under it, about the length a real one runs, so the glass has something to hold.</p>
-        <span class="demo-glass-plate__action">Read the piece</span>
-      </div>`,
+      <form class="demo-capsule" role="search" action="#results">
+        <label class="demo-capsule__label" for="demo-capsule-q">Search the library</label>
+        <svg class="demo-capsule__icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="7" cy="7" r="4.4" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M10.4 10.4 L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+        <input class="demo-capsule__input" id="demo-capsule-q" type="search" name="q" placeholder="Search the library" autocomplete="off" />
+        <kbd class="demo-capsule__hint">/</kbd>
+      </form>`,
     'scramble-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     'misprint-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     'ink-bleed-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,

@@ -87,46 +87,65 @@ export function Hero() {
 **Vue** and **Astro** are the same shape. The core is a standard ES module with
 no framework in it.
 
-## Putting something on it
+## What goes on it
 
-The canvas draws the glass. Anything that sits on it is real markup above the
-canvas, because WebGL cannot hold text that can be focused, selected,
-translated or read aloud by anything assistive.
+Apple's rule for this material is stricter than most people apply it, and it
+decides the whole design: the material belongs to **the layer that floats above
+content**, not to content itself. Lists, cards, tables and media are not
+supposed to be made of glass.
+
+So what sits on the panel is a control. A search field, a toolbar, a set of
+actions, a nav. Not a paragraph.
+
+The default arrangement is a search capsule, which is the shape Apple reaches
+for first: inset from the edges, low in the frame on a phone because that is
+where a thumb reaches, and in the top trailing corner on anything larger.
 
 ```html
 <div id="hero" class="hero">
   <img src="/mountain.jpg" alt="Mountain ridges at dawn" />
 
-  <div class="hero__plate">
-    <p class="hero__eyebrow">Field notes</p>
-    <h1>A headline sits here</h1>
-    <p>And a line of supporting copy under it.</p>
-    <a href="/read">Read the piece</a>
-  </div>
+  <form class="hero__capsule" role="search" action="/search">
+    <label class="visually-hidden" for="q">Search the library</label>
+    <svg aria-hidden="true" focusable="false">...</svg>
+    <input id="q" type="search" name="q" placeholder="Search the library" />
+    <kbd>/</kbd>
+  </form>
 </div>
 ```
 
-Line the markup up with `panelX`, `panelY`, `panelWidth` and `panelHeight`,
+The canvas draws the glass. The form is real markup above it, so it can be
+focused, typed into, submitted, read aloud and translated, and none of that
+depends on WebGL having started.
+
+Two details that are easy to get wrong. The label is the accessible name and the
+placeholder is not: a placeholder goes the moment anybody types and is not
+announced by everything, so the field keeps a real label even when it is hidden.
+And the focus ring belongs on the capsule rather than on the input, because the
+input has no edge of its own. The glass is its edge.
+
+Line the control up with `panelX`, `panelY`, `panelWidth` and `panelHeight`,
 which are all shares of the element, so the two stay together through a resize.
 
 ## Reading anything on glass
 
-This is the part that will catch you out, and it is worth giving the numbers.
+This is the part that will catch you out, and it is what Nielsen Norman went
+after Liquid Glass for: text over a photograph, where the contrast is whatever
+the picture happens to be at that moment.
 
-Dark text on clear glass over a photograph measures about **1.5:1**. WCAG wants
-4.5:1 for body copy. Winding `tint` up to 0.7 gets it to **4.2:1**, which is
-still short, and by then the slab is nearly opaque and there is no glass left to
-look at. Tint cannot solve this, and the first attempt here, a milky wash
+Dark text on clear glass over this photograph measures about **1.5:1**. WCAG
+wants 4.5:1 for body copy. Winding `tint` up to 0.7 gets it to **4.2:1**, which
+is still short, and by then the slab is nearly opaque and there is no glass left
+to look at. Tint cannot solve this, and the first attempt here, a milky wash
 through the middle of the slab, measured beautifully and looked dead: washing
-toward white desaturates the picture and flattens the detail, so what is left is
-a panel with a smear on it.
+toward white desaturates the picture and flattens the detail.
 
-The two systems that have solved this both do the same thing, and neither of
-them paints. Windows Acrylic puts a **luminosity layer** under the tint: the
-backdrop's brightness is pulled toward a level, which limits how dark or bright
-it is allowed to get while the colour and the detail survive. Apple's material
-shifts adaptively, moving only as far as legibility needs and letting as much
-content through as possible.
+The two systems that have solved this both do the same thing and neither of them
+paints. Windows Acrylic puts a **luminosity layer** under the tint: the
+backdrop's brightness is pulled toward a level, limiting how dark or bright it
+can get while the colour and the detail survive. Apple's material shifts
+adaptively, moving only as far as legibility needs and letting as much content
+through as possible.
 
 So `luminosity` is a compression, not a wash. It replaces the backdrop's
 luminance and adds the colour difference back at its original size, which is
@@ -139,29 +158,17 @@ looking like an oil slick.
 light text, and it is the one number that decides which way round the glass
 works.
 
-At the default 0.65 the worst tile under the plate measures **5.5:1**. 0.55
-measures 4.48:1, which just misses, so the default is the first setting with
-real margin rather than the most it could take. Those numbers are for this
-photograph: measure yours, against the worst patch under the text at every point
-in the scroll rather than the average.
+At the default 0.65 the worst tile under the capsule measures **5.99:1**, and
+0.45 fails at 4.08:1. The default is the first setting with real margin rather
+than the most it could take, which is the principle both systems state: let as
+much content through as possible.
 
-## What glass is actually for
-
-Apple's guidance on this is worth repeating because it is stricter than most
-people apply it: the material belongs to **the navigation layer that floats
-above content**, and not to content itself. Lists, cards, tables and media are
-not supposed to be made of it.
-
-By that reading a hero plate carrying a paragraph is the wrong use, and a nav, a
-toolbar, a search field or a set of controls is the right one. The hero plate in
-the demo is there because it shows the refraction at its best: a large area of
-bent picture behind a few words. If you are putting a lot of text on glass, the
-honest options are to raise `luminosity` until it passes, or to put the text on
-the page and the glass around the controls.
+Those numbers are for this photograph. Measure yours, against the worst patch
+under the text at every point in the scroll rather than the average.
 
 ## Using it as a nav
 
-This is the arrangement it was built for, and the division of labour matters.
+The other arrangement, and the same division of labour.
 
 ```html
 <div id="hero" class="hero">
@@ -175,18 +182,9 @@ This is the arrangement it was built for, and the division of labour matters.
 </div>
 ```
 
-The canvas draws the glass. The `<nav>` is real markup sitting on top of it,
-positioned over the panel with ordinary CSS. Links are links, the keyboard
-works, a screen reader reads a navigation landmark, and none of that depends on
-WebGL having started.
-
-Line the nav up with `panelX`, `panelY`, `panelWidth` and `panelHeight`, which
-are all shares of the element so they survive a resize.
-
-Mind the contrast. The glass lightens what is behind it a little, but a dark
-photograph under dark text is still dark text on a photograph. `tint` is the
-control, and the honest check is the busiest part of the image rather than the
-average.
+Make the panel wide and short with a large `radius`, keep `bevel` narrow so the
+flat middle carries the links, and put it where a nav goes. Links are links, the
+keyboard works, and a screen reader reads a navigation landmark.
 
 ## Scrolling
 

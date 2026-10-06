@@ -33,63 +33,81 @@
         object-fit: cover;
       }
       /*
-       * The plate's own markup, above the canvas. The canvas draws the glass;
-       * this is the content, and it has to be real DOM so it can be focused,
-       * selected, translated and read aloud.
+       * The control that sits on the glass.
+       *
+       * Apple's rule for this material is that it belongs to the layer that
+       * floats above content, not to content itself, so the thing on the glass
+       * is a control rather than a paragraph. The capsule is inset from the
+       * edges and sits low in the frame, which is where a thumb reaches.
        *
        * Lined up with the panel options, which are shares of the element, so
-       * the two stay together when the frame changes shape.
+       * the control and the glass stay together through a resize.
        */
-      .plate {
+      .capsule {
         position: absolute;
-        left: 9%;
-        top: 42%;
-        width: 54%;
-        height: 42%;
+        left: 28%;
+        top: 76.25%;
+        width: 44%;
+        height: 11.5%;
         display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: center;
+        align-items: center;
         gap: 0.7rem;
-        padding: 0 clamp(1.2rem, 3vw, 2.4rem);
+        padding: 0 clamp(0.9rem, 2vw, 1.4rem);
         box-sizing: border-box;
         color: #1c1a16;
       }
-      .plate__eyebrow {
-        margin: 0;
-        font-size: 0.68rem;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        opacity: 0.75;
+      /* The label is the accessible name. The placeholder is not one: it goes
+         the moment anybody types, and it is not announced by everything. */
+      .capsule__label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
       }
-      .plate__title {
-        margin: 0;
-        font-family: var(--font-display);
-        font-size: clamp(1.5rem, 4.2vw, 3rem);
-        line-height: 0.98;
-        letter-spacing: -0.03em;
+      .capsule__icon {
+        flex: none;
+        width: clamp(0.85rem, 1.6vw, 1.05rem);
+        height: clamp(0.85rem, 1.6vw, 1.05rem);
+        opacity: 0.7;
       }
-      .plate__line {
-        margin: 0;
-        max-width: 34ch;
-        font-size: clamp(0.72rem, 1.4vw, 0.92rem);
-        line-height: 1.55;
-        opacity: 0.82;
-      }
-      .plate__action {
-        margin-top: 0.3rem;
-        padding: 0.6rem 1.2rem;
-        border: 1px solid currentColor;
-        border-radius: 100px;
-        font-size: 0.66rem;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        text-decoration: none;
+      .capsule__input {
+        flex: 1;
+        min-width: 0;
+        border: 0;
+        background: transparent;
         color: inherit;
+        font: inherit;
+        font-size: clamp(0.72rem, 1.5vw, 0.95rem);
+        letter-spacing: 0.01em;
       }
-      .plate__action:focus-visible {
+      /* A placeholder still has to be readable. 0.62 looked right and
+         measured worse than the text it stands in for. */
+      .capsule__input::placeholder {
+        color: inherit;
+        opacity: 0.78;
+      }
+      .capsule__input:focus {
+        outline: none;
+      }
+      /* The focus ring goes on the capsule, because the input has no edges of
+         its own: the glass is its edge. */
+      .capsule:focus-within {
         outline: 2px solid var(--accent);
-        outline-offset: 3px;
+        outline-offset: 6px;
+        border-radius: 100px;
+      }
+      .capsule__hint {
+        flex: none;
+        padding: 0.15rem 0.45rem;
+        border: 1px solid currentColor;
+        border-radius: 5px;
+        font-family: inherit;
+        font-size: clamp(0.55rem, 1vw, 0.68rem);
+        opacity: 0.72;
       }
     </style>
   </head>
@@ -104,15 +122,27 @@
         src="./demo-plates/mountain.jpg"
         alt="Mountain ridges at dawn, lit from behind by a pink sky"
       />
-      <div class="plate">
-        <p class="plate__eyebrow">Field notes</p>
-        <h1 class="plate__title">A headline sits here</h1>
-        <p class="plate__line">
-          And a line of supporting copy under it, about the length a real one runs,
-          so the glass has something to hold.
-        </p>
-        <a class="plate__action" href="#read">Read the piece</a>
-      </div>
+      <!--
+        A real form, above the canvas. The canvas draws the glass; this is the
+        control, and it has to be DOM so it can be focused, typed into, read
+        aloud and submitted.
+      -->
+      <form class="capsule" role="search" action="#results">
+        <label class="capsule__label" for="capsule-q">Search the library</label>
+        <svg class="capsule__icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <circle cx="7" cy="7" r="4.4" fill="none" stroke="currentColor" stroke-width="1.6" />
+          <path d="M10.4 10.4 L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+        <input
+          class="capsule__input"
+          id="capsule-q"
+          type="search"
+          name="q"
+          placeholder="Search the library"
+          autocomplete="off"
+        />
+        <kbd class="capsule__hint">/</kbd>
+      </form>
     </div>
 
     <script src="./demo.bundle.js"></script>

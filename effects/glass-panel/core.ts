@@ -80,15 +80,15 @@ export type GlassPanelOptions = BaseOptions & {
  */
 export const glassPanelDefaults: GlassPanelOptions = {
   glass: '#ffffff',
-  panelX: 0.36,
-  panelY: 0.63,
-  panelWidth: 0.54,
-  panelHeight: 0.42,
-  radius: 26,
-  bevel: 22,
-  refraction: 40,
-  dispersion: 8,
-  frost: 3,
+  panelX: 0.5,
+  panelY: 0.82,
+  panelWidth: 0.44,
+  panelHeight: 0.115,
+  radius: 200,
+  bevel: 14,
+  refraction: 30,
+  dispersion: 6,
+  frost: 2,
   specular: 0.35,
   shine: 40,
   fresnel: 0.06,
@@ -98,7 +98,7 @@ export const glassPanelDefaults: GlassPanelOptions = {
   level: 0.74,
   lightX: -0.5,
   lightY: 0.7,
-  shadow: 26,
+  shadow: 22,
   travel: 1
 }
 

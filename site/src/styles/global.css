@@ -228,57 +228,82 @@
   }
 
   /*
-   * The plate laid on GlassPanel. Lined up with the panel options, which are
-   * shares of the element, so the markup and the glass stay together when the
-   * frame changes shape.
+   * The control that sits on GlassPanel.
+   *
+   * Apple's rule for this material is that it belongs to the layer floating
+   * above content rather than to content itself, so what goes on the glass is a
+   * control and not a paragraph. Lined up with the panel options, which are
+   * shares of the element, so the two stay together through a resize.
    */
-  .demo-glass-plate {
+  .demo-capsule {
     position: absolute;
-    left: 9%;
-    top: 42%;
-    width: 54%;
-    height: 42%;
+    left: 28%;
+    top: 76.25%;
+    width: 44%;
+    height: 11.5%;
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 0.6cqw;
-    padding: 0 3cqw;
+    align-items: center;
+    gap: 1.2cqw;
+    padding: 0 2.2cqw;
     box-sizing: border-box;
     color: #1c1a16;
   }
 
-  .demo-glass-plate__eyebrow {
-    margin: 0;
-    font-size: clamp(0.55rem, 1cqw, 0.7rem);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    opacity: 0.75;
+  /* The label is the accessible name. A placeholder is not one: it goes the
+     moment anybody types and it is not announced by everything. */
+  .demo-capsule__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
-  .demo-glass-plate__title {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(1.1rem, 4cqw, 2.6rem);
-    line-height: 0.98;
-    letter-spacing: -0.03em;
+  .demo-capsule__icon {
+    flex: none;
+    width: clamp(0.7rem, 1.5cqw, 1.05rem);
+    height: clamp(0.7rem, 1.5cqw, 1.05rem);
+    opacity: 0.72;
   }
 
-  .demo-glass-plate__line {
-    margin: 0;
-    max-width: 32ch;
-    font-size: clamp(0.6rem, 1.4cqw, 0.9rem);
-    line-height: 1.5;
+  .demo-capsule__input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: clamp(0.62rem, 1.4cqw, 0.95rem);
   }
 
-  .demo-glass-plate__action {
-    margin-top: 0.4cqw;
-    padding: 0.7cqw 1.6cqw;
-    border: 1px solid currentColor;
+  .demo-capsule__input::placeholder {
+    color: inherit;
+    opacity: 0.78;
+  }
+
+  .demo-capsule__input:focus {
+    outline: none;
+  }
+
+  /* The ring goes on the capsule: the input has no edge of its own, the glass
+     is its edge. */
+  .demo-capsule:focus-within {
+    outline: 2px solid var(--accent);
+    outline-offset: 6px;
     border-radius: 100px;
-    font-size: clamp(0.52rem, 0.95cqw, 0.68rem);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+  }
+
+  .demo-capsule__hint {
+    flex: none;
+    padding: 0.2cqw 0.8cqw;
+    border: 1px solid currentColor;
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: clamp(0.5rem, 1cqw, 0.68rem);
+    opacity: 0.72;
   }
 
   .demo-glass-nav {

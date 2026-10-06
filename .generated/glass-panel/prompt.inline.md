@@ -1,6 +1,6 @@
 You are adding **GlassPanel** from Beamish to this project.
 
-> A slab of glass laid on a picture, bending and splitting what scrolls behind it. Surfaces · effect · MIT.
+> A slab of glass over a picture, holding a control and bending what scrolls behind it. Surfaces · effect · MIT.
 > https://beamish.ink/effects/glass-panel
 
 Beamish is not a package and there is nothing to install from npm. The source
@@ -21,6 +21,8 @@ Assume you have not seen this library before. Everything you need is below.
 - Dispersion is three samples at three offsets along that normal, taken per tap inside the blur so the fringe survives it rather than being averaged away
 - One WebGL2 context, one full-screen triangle, no buffers and no attributes
 - Legibility is a luminosity compression rather than a tint: the backdrop's brightness is scaled toward a level, so the hue and the detail survive. Mixing toward white measures the same and looks dead, because it desaturates the picture and flattens what the glass is supposed to be bending
+- The material belongs to the layer floating above content rather than to content itself, which is the rule Apple states for it, so what sits on the panel is a control: a search field, a toolbar, a nav. The demo is a search capsule, inset and low in the frame, which is where a thumb reaches
+- Measured rather than judged: dark text on clear glass over this photograph is about 1.5:1, and the default luminosity brings the worst tile under the capsule to 5.99:1. That setting is the first one with real margin rather than the most it could take
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -720,15 +722,15 @@ export type GlassPanelOptions = BaseOptions & {
  */
 export const glassPanelDefaults: GlassPanelOptions = {
   glass: '#ffffff',
-  panelX: 0.36,
-  panelY: 0.63,
-  panelWidth: 0.54,
-  panelHeight: 0.42,
-  radius: 26,
-  bevel: 22,
-  refraction: 40,
-  dispersion: 8,
-  frost: 3,
+  panelX: 0.5,
+  panelY: 0.82,
+  panelWidth: 0.44,
+  panelHeight: 0.115,
+  radius: 200,
+  bevel: 14,
+  refraction: 30,
+  dispersion: 6,
+  frost: 2,
   specular: 0.35,
   shine: 40,
   fresnel: 0.06,
@@ -738,7 +740,7 @@ export const glassPanelDefaults: GlassPanelOptions = {
   level: 0.74,
   lightX: -0.5,
   lightY: 0.7,
-  shadow: 26,
+  shadow: 22,
   travel: 1
 }
 
@@ -1283,15 +1285,15 @@ as the second argument to the create function; anything omitted takes its defaul
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
 | `glass` | color | `#ffffff` | any CSS hex | The tint the glass leaves and the colour its highlights take. Near white unless the glass is meant to be coloured, because it is multiplied into the picture rather than painted over it. |
-| `panelX` | number | `0.36` | 0 to 1 | Centre of the panel across the element. |
-| `panelY` | number | `0.63` | 0 to 1 | Centre of the panel down the element. |
-| `panelWidth` | number | `0.54` | 0.05 to 1 | Width of the panel as a share of the element. |
-| `panelHeight` | number | `0.42` | 0.03 to 1 | Height of the panel as a share of the element. |
-| `radius` | number | `26` | 0 to 200 | Corner radius in CSS pixels, capped at half the shorter side, so a large number gives a capsule rather than an error. |
-| `bevel` | number | `22` | 1 to 120 | How far in from the edge the bevel reaches. This is the width of the band that bends: the middle of a slab is flat and refracts nothing, which is why the centre stays readable and only the rim distorts. |
-| `refraction` | number | `40` | 0 to 120 | How far the bevel bends what is behind it, in pixels. At 0 you have frosted glass, and this is the setting that makes it glass rather than a blur. |
-| `dispersion` | number | `8` | 0 to 30 | How far the three channels separate as they bend. Glass has a different refractive index per wavelength, which is why a real edge fringes, and it is the cheapest thing that stops a shape reading as plastic. Past about 12 it stops being glass and starts being a prism. |
-| `frost` | number | `3` | 0 to 40 | Frosting, as a blur radius in pixels. Twelve taps on a ring, which is not a Gaussian and does not need to be. |
+| `panelX` | number | `0.5` | 0 to 1 | Centre of the panel across the element. |
+| `panelY` | number | `0.82` | 0 to 1 | Centre of the panel down the element. |
+| `panelWidth` | number | `0.44` | 0.05 to 1 | Width of the panel as a share of the element. |
+| `panelHeight` | number | `0.115` | 0.03 to 1 | Height of the panel as a share of the element. |
+| `radius` | number | `200` | 0 to 200 | Corner radius in CSS pixels, capped at half the shorter side, so a large number gives a capsule rather than an error. |
+| `bevel` | number | `14` | 1 to 120 | How far in from the edge the bevel reaches. This is the width of the band that bends: the middle of a slab is flat and refracts nothing, which is why the centre stays readable and only the rim distorts. |
+| `refraction` | number | `30` | 0 to 120 | How far the bevel bends what is behind it, in pixels. At 0 you have frosted glass, and this is the setting that makes it glass rather than a blur. |
+| `dispersion` | number | `6` | 0 to 30 | How far the three channels separate as they bend. Glass has a different refractive index per wavelength, which is why a real edge fringes, and it is the cheapest thing that stops a shape reading as plastic. Past about 12 it stops being glass and starts being a prism. |
+| `frost` | number | `2` | 0 to 40 | Frosting, as a blur radius in pixels. Twelve taps on a ring, which is not a Gaussian and does not need to be. |
 | `specular` | number | `0.35` | 0 to 2 | How brightly the bevel catches the light. The highlight is lit off a real normal built from the distance field, so it moves round the rim as the light does rather than sitting where it was painted. |
 | `shine` | number | `40` | 1 to 160 | How tight that catch is. Low is a broad satin sheen along the whole bevel; high is a small hard glint at the point facing the light. |
 | `fresnel` | number | `0.06` | 0 to 1.5 | How much the rim brightens where you are looking through the most glass. This is what gives the edge its thickness. |
@@ -1301,7 +1303,7 @@ as the second argument to the create function; anything omitted takes its defaul
 | `level` | number | `0.74` | 0 to 1 | The brightness the backdrop is pulled toward. High for dark text on the panel, low for light text. It is the single number that decides which way round the glass works. |
 | `lightX` | number | `-0.5` | -2 to 2 | Where the light is, across the panel. |
 | `lightY` | number | `0.7` | -2 to 2 | Where the light is, down the panel. |
-| `shadow` | number | `26` | 0 to 80 | How far the shadow under the slab reaches. Without it the panel is a window cut in the picture rather than an object resting on it. |
+| `shadow` | number | `22` | 0 to 80 | How far the shadow under the slab reaches. Without it the panel is a window cut in the picture rather than an object resting on it. |
 | `travel` | number | `1` | 0 to 3 | How far the picture travels behind the glass over a full scroll, as a share of the slack the cover fit left. At 0 the picture is fixed and all the glass has to bend is a still. |
 
 ## 5. Cleanup and SSR
