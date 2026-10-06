@@ -196,6 +196,18 @@
     color: var(--label-1);
   }
 
+  /* Glass has to have something behind it, so the panel supplies a picture. */
+  .demo-glass-nav {
+    position: absolute;
+    inset: 0;
+  }
+
+  .demo-glass-nav__bar {
+    position: absolute;
+    inset-inline: 6%;
+    top: 12%;
+  }
+
   .demo-heading {
     margin: 0;
     max-width: 18ch;

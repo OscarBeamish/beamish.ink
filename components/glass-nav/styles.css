@@ -1,0 +1,184 @@
+/*
+ * Crossbar: Beamish
+ *
+ * Every custom property has a fallback, so the component looks right dropped
+ * into a project that has never heard of Beamish tokens. If the tokens are
+ * present it inherits them instead, which is the whole point of shipping it
+ * this way.
+ *
+ * Glass is three things and only one of them is the blur.
+ *
+ * The blur is what everybody writes and it is what makes a panel read as tinted
+ * film. What makes it read as glass is the edge: a hairline specular highlight
+ * along the top, where a real sheet catches the light, a rim that separates it
+ * from whatever is behind, and a soft shadow underneath that says it is above
+ * the page rather than part of it. Take the specular away and the rest of this
+ * is a grey rectangle.
+ *
+ * The refraction is the fourth thing and it is optional, because it only works
+ * in Chromium. See the recipe.
+ */
+
+.beamish-glass-nav {
+  --crossbar-ink: var(--label-1, #26241f);
+  --crossbar-quiet: var(--label-2, rgba(38, 36, 31, 0.62));
+  --crossbar-accent: var(--accent, #c44400);
+  --crossbar-ease: var(--ease-66, cubic-bezier(0.66, 0, 0.01, 1));
+
+  /* Set by the component as you scroll, 0 at the top of the page to 1 once it
+     has left it. Everything that settles, settles off this one number. */
+  --crossbar-settle: 0;
+
+  --crossbar-blur: 14px;
+  --crossbar-tint: 0.55;
+
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 4vw, 2.5rem);
+  padding: 0.75rem clamp(1rem, 3vw, 1.6rem);
+  border-radius: 100px;
+  isolation: isolate;
+
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--crossbar-ink);
+
+  /*
+   * Milkier as it settles. At the top of a page the bar is nearly clear,
+   * because there is usually a hero behind it worth seeing; once it is over
+   * body copy it has to earn its contrast.
+   */
+  /*
+   * A floor, not a ramp from nothing. Clear glass over a photograph puts
+   * two-to-one text on the page, and the bar at the top of a hero was the worst
+   * case rather than the exception. It starts at a quarter and settles from
+   * there, which still reads as nearly clear over a picture and still passes.
+   */
+  background: rgba(
+    255,
+    253,
+    247,
+    calc(0.26 + var(--crossbar-tint) * var(--crossbar-settle) * 0.7)
+  );
+
+  /*
+   * The lens is appended by the component when refraction is on, and the empty
+   * fallback means the list is simply shorter when it is not. Order matters:
+   * the backdrop is bent first and blurred after, which is what a thick piece
+   * of glass does and the other way round smears the bend.
+   */
+  -webkit-backdrop-filter: var(--crossbar-lens, )
+    blur(calc(4px + var(--crossbar-blur) * var(--crossbar-settle)))
+    saturate(calc(110% + 60% * var(--crossbar-settle)));
+  backdrop-filter: var(--crossbar-lens, )
+    blur(calc(4px + var(--crossbar-blur) * var(--crossbar-settle)))
+    saturate(calc(110% + 60% * var(--crossbar-settle)));
+
+  /*
+   * The edge, in three parts. The first inset line is the specular: a sheet of
+   * glass catches a hairline of light along its top edge and that single line
+   * is the biggest difference between this and a tinted div. The second is the
+   * rim. The third sits it above the page.
+   */
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, calc(0.55 + 0.35 * var(--crossbar-settle))),
+    inset 0 0 0 1px rgba(255, 255, 255, calc(0.22 + 0.18 * var(--crossbar-settle))),
+    0 10px 30px -12px rgba(38, 36, 31, calc(0.18 + 0.2 * var(--crossbar-settle)));
+
+  transition:
+    background-color 0.5s var(--crossbar-ease),
+    box-shadow 0.5s var(--crossbar-ease);
+}
+
+.beamish-glass-nav__brand {
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  color: inherit;
+  margin-inline-end: auto;
+}
+
+.beamish-glass-nav__list {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.9rem, 2.5vw, 1.8rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.beamish-glass-nav__link {
+  position: relative;
+  display: inline-block;
+  padding: 0.35rem 0;
+  color: var(--crossbar-ink);
+  opacity: 0.72;
+  text-decoration: none;
+  transition: opacity 0.3s var(--crossbar-ease);
+}
+
+.beamish-glass-nav__link:hover {
+  opacity: 1;
+}
+
+/*
+ * The current page is marked by aria-current, so the styling and the thing a
+ * screen reader announces cannot drift apart. There is no separate class.
+ */
+.beamish-glass-nav__link[aria-current='page'] {
+  opacity: 1;
+}
+
+.beamish-glass-nav__link[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--crossbar-accent);
+}
+
+.beamish-glass-nav__link:focus-visible,
+.beamish-glass-nav__brand:focus-visible {
+  outline: 2px solid var(--crossbar-accent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/*
+ * Reduced transparency is a real system setting and this is exactly the
+ * component it exists for. Opaque, and the specular goes with the glass: a
+ * highlight on something that is not transparent is a lie about the material.
+ */
+@media (prefers-reduced-transparency: reduce) {
+  .beamish-glass-nav {
+    background: rgb(255, 253, 247);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    --crossbar-lens: ;
+    box-shadow: 0 10px 30px -12px rgba(38, 36, 31, 0.3);
+    filter: none !important;
+  }
+}
+
+/*
+ * Forced colours throws out every background and shadow we set, so the bar
+ * would otherwise lose its edges entirely. A border is the one thing the mode
+ * keeps.
+ */
+@media (forced-colors: active) {
+  .beamish-glass-nav {
+    border: 1px solid CanvasText;
+    background: Canvas;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beamish-glass-nav {
+    transition: none;
+  }
+}

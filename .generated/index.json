@@ -389,6 +389,153 @@
     "intro": "Contents is a full-viewport index: a small trigger, and an overlay that takes the\nwhole screen and lists everything in mono with hairline rules between the rows.\nThe rows cascade in on a 26ms stagger counted across every section, so the reveal\nreads as one movement down the page rather than several.\n\nThe overlay is a real `<dialog>` opened with `showModal()`. That is the whole\ndesign. The browser then provides the focus trap, Escape, the top layer,\ninerting the rest of the page, and returning focus to the trigger on close. Every\none of those is something hand-rolled menus get subtly wrong, and none of them is\nour code. There is no focus-trap library, no portal, and no scroll-lock package.\n\nWhat is left is layout, type, and one transition."
   },
   {
+    "name": "GlassNav",
+    "slug": "glass-nav",
+    "tier": 2,
+    "description": "A bar of glass across the top of a page, clear over a hero and frosted once it has scrolled",
+    "category": "navigation",
+    "tags": [
+      "react",
+      "vue",
+      "glass",
+      "nav",
+      "backdrop-filter",
+      "refraction"
+    ],
+    "peerDependencies": {
+      "react": ">=18"
+    },
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "The blur is backdrop-filter, which every current browser supports. The refraction is an SVG filter inside backdrop-filter, which only Chromium applies: Safari ignores it and Firefox parses the value, passes an @supports test and then renders nothing, so there is no feature query that tells the truth",
+        "What makes a panel read as glass rather than as tinted film is the hairline specular along its top edge, not the blur. Take that one line away and the rest is a grey rectangle",
+        "The lens is a signed distance field for the rounded rectangle, computed per pixel into a canvas and handed to feImage. The displacement is the field's gradient weighted towards the edge, which is a bevel rather than a uniform stretch",
+        "prefers-reduced-transparency turns the glass opaque and takes the specular with it, because a highlight on something that is not transparent is a lie about the material",
+        "forced-colors throws out every background and shadow, so the bar falls back to a border, which is the one thing the mode keeps",
+        "A nav landmark, a list, and links. The bar is markup rather than a widget, so the keyboard behaviour is the browser's",
+        "The current page is marked with aria-current='page', which is also what the underline styling keys off, so what is announced and what is drawn cannot drift",
+        "Contrast is the real risk. Glass over a photograph can put 2:1 text on the page without anybody noticing, which is why the tint comes up as the page scrolls under it rather than staying clear"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.1,
+      "contexts": 0,
+      "notes": [
+        "Scroll is read on a rAF rather than on the event, and the settle value is rounded to two places before it is written, so a style recalculation only happens when something changed",
+        "The lens map is drawn once per resize at quarter scale, not per frame. It is a smooth field and feImage resamples it",
+        "backdrop-filter is not free: it forces the backdrop into its own layer. One bar on a page is the intended dose"
+      ]
+    },
+    "files": [
+      {
+        "from": "components/glass-nav/react.tsx",
+        "to": "src/beamish/components/glass-nav/react.tsx",
+        "role": "component"
+      },
+      {
+        "from": "components/glass-nav/glass.ts",
+        "to": "src/beamish/components/glass-nav/glass.ts",
+        "role": "core"
+      },
+      {
+        "from": "components/glass-nav/styles.css",
+        "to": "src/beamish/components/glass-nav/styles.css",
+        "role": "style"
+      },
+      {
+        "from": "components/glass-nav/vue.ts",
+        "to": "src/beamish/components/glass-nav/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "settleOver": {
+        "type": "number",
+        "default": 120,
+        "description": "Pixels of scroll over which the glass goes from clear to frosted. Roughly the height of whatever is behind it at the top of the page.",
+        "min": 0,
+        "max": 600,
+        "step": 10
+      },
+      "blur": {
+        "type": "number",
+        "default": 14,
+        "description": "Blur at full settle. Past about 20 it stops reading as glass and starts reading as fog, and it is the setting most likely to cost a user on an old machine their frame rate.",
+        "min": 0,
+        "max": 40,
+        "step": 1
+      },
+      "tint": {
+        "type": "number",
+        "default": 0.55,
+        "description": "How milky it goes once settled. This is the contrast control: glass over a photograph can put 2:1 text on a page without anybody noticing, and this is what stops it.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "refract": {
+        "type": "boolean",
+        "default": true,
+        "description": "Bend the backdrop as well as blurring it. Chromium only. Everywhere else you get the blur and the edge, which is most of the effect, and nothing looks broken."
+      },
+      "refraction": {
+        "type": "number",
+        "default": 18,
+        "description": "How far the rim bends what is behind it, in pixels. Past about 30 the bar stops looking like glass and starts looking like a heat haze.",
+        "min": 0,
+        "max": 60,
+        "step": 1
+      }
+    },
+    "instruction": "scroll the page to settle the glass",
+    "oneShot": false,
+    "record": {
+      "duration": 6,
+      "fps": 30,
+      "posterAt": 3.4,
+      "crf": 30,
+      "interactions": [
+        {
+          "at": 0.4,
+          "action": "wait"
+        },
+        {
+          "at": 1,
+          "action": "scroll",
+          "by": 60
+        },
+        {
+          "at": 1.6,
+          "action": "scroll",
+          "by": 60
+        },
+        {
+          "at": 2.2,
+          "action": "scroll",
+          "by": 60
+        },
+        {
+          "at": 3,
+          "action": "hover",
+          "target": ".beamish-glass-nav__link"
+        },
+        {
+          "at": 4.2,
+          "action": "scroll",
+          "by": -90
+        },
+        {
+          "at": 5,
+          "action": "scroll",
+          "by": -90
+        }
+      ]
+    },
+    "group": "components",
+    "intro": "A bar of glass across the top of a page. Nearly clear over a hero, settling into\nfrosted once the page has scrolled under it.\n\nThat settle is the whole design. A bar legible over a photograph and a bar\nlegible over body copy are not the same bar, and a fixed one has to be the\nsecond, which means it is milky over the thing you most wanted people to see.\nTying the tint to the scroll lets it be clear exactly while there is something\nbehind it worth looking at.\n\nUnderneath it is a nav landmark, a list and links. The current page is marked\nwith `aria-current=\"page\"`, which is also what the underline keys off, so what a\nscreen reader announces and what you can see cannot drift apart."
+  },
+  {
     "name": "GlowButton",
     "slug": "glow-button",
     "tier": 2,

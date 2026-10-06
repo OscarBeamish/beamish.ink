@@ -3,6 +3,7 @@ import '@items/components/glow-button/styles.css'
 import ContentsDemo from '../demos/ContentsDemo'
 import EmberDemo from '../demos/EmberDemo'
 import PlateDemo from '../demos/PlateDemo'
+import CrossbarDemo from '../demos/CrossbarDemo'
 /*
  * One live demo, and never more than one on a page.
  *
@@ -77,6 +78,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       {island === 'fullscreen-menu' && <ContentsDemo client:only="react" />}
       {island === 'glow-button' && <EmberDemo client:only="react" />}
       {island === 'image-gallery-lightbox' && <PlateDemo client:only="react" />}
+      {island === 'glass-nav' && <CrossbarDemo client:only="react" />}
     </div>
 
     {
@@ -220,7 +222,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'pointer-smoke': () => import('@items/effects/pointer-smoke/core'),
     'watermark-sheet': () => import('@items/effects/watermark-sheet/core'),
     'ink-bleed-text': () => import('@items/effects/ink-bleed-text/core'),
-    halftone-magnifier: () => import('@items/effects/halftone-magnifier/core'),
+    'halftone-magnifier': () => import('@items/effects/halftone-magnifier/core'),
     'relight-image': () => import('@items/effects/relight-image/core')
   }
 
@@ -257,7 +259,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       '<img class="demo-plate-fill" src="/plates/scroll-warp-image/grid.jpg" alt="A facade of small square windows punched in a dark grid, seen from above" />',
     'halftone-reveal':
       '<img class="demo-plate-fill" src="/plates/halftone-reveal/plate.jpg" alt="A spiral stair curving down the inside of a circular concrete well" />',
-    halftone-magnifier:
+    'halftone-magnifier':
       '<img class="demo-plate-fill" src="/plates/halftone-magnifier/plate.jpg" alt="A spiral stair curving down the inside of a circular concrete well" />',
     'relight-image':
       '<img class="demo-plate-fill" src="/plates/relight-image/plate.jpg" alt="A facade of small square windows punched in a dark grid, seen from above" />',

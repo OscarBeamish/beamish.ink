@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GlassNav: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <link rel="stylesheet" href="./demo.bundle.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+
+      /*
+       * Glass has to have something behind it. A flat background gives it
+       * nothing to blur and nothing to bend, which is the single most common
+       * way this effect is made to look cheap, so the demo page puts a picture
+       * under the bar and then some body copy for it to settle over.
+       */
+      .plate {
+        position: relative;
+        height: 68vh;
+        overflow: hidden;
+      }
+      .plate img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .bar {
+        position: fixed;
+        inset-inline: clamp(1rem, 4vw, 3rem);
+        top: clamp(1rem, 3vw, 2rem);
+        z-index: 20;
+      }
+      .copy {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 4rem clamp(1rem, 4vw, 3rem) 6rem;
+        font-size: 0.95rem;
+        line-height: 1.7;
+        color: var(--label-2);
+      }
+      .copy h2 {
+        font-family: var(--font-display);
+        font-size: clamp(1.6rem, 5vw, 2.6rem);
+        letter-spacing: -0.03em;
+        line-height: 1.05;
+        color: var(--label-1);
+        margin: 0 0 1.2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the component can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+    -->
+    <div id="stage">
+      <div class="bar"><div id="mount"></div></div>
+
+      <div class="plate">
+        <img
+          src="./demo-plates/plate.jpg"
+          alt="A facade of small square windows punched in a dark grid, seen from above"
+        />
+      </div>
+
+      <div class="copy">
+        <h2>A headline sits here</h2>
+        <p>
+          And a line of supporting copy under it, about the length a real one runs, so
+          the bar has something to settle over rather than a flat colour. Glass with
+          nothing behind it has nothing to blur and nothing to bend, which is the
+          single most common reason the effect falls flat.
+        </p>
+        <p>
+          The bar is nearly clear while the picture is behind it and milky by the time
+          it is over this paragraph, because a bar that is legible over a photograph
+          and a bar that is legible over body copy are not the same bar.
+        </p>
+      </div>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      window.Beamish.mount(document.getElementById('mount'), {
+        brand: 'Beamish.ink',
+        items: [
+          { label: 'Work', href: '#work', current: true },
+          { label: 'Studio', href: '#studio' },
+          { label: 'Contact', href: '#contact' }
+        ]
+      })
+    </script>
+  </body>
+</html>
