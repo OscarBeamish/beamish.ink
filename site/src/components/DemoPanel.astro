@@ -4,6 +4,7 @@ import ContentsDemo from '../demos/ContentsDemo'
 import EmberDemo from '../demos/EmberDemo'
 import PlateDemo from '../demos/PlateDemo'
 import CrossbarDemo from '../demos/CrossbarDemo'
+import PaneDemo from '../demos/PaneDemo'
 /*
  * One live demo, and never more than one on a page.
  *
@@ -79,6 +80,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       {island === 'glow-button' && <EmberDemo client:only="react" />}
       {island === 'image-gallery-lightbox' && <PlateDemo client:only="react" />}
       {island === 'glass-nav' && <CrossbarDemo client:only="react" />}
+      {island === 'glass-modal' && <PaneDemo client:only="react" />}
     </div>
 
     {

@@ -208,6 +208,28 @@
     top: 12%;
   }
 
+  .demo-glass-modal {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  .demo-glass-modal__open {
+    position: relative;
+    z-index: 1;
+    font: inherit;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.8rem 1.5rem;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 253, 247, 0.72);
+    color: #26241f;
+    cursor: pointer;
+  }
+
   .demo-heading {
     margin: 0;
     max-width: 18ch;
