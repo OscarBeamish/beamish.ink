@@ -26,7 +26,8 @@
       "One WebGL2 context, one full-screen triangle, no buffers and no attributes",
       "Legibility is a luminosity compression rather than a tint: the backdrop's brightness is scaled toward a level, so the hue and the detail survive. Mixing toward white measures the same and looks dead, because it desaturates the picture and flattens what the glass is supposed to be bending",
       "The material belongs to the layer floating above content rather than to content itself, which is the rule Apple states for it, so what sits on the panel is a control: a search field, a toolbar, a nav. The demo is a search capsule, inset and low in the frame, which is where a thumb reaches",
-      "Measured rather than judged: dark text on clear glass over this photograph is about 1.5:1, and the default luminosity brings the worst tile under the capsule to 5.99:1. That setting is the first one with real margin rather than the most it could take"
+      "Legibility is a dimming layer with light labels rather than a milky one with dark labels. A darkened photograph still looks like a photograph because the hue and the tonal relationships survive, and a whitened one does not. It is also what Apple gives its Clear variant, which has no adaptive behaviour of its own",
+      "Measured against the brightest tile under the capsule, since white text is hardest where the backdrop is lightest: solid labels come out at 5.3:1 and the secondary ones at 4.79:1. The magnifier, the placeholder and the hint had all been set by eye and all three measured short while the field text passed"
     ]
   },
   "perf": {
@@ -180,7 +181,7 @@
     },
     "luminosity": {
       "type": "number",
-      "default": 0.65,
+      "default": 0.62,
       "min": 0,
       "max": 1,
       "step": 0.01,
@@ -188,11 +189,11 @@
     },
     "level": {
       "type": "number",
-      "default": 0.74,
+      "default": 0.13,
       "min": 0,
       "max": 1,
       "step": 0.01,
-      "description": "The brightness the backdrop is pulled toward. High for dark text on the panel, low for light text. It is the single number that decides which way round the glass works."
+      "description": "The brightness the backdrop is pulled toward. Low dims it, which suits light labels and is how a clear glass control is made legible: dimming a photograph leaves it looking like a photograph, and milking it toward white does not. High milks it, for dark labels. It is the one number that decides which way round the glass works, and the labels have to follow it."
     },
     "lightX": {
       "type": "number",

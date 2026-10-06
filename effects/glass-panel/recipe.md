@@ -133,38 +133,54 @@ This is the part that will catch you out, and it is what Nielsen Norman went
 after Liquid Glass for: text over a photograph, where the contrast is whatever
 the picture happens to be at that moment.
 
-Dark text on clear glass over this photograph measures about **1.5:1**. WCAG
-wants 4.5:1 for body copy. Winding `tint` up to 0.7 gets it to **4.2:1**, which
-is still short, and by then the slab is nearly opaque and there is no glass left
-to look at. Tint cannot solve this, and the first attempt here, a milky wash
-through the middle of the slab, measured beautifully and looked dead: washing
-toward white desaturates the picture and flattens the detail.
+**Dim the backdrop and use light labels.** That is the whole answer and it took
+two wrong ones to get there.
 
-The two systems that have solved this both do the same thing and neither of them
-paints. Windows Acrylic puts a **luminosity layer** under the tint: the
-backdrop's brightness is pulled toward a level, limiting how dark or bright it
-can get while the colour and the detail survive. Apple's material shifts
-adaptively, moving only as far as legibility needs and letting as much content
-through as possible.
+The first attempt milked the glass toward white so dark labels would read. It
+measured beautifully and looked dead: washing toward white desaturates the
+picture and flattens the detail, so what is left is a panel with a smear on it
+rather than glass. The second attempt kept the milk and only moved the numbers
+around, which was the same mistake with better arithmetic.
 
-So `luminosity` is a compression, not a wash. It replaces the backdrop's
-luminance and adds the colour difference back at its original size, which is
-what a luminosity blend means. Scaling the channels by the ratio instead is the
-obvious way to write it and is wrong: it multiplies the colour cast along with
-the brightness, so a dark green lifts to a neon one and the panel comes out
-looking like an oil slick.
+Dimming does not have that problem. A photograph that has been darkened still
+looks like a photograph, because the hue and the relationships between tones
+survive; one that has been whitened does not. It is also what Apple does for a
+clear glass control: the Clear variant has no adaptive behaviour of its own, so
+it is given a dimming layer to make its symbols and labels legible.
 
-`level` is what it is pulled toward. High for dark text on the panel, low for
-light text, and it is the one number that decides which way round the glass
-works.
+`level` is the brightness the backdrop is pulled toward, and it is the one
+number that decides which way round the panel works. Low dims it, for light
+labels, which is the default. High milks it, for dark ones. The labels have to
+follow it: light text on a milked panel is as unreadable as dark text on a
+dimmed one.
 
-At the default 0.65 the worst tile under the capsule measures **5.99:1**, and
-0.45 fails at 4.08:1. The default is the first setting with real margin rather
-than the most it could take, which is the principle both systems state: let as
-much content through as possible.
+`luminosity` is how far it is pulled. It is a compression, not a wash: it
+replaces the backdrop's luminance and adds the colour difference back at its
+original size, which is what a luminosity blend means. Writing it as a scale by
+the ratio is the obvious way and is wrong, because it multiplies the colour cast
+along with the brightness and a dark green lifts to a neon one.
+
+### The numbers
+
+Measured against the brightest 12px tile under the capsule, at four points in
+the scroll, because white text is hardest where the backdrop is lightest:
+
+| luminosity / level | solid white | label at 88% |
+| --- | --- | --- |
+| 0.55 / 0.15 | 4.58 | 4.05, fails |
+| **0.62 / 0.13** | **5.30** | **4.79** |
+| 0.70 / 0.12 | 6.15 | 5.55 |
+
+The default is 0.62 and 0.13, which is the first setting where every label on
+the panel passes rather than only the one that is typed into. That distinction
+matters: the magnifier, the placeholder and the shortcut hint were all set by
+eye at around 75 percent opacity, and all three measured short of 4.5:1 while
+the field's own text passed. They are at 88 now.
+
+For reference, with no dimming at all the same text measures about **1.5:1**.
 
 Those numbers are for this photograph. Measure yours, against the worst patch
-under the text at every point in the scroll rather than the average.
+under the labels at every point in the scroll rather than the average.
 
 ## Using it as a nav
 

@@ -246,7 +246,10 @@
     gap: 1.2cqw;
     padding: 0 2.2cqw;
     box-sizing: border-box;
-    color: #1c1a16;
+    /* Light labels on smoked glass. Dimming a photograph leaves it
+       looking like a photograph; milking it does not. */
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
   }
 
   /* The label is the accessible name. A placeholder is not one: it goes the
@@ -266,7 +269,7 @@
     flex: none;
     width: clamp(0.7rem, 1.5cqw, 1.05rem);
     height: clamp(0.7rem, 1.5cqw, 1.05rem);
-    opacity: 0.72;
+    opacity: 0.88;
   }
 
   .demo-capsule__input {
@@ -281,7 +284,7 @@
 
   .demo-capsule__input::placeholder {
     color: inherit;
-    opacity: 0.78;
+    opacity: 0.88;
   }
 
   .demo-capsule__input:focus {
@@ -303,7 +306,7 @@
     border-radius: 5px;
     font-family: inherit;
     font-size: clamp(0.5rem, 1cqw, 0.68rem);
-    opacity: 0.72;
+    opacity: 0.88;
   }
 
   .demo-glass-nav {
