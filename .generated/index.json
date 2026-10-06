@@ -2662,6 +2662,184 @@
     "intro": "A printing plate slipping out of register, so the word prints twice in two inks.\n\nThe usual version of this splits the red and blue channels apart and calls it a\nglitch. That is a television fault: an analogue signal arriving at the wrong\ntime. Paper has its own version of the same idea and it looks quite different. A\npress lays one plate per ink, and if a plate is a fraction out of position its\ncolour prints beside the others rather than on top of them.\n\nSo this is three copies of the same text, two of them coloured and offset, and\nthe stack **multiplies** rather than composites, because that is what overlapping\nink does. The overlap going darker is the whole tell. A channel split goes\nbrighter where the channels meet, which is light, not ink, and it is the thing\nthat makes the usual version read as a screen rather than as a page.\n\nRegistration does not drift, either. A plate sits wrong for a whole run and then\ngets knocked, so the offset holds still and then jumps. Easing it would turn a\npress into a wobble, and a wobble is a very different and much less interesting\nfault.\n\nNo canvas and no WebGL. Three stacked spans and two transforms per frame."
   },
   {
+    "name": "MoltenMetal",
+    "slug": "molten-metal",
+    "tier": 1,
+    "description": "Heat tint on a slow-moving metal surface, coloured by thin-film interference rather than by a palette",
+    "category": "backdrops",
+    "tags": [
+      "webgl",
+      "shader",
+      "backdrop",
+      "iridescence",
+      "metal",
+      "dark",
+      "ambient",
+      "no-dependencies"
+    ],
+    "ground": "dark",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "Built for a dark ground and declared as one. The colour is a reflection off a film, so it needs something dark underneath to reflect against",
+        "The colour is thin-film interference, the same physics that colours an oil slick, a soap bubble, anodised titanium and steel heated in air. Light reflecting off the top of the film and light reflecting off the bottom travel different distances, and each wavelength cancels at a different thickness",
+        "That is why it is not a hue ramp: the path difference depends on the angle light takes through the film, so tilting the surface shifts the colour, and the bands repeat order after order as the thickness grows. A gradient between two colours can do neither",
+        "Snell's law is applied, so the angle used is the one inside the film rather than outside it. At a glancing angle the two differ by most of a band, which is where the film is most visible",
+        "The half-wavelength phase flip on reflection off a denser medium is in the expression. Leave it out and every colour is its own complement, which looks plausible until you hold it next to a photograph of a soap film",
+        "The surface normal is the analytic derivative of the same sum of waves that makes the height, not a sampled difference. A sampled normal quantises to the sample spacing and the flat runs come out faceted",
+        "Every moving term is a sum of waves whose time coefficients are whole numbers of turns over the period, so the loop closes exactly",
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.25,
+      "contexts": 1,
+      "notes": [
+        "Five waves per field and three fields, each giving its height and its slope from one sine and one cosine, plus nine cosines for the spectral integration. No textures, no noise lookups, no render targets. Measured at 0.23ms for a 960 by 540 canvas, timed with a readPixels after each draw so the number includes the GPU",
+        "The colour matching weights are evaluated at build time rather than per pixel, because the wavelengths are fixed. What is left in the shader is nine cosines and nine multiply adds",
+        "The cost is the pixel count rather than the shader, so a full-screen canvas at 2x device pixel ratio is the thing to watch"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/molten-metal/core.ts",
+        "to": "src/beamish/effects/molten-metal/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/molten-metal/adapters/react.tsx",
+        "to": "src/beamish/effects/molten-metal/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/molten-metal/adapters/vue.ts",
+        "to": "src/beamish/effects/molten-metal/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "metal": {
+        "type": "color",
+        "default": "#454c58",
+        "description": "The metal under the film, as its own reflectance. A steel grey is the honest starting point: the darkness in the frame comes from the lighting rather than from the base colour, and a base dark enough to be a backdrop on its own leaves the interference nothing to tint."
+      },
+      "scale": {
+        "type": "number",
+        "default": 0.6,
+        "description": "Size of the swell. Lower is fewer and larger features, which is what you want full screen; higher packs the bands tighter and starts to read as fabric rather than metal.",
+        "min": 0.2,
+        "max": 4,
+        "step": 0.1
+      },
+      "relief": {
+        "type": "number",
+        "default": 0.5,
+        "description": "How steep the surface is. It scales the slope rather than the height, because what the eye reads is the angle, and the angle is what the colour is a function of.",
+        "min": 0.05,
+        "max": 2,
+        "step": 0.01
+      },
+      "flow": {
+        "type": "number",
+        "default": 0.25,
+        "description": "How far the surface is dragged out of shape before it is read. At 0 it is five plane waves added together, which is quasi-periodic however the directions are chosen and shows its lattice the moment there is any contrast. This is what turns that into swirls and folds, and it is the difference between a surface and a pattern.",
+        "min": 0,
+        "max": 1.2,
+        "step": 0.01
+      },
+      "film": {
+        "type": "number",
+        "default": 420,
+        "description": "Mean thickness of the film in nanometres, and the one control that picks the colour family. Around 250 gives the straw and brown of lightly heated steel, 420 the blues and purples, past 800 the pale higher orders that a soap film shows just before it pops.",
+        "min": 150,
+        "max": 1200,
+        "step": 5,
+        "unit": "nm"
+      },
+      "variation": {
+        "type": "number",
+        "default": 0.3,
+        "description": "How much the thickness follows the surface. At 0 the colour comes only from the viewing angle, which is the cleaner and colder look; raising it makes the bands follow the shape the way a real oxide does.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "iridescence": {
+        "type": "number",
+        "default": 1,
+        "description": "How far the interference is pushed past its physical strength. 1 is the real thing for a surface seen face on, and it is paler than people expect, because every photograph of oil on a puddle is taken at a glancing angle where the two reflections are closer in strength and the colour goes vivid. At 0 this is a dark lit metal with a sheen on it, which is a perfectly good quiet backdrop.",
+        "min": 0,
+        "max": 6,
+        "step": 0.01
+      },
+      "sheen": {
+        "type": "number",
+        "default": 0.3,
+        "description": "Strength of the specular highlight, which is the light itself rather than the film. It is what tells you the surface is polished.",
+        "min": 0,
+        "max": 1.5,
+        "step": 0.01
+      },
+      "shine": {
+        "type": "number",
+        "default": 20,
+        "description": "Tightness of that highlight. Low is a broad satin sheen across the whole swell; high is a small hard glint on the one facet pointing at the light.",
+        "min": 4,
+        "max": 160,
+        "step": 1
+      },
+      "lightX": {
+        "type": "number",
+        "default": 0.35,
+        "description": "Light direction across the frame. The highlight moves with it because the surface is lit rather than painted.",
+        "min": -1,
+        "max": 1,
+        "step": 0.01
+      },
+      "lightY": {
+        "type": "number",
+        "default": 0.6,
+        "description": "Light direction up the frame. Positive is from above, which is where light usually is and where the eye expects it.",
+        "min": -1,
+        "max": 1,
+        "step": 0.01
+      },
+      "grain": {
+        "type": "number",
+        "default": 0.3,
+        "description": "The sensor noise of a long exposure. Static rather than crawling: film grain that moves is a different effect and a far noisier one.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "period": {
+        "type": "number",
+        "default": 48,
+        "description": "Seconds for one full cycle, and the pace control. Long on purpose: a backdrop has to survive being ignored, and iridescence that hurries is a screensaver.",
+        "min": 12,
+        "max": 120,
+        "step": 1,
+        "unit": "s"
+      }
+    },
+    "instruction": "it drifts on its own",
+    "oneShot": false,
+    "record": {
+      "duration": 48,
+      "fps": 30,
+      "posterAt": 14,
+      "crf": 30
+    },
+    "group": "effects",
+    "intro": "Heat tint on a slow-moving metal surface, on a dark ground.\n\nThe colour is **thin-film interference**, which is the same thing that colours\nan oil slick, a soap bubble, anodised titanium, and steel that has been heated\nin air. It is not a palette and not a hue ramp, and that difference is the whole\nitem.\n\nLight reflecting off the top of a very thin transparent film and light\nreflecting off the bottom of it travel different distances. Where that\ndifference is half a wavelength they cancel, and because each wavelength\ncancels at a different thickness, what is left is a colour that belongs to the\nfilm rather than to the paint.\n\n```glsl\nvec3 reflectance(float opd, float top) {\n  float base = top + 0.85;              // the metal underneath reflects 85%\n  float swing = 2.0 * sqrt(top * 0.85); // and the film's own surface, this much\n  return base + swing * cos(TAU * opd / lambda + PI);\n}\n```\n\nThree things fall out of that, and they are what make it read as metal:\n\n**The colour follows the slope, not the position.** The path difference depends\non the angle light takes through the film, so tilting the surface moves the\ncolour. A gradient between two colours cannot do that, and the moment you put\nthem side by side it is obvious which is which.\n\n**The bands repeat.** Thickness keeps increasing, the cancellation comes round\nagain, and you get order after order of the same sequence, paler each time.\n\n**It lives at the rim.** Reflection off the film is strongest at a glancing\nangle, so the colour is strongest where the surface turns away from you."
+  },
+  {
     "name": "PointerFilings",
     "slug": "pointer-filings",
     "tier": 1,
