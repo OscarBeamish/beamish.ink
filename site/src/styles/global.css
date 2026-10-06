@@ -299,6 +299,47 @@
     border-radius: 100px;
   }
 
+  /*
+   * The browser's own clear button is not usable here: Chrome draws it as a
+   * fixed blue cross that ignores the colour around it and cannot be reached
+   * from the keyboard. Turned off and replaced with a real one. type="reset"
+   * clears the field without a line of script, because there is no initial
+   * value to be reset to.
+   */
+  .demo-capsule__input::-webkit-search-cancel-button,
+  .demo-capsule__input::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .demo-capsule__clear {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: clamp(0.9rem, 1.8cqw, 1.25rem);
+    height: clamp(0.9rem, 1.8cqw, 1.25rem);
+    padding: 0;
+    border: 0;
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.18);
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .demo-capsule__clear svg {
+    width: 68%;
+    height: 68%;
+  }
+
+  .demo-capsule__clear:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Only once there is something to clear. */
+  .demo-capsule__input:placeholder-shown ~ .demo-capsule__clear {
+    display: none;
+  }
+
   .demo-capsule__hint {
     flex: none;
     padding: 0.2cqw 0.8cqw;

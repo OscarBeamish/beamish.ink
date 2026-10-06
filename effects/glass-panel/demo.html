@@ -112,6 +112,46 @@
         font-size: clamp(0.55rem, 1vw, 0.68rem);
         opacity: 0.88;
       }
+      /*
+       * The browser's own clear button is not usable here. Chrome draws it as a
+       * fixed blue cross that ignores the colour of everything around it, and
+       * it cannot be reached from the keyboard at all, so on a dark glass
+       * capsule it is both the wrong colour and the wrong control.
+       *
+       * So it is turned off and replaced with a real button. type="reset"
+       * clears the field with no JavaScript, because the field has no initial
+       * value to be reset to, and a real button can be tabbed to and labelled.
+       */
+      .capsule__input::-webkit-search-cancel-button,
+      .capsule__input::-webkit-search-decoration {
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      .capsule__clear {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: clamp(1rem, 1.9vw, 1.25rem);
+        height: clamp(1rem, 1.9vw, 1.25rem);
+        padding: 0;
+        border: 0;
+        border-radius: 100px;
+        background: rgba(255, 255, 255, 0.18);
+        color: inherit;
+        cursor: pointer;
+      }
+      .capsule__clear svg {
+        width: 68%;
+        height: 68%;
+      }
+      .capsule__clear:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+      /* Only once there is something to clear. :placeholder-shown is true while
+         the field is empty, which saves a script for the whole behaviour. */
+      .capsule__input:placeholder-shown ~ .capsule__clear {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -144,6 +184,11 @@
           placeholder="Search the library"
           autocomplete="off"
         />
+        <button class="capsule__clear" type="reset" aria-label="Clear search">
+          <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+            <path d="M4.5 4.5 L11.5 11.5 M11.5 4.5 L4.5 11.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+        </button>
         <kbd class="capsule__hint">/</kbd>
       </form>
     </div>
