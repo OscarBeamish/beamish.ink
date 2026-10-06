@@ -1,0 +1,240 @@
+{
+  "name": "GlassPanel",
+  "slug": "glass-panel",
+  "tier": 1,
+  "description": "A slab of glass laid on a picture, bending and splitting what scrolls behind it",
+  "category": "surfaces",
+  "tags": [
+    "webgl",
+    "shader",
+    "glass",
+    "refraction",
+    "dispersion",
+    "image",
+    "scroll",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "The picture is the host element's own <img> child. It is hidden from sight and left in the document, so the alt text is whatever you wrote and a page with no JavaScript still shows it",
+      "This is WebGL rather than CSS because backdrop-filter can blur what is behind an element but cannot bend it, and bending is most of what glass is. The one CSS route that bends, an SVG displacement filter on the backdrop, is Chromium only and fails silently everywhere else",
+      "The trade is that the panel owns its backdrop: it refracts the picture it was given rather than arbitrary page content. Anything that has to sit on top goes in the DOM above the canvas",
+      "The slab is a signed distance field for a rounded rectangle, and its gradient is analytic rather than sampled, because an approximate normal shows up at once as a wobble along the straight runs",
+      "Dispersion is three samples at three offsets along that normal, taken per tap inside the blur so the fringe survives it rather than being averaged away",
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 1.6,
+    "contexts": 1,
+    "notes": [
+      "Outside the panel it is one texture read per pixel. Everything expensive is inside a branch that most of the frame never takes",
+      "Inside: twelve taps on a ring, three channels each, so thirty-six texture reads. That is the cost of frosted glass whose dispersion survives the blur",
+      "The image uploads once, on load. Nothing is uploaded per frame"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/glass-panel/core.ts",
+      "to": "src/beamish/effects/glass-panel/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/glass-panel/adapters/react.tsx",
+      "to": "src/beamish/effects/glass-panel/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/glass-panel/adapters/vue.ts",
+      "to": "src/beamish/effects/glass-panel/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "glass": {
+      "type": "color",
+      "default": "#ffffff",
+      "description": "The tint the glass leaves and the colour its highlights take. Near white unless the glass is meant to be coloured, because it is multiplied into the picture rather than painted over it."
+    },
+    "panelX": {
+      "type": "number",
+      "default": 0.5,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Centre of the panel across the element."
+    },
+    "panelY": {
+      "type": "number",
+      "default": 0.17,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Centre of the panel down the element."
+    },
+    "panelWidth": {
+      "type": "number",
+      "default": 0.86,
+      "min": 0.05,
+      "max": 1,
+      "step": 0.01,
+      "description": "Width of the panel as a share of the element."
+    },
+    "panelHeight": {
+      "type": "number",
+      "default": 0.14,
+      "min": 0.03,
+      "max": 1,
+      "step": 0.01,
+      "description": "Height of the panel as a share of the element."
+    },
+    "radius": {
+      "type": "number",
+      "default": 100,
+      "min": 0,
+      "max": 200,
+      "step": 1,
+      "description": "Corner radius in CSS pixels, capped at half the shorter side, so a large number gives a capsule rather than an error."
+    },
+    "bevel": {
+      "type": "number",
+      "default": 18,
+      "min": 1,
+      "max": 120,
+      "step": 1,
+      "description": "How far in from the edge the bevel reaches. This is the width of the band that bends: the middle of a slab is flat and refracts nothing, which is why the centre stays readable and only the rim distorts."
+    },
+    "refraction": {
+      "type": "number",
+      "default": 40,
+      "min": 0,
+      "max": 120,
+      "step": 1,
+      "description": "How far the bevel bends what is behind it, in pixels. At 0 you have frosted glass, and this is the setting that makes it glass rather than a blur."
+    },
+    "dispersion": {
+      "type": "number",
+      "default": 8,
+      "min": 0,
+      "max": 30,
+      "step": 0.5,
+      "description": "How far the three channels separate as they bend. Glass has a different refractive index per wavelength, which is why a real edge fringes, and it is the cheapest thing that stops a shape reading as plastic. Past about 12 it stops being glass and starts being a prism."
+    },
+    "frost": {
+      "type": "number",
+      "default": 1.5,
+      "min": 0,
+      "max": 40,
+      "step": 0.5,
+      "description": "Frosting, as a blur radius in pixels. Twelve taps on a ring, which is not a Gaussian and does not need to be."
+    },
+    "specular": {
+      "type": "number",
+      "default": 0.35,
+      "min": 0,
+      "max": 2,
+      "step": 0.01,
+      "description": "How brightly the bevel catches the light. The highlight is lit off a real normal built from the distance field, so it moves round the rim as the light does rather than sitting where it was painted."
+    },
+    "shine": {
+      "type": "number",
+      "default": 40,
+      "min": 1,
+      "max": 160,
+      "step": 1,
+      "description": "How tight that catch is. Low is a broad satin sheen along the whole bevel; high is a small hard glint at the point facing the light."
+    },
+    "fresnel": {
+      "type": "number",
+      "default": 0.06,
+      "min": 0,
+      "max": 1.5,
+      "step": 0.01,
+      "description": "How much the rim brightens where you are looking through the most glass. This is what gives the edge its thickness."
+    },
+    "edge": {
+      "type": "number",
+      "default": 0.25,
+      "min": 0,
+      "max": 1.5,
+      "step": 0.01,
+      "description": "The bright hairline just inside the edge, where the bevel turns over."
+    },
+    "tint": {
+      "type": "number",
+      "default": 0.04,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How much colour the glass leaves on what passes through it. This is also the contrast control if anything is going to be read on top of the panel."
+    },
+    "lightX": {
+      "type": "number",
+      "default": -0.5,
+      "min": -2,
+      "max": 2,
+      "step": 0.05,
+      "description": "Where the light is, across the panel."
+    },
+    "lightY": {
+      "type": "number",
+      "default": 0.7,
+      "min": -2,
+      "max": 2,
+      "step": 0.05,
+      "description": "Where the light is, down the panel."
+    },
+    "shadow": {
+      "type": "number",
+      "default": 26,
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "description": "How far the shadow under the slab reaches. Without it the panel is a window cut in the picture rather than an object resting on it."
+    },
+    "travel": {
+      "type": "number",
+      "default": 1,
+      "min": 0,
+      "max": 3,
+      "step": 0.05,
+      "description": "How far the picture travels behind the glass over a full scroll, as a share of the slack the cover fit left. At 0 the picture is fixed and all the glass has to bend is a still."
+    }
+  },
+  "instruction": "scroll the picture behind the glass",
+  "oneShot": false,
+  "record": {
+    "duration": 8,
+    "fps": 30,
+    "posterAt": 3.0,
+    "crf": 30
+  },
+  "scroll": {
+    "duration": 8,
+    "keys": [
+      {
+        "t": 0,
+        "progress": 0.1
+      },
+      {
+        "t": 3.5,
+        "progress": 0.9
+      },
+      {
+        "t": 4.5,
+        "progress": 0.9
+      },
+      {
+        "t": 8,
+        "progress": 0.1
+      }
+    ]
+  }
+}
