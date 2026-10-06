@@ -127,6 +127,20 @@ preview server or a harness running across a turn, and never have two up at
 once. Each is a few hundred megabytes, they are invisible once started, and
 they outlive the session that spawned them.
 
+**Stopping the task does not stop the server.** This is the part that actually
+does the damage on Windows. `pnpm preview` is npx spawning pnpm spawning pnpm
+spawning astro, and killing the shell that started it leaves every one of those
+running: six orphaned node processes holding 861 MB were measured after a
+single tidy-looking session, every one of them from a task that had been
+stopped. Kill the processes, not the task, and then look:
+
+```powershell
+Get-Process node, python -ErrorAction SilentlyContinue |
+  Select-Object ProcessName, Id, @{n='MB';e={[math]::Round($_.WorkingSet64/1MB,0)}}
+```
+
+Nothing should come back. If something does, `Stop-Process -Force` it.
+
 **Close the browser in `finally`.** A script that throws between `launch()` and
 `close()` can leave a headless chromium and its GPU process behind, and a
 WebGL page holds hundreds of megabytes.
@@ -136,7 +150,8 @@ want a gigabyte or more. Running a recording in the background while building
 is how an afternoon of small overlaps becomes a crash.
 
 **Sweep before you finish.** `Get-Process node, python` and a count of chromium
-processes whose command line contains `headless`. Both should be empty.
+processes whose command line contains `headless`. Both should be empty, and
+they will not be unless you killed the processes rather than the tasks.
 
 ## meta.json is the source of truth
 
