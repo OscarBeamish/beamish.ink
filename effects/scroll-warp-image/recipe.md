@@ -1,35 +1,40 @@
 ## What it is
 
-A photograph on a sheet that is dragged by the scroll.
+A photograph on a sheet drawn through its own frame by the scroll.
 
-One arc across the width. The sheet is held at its sides, the span between them
-trails behind the direction the page is travelling, and it settles flat the
-moment the scroll stops. Scroll down and it is pulled down; scroll back up and
-it hangs the other way. At rest there is no effect at all, which is the point: a
-reader who has stopped scrolling is looking at a photograph rather than at a
-filter.
+One arc across the width. The sides hold back, the middle goes the way the page
+is going, and it comes level the moment the scroll stops. Scroll down, the page
+travels up past you and the middle leads it up; scroll back and the curve turns
+over. At rest there is no effect at all, which is the point: a reader who has
+stopped scrolling is looking at a photograph rather than at a filter.
 
 **The shape is the whole thing**, and it is worth saying what it is, because
 there are two curves you could draw here and only one of them is a sheet.
 
 ```glsl
-uv.y -= velocity * bend * sin(uv.x * PI);
+uv.y += velocity * bend * sin(uv.x * PI);
 ```
 
 Half a period of a sine: zero at both sides, one in the middle, one smooth curve
-with nothing in it to catch the eye. That is a sheet pinned at its edges and
-heavy in the middle, which is what hanging paper does and what the eye already
-knows.
+with nothing in it to catch the eye.
 
-The other curve is the distance from the centre, squared, which is what this
-effect used to do. It pins the middle and throws the sides about, which is the
-same sheet inverted and reads as the frame wobbling rather than as the picture
-being pulled. It also used to bend both axes at once. A sideways bend has no
-edge to run along, so all it does is muddle the shape, and taking it out is most
-of what makes the arc read.
+**The sign is not a detail.** Both of them give you the same arc and they are
+different effects. This one sends the middle the way the page is going, so the
+sheet reads as being drawn through its frame while the sides hold back. Subtract
+instead and the middle lags: the sheet sags, and it reads as weight rather than
+as travel, which looks tired rather than pulled. Try both on your own picture
+before you settle, and if it looks wrong rather than weak, this is the line to
+change.
 
-The sign follows the scroll rather than being fixed, because a sheet that always
-sagged downward would be a sheet nothing was pulling.
+The sign follows the scroll rather than being fixed, so the curve turns over
+when you scroll back up. A sheet that bent the same way whichever way you went
+is a sheet nothing is pulling.
+
+The other *curve* is the distance from the centre, squared, which is what this
+effect used to do. It pins the middle and throws the sides about, and reads as
+the frame wobbling rather than the picture moving. It also used to bend both
+axes at once. A sideways bend has no edge to run along, so all it does is muddle
+the shape, and taking it out is most of what makes the arc read.
 
 The edges deform with the picture. The sheet is a rectangle inset from the
 frame, the drag carries its boundary and its contents together, and whatever
@@ -105,9 +110,9 @@ Keep the two of them together under `inset * (1 - 2 * inset)`, which is about
 0.08 at the default margin. Past that a hard flick pushes the bent edge off the
 frame and the curve ends in a straight cut, which is the one thing the inset
 exists to prevent. Measured on the default plate: at rest the sheet sits 55px
-in on a 540px frame, an ordinary flick pulls it down 16px with 7px of sag in the
-middle, and a flick hard enough to saturate `reference` pulls it 27px with 14px
-of sag, which still leaves 14px of margin under it.
+in on a 540px frame, an ordinary flick draws it 16px with the middle 7px ahead
+of the sides, and a flick hard enough to saturate `reference` draws it 27px with
+the middle 13px ahead, which still leaves 15px of margin in front of it.
 
 `inset` is that margin, as a share of the frame and the same on all four sides
 whatever shape the picture is. Worth knowing if you are porting the earlier

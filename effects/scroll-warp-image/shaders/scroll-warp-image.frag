@@ -83,15 +83,20 @@ vec2 drag(vec2 uv, float amount) {
   float arc = sin(uv.x * PI);
 
   /*
-   * Down, when the scroll is going down. Velocity is positive as the page
-   * travels up past you, and a sheet with any weight in it hangs back: it is
-   * pulled down, and it comes back level the moment you stop.
+   * The middle goes the way the page is going and the sides hold back, which
+   * is a sheet being drawn through its own frame rather than one sagging in
+   * it. Scroll down, the page travels up past you and the middle leads it up;
+   * scroll back and the curve turns over. It comes level the moment you stop.
+   *
+   * The other sign is a sag, and it was what this did first. It is the same
+   * arithmetic and it reads as weight rather than as travel: the sheet looks
+   * tired instead of pulled.
    *
    * The bend is the arc and the slip is flat across the sheet, which is the
    * difference between paper giving in the middle and the whole sheet being
    * late. Both are wanted, and they are kept apart so either can be turned off.
    */
-  uv.y -= amount * (u_bend * arc + u_slip);
+  uv.y += amount * (u_bend * arc + u_slip);
 
   return uv;
 }

@@ -2,7 +2,7 @@
   "name": "ScrollWarpImage",
   "slug": "scroll-warp-image",
   "tier": 1,
-  "description": "A sheet that is dragged down by the scroll and settles flat when it stops",
+  "description": "A sheet drawn through its own frame by the scroll, leading in the middle and level again when it stops",
   "category": "surfaces",
   "tags": [
     "webgl",
@@ -19,7 +19,7 @@
     "webgl": "webgl2",
     "notes": [
       "The picture is the host element's own <img> child. It is hidden from sight and left in the document, so the alt text is whatever you wrote and a page with no JavaScript still shows it",
-      "One arc across the width, sin(pi x), so the sheet is held at its sides and trails in the middle. The sign follows the scroll: down the page pulls it down, back up hangs it the other way",
+      "One arc across the width, sin(pi x), so the sides hold back and the middle goes the way the page is going. The sign is the difference between a sheet being drawn through its frame and one sagging in it, and only the first reads as travel",
       "The sheet is a rectangle inset from the frame and the drag carries its boundary with its contents, so the edges curve rather than staying square. Nothing is done to the horizontal axis: a sideways bend has no edge to run along and reads as the picture breathing",
       "At rest nothing is distorted. The whole effect is a function of scroll velocity, so a reader who has stopped scrolling is looking at a photograph",
       "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
@@ -68,7 +68,7 @@
       "min": 0,
       "max": 0.3,
       "step": 0.005,
-      "description": "How far the middle of the sheet trails behind its sides. This is the arc, and it is the option you came for: half a period of a sine across the width, nothing at the edges and everything in the span between them, which is where a sheet being pulled gives. Keep it and slip together under about inset x (1 - 2 x inset), or a hard flick pushes the bent edge off the frame."
+      "description": "How far the middle of the sheet runs ahead of its sides. This is the arc, and it is the option you came for: half a period of a sine across the width, nothing at the edges and everything in the span between them. Keep it and slip together under about inset x (1 - 2 x inset), or a hard flick pushes the bent edge off the frame."
     },
     "slip": {
       "type": "number",

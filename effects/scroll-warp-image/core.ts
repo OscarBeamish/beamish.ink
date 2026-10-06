@@ -2,19 +2,20 @@
  * ScrollWarpImage: Beamish
  * https://beamish.ink/effects/scroll-warp-image
  *
- * A sheet dragged by the scroll.
+ * A sheet drawn through its own frame by the scroll.
  *
- * One arc across the width. The sheet is held at its sides, the span between
- * them trails behind the direction the page is travelling, and it settles flat
- * the moment the scroll stops. Scroll down and it is pulled down; scroll back
- * up and it hangs the other way. At rest there is no effect at all.
+ * One arc across the width. The sides hold back, the middle goes the way the
+ * page is going, and it comes level the moment the scroll stops. Scroll down,
+ * the page travels up past you and the middle leads it up; scroll back and the
+ * curve turns over. At rest there is no effect at all.
  *
- * The shape is the whole thing. A sheet pinned at its edges and heavy in the
- * middle is what hanging paper does and what the eye already knows, and half a
- * period of a sine is exactly that curve with nothing else in it. The version
- * before this one squared the distance from the centre instead, which pins the
- * middle and throws the sides about, and bent both axes at once: the inverted
- * sheet, reading as the frame wobbling rather than as the picture being pulled.
+ * The shape is the whole thing, and so is which way round it runs. Half a
+ * period of a sine is one smooth curve with nothing in it to catch the eye; the
+ * sign decides whether the sheet is being drawn through the frame or sagging in
+ * it, and only the first reads as travel. The version before this squared the
+ * distance from the centre instead, which pins the middle and throws the sides
+ * about, and bent both axes at once: that is the frame wobbling rather than the
+ * picture moving.
  *
  * The edges deform with the picture. The sheet is a rectangle inset from the
  * frame, the drag is applied to it and to its contents together, and whatever
@@ -163,15 +164,20 @@ vec2 drag(vec2 uv, float amount) {
   float arc = sin(uv.x * PI);
 
   /*
-   * Down, when the scroll is going down. Velocity is positive as the page
-   * travels up past you, and a sheet with any weight in it hangs back: it is
-   * pulled down, and it comes back level the moment you stop.
+   * The middle goes the way the page is going and the sides hold back, which
+   * is a sheet being drawn through its own frame rather than one sagging in
+   * it. Scroll down, the page travels up past you and the middle leads it up;
+   * scroll back and the curve turns over. It comes level the moment you stop.
+   *
+   * The other sign is a sag, and it was what this did first. It is the same
+   * arithmetic and it reads as weight rather than as travel: the sheet looks
+   * tired instead of pulled.
    *
    * The bend is the arc and the slip is flat across the sheet, which is the
    * difference between paper giving in the middle and the whole sheet being
    * late. Both are wanted, and they are kept apart so either can be turned off.
    */
-  uv.y -= amount * (u_bend * arc + u_slip);
+  uv.y += amount * (u_bend * arc + u_slip);
 
   return uv;
 }
