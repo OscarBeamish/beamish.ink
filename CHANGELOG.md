@@ -5,9 +5,59 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
-## Unreleased
+## v0.12.0, 7 October 2026
 
 ### Added
+
+- GlassNav (navigation): a bar of glass across the top of a page, clear over a
+  hero and frosted once it has scrolled past it. CSS, because a nav has to sit
+  over whatever the page is made of.
+
+- GlassModal (navigation): a sheet of glass over the page on a native dialog.
+  showModal() supplies the top layer, the focus trap, the inert background,
+  Escape and the return of focus, none of which is code here. What is left is
+  the glass, the light dismiss, and stopping the page behind from scrolling.
+
+- GlassModalWebGL (navigation): the same dialog with the sheet drawn in a
+  shader, so it bends the picture behind it rather than blurring it, splits the
+  channels at the rim and lights the bevel. The trade is stated rather than
+  hidden: WebGL cannot read the page, so it refracts a photograph you hand it.
+  Over markup, use GlassModal.
+
+- GlassSearchBar (surfaces): a search capsule of real glass over a picture.
+  Refraction is the point: backdrop-filter can blur what is behind an element
+  but it cannot bend it, and bending is most of what glass is. Legibility is a
+  dimming layer with light labels rather than a milky sheet, measured against
+  the brightest tile under each label rather than the average.
+
+- AuroraCurtain (backdrops): the northern lights, and the first item in the
+  library built for a dark ground. Shape from the physics rather than from a
+  photograph: emission along near-vertical field lines gives the rays, an
+  abrupt floor at a hundred kilometres gives the hard lower edge, and the
+  colour is altitude, oxygen's green line low and its red line high.
+
+- PrismSpectrum (backdrops): a beam of white light through a turning prism,
+  with the fan traced rather than drawn. Sixteen wavelengths, each with its own
+  index from Cauchy's equation, refracted at both faces. Total internal
+  reflection is handled rather than papered over, so at some angles no fan
+  leaves the glass at all.
+
+- MeshGradient (backdrops): the soft flowing colour field behind half the
+  software marketing on the web. Layered waves, a domain warp so the bands bend
+  around each other rather than staying parallel stripes, and shading taken from
+  the slope of the same field, which is the part most copies leave out. The
+  diagonal everybody associates with the effect is CSS on the container and is
+  deliberately not in the shader.
+
+- ScrollMarquee (type): a strip of content running sideways for ever, leaning
+  with the scroll and reversing when it does. No canvas. Pure in t, because a
+  marquee that accumulates an offset per frame cannot be recorded, cannot be
+  seeked and drifts on a dropped frame.
+
+- Items declare the ground they are built for. `ground` is paper, dark or
+  either, and the site paints the panel to match. Paper is the house style here
+  and was being read as a rule about what could exist at all, which had kept a
+  shelf of the most striking backdrops in the field unbuilt.
 
 - HalftoneMagnifier (surfaces): a printer's glass laid on a photograph. The picture is
   continuous tone until you look closely and then it is dots, which is what a
@@ -63,6 +113,29 @@ Published tags are never deleted or moved.
   register.
 
 ### Fixed
+
+- Both modals open properly the second time. The leaving animation never ran at
+  all: `.beamish-glass-modal--leaving` is a class and the rule it has to beat is
+  `.beamish-glass-modal[open]`, a class and an attribute, so it lost silently.
+  The animationend it was waiting on therefore never fired, the timer behind it
+  did the closing, and the once listener stayed armed on the element and went
+  off at the end of the next animation it saw, which is the opening one. Every
+  open from the second onwards shut itself a third of a second later.
+
+- ImageGalleryLightbox closes when the space around the plate is clicked. It was
+  supposed to already: the test was event.target === dialog, which is right for
+  a dialog that is a box on a backdrop and never fires once on an overlay that
+  fills the window.
+
+- The contact sheet is no longer cropped by its own panel. Its height is a
+  function of its width and the number of plates, so a fixed sixteen by nine
+  frame could only cut it, which it did at every width.
+
+- ScrollWarpImage bends the right way round. It squared the distance from the
+  centre, which pins the middle and throws the sides about: the inverted sheet,
+  reading as the frame wobbling rather than as the picture being pulled. One arc
+  across the width, held at the sides, with the middle going the way the page
+  is going.
 
 - The React and Vue adapters for ScrollWarpImage, HalftoneReveal and
   ScrollSlideshow rendered an empty div. All three read their pictures out of
