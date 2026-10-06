@@ -47,10 +47,17 @@
    * auto-fit with a floor, rather than a fixed count with breakpoints. The
    * sheet then fits its container instead of fitting the viewport, which
    * matters because it is as likely to sit in a column as across a page.
+   *
+   * `--plate-floor` is how small a plate is allowed to get before the sheet
+   * drops a column. It is the knob that decides where the layout steps, and
+   * the step is expensive: one column fewer is a whole extra row of height.
    */
   grid-template-columns: repeat(
     auto-fit,
-    minmax(min(14rem, 100%), calc(100% / var(--plate-columns, 3) - 1rem))
+    minmax(
+      min(var(--plate-floor, 14rem), 100%),
+      calc(100% / var(--plate-columns, 3) - 1rem)
+    )
   );
   gap: 1.5rem 1rem;
 }

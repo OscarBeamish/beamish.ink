@@ -45,6 +45,23 @@ const { slug, name, tier, category, instruction, oneShot, options } = Astro.prop
 const island = tier === 2 ? slug : ''
 
 /*
+ * The one demo that sets its own height.
+ *
+ * Every other panel is a 16:9 window onto something that fills whatever window
+ * it is given, so a fixed frame costs nothing. A contact sheet is not that: its
+ * height is a function of its width and how many plates it holds, and it steps
+ * up a whole row at a time as the columns drop. A fixed frame can only crop it,
+ * which is what the second row of captions was being cut off by at every width,
+ * and what left an empty band under a third row that had nowhere to go.
+ *
+ * So the panel follows the sheet instead of the sheet being clipped to the
+ * panel. Nothing is lost by it: there are no controls on a tier 2 panel to
+ * position, and the recording is filmed from the item's own demo.html at fixed
+ * ratios rather than from this.
+ */
+const flows = slug === 'image-gallery-lightbox'
+
+/*
  * A backdrop shown on its own answers the wrong question. The one people ask
  * first is what it would look like behind something, and a 16:9 swatch of
  * pattern does not answer it: it reads as a poster, which is why the loud ones
@@ -73,9 +90,10 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     data-demo
     data-slug={slug}
     data-tier={tier}
-    style="aspect-ratio: 16 / 9"
+    data-flows={flows ? '' : undefined}
+    style={flows ? undefined : 'aspect-ratio: 16 / 9'}
   >
-    <div class="absolute inset-0" data-stage>
+    <div class={flows ? 'relative' : 'absolute inset-0'} data-stage>
       {island === 'fullscreen-menu' && <ContentsDemo client:only="react" />}
       {island === 'glow-button' && <EmberDemo client:only="react" />}
       {island === 'image-gallery-lightbox' && <PlateDemo client:only="react" />}

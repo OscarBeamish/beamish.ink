@@ -108,6 +108,21 @@ it will use at its widest, and it steps down on its own below that, because a
 gallery is as likely to sit in a reading column as across a page. There are no
 breakpoints to keep in step with your layout.
 
+Where it steps down is `--plate-floor`, the smallest a plate is allowed to get
+before the sheet drops a column. It is 14rem, which is about the point a
+photograph stops being one, and it is a custom property rather than a prop
+because it is a layout decision rather than a content one:
+
+```css
+.my-sheet {
+  --plate-floor: 10rem;
+}
+```
+
+Worth setting deliberately if the sheet sits in a box of a fixed height. A step
+down is expensive: one column fewer is a whole extra row, so a sheet that fitted
+at four columns is half a row taller than its box at three.
+
 Cells are square whatever the file is, so the sheet is a grid rather than a
 staircase. Giving portrait plates a taller box is the obvious move and it is
 wrong: the rows go ragged and a landscape plate ends up floating above a hole. A

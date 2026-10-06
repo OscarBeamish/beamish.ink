@@ -133,6 +133,35 @@
     container-type: size;
   }
 
+  /*
+   * Except the one panel that sets its own height. Size containment needs a
+   * definite height in both axes, and asking for it on a panel whose height
+   * comes from its contents collapses the panel to nothing.
+   */
+  [data-demo][data-flows] {
+    container-type: inline-size;
+  }
+
+  /*
+   * And the sheet inside it gets a lower floor than the component ships with.
+   * 14rem is right on a page, where a plate nobody can see the subject of is
+   * no use; here it decides how early the sheet steps down to three columns,
+   * and a step down is a whole extra row of panel on a narrow window.
+   */
+  [data-demo][data-flows] .beamish-image-gallery-lightbox__sheet {
+    --plate-floor: 10rem;
+  }
+
+  /*
+   * The plates bleed to the frame, because a photograph running to an edge
+   * reads as a bleed. The last row's captions are text, and text sitting on a
+   * rule reads as cut even when every descender is intact, which is the thing
+   * this panel was being fixed for.
+   */
+  [data-demo][data-flows] [data-stage] {
+    padding-bottom: 1.25rem;
+  }
+
   .demo-use {
     position: absolute;
     inset: 0;
