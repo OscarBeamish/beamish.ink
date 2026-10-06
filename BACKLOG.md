@@ -13,9 +13,21 @@ pressure of the press, a *split fountain* is a gradient inked into one pass.
 Backdrops borrow from paper and print finishing: marbling, watermark, guilloche,
 stipple. This is the naming system. Keep using it.
 
-Where a React Bits item only works on a near-black canvas, it is marked **recast**
-and gets a paper-native equivalent rather than a port. Where it is a gimmick or
-depends on their brand, it is marked **skip**.
+Where an item is a gimmick or depends on their brand, it is marked **skip**.
+
+**The dark-canvas skips are reopened.** This file was written when paper was
+read as a rule about what could be built, so anything that only worked on a
+near-black canvas was either recast into something paper-native or dropped
+outright. That cost the library a whole shelf: `Molten` alone swallowed nine
+entries on those grounds, and `Tunnel` and `Cathode` went the same way. Paper is
+the house style and not a limit, so a dark-ground item is a legitimate item. It
+declares `ground: "dark"` in its `meta.json`, tunes its defaults for its own
+ground, and ships a demo plate that is not the site's paper. See `AGENTS.md`.
+
+A **recast** is still often the better idea, but it is now a design decision
+rather than a requirement. Recast when the paper version is the more interesting
+object. Port when the thing itself is the point and a paper version would be a
+worse version of it.
 
 ## Priority
 
@@ -62,10 +74,15 @@ keeps them framework-free and recordable. Tier 2 only where they need state.
 | Pigment | Particle Text | 3 | Canvas particles from glyph pixels. Expensive |
 | Teletype | ASCII Text | 3 | **recast** for paper, theirs is green-on-black |
 
-## Backdrops (56 candidates, 3 built)
+## Backdrops (56 candidates, 7 built)
 
-Ambient full-bleed scenes. This is the category most damaged by their
-dark-canvas assumption, so most entries here are recasts rather than ports.
+Ambient full-bleed scenes, and the category where the old dark-canvas rule did
+the most damage: the entries below marked skip were skipped for being dark
+rather than for being bad, and they are the striking ones. They are open again.
+
+A backdrop still has to survive being ignored, whatever ground it is on. Dark
+does not mean busy, and the measured limits in `AGENTS.md` apply to a night sky
+exactly as they do to a sheet of paper.
 
 | Beamish | React Bits | P | Note |
 | --- | --- | --- | --- |
@@ -82,17 +99,17 @@ dark-canvas assumption, so most entries here are recasts rather than ports.
 | Register | Grid Motion, Grid Scan, Register marks | 2 | Registration marks drifting |
 | Moire | Grid Distortion, Ripple Grid | 2 | Two screens beating. Related to Overprint, must read differently |
 | Prism | Prism, Prismatic Burst | 2 | |
-| Bloom | Plasma, Plasma Wave, Aurora, Soft Aurora | 2 | **recast**. Four of theirs, one of ours |
-| Dust | Particles, Pixel Snow, Galaxy | 2 | **recast** for paper. Three of theirs, one of ours |
-| Vein | Lightning | 3 | **recast** as ink capillary spread |
+| Bloom | Plasma, Plasma Wave, Aurora, Soft Aurora | 1 | Aurora over a dark sky. Four of theirs, one of ours. Was a recast because of the paper rule; it is the thing itself now |
+| Dust | Particles, Pixel Snow, Galaxy | 2 | Three of theirs, one of ours. Paper version is fine; a dark one is now allowed and is the better object |
+| Vein | Lightning | 2 | Capillary spread on paper, or the strike itself on dark. Both are worth one item each, if either earns it |
 | Foundry | Letter Glitch | 3 | A tray of type, not a Matrix screen |
 | Bearings | Ballpit | 3 | Needs a physics solver. Expensive |
 | Orb | Orb | 3 | |
-| Cathode | Faulty Terminal, CRT Warp, Scanner, Radar | 3 | **skip** unless one earns it. Four dark-only CRT pieces |
+| Cathode | Faulty Terminal, CRT Warp, Scanner, Radar | 3 | Four dark-only CRT pieces. Reopened, but a phosphor screen is a costume rather than a material: build one only if it has something to say |
 | Shards | Aero Shards, Acid Squares, Shape Grid | 3 | |
-| Tunnel | Light Tunnel, Hyperspeed | 3 | **skip**. Dark-only by definition |
+| Tunnel | Light Tunnel, Hyperspeed | 3 | Dark by definition, which is no longer a reason to skip it. Hard to keep quiet enough for a backdrop: this one is a hero, not a page background |
 | Blinds | Gradient Blinds, Color Bends | 3 | |
-| Molten | Molten Metal, Evil Eye, Balatro, Dark Veil, Liquid Ether, Ghost Fibers, Iridescence, Pixel Blast, Gradient Waves | 3 | **skip**. Nine near-black shader backdrops with no paper reading |
+| Molten | Molten Metal, Evil Eye, Balatro, Dark Veil, Liquid Ether, Ghost Fibers, Iridescence, Pixel Blast, Gradient Waves | 1 | Nine of theirs, one of ours, and the largest single gap in the library. Iridescent metal under a slow light: thin-film interference rather than a rainbow ramp, which is the same physics as the dispersion in the glass items |
 
 ## Pointer (38 candidates, 3 built)
 

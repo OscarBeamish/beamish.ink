@@ -66,8 +66,23 @@ the intended cost. Do not inline the runtime into each effect.
 - Give every ambient effect a pause control. WCAG 2.2.2 is Level A.
 - Keep flashing below three times per second. WCAG 2.3.1 is Level A. Check any
   strobe-like shader before shipping it.
-- Design every effect for warm paper. A default palette that only reads on a dark
-  background is a bug.
+- Paper is the house style, not a rule about what may be built. The site is warm
+  paper and most of the library is designed for it, and for a long time that was
+  read as a prohibition: anything that only worked on a dark canvas was recast
+  or skipped, and a shelf of the most striking backdrops in the field went
+  unbuilt because of it. That reading is wrong and has been retired.
+
+  What stands is the weaker version, which is the one that was ever worth
+  having: an effect has to say what it is for. A palette that reads only on
+  black is fine if the item is honest about it, says so in its description and
+  its recipe, carries defaults that look right on its own ground, and ships a
+  demo plate that is not the site's paper. A palette that was *meant* for paper
+  and does not read on it is still a bug.
+
+  Each item declares its ground in `meta.json` as `ground`: `paper`, `dark`, or
+  `either`. The site panel uses it to decide what to put behind the demo, and
+  the index uses it to group. Say which you are building for before you tune the
+  defaults, because it is the decision the defaults hang off.
 - A backdrop has to survive being ignored. Movement at the edge of vision pulls a
   reader off a headline, which is the one thing a background must not do, so an
   ambient effect wants a long period and a short distance: tens of seconds rather
