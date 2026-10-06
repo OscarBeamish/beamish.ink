@@ -2806,7 +2806,7 @@
     "name": "MoltenMetal",
     "slug": "molten-metal",
     "tier": 1,
-    "description": "Heat tint on a slow-moving metal surface, coloured by thin-film interference rather than by a palette",
+    "description": "Heat tint on brushed steel, coloured by thin-film interference rather than by a palette",
     "category": "backdrops",
     "tags": [
       "webgl",
@@ -2824,13 +2824,15 @@
       "webgl": "webgl2",
       "notes": [
         "Built for a dark ground and declared as one. The colour is a reflection off a film, so it needs something dark underneath to reflect against",
+        "The highlight is anisotropic, which is most of what says metal rather than oil: rolled and brushed steel is covered in fine parallel grooves, so a point of light smears into a line across the grain rather than reflecting as a point. The normal is compressed along the grain before the highlight is worked out, which gives the same streak for nothing",
         "The colour is thin-film interference, the same physics that colours an oil slick, a soap bubble, anodised titanium and steel heated in air. Light reflecting off the top of the film and light reflecting off the bottom travel different distances, and each wavelength cancels at a different thickness",
         "That is why it is not a hue ramp: the path difference depends on the angle light takes through the film, so tilting the surface shifts the colour, and the bands repeat order after order as the thickness grows. A gradient between two colours can do neither",
         "Snell's law is applied, so the angle used is the one inside the film rather than outside it. At a glancing angle the two differ by most of a band, which is where the film is most visible",
         "The half-wavelength phase flip on reflection off a denser medium is in the expression. Leave it out and every colour is its own complement, which looks plausible until you hold it next to a photograph of a soap film",
         "The surface normal is the analytic derivative of the same sum of waves that makes the height, not a sampled difference. A sampled normal quantises to the sample spacing and the flat runs come out faceted",
         "Every moving term is a sum of waves whose time coefficients are whole numbers of turns over the period, so the loop closes exactly",
-        "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes",
+        "The creases are what a streak of light runs along, so the fold stays sharp. Softening it was tried and it takes the highlights with it, leaving something that reads as painted sheets"
       ]
     },
     "perf": {
@@ -2867,12 +2869,12 @@
     "options": {
       "metal": {
         "type": "color",
-        "default": "#454c58",
+        "default": "#6f757e",
         "description": "The metal under the film, as its own reflectance. A steel grey is the honest starting point: the darkness in the frame comes from the lighting rather than from the base colour, and a base dark enough to be a backdrop on its own leaves the interference nothing to tint."
       },
       "scale": {
         "type": "number",
-        "default": 0.6,
+        "default": 0.34,
         "description": "Size of the swell. Lower is fewer and larger features, which is what you want full screen; higher packs the bands tighter and starts to read as fabric rather than metal.",
         "min": 0.2,
         "max": 4,
@@ -2888,7 +2890,7 @@
       },
       "flow": {
         "type": "number",
-        "default": 0.25,
+        "default": 0.16,
         "description": "How far the surface is dragged out of shape before it is read. At 0 it is five plane waves added together, which is quasi-periodic however the directions are chosen and shows its lattice the moment there is any contrast. This is what turns that into swirls and folds, and it is the difference between a surface and a pattern.",
         "min": 0,
         "max": 1.2,
@@ -2896,8 +2898,8 @@
       },
       "film": {
         "type": "number",
-        "default": 420,
-        "description": "Mean thickness of the film in nanometres, and the one control that picks the colour family. Around 250 gives the straw and brown of lightly heated steel, 420 the blues and purples, past 800 the pale higher orders that a soap film shows just before it pops.",
+        "default": 300,
+        "description": "Mean thickness of the film in nanometres, and the one control that picks the colour family, exactly as it does on a real piece of steel: 230 is straw, 300 the blues and golds this ships with, 400 the purples. Worth moving before anything else if the colour looks dingy, because a thickness between the clean bands gives a muddy olive that no other setting will rescue.",
         "min": 150,
         "max": 1200,
         "step": 5,
@@ -2905,7 +2907,7 @@
       },
       "variation": {
         "type": "number",
-        "default": 0.3,
+        "default": 0.14,
         "description": "How much the thickness follows the surface. At 0 the colour comes only from the viewing angle, which is the cleaner and colder look; raising it makes the bands follow the shape the way a real oxide does.",
         "min": 0,
         "max": 1,
@@ -2913,7 +2915,7 @@
       },
       "iridescence": {
         "type": "number",
-        "default": 1,
+        "default": 0.9,
         "description": "How far the interference is pushed past its physical strength. 1 is the real thing for a surface seen face on, and it is paler than people expect, because every photograph of oil on a puddle is taken at a glancing angle where the two reflections are closer in strength and the colour goes vivid. At 0 this is a dark lit metal with a sheen on it, which is a perfectly good quiet backdrop.",
         "min": 0,
         "max": 6,
@@ -2921,7 +2923,7 @@
       },
       "sheen": {
         "type": "number",
-        "default": 0.3,
+        "default": 0.9,
         "description": "Strength of the specular highlight, which is the light itself rather than the film. It is what tells you the surface is polished.",
         "min": 0,
         "max": 1.5,
@@ -2929,11 +2931,19 @@
       },
       "shine": {
         "type": "number",
-        "default": 20,
+        "default": 22,
         "description": "Tightness of that highlight. Low is a broad satin sheen across the whole swell; high is a small hard glint on the one facet pointing at the light.",
         "min": 4,
         "max": 160,
         "step": 1
+      },
+      "brush": {
+        "type": "number",
+        "default": 0.9,
+        "description": "How brushed the metal is. Rolled and brushed steel is covered in fine parallel grooves, so a point of light reflects as a line across the grain rather than as a point: that streak is most of what tells the eye it is looking at metal rather than at oil on water. At 0 the surface is polished and the highlight is a blob.",
+        "min": 0,
+        "max": 0.95,
+        "step": 0.01
       },
       "lightX": {
         "type": "number",
@@ -2978,7 +2988,7 @@
       "crf": 30
     },
     "group": "effects",
-    "intro": "Heat tint on a slow-moving metal surface, on a dark ground.\n\nThe colour is **thin-film interference**, which is the same thing that colours\nan oil slick, a soap bubble, anodised titanium, and steel that has been heated\nin air. It is not a palette and not a hue ramp, and that difference is the whole\nitem.\n\nLight reflecting off the top of a very thin transparent film and light\nreflecting off the bottom of it travel different distances. Where that\ndifference is half a wavelength they cancel, and because each wavelength\ncancels at a different thickness, what is left is a colour that belongs to the\nfilm rather than to the paint.\n\n```glsl\nvec3 reflectance(float opd, float top) {\n  float base = top + 0.85;              // the metal underneath reflects 85%\n  float swing = 2.0 * sqrt(top * 0.85); // and the film's own surface, this much\n  return base + swing * cos(TAU * opd / lambda + PI);\n}\n```\n\nThree things fall out of that, and they are what make it read as metal:\n\n**The colour follows the slope, not the position.** The path difference depends\non the angle light takes through the film, so tilting the surface moves the\ncolour. A gradient between two colours cannot do that, and the moment you put\nthem side by side it is obvious which is which.\n\n**The bands repeat.** Thickness keeps increasing, the cancellation comes round\nagain, and you get order after order of the same sequence, paler each time.\n\n**It lives at the rim.** Reflection off the film is strongest at a glancing\nangle, so the colour is strongest where the surface turns away from you."
+    "intro": "Heat tint on brushed steel, on a dark ground.\n\nThe colour is **thin-film interference**, which is the same thing that colours\nan oil slick, a soap bubble, anodised titanium, and steel that has been heated\nin air. It is not a palette and not a hue ramp, and that difference is the whole\nitem.\n\nLight reflecting off the top of a very thin transparent film and light\nreflecting off the bottom of it travel different distances. Where that\ndifference is half a wavelength they cancel, and because each wavelength\ncancels at a different thickness, what is left is a colour that belongs to the\nfilm rather than to the paint.\n\n```glsl\nvec3 reflectance(float opd, float top) {\n  float base = top + 0.85;              // the metal underneath reflects 85%\n  float swing = 2.0 * sqrt(top * 0.85); // and the film's own surface, this much\n  return base + swing * cos(TAU * opd / lambda + PI);\n}\n```\n\nThree things fall out of that, and they are what make it read as metal:\n\n**The colour follows the slope, not the position.** The path difference depends\non the angle light takes through the film, so tilting the surface moves the\ncolour. A gradient between two colours cannot do that, and the moment you put\nthem side by side it is obvious which is which.\n\n**The bands repeat.** Thickness keeps increasing, the cancellation comes round\nagain, and you get order after order of the same sequence, paler each time.\n\n**It lives at the rim.** Reflection off the film is strongest at a glancing\nangle, so the colour is strongest where the surface turns away from you."
   },
   {
     "name": "PointerFilings",

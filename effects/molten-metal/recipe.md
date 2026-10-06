@@ -1,6 +1,6 @@
 ## What it is
 
-Heat tint on a slow-moving metal surface, on a dark ground.
+Heat tint on brushed steel, on a dark ground.
 
 The colour is **thin-film interference**, which is the same thing that colours
 an oil slick, a soap bubble, anodised titanium, and steel that has been heated
@@ -51,6 +51,23 @@ CIE 1931 colour matching functions, and converts the result to sRGB.
 The weights are evaluated at build time rather than per pixel, because the
 wavelengths are fixed. What is left in the shader is nine cosines and nine
 multiply adds, which is why it still costs a quarter of a millisecond.
+
+## What makes it read as metal rather than as oil
+
+Two things, and the first draft of this had neither, which is why it looked
+like a petrol spill.
+
+**The highlight is anisotropic.** Rolled and brushed steel is covered in fine
+parallel grooves, so a point of light does not reflect as a point: it smears
+into a line across the grain. That streak is most of what tells the eye it is
+looking at metal. `brush` compresses the normal along the grain before the
+highlight is worked out, which produces exactly that and costs nothing. At 0
+the surface is polished and the highlight is a blob.
+
+**The creases have to stay sharp.** The waves are folded at their zero
+crossings so the surface has ridges, and the ridge is what a streak of light
+runs along. Softening the fold was tried and it takes the highlights with it:
+what is left reads as painted sheets rather than as metal.
 
 ## Two details that are physics rather than taste
 
@@ -157,10 +174,16 @@ it picks the colour family, exactly as it does on a real piece of steel:
 
 | film | what it looks like |
 | --- | --- |
-| 250 | the straw and brown of lightly heated steel |
-| 420 | blues and purples, the default |
+| 230 | the straw and gold of lightly heated steel |
+| 300 | blues and golds, the default |
+| 400 | purples |
 | 650 | greens and pinks, second order |
 | 900+ | the pale higher orders, soap film just before it pops |
+
+Move this before anything else if the colour looks dingy. A thickness that
+lands between the clean bands gives a muddy olive that no other setting will
+rescue, which is what the first version of this shipped with: at 420 with a
+wide `variation` the frame spent most of its time in exactly that gap.
 
 `variation` decides whether the bands follow the shape. At 0 the colour comes
 only from the viewing angle, which is cleaner and colder; raising it makes the
@@ -222,4 +245,8 @@ already on the React adapter.
 3. **Flattening it.** At low `relief` there is no angle for the interference to
    vary over, so you get a flat wash. The colour needs the shape.
 
-4. **Expecting it on paper.** `ground` says dark.
+4. **Turning `variation` up to get more colour.** It gives you more colour and
+   less of it is good colour: the bands run through the muddy gaps between the
+   clean ones. Pick the family with `film` and leave the variation low.
+
+5. **Expecting it on paper.** `ground` says dark.

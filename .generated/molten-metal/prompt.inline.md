@@ -1,6 +1,6 @@
 You are adding **MoltenMetal** from Beamish to this project.
 
-> Heat tint on a slow-moving metal surface, coloured by thin-film interference rather than by a palette. Backdrops · effect · MIT.
+> Heat tint on brushed steel, coloured by thin-film interference rather than by a palette. Backdrops · effect · MIT.
 > https://beamish.ink/effects/molten-metal
 
 Beamish is not a package and there is nothing to install from npm. The source
@@ -15,6 +15,7 @@ Assume you have not seen this library before. Everything you need is below.
 - **npm dependencies:** None. This file has no npm dependencies at all.
 - WebGL2. There is no WebGL1 fallback
 - Built for a dark ground and declared as one. The colour is a reflection off a film, so it needs something dark underneath to reflect against
+- The highlight is anisotropic, which is most of what says metal rather than oil: rolled and brushed steel is covered in fine parallel grooves, so a point of light smears into a line across the grain rather than reflecting as a point. The normal is compressed along the grain before the highlight is worked out, which gives the same streak for nothing
 - The colour is thin-film interference, the same physics that colours an oil slick, a soap bubble, anodised titanium and steel heated in air. Light reflecting off the top of the film and light reflecting off the bottom travel different distances, and each wavelength cancels at a different thickness
 - That is why it is not a hue ramp: the path difference depends on the angle light takes through the film, so tilting the surface shifts the colour, and the bands repeat order after order as the thickness grows. A gradient between two colours can do neither
 - Snell's law is applied, so the angle used is the one inside the film rather than outside it. At a glancing angle the two differ by most of a band, which is where the film is most visible
@@ -22,6 +23,7 @@ Assume you have not seen this library before. Everything you need is below.
 - The surface normal is the analytic derivative of the same sum of waves that makes the height, not a sampled difference. A sampled normal quantises to the sample spacing and the flat runs come out faceted
 - Every moving term is a sum of waves whose time coefficients are whole numbers of turns over the period, so the loop closes exactly
 - One WebGL2 context, one full-screen triangle, no buffers and no attributes
+- The creases are what a streak of light runs along, so the fold stays sharp. Softening it was tried and it takes the highlights with it, leaving something that reads as painted sheets
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -77,6 +79,8 @@ export type MoltenMetalOptions = BaseOptions & {
   sheen: number
   /** Tightness of that highlight. Low is a broad satin sheen, high is a glint. */
   shine: number
+  /** How brushed the metal is, 0 to 0.95. It smears the highlight along the grain. */
+  brush: number
   /** Light direction across the frame, -1 to 1. */
   lightX: number
   /** Light direction up the frame, -1 to 1. */
@@ -92,15 +96,16 @@ export type MoltenMetalOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const moltenMetalDefaults: MoltenMetalOptions = {
-  metal: '#454c58',
-  scale: 0.6,
+  metal: '#6f757e',
+  scale: 0.34,
   relief: 0.5,
-  flow: 0.25,
-  film: 420,
-  variation: 0.3,
-  iridescence: 1,
-  sheen: 0.3,
-  shine: 20,
+  flow: 0.16,
+  film: 300,
+  variation: 0.14,
+  iridescence: 0.9,
+  sheen: 0.9,
+  shine: 22,
+  brush: 0.9,
   lightX: 0.35,
   lightY: 0.6,
   grain: 0.3,
@@ -170,6 +175,7 @@ uniform float u_variation;
 uniform float u_iridescence;
 uniform float u_sheen;
 uniform float u_shine;
+uniform float u_brush;
 uniform vec2  u_light;
 uniform float u_grain;
 
@@ -364,6 +370,12 @@ void main() {
   vec3 wy = waves(p + vec2(-2.1, 5.4), 0.0, 2.0, 0.0);
   vec2 q = p + u_flow * vec2(wx.x, wy.x);
 
+  /*
+   * 0.55 rather than something softer. Dropping the fold to 0.32 was tried and
+   * it takes the long highlights with it: the creases are what a streak of
+   * light has to run along, and without them the surface reads as painted
+   * sheets rather than as metal.
+   */
   vec3 f = waves(q, phase, 3.0, 0.55);
   float height = f.x;
   vec2 grad = vec2(
@@ -408,11 +420,29 @@ void main() {
 
   vec3 col = u_metal * lit * tint;
 
-  // The specular, which is the light itself rather than the film. On a crease it
-  // runs as a line rather than sitting as a blob, which is the whole reason the
-  // creases are there.
+  /*
+   * The specular, which is the light itself rather than the film, and the one
+   * place this says metal rather than oil.
+   *
+   * Rolled and brushed steel are anisotropic: the surface is covered in fine
+   * parallel grooves, so a point of light does not reflect as a point. It
+   * smears into a line across the grain, which is why a brushed panel has that
+   * long soft streak in it and why a polished sphere does not.
+   *
+   * Compressing the normal along the grain before the highlight is worked out
+   * gives exactly that: the surface then varies less in that direction as far
+   * as the light is concerned, so the highlight stretches along it. Cheaper
+   * than a real anisotropic BRDF and, at this scale, indistinguishable.
+   */
   vec3 halfway = normalize(lightDir + view);
-  float spec = pow(max(dot(n, halfway), 0.0), max(u_shine, 1.0)) * u_sheen;
+  vec2 grain2 = vec2(1.0, 0.0);
+  float along = dot(n.xy, grain2);
+  float across = dot(n.xy, vec2(-grain2.y, grain2.x));
+  vec3 brushed = normalize(vec3(
+    along * (1.0 - u_brush) * grain2 + across * vec2(-grain2.y, grain2.x),
+    max(n.z, 0.05)
+  ));
+  float spec = pow(max(dot(brushed, halfway), 0.0), max(u_shine, 1.0)) * u_sheen;
   col += vec3(spec);
 
   /*
@@ -446,6 +476,7 @@ const UNIFORMS = [
   'u_iridescence',
   'u_sheen',
   'u_shine',
+  'u_brush',
   'u_light',
   'u_grain'
 ] as const
@@ -559,6 +590,7 @@ class MoltenMetalSurface implements Surface<MoltenMetalOptions> {
     gl.uniform1f(at('u_iridescence'), opts.iridescence)
     gl.uniform1f(at('u_sheen'), opts.sheen)
     gl.uniform1f(at('u_shine'), opts.shine)
+    gl.uniform1f(at('u_brush'), opts.brush)
     gl.uniform2f(at('u_light'), opts.lightX, opts.lightY)
     gl.uniform1f(at('u_grain'), opts.grain)
 
@@ -1211,7 +1243,7 @@ export function mount<O extends BaseOptions>(
 
 ## 2. What it is
 
-Heat tint on a slow-moving metal surface, on a dark ground.
+Heat tint on brushed steel, on a dark ground.
 
 The colour is **thin-film interference**, which is the same thing that colours
 an oil slick, a soap bubble, anodised titanium, and steel that has been heated
@@ -1252,15 +1284,16 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `metal` | color | `#454c58` | any CSS hex | The metal under the film, as its own reflectance. A steel grey is the honest starting point: the darkness in the frame comes from the lighting rather than from the base colour, and a base dark enough to be a backdrop on its own leaves the interference nothing to tint. |
-| `scale` | number | `0.6` | 0.2 to 4 | Size of the swell. Lower is fewer and larger features, which is what you want full screen; higher packs the bands tighter and starts to read as fabric rather than metal. |
+| `metal` | color | `#6f757e` | any CSS hex | The metal under the film, as its own reflectance. A steel grey is the honest starting point: the darkness in the frame comes from the lighting rather than from the base colour, and a base dark enough to be a backdrop on its own leaves the interference nothing to tint. |
+| `scale` | number | `0.34` | 0.2 to 4 | Size of the swell. Lower is fewer and larger features, which is what you want full screen; higher packs the bands tighter and starts to read as fabric rather than metal. |
 | `relief` | number | `0.5` | 0.05 to 2 | How steep the surface is. It scales the slope rather than the height, because what the eye reads is the angle, and the angle is what the colour is a function of. |
-| `flow` | number | `0.25` | 0 to 1.2 | How far the surface is dragged out of shape before it is read. At 0 it is five plane waves added together, which is quasi-periodic however the directions are chosen and shows its lattice the moment there is any contrast. This is what turns that into swirls and folds, and it is the difference between a surface and a pattern. |
-| `film` | number | `420` | 150 to 1200 nm | Mean thickness of the film in nanometres, and the one control that picks the colour family. Around 250 gives the straw and brown of lightly heated steel, 420 the blues and purples, past 800 the pale higher orders that a soap film shows just before it pops. |
-| `variation` | number | `0.3` | 0 to 1 | How much the thickness follows the surface. At 0 the colour comes only from the viewing angle, which is the cleaner and colder look; raising it makes the bands follow the shape the way a real oxide does. |
-| `iridescence` | number | `1` | 0 to 6 | How far the interference is pushed past its physical strength. 1 is the real thing for a surface seen face on, and it is paler than people expect, because every photograph of oil on a puddle is taken at a glancing angle where the two reflections are closer in strength and the colour goes vivid. At 0 this is a dark lit metal with a sheen on it, which is a perfectly good quiet backdrop. |
-| `sheen` | number | `0.3` | 0 to 1.5 | Strength of the specular highlight, which is the light itself rather than the film. It is what tells you the surface is polished. |
-| `shine` | number | `20` | 4 to 160 | Tightness of that highlight. Low is a broad satin sheen across the whole swell; high is a small hard glint on the one facet pointing at the light. |
+| `flow` | number | `0.16` | 0 to 1.2 | How far the surface is dragged out of shape before it is read. At 0 it is five plane waves added together, which is quasi-periodic however the directions are chosen and shows its lattice the moment there is any contrast. This is what turns that into swirls and folds, and it is the difference between a surface and a pattern. |
+| `film` | number | `300` | 150 to 1200 nm | Mean thickness of the film in nanometres, and the one control that picks the colour family, exactly as it does on a real piece of steel: 230 is straw, 300 the blues and golds this ships with, 400 the purples. Worth moving before anything else if the colour looks dingy, because a thickness between the clean bands gives a muddy olive that no other setting will rescue. |
+| `variation` | number | `0.14` | 0 to 1 | How much the thickness follows the surface. At 0 the colour comes only from the viewing angle, which is the cleaner and colder look; raising it makes the bands follow the shape the way a real oxide does. |
+| `iridescence` | number | `0.9` | 0 to 6 | How far the interference is pushed past its physical strength. 1 is the real thing for a surface seen face on, and it is paler than people expect, because every photograph of oil on a puddle is taken at a glancing angle where the two reflections are closer in strength and the colour goes vivid. At 0 this is a dark lit metal with a sheen on it, which is a perfectly good quiet backdrop. |
+| `sheen` | number | `0.9` | 0 to 1.5 | Strength of the specular highlight, which is the light itself rather than the film. It is what tells you the surface is polished. |
+| `shine` | number | `22` | 4 to 160 | Tightness of that highlight. Low is a broad satin sheen across the whole swell; high is a small hard glint on the one facet pointing at the light. |
+| `brush` | number | `0.9` | 0 to 0.95 | How brushed the metal is. Rolled and brushed steel is covered in fine parallel grooves, so a point of light reflects as a line across the grain rather than as a point: that streak is most of what tells the eye it is looking at metal rather than at oil on water. At 0 the surface is polished and the highlight is a blob. |
 | `lightX` | number | `0.35` | -1 to 1 | Light direction across the frame. The highlight moves with it because the surface is lit rather than painted. |
 | `lightY` | number | `0.6` | -1 to 1 | Light direction up the frame. Positive is from above, which is where light usually is and where the eye expects it. |
 | `grain` | number | `0.3` | 0 to 1 | The sensor noise of a long exposure. Static rather than crawling: film grain that moves is a different effect and a far noisier one. |
@@ -1296,7 +1329,11 @@ never starts and one frame is drawn, at `reducedMotionTime`.
 3. **Flattening it.** At low `relief` there is no angle for the interference to
    vary over, so you get a flat wash. The colour needs the shape.
 
-4. **Expecting it on paper.** `ground` says dark.
+4. **Turning `variation` up to get more colour.** It gives you more colour and
+   less of it is good colour: the bands run through the muddy gaps between the
+   clean ones. Pick the family with `film` and leave the variation low.
+
+5. **Expecting it on paper.** `ground` says dark.
 
 ---
 

@@ -2,7 +2,7 @@
   "name": "MoltenMetal",
   "slug": "molten-metal",
   "tier": 1,
-  "description": "Heat tint on a slow-moving metal surface, coloured by thin-film interference rather than by a palette",
+  "description": "Heat tint on brushed steel, coloured by thin-film interference rather than by a palette",
   "category": "backdrops",
   "ground": "dark",
   "tags": [
@@ -20,13 +20,15 @@
     "webgl": "webgl2",
     "notes": [
       "Built for a dark ground and declared as one. The colour is a reflection off a film, so it needs something dark underneath to reflect against",
+      "The highlight is anisotropic, which is most of what says metal rather than oil: rolled and brushed steel is covered in fine parallel grooves, so a point of light smears into a line across the grain rather than reflecting as a point. The normal is compressed along the grain before the highlight is worked out, which gives the same streak for nothing",
       "The colour is thin-film interference, the same physics that colours an oil slick, a soap bubble, anodised titanium and steel heated in air. Light reflecting off the top of the film and light reflecting off the bottom travel different distances, and each wavelength cancels at a different thickness",
       "That is why it is not a hue ramp: the path difference depends on the angle light takes through the film, so tilting the surface shifts the colour, and the bands repeat order after order as the thickness grows. A gradient between two colours can do neither",
       "Snell's law is applied, so the angle used is the one inside the film rather than outside it. At a glancing angle the two differ by most of a band, which is where the film is most visible",
       "The half-wavelength phase flip on reflection off a denser medium is in the expression. Leave it out and every colour is its own complement, which looks plausible until you hold it next to a photograph of a soap film",
       "The surface normal is the analytic derivative of the same sum of waves that makes the height, not a sampled difference. A sampled normal quantises to the sample spacing and the flat runs come out faceted",
       "Every moving term is a sum of waves whose time coefficients are whole numbers of turns over the period, so the loop closes exactly",
-      "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes",
+      "The creases are what a streak of light runs along, so the fold stays sharp. Softening it was tried and it takes the highlights with it, leaving something that reads as painted sheets"
     ]
   },
   "perf": {
@@ -63,12 +65,12 @@
   "options": {
     "metal": {
       "type": "color",
-      "default": "#454c58",
+      "default": "#6f757e",
       "description": "The metal under the film, as its own reflectance. A steel grey is the honest starting point: the darkness in the frame comes from the lighting rather than from the base colour, and a base dark enough to be a backdrop on its own leaves the interference nothing to tint."
     },
     "scale": {
       "type": "number",
-      "default": 0.6,
+      "default": 0.34,
       "min": 0.2,
       "max": 4,
       "step": 0.1,
@@ -84,7 +86,7 @@
     },
     "flow": {
       "type": "number",
-      "default": 0.25,
+      "default": 0.16,
       "min": 0,
       "max": 1.2,
       "step": 0.01,
@@ -92,12 +94,12 @@
     },
     "film": {
       "type": "number",
-      "default": 420,
+      "default": 300,
       "min": 150,
       "max": 1200,
       "step": 5,
       "unit": "nm",
-      "description": "Mean thickness of the film in nanometres, and the one control that picks the colour family. Around 250 gives the straw and brown of lightly heated steel, 420 the blues and purples, past 800 the pale higher orders that a soap film shows just before it pops.",
+      "description": "Mean thickness of the film in nanometres, and the one control that picks the colour family, exactly as it does on a real piece of steel: 230 is straw, 300 the blues and golds this ships with, 400 the purples. Worth moving before anything else if the colour looks dingy, because a thickness between the clean bands gives a muddy olive that no other setting will rescue.",
       "good": {
         "min": 250,
         "max": 650
@@ -105,7 +107,7 @@
     },
     "variation": {
       "type": "number",
-      "default": 0.3,
+      "default": 0.14,
       "min": 0,
       "max": 1,
       "step": 0.01,
@@ -113,7 +115,7 @@
     },
     "iridescence": {
       "type": "number",
-      "default": 1,
+      "default": 0.9,
       "min": 0,
       "max": 6,
       "step": 0.01,
@@ -121,7 +123,7 @@
     },
     "sheen": {
       "type": "number",
-      "default": 0.3,
+      "default": 0.9,
       "min": 0,
       "max": 1.5,
       "step": 0.01,
@@ -129,11 +131,19 @@
     },
     "shine": {
       "type": "number",
-      "default": 20,
+      "default": 22,
       "min": 4,
       "max": 160,
       "step": 1,
       "description": "Tightness of that highlight. Low is a broad satin sheen across the whole swell; high is a small hard glint on the one facet pointing at the light."
+    },
+    "brush": {
+      "type": "number",
+      "default": 0.9,
+      "min": 0,
+      "max": 0.95,
+      "step": 0.01,
+      "description": "How brushed the metal is. Rolled and brushed steel is covered in fine parallel grooves, so a point of light reflects as a line across the grain rather than as a point: that streak is most of what tells the eye it is looking at metal rather than at oil on water. At 0 the surface is polished and the highlight is a blob."
     },
     "lightX": {
       "type": "number",

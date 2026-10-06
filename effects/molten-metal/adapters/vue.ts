@@ -19,6 +19,7 @@ export const MoltenMetal = defineComponent({
     iridescence: { type: Number, default: moltenMetalDefaults.iridescence },
     sheen: { type: Number, default: moltenMetalDefaults.sheen },
     shine: { type: Number, default: moltenMetalDefaults.shine },
+    brush: { type: Number, default: moltenMetalDefaults.brush },
     lightX: { type: Number, default: moltenMetalDefaults.lightX },
     lightY: { type: Number, default: moltenMetalDefaults.lightY },
     grain: { type: Number, default: moltenMetalDefaults.grain },

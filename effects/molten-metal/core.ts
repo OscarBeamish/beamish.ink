@@ -39,6 +39,8 @@ export type MoltenMetalOptions = BaseOptions & {
   sheen: number
   /** Tightness of that highlight. Low is a broad satin sheen, high is a glint. */
   shine: number
+  /** How brushed the metal is, 0 to 0.95. It smears the highlight along the grain. */
+  brush: number
   /** Light direction across the frame, -1 to 1. */
   lightX: number
   /** Light direction up the frame, -1 to 1. */
@@ -54,15 +56,16 @@ export type MoltenMetalOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const moltenMetalDefaults: MoltenMetalOptions = {
-  metal: '#454c58',
-  scale: 0.6,
+  metal: '#6f757e',
+  scale: 0.34,
   relief: 0.5,
-  flow: 0.25,
-  film: 420,
-  variation: 0.3,
-  iridescence: 1,
-  sheen: 0.3,
-  shine: 20,
+  flow: 0.16,
+  film: 300,
+  variation: 0.14,
+  iridescence: 0.9,
+  sheen: 0.9,
+  shine: 22,
+  brush: 0.9,
   lightX: 0.35,
   lightY: 0.6,
   grain: 0.3,
@@ -132,6 +135,7 @@ uniform float u_variation;
 uniform float u_iridescence;
 uniform float u_sheen;
 uniform float u_shine;
+uniform float u_brush;
 uniform vec2  u_light;
 uniform float u_grain;
 
@@ -326,6 +330,12 @@ void main() {
   vec3 wy = waves(p + vec2(-2.1, 5.4), 0.0, 2.0, 0.0);
   vec2 q = p + u_flow * vec2(wx.x, wy.x);
 
+  /*
+   * 0.55 rather than something softer. Dropping the fold to 0.32 was tried and
+   * it takes the long highlights with it: the creases are what a streak of
+   * light has to run along, and without them the surface reads as painted
+   * sheets rather than as metal.
+   */
   vec3 f = waves(q, phase, 3.0, 0.55);
   float height = f.x;
   vec2 grad = vec2(
@@ -370,11 +380,29 @@ void main() {
 
   vec3 col = u_metal * lit * tint;
 
-  // The specular, which is the light itself rather than the film. On a crease it
-  // runs as a line rather than sitting as a blob, which is the whole reason the
-  // creases are there.
+  /*
+   * The specular, which is the light itself rather than the film, and the one
+   * place this says metal rather than oil.
+   *
+   * Rolled and brushed steel are anisotropic: the surface is covered in fine
+   * parallel grooves, so a point of light does not reflect as a point. It
+   * smears into a line across the grain, which is why a brushed panel has that
+   * long soft streak in it and why a polished sphere does not.
+   *
+   * Compressing the normal along the grain before the highlight is worked out
+   * gives exactly that: the surface then varies less in that direction as far
+   * as the light is concerned, so the highlight stretches along it. Cheaper
+   * than a real anisotropic BRDF and, at this scale, indistinguishable.
+   */
   vec3 halfway = normalize(lightDir + view);
-  float spec = pow(max(dot(n, halfway), 0.0), max(u_shine, 1.0)) * u_sheen;
+  vec2 grain2 = vec2(1.0, 0.0);
+  float along = dot(n.xy, grain2);
+  float across = dot(n.xy, vec2(-grain2.y, grain2.x));
+  vec3 brushed = normalize(vec3(
+    along * (1.0 - u_brush) * grain2 + across * vec2(-grain2.y, grain2.x),
+    max(n.z, 0.05)
+  ));
+  float spec = pow(max(dot(brushed, halfway), 0.0), max(u_shine, 1.0)) * u_sheen;
   col += vec3(spec);
 
   /*
@@ -408,6 +436,7 @@ const UNIFORMS = [
   'u_iridescence',
   'u_sheen',
   'u_shine',
+  'u_brush',
   'u_light',
   'u_grain'
 ] as const
@@ -521,6 +550,7 @@ class MoltenMetalSurface implements Surface<MoltenMetalOptions> {
     gl.uniform1f(at('u_iridescence'), opts.iridescence)
     gl.uniform1f(at('u_sheen'), opts.sheen)
     gl.uniform1f(at('u_shine'), opts.shine)
+    gl.uniform1f(at('u_brush'), opts.brush)
     gl.uniform2f(at('u_light'), opts.lightX, opts.lightY)
     gl.uniform1f(at('u_grain'), opts.grain)
 
