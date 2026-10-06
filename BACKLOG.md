@@ -109,7 +109,7 @@ exactly as they do to a sheet of paper.
 | Shards | Aero Shards, Acid Squares, Shape Grid | 3 | |
 | Tunnel | Light Tunnel, Hyperspeed | 3 | Dark by definition, which is no longer a reason to skip it. Hard to keep quiet enough for a backdrop: this one is a hero, not a page background |
 | Blinds | Gradient Blinds, Color Bends | 3 | |
-| Molten | Molten Metal, Evil Eye, Balatro, Dark Veil, Liquid Ether, Ghost Fibers, Iridescence, Pixel Blast, Gradient Waves | 1 | Nine of theirs, one of ours, and the largest single gap in the library. Iridescent metal under a slow light: thin-film interference rather than a rainbow ramp, which is the same physics as the dispersion in the glass items |
+| Molten | Molten Metal, Evil Eye, Balatro, Dark Veil, Liquid Ether, Ghost Fibers, Iridescence, Pixel Blast, Gradient Waves | 3 | **built and dropped**. Thin-film interference on a brushed surface: the right physics, a handsome object, and nothing anybody wanted on a page. Nine entries of theirs are nine versions of one idea, and the idea is a screensaver. Anything here needs a reason to exist beyond being iridescent |
 
 ## Pointer (38 candidates, 3 built)
 
