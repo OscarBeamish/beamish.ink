@@ -134,6 +134,45 @@
   }
 
   /*
+   * A dark item gets a dark panel.
+   *
+   * The site is paper and most of the library is designed for it, but an effect
+   * built for a near-black ground has to be shown on one or the demo is a lie
+   * about the thing. The panel is the only place this costs anything: the item
+   * itself carries its own defaults, and declaring `ground` in meta.json is
+   * what turns this on.
+   *
+   * Not pure black. A flat #000 panel on a paper page is a hole, and nothing
+   * built for a dark ground is designed against the absence of light: it is
+   * designed against a dark surface, which has a colour.
+   */
+  [data-demo][data-ground='dark'] {
+    background: #131316;
+    border-color: rgb(255 255 255 / 0.14);
+    color-scheme: dark;
+  }
+
+  /*
+   * The example hero that sits over a backdrop goes with it: light type, and a
+   * scrim that darkens rather than lightens. The scrim is not a cheat, it is
+   * what the real page would do, and which way it runs is decided by the ground
+   * rather than by the house style.
+   */
+  [data-ground='dark'] .demo-use__title,
+  [data-ground='dark'] .demo-use__line {
+    color: rgb(255 255 255 / 0.92);
+  }
+
+  [data-ground='dark'] .demo-use::before {
+    background: linear-gradient(
+      to top,
+      rgb(10 10 12 / 0.88) 0%,
+      rgb(10 10 12 / 0.55) 26%,
+      transparent 58%
+    );
+  }
+
+  /*
    * Except the one panel that sets its own height. Size containment needs a
    * definite height in both axes, and asking for it on a panel whose height
    * comes from its contents collapses the panel to nothing.

@@ -22,12 +22,14 @@ type Props = {
   name: string
   tier: 1 | 2
   category: string
+  /** The background the item was designed for. See AGENTS.md. */
+  ground?: 'paper' | 'dark' | 'either'
   instruction?: string | undefined
   oneShot: boolean
   options: Record<string, Record<string, unknown>>
 }
 
-const { slug, name, tier, category, instruction, oneShot, options } = Astro.props
+const { slug, name, tier, category, ground = 'paper', instruction, oneShot, options } = Astro.props
 
 /*
  * Tier 2 is React, and the way Astro consumes React is an island. Mounting it
@@ -90,6 +92,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     data-demo
     data-slug={slug}
     data-tier={tier}
+    data-ground={ground}
     data-flows={flows ? '' : undefined}
     style={flows ? undefined : 'aspect-ratio: 16 / 9'}
   >

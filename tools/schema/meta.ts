@@ -153,6 +153,22 @@ export const metaSchema = z
     ]),
     tags: z.array(z.string()).min(1),
 
+    /**
+     * The background this item is designed to sit on.
+     *
+     * Paper is the house style and the default, and for a while it was read as
+     * a rule about what could be built at all, which cost the library most of
+     * the striking backdrops in the field. It is not. What an item owes is a
+     * statement of what it is for: `dark` says the defaults are tuned for a
+     * near-black ground and will look wrong on paper, which is a fact about the
+     * design rather than a bug. `either` says it was built to work on both and
+     * has been looked at on both.
+     *
+     * The site puts the declared ground behind the demo panel, so getting this
+     * wrong is visible immediately rather than in somebody else's project.
+     */
+    ground: z.enum(['paper', 'dark', 'either']).default('paper'),
+
     /** npm packages the host project must already have, or install. */
     peerDependencies: z.record(z.string()).default({}),
 

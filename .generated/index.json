@@ -15,6 +15,7 @@
       "hero",
       "ambient"
     ],
+    "ground": "paper",
     "peerDependencies": {
       "three": ">=0.160.0"
     },
@@ -182,6 +183,7 @@
       "i18n",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "none",
@@ -303,6 +305,7 @@
       "vue",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {
       "react": ">=18"
     },
@@ -403,6 +406,7 @@
       "backdrop-filter",
       "refraction"
     ],
+    "ground": "paper",
     "peerDependencies": {
       "react": ">=18"
     },
@@ -530,6 +534,7 @@
       "backdrop-filter",
       "refraction"
     ],
+    "ground": "paper",
     "peerDependencies": {
       "react": ">=18"
     },
@@ -680,6 +685,7 @@
       "scroll",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -941,6 +947,7 @@
       "vue",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {
       "react": ">=18"
     },
@@ -1045,6 +1052,7 @@
       "ambient",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -1243,6 +1251,7 @@
       "ambient",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -1427,6 +1436,7 @@
       "print",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -1609,6 +1619,7 @@
       "print",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -1764,6 +1775,7 @@
       "vue",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {
       "react": ">=18"
     },
@@ -1903,6 +1915,7 @@
       "dom",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "none",
@@ -2019,6 +2032,7 @@
       "dom",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "none",
@@ -2210,6 +2224,7 @@
       "hero",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -2368,6 +2383,7 @@
       "dom",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "none",
@@ -2491,6 +2507,7 @@
       "physics",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -2668,6 +2685,7 @@
       "paper",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -2900,6 +2918,7 @@
       "paper",
       "hero"
     ],
+    "ground": "paper",
     "peerDependencies": {
       "three": ">=0.160.0"
     },
@@ -3191,6 +3210,7 @@
       "trail",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -3362,6 +3382,7 @@
       "print",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -3539,6 +3560,7 @@
       "accessible",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "none",
@@ -3704,6 +3726,7 @@
       "dom",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "none",
@@ -3858,6 +3881,7 @@
       "subtle",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -4018,6 +4042,7 @@
       "subtle",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -4177,6 +4202,7 @@
       "dom",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "none",
@@ -4321,6 +4347,7 @@
       "backdrop",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -4517,6 +4544,7 @@
       "paper",
       "hero"
     ],
+    "ground": "paper",
     "peerDependencies": {
       "three": ">=0.160.0"
     },
@@ -4739,6 +4767,7 @@
       "dom",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "none",
@@ -4939,6 +4968,7 @@
       "shader",
       "hero"
     ],
+    "ground": "paper",
     "peerDependencies": {
       "three": ">=0.160.0"
     },
@@ -5124,6 +5154,7 @@
       "backdrop",
       "no-dependencies"
     ],
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
