@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ScrollMarquee: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        align-content: center;
+        gap: 1.5rem;
+      }
+      /*
+       * Two strips running opposite ways, because one strip on its own reads as
+       * a ticker and two read as a surface being dragged. The second is set to
+       * direction -1 and a different pace so they do not pulse in step.
+       */
+      .strip {
+        border-block: 1px solid var(--line);
+        padding-block: clamp(0.6rem, 2vw, 1.1rem);
+      }
+      .strip span {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 8vw, 5.5rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        padding-right: 3rem;
+      }
+      .strip--quiet span {
+        font-family: var(--font-mono);
+        font-weight: 400;
+        font-size: clamp(0.8rem, 2.4vw, 1.4rem);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--label-3);
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+    -->
+    <div id="stage">
+      <div class="strip" id="one">
+        <span>Available for work</span>
+        <span>Available for work</span>
+        <span>Available for work</span>
+      </div>
+      <div class="strip strip--quiet" id="two">
+        <span>Printing</span>
+        <span>Binding</span>
+        <span>Letterpress</span>
+        <span>Foiling</span>
+        <span>Die cutting</span>
+        <span>Marbling</span>
+      </div>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const one = window.Beamish.create(document.getElementById('one'))
+      const two = window.Beamish.create(document.getElementById('two'), {
+        direction: -1,
+        period: 31,
+        skew: 4,
+        drag: 0.22
+      })
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      // It drives the first handle; the second is given the same clock below so
+      // both strips are a function of the same time.
+      window.__beamish = {
+        ...one,
+        renderAtTime(t) {
+          one.renderAtTime(t)
+          two.renderAtTime(t)
+        },
+        update(next) {
+          one.update(next)
+        }
+      }
+
+      if (!new URLSearchParams(location.search).has('record')) {
+        one.start()
+        two.start()
+      }
+    </script>
+  </body>
+</html>

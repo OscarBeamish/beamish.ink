@@ -1,0 +1,143 @@
+{
+  "name": "MeshGradient",
+  "slug": "mesh-gradient",
+  "tier": 1,
+  "description": "The soft flowing colour field behind half the software marketing on the web, lit by its own slope",
+  "category": "backdrops",
+  "ground": "either",
+  "tags": [
+    "webgl",
+    "shader",
+    "backdrop",
+    "gradient",
+    "hero",
+    "ambient",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "Three ingredients and nothing else: layered waves for scale, a domain warp so the bands bend around each other rather than staying parallel stripes, and shading taken from the slope of the same field",
+      "The shading is the part most versions of this leave out. On the original the plane is a mesh whose vertices are displaced, so the light follows the displacement; here the same derivative that would have moved a vertex lights the result instead. Without it the whole thing flattens into wallpaper",
+      "The diagonal edge people associate with this effect is not in the shader and should not be. On the original it is the container, skewed with CSS and clipped, which is two lines and is in the recipe",
+      "Every moving term is a sum of waves whose time coefficients are whole numbers of turns over the period, so the loop closes exactly. Noise advanced by time never returns to its first frame and the recorder needs it to",
+      "The warp is frozen while the layers drift through it. Warping the warp as well doubles the measured change per frame for something that reads as the whole image sliding",
+      "Declared as working on either ground. The default palette is warm paper with pastel layers; the same effect with dark colours over a dark base is the version everybody else ships",
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.2,
+    "contexts": 1,
+    "notes": [
+      "Five fields of four waves each, so forty sines and forty cosines per pixel, and no textures, noise lookups or render targets",
+      "The cost is the pixel count rather than the shader, so a full-screen canvas at 2x device pixel ratio is the thing to watch"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/mesh-gradient/core.ts",
+      "to": "src/beamish/effects/mesh-gradient/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/mesh-gradient/adapters/react.tsx",
+      "to": "src/beamish/effects/mesh-gradient/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/mesh-gradient/adapters/vue.ts",
+      "to": "src/beamish/effects/mesh-gradient/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "base": {
+      "type": "color",
+      "default": "#fbfaf4",
+      "description": "What the colour layers are laid over, and what shows wherever none of them reaches. Usually the palest of the four, because it is doing the job the paper does in print."
+    },
+    "one": {
+      "type": "color",
+      "default": "#ffc9e3",
+      "description": "The first colour layer, laid over the base. Keep the three within reach of each other on the wheel and mind what they make where they overlap: the first palette here had a peach under a cornflower, and peach under blue is tan, so the frame had a patch of mud in it that neither colour explains."
+    },
+    "two": {
+      "type": "color",
+      "default": "#a9d8ff",
+      "description": "The second layer, over the first."
+    },
+    "three": {
+      "type": "color",
+      "default": "#cdbcff",
+      "description": "The third, and the one that shows least, because it is only drawn where its own field is high."
+    },
+    "scale": {
+      "type": "number",
+      "default": 0.75,
+      "min": 0.3,
+      "max": 4,
+      "step": 0.05,
+      "description": "Size of the shapes. Lower is fewer and larger, which is what a hero wants: the shapes should be bigger than the headline sitting on them, not a texture behind it."
+    },
+    "warp": {
+      "type": "number",
+      "default": 0.42,
+      "min": 0,
+      "max": 1.2,
+      "step": 0.01,
+      "description": "How far the field is bent before it is read. At 0 the layers are parallel bands, which is the single thing that gives away most attempts at this effect."
+    },
+    "softness": {
+      "type": "number",
+      "default": 0.6,
+      "min": 0.02,
+      "max": 1,
+      "step": 0.01,
+      "description": "Width of the transition between one layer and the next. This is the control that decides whether the result reads as a gradient or as a map of three countries."
+    },
+    "relief": {
+      "type": "number",
+      "default": 0.16,
+      "min": 0,
+      "max": 0.6,
+      "step": 0.01,
+      "description": "How much the field is lit by its own slope. Small, and the thing that makes it look like a surface being folded rather than a picture being blurred. At 0 it is wallpaper."
+    },
+    "grain": {
+      "type": "number",
+      "default": 0.3,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Grain, which on a field this smooth is doing real work: it breaks the banding that eight bit colour leaves across a slow gradient. Static rather than crawling."
+    },
+    "period": {
+      "type": "number",
+      "default": 36,
+      "min": 12,
+      "max": 120,
+      "step": 1,
+      "unit": "s",
+      "description": "Seconds for one full cycle, and the pace control. Long on purpose: this sits behind a headline, and a backdrop has to survive being ignored.",
+      "good": {
+        "min": 30,
+        "max": 90
+      }
+    }
+  },
+  "instruction": "it drifts on its own",
+  "oneShot": false,
+  "record": {
+    "duration": 36,
+    "fps": 30,
+    "posterAt": 10,
+    "crf": 30
+  }
+}

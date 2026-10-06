@@ -246,6 +246,8 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'count-up-number': () => import('@items/effects/count-up-number/core'),
     'terrain-relief': () => import('@items/effects/terrain-relief/core'),
     'guilloche-lines': () => import('@items/effects/guilloche-lines/core'),
+    'mesh-gradient': () => import('@items/effects/mesh-gradient/core'),
+    'scroll-marquee': () => import('@items/effects/scroll-marquee/core'),
     'aurora-curtain': () => import('@items/effects/aurora-curtain/core'),
     'molten-metal': () => import('@items/effects/molten-metal/core'),
     'prism-spectrum': () => import('@items/effects/prism-spectrum/core'),
@@ -316,6 +318,16 @@ const tweakable = tier === 1 ? Object.entries(options) : []
         <button class="demo-capsule__clear" type="reset" aria-label="Clear search"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4.5 4.5 L11.5 11.5 M11.5 4.5 L4.5 11.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></button>
         <kbd class="demo-capsule__hint">/</kbd>
       </form>`,
+    /*
+     * The strip is whatever is inside the host, so the panel provides one. Two
+     * rows running opposite ways, because one on its own reads as a ticker and
+     * two read as a surface being dragged.
+     */
+    'scroll-marquee': `<div class="demo-strip">
+      <span>Available for work</span>
+      <span>Available for work</span>
+      <span>Available for work</span>
+    </div>`,
     'scramble-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     'misprint-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     'ink-bleed-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,

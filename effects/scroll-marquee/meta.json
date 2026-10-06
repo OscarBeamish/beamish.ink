@@ -1,0 +1,191 @@
+{
+  "name": "ScrollMarquee",
+  "slug": "scroll-marquee",
+  "tier": 1,
+  "description": "A strip of content running sideways for ever, leaning with the scroll and reversing when it does",
+  "category": "type",
+  "ground": "either",
+  "tags": [
+    "dom",
+    "scroll",
+    "marquee",
+    "ticker",
+    "no-webgl",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "No canvas and no WebGL. The strip is the author's own markup, moved into a track and transformed, so links keep working and images that have loaded stay loaded",
+      "Pure in t, which is the part that takes care. A marquee written the obvious way accumulates an offset every frame, and an effect that integrates against its own last frame cannot be recorded, cannot be seeked and drifts on a dropped frame. The position here is a function of the clock and the scroll position and nothing else",
+      "The content is duplicated once so the wrap is seamless, and the clone is aria-hidden with every focusable inside it given tabindex -1. A duplicate of the content is a duplicate to a screen reader too",
+      "The lean is scroll velocity, normalised and clipped. A trackpad reports an order of magnitude more than a wheel, and without a ceiling the strip lies flat on its side the first time somebody flicks the page",
+      "One transform on one element per frame, which is a composited property, so this does no layout work at all"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.05,
+    "contexts": 0,
+    "notes": [
+      "One transform write per frame on a single element. Both properties are composited, so there is no layout and no paint",
+      "The content width is measured on mount and on resize rather than per frame"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/scroll-marquee/core.ts",
+      "to": "src/beamish/effects/scroll-marquee/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/scroll-marquee/adapters/react.tsx",
+      "to": "src/beamish/effects/scroll-marquee/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/scroll-marquee/adapters/vue.ts",
+      "to": "src/beamish/effects/scroll-marquee/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "period": {
+      "type": "number",
+      "default": 24,
+      "min": 4,
+      "max": 120,
+      "step": 1,
+      "unit": "s",
+      "description": "Seconds for the strip to travel exactly one copy of its content, which is also the loop. Longer content at the same period runs faster, because the distance is longer: this is a pace rather than a speed.",
+      "good": {
+        "min": 16,
+        "max": 60
+      }
+    },
+    "direction": {
+      "type": "number",
+      "default": 1,
+      "min": -1,
+      "max": 1,
+      "step": 2,
+      "description": "Which way it runs when the page is still. 1 is leftwards, which is the direction text is read away from and the one that feels like it is going somewhere."
+    },
+    "drag": {
+      "type": "number",
+      "default": 0.35,
+      "min": 0,
+      "max": 2,
+      "step": 0.01,
+      "description": "How far the scroll drags it, in copies of the content per full scroll of the element through the viewport. This is what makes it reverse when you scroll back up. At 0 it runs at a constant pace and ignores the page."
+    },
+    "skew": {
+      "type": "number",
+      "default": 7,
+      "min": 0,
+      "max": 25,
+      "step": 0.5,
+      "unit": "deg",
+      "description": "Degrees of lean at full scroll speed. This is the whole character of the effect: it is what makes the strip feel like it has mass and is being dragged rather than playing beside the page. Past about 15 it reads as a glitch."
+    },
+    "stretch": {
+      "type": "number",
+      "default": 0.12,
+      "min": 0,
+      "max": 0.5,
+      "step": 0.01,
+      "description": "How much it stretches along its travel at full scroll speed. Small: it is the squash-and-stretch of the thing, and at anything over about 0.2 the type distorts enough to notice as distortion."
+    },
+    "reference": {
+      "type": "number",
+      "default": 1.2,
+      "min": 0.2,
+      "max": 6,
+      "step": 0.1,
+      "description": "The scroll speed that counts as full, in screens per second. 1.2 is about a brisk flick, so an ordinary scroll leans the strip a few degrees and a hard one leans it fully. Too low and a single wheel click pins it at maximum, which loses the difference between a nudge and a flick."
+    },
+    "gap": {
+      "type": "number",
+      "default": 48,
+      "min": 0,
+      "max": 240,
+      "step": 2,
+      "unit": "px",
+      "description": "Space between the end of one copy of the content and the start of the next. It is applied inside the copy, so it is part of the width the wrap is measured against: a gap added between the copies instead would make the loop a fraction longer than the thing it is wrapping, and the strip would stutter once per cycle."
+    }
+  },
+  "instruction": "scroll the page",
+  "oneShot": false,
+  "scroll": {
+    "duration": 24,
+    "keys": [
+      {
+        "t": 0,
+        "progress": 0
+      },
+      {
+        "t": 1.6,
+        "progress": 0
+      },
+      {
+        "t": 2.4,
+        "progress": 0.46
+      },
+      {
+        "t": 5.0,
+        "progress": 0.46
+      },
+      {
+        "t": 5.8,
+        "progress": 0.08
+      },
+      {
+        "t": 8.4,
+        "progress": 0.08
+      },
+      {
+        "t": 9.2,
+        "progress": 0.7
+      },
+      {
+        "t": 12.6,
+        "progress": 0.7
+      },
+      {
+        "t": 13.4,
+        "progress": 0.26
+      },
+      {
+        "t": 16.6,
+        "progress": 0.26
+      },
+      {
+        "t": 17.4,
+        "progress": 0.62
+      },
+      {
+        "t": 20.4,
+        "progress": 0.62
+      },
+      {
+        "t": 21.4,
+        "progress": 0
+      },
+      {
+        "t": 24,
+        "progress": 0
+      }
+    ]
+  },
+  "record": {
+    "duration": 24,
+    "fps": 30,
+    "posterAt": 8,
+    "crf": 30
+  }
+}

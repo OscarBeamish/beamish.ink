@@ -447,6 +447,32 @@
     cursor: pointer;
   }
 
+  /*
+   * The marquee's strip. Full bleed: the panel's usual side padding is right for
+   * a card or a headline and wrong for a thing whose whole point is that it runs
+   * off both edges.
+   */
+  [data-slug='scroll-marquee'] [data-stage][data-content] {
+    padding-inline: 0;
+  }
+
+  .demo-strip {
+    border-block: 1px solid var(--line);
+    padding-block: clamp(0.5rem, 2cqh, 1.1rem);
+    width: 100%;
+  }
+
+  .demo-strip span {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 7cqw, 4.5rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    padding-right: 2.5rem;
+  }
+
   .demo-heading {
     margin: 0;
     max-width: 18ch;
