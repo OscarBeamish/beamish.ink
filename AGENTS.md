@@ -101,6 +101,43 @@ the intended cost. Do not inline the runtime into each effect.
   cycle. `tools/tests/loop-closes.test.ts` checks this now; the schema cannot,
   because it can only see `record.duration`.
 
+## Measuring without taking the machine down
+
+Most of the work in this repo is measurement: frame costs, contrast ratios,
+loop seams, motion budgets. All of it runs through Playwright against a local
+server, and done carelessly it will exhaust the memory on the machine you are
+working on. This happened repeatedly before these rules existed.
+
+**Reduce in the page. Never return a framebuffer.** A 960x540 canvas is 2.07
+million bytes. `Array.from(buf)` boxes that into a two-million-element JS
+array, the protocol serialises it to JSON, and node parses it back into another
+one, twice per comparison. Measured, same work, same canvas:
+
+| | node peak RSS |
+| --- | --- |
+| framebuffer shipped out as an array, 3 comparisons | 1098 MB |
+| same comparison reduced in the page, one number back | 97 MB |
+
+So `readPixels` into a `Uint8Array` inside `page.evaluate`, do the arithmetic
+there, and return the scalar. The same goes for pixel scans, contrast tiles and
+histograms: the boundary is for answers, not for data.
+
+**One server, stopped when the check is done.** Never leave a dev server, a
+preview server or a harness running across a turn, and never have two up at
+once. Each is a few hundred megabytes, they are invisible once started, and
+they outlive the session that spawned them.
+
+**Close the browser in `finally`.** A script that throws between `launch()` and
+`close()` can leave a headless chromium and its GPU process behind, and a
+WebGL page holds hundreds of megabytes.
+
+**One heavy thing at a time.** A build, the test suite and a recording each
+want a gigabyte or more. Running a recording in the background while building
+is how an afternoon of small overlaps becomes a crash.
+
+**Sweep before you finish.** `Get-Process node, python` and a count of chromium
+processes whose command line contains `headless`. Both should be empty.
+
 ## meta.json is the source of truth
 
 Prompts, docs pages, the site index and prop tables are generated from

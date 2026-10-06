@@ -17,5 +17,7 @@ The rules most often broken:
 - `meta.json` is the source of truth. Run `pnpm generate` after touching it.
 - New item: core, meta, recipe, demo, record, generate, paste-test.
 - React and Vue only. Astro consumes those as islands.
+- Measure in the page and return a number. Shipping a framebuffer out of the
+  browser costs a gigabyte. One server at a time, stopped when done.
 - British English in prose. Platform convention in code.
 - No em dashes anywhere. No Claude Code attribution in commits.
