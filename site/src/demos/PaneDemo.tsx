@@ -17,8 +17,8 @@ export default function PaneDemo() {
     <div className="demo-glass-modal">
       <img
         className="demo-plate-fill"
-        src="/plates/relight-image/plate.jpg"
-        alt="A facade of small square windows punched in a dark grid, seen from above"
+        src="/plates/glass-modal/plate.jpg"
+        alt="A glacial lake under an open sky, mountains all round it"
       />
 
       <button type="button" className="demo-glass-modal__open" onClick={() => setOpen(true)}>

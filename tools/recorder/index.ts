@@ -421,13 +421,21 @@ async function recordItem(browser: Browser, item: ItemRef, only: string[], keepF
     }
 
     /*
-     * Say which step failed. Encoding an empty directory gives you an ffmpeg
-     * error about a missing %05d.png, which reads as a problem with ffmpeg and
-     * is in fact a capture that produced nothing.
+     * Count what is actually on disk, not what the capture says it wrote.
+     *
+     * captureTier1 returns the frame count it was asked for, so a capture whose
+     * screenshots went nowhere still reported success and handed ffmpeg an empty
+     * directory. What you got back was an error about a missing %05d.png, which
+     * reads as a problem with ffmpeg and is in fact a problem with the
+     * directory: on Windows a tree in pending-delete accepts a mkdir and then
+     * swallows everything written into it.
      */
-    if (frames === 0) {
+    const onDisk = existsSync(framesDir) ? (await readdir(framesDir)).length : 0
+    if (onDisk < frames) {
       throw new Error(
-        `${item.slug} ${ratio.key}: captured no frames, so there is nothing to encode`
+        `${item.slug} ${ratio.key}: captured ${frames} frames but only ${onDisk} reached ` +
+          `${framesDir}. If that is 0, something removed the directory while the capture ` +
+          'was writing into it.'
       )
     }
 

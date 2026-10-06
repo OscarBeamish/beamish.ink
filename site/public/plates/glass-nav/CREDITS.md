@@ -9,9 +9,8 @@ It is resized to 1400 wide and recompressed. Nothing else is changed.
 
 | File | Photographer | Source |
 | --- | --- | --- |
-| `plate.jpg` | Pascal Debrunner | `images.unsplash.com/photo-1783081312236-82cc1126d761` |
+| `plate.jpg` | Johannes Andersson | `images.unsplash.com/photo-1472396961693-142e6e269027` |
 
-Chosen for the ridges. Refraction is only legible where it has a straight line
-to bend, and a soft or empty picture hides its own distortion, so this one runs
-hard diagonal edges right through the middle of the frame and puts a smooth sky
-gradient above them for the dispersion to show against.
+Glass needs something behind it. On a flat background there is nothing to blur and
+nothing to bend, which is the most common reason the effect falls flat, so the bar
+sits over a picture with structure running through where it lands.
