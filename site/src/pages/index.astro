@@ -68,9 +68,13 @@ const groups = CATEGORY_ORDER.map(category => ({
         <Fragment>
           {/* The blurb is hidden below 640px. At 390px it collided with the
               heading, and it is a nicety rather than information. */}
+          {/* An id, so an item page can link back to the shelf it came
+              from. scroll-mt clears the fixed header, which otherwise lands
+              the heading underneath it. */}
           <div
+            id={group.category}
             class:list={[
-              'border-line col-span-12 flex items-baseline justify-between gap-6 border-b pb-3',
+              'border-line col-span-12 flex scroll-mt-24 items-baseline justify-between gap-6 border-b pb-3',
               index > 0 && 'mt-11'
             ]}
           >

@@ -104,9 +104,13 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     {
       inUse && (
         <div class="demo-use" data-use aria-hidden="true">
-          <p class="demo-use__tag">Example</p>
           {/* A paragraph, not a heading. It is a picture of a hero rather than
-              one, and a real h2 would put a second outline on the page. */}
+              one, and a real h2 would put a second outline on the page.
+
+              No eyebrow over it. A small letterspaced word above a large
+              heading is the house style of every generated landing page, and
+              the panel already has a control that says In use or Bare, so the
+              word was labelling something that was labelled. */}
           <p class="demo-use__title">A headline sits here</p>
           <p class="demo-use__line">
             And a line of supporting copy under it, about the length a real one runs,
@@ -324,19 +328,17 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     </div>`,
     'tilt-card': `<article class="demo-card">
       <div class="demo-card__mark"></div>
-      <div>
-        <p class="demo-card__tag">Label</p>
+      <div class="demo-card__body">
         <h2>A card title goes here</h2>
+        <p class="demo-card__note">And a line of supporting copy under it.</p>
       </div>
-      <p class="demo-card__note">A supporting line.</p>
     </article>`,
     'spotlight-card': `<article class="demo-card">
       <div class="demo-card__mark"></div>
-      <div>
-        <p class="demo-card__tag">Label</p>
+      <div class="demo-card__body">
         <h2>A card title goes here</h2>
+        <p class="demo-card__note">And a line of supporting copy under it.</p>
       </div>
-      <p class="demo-card__note">A supporting line.</p>
     </article>`
   }
 

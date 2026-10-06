@@ -45,11 +45,15 @@ const notes = [...item.browser.notes, ...item.perf.notes]
     to look at goes wide.
   */}
   <article class="item pt-32 pb-8 md:pt-40">
+    {/*
+      No eyebrow over the title. A letterspaced category sitting above a large
+      heading is decoration pretending to be navigation: it told you nothing
+      the page does not say in words, and it could not be clicked. The
+      category is a fact, so it is in the table of facts with the others, and
+      it is a link, which is the one thing the eyebrow should have been.
+    */}
     <header>
-      <p class="tag">
-        {CATEGORY_LABELS[item.category]} · {item.tier === 1 ? 'effect' : 'component'}
-      </p>
-      <h1 class="mt-3 text-[clamp(2.2rem,6vw,3.8rem)] leading-[0.95]">{item.name}</h1>
+      <h1 class="text-[clamp(2.2rem,6vw,3.8rem)] leading-[0.95]">{item.name}</h1>
       <p class="text-l2 mt-5 text-[1rem]">{item.description}.</p>
     </header>
 
@@ -98,6 +102,13 @@ const notes = [...item.browser.notes, ...item.perf.notes]
     <section class="mt-16">
       <h2 class="border-line border-b pb-3 text-[1.05rem]">What it needs</h2>
       <dl class="mt-4 grid gap-4 text-[0.85rem] sm:grid-cols-2">
+        <div>
+          <dt class="tag">Category</dt>
+          <dd class="text-l2 mt-1 ml-0">
+            <a href={`/#${item.category}`}>{CATEGORY_LABELS[item.category]}</a>,{' '}
+            {item.tier === 1 ? 'an effect' : 'a component'}
+          </dd>
+        </div>
         <div>
           <dt class="tag">Dependencies</dt>
           <dd class="text-l2 mt-1 ml-0">

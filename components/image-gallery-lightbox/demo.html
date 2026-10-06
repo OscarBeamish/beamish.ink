@@ -30,6 +30,14 @@
         width: min(1000px, 100%);
         margin-inline: auto;
       }
+      /*
+       * A lower floor than the component ships with. 14rem is right on a page;
+       * in a 540px frame it steps the sheet down to one column and makes it
+       * taller than the film.
+       */
+      #mount {
+        --plate-floor: 10rem;
+      }
       .page h1 {
         font-family: var(--font-display);
         font-size: clamp(1.75rem, 5vw, 3rem);
@@ -59,7 +67,7 @@
     <div id="stage">
       <div class="page">
         <h1>Plates</h1>
-        <p>Six, mixed orientation</p>
+        <p>Four, mixed orientation</p>
         <div id="mount"></div>
       </div>
     </div>
@@ -68,7 +76,17 @@
     <script>
       window.Beamish.mount(document.getElementById('mount'), {
         label: 'Plates',
-        columns: 3,
+        /*
+         * Four, not the eight the site panel carries. The frames here are
+         * 960x540, 600x600 and 540x960, and the sheet is square cells: eight
+         * of them is three rows in the first two, which films as a sheet with
+         * its last row sliced off.
+         *
+         * Two landscape and two portrait, and the overlay opens on a portrait
+         * and arrows onto a landscape, because refitting between the two is
+         * the thing worth seeing.
+         */
+        columns: 4,
         autoplay: 3,
         plates: [
           {
@@ -79,13 +97,6 @@
             caption: 'A lake below snow peaks at dusk'
           },
           {
-            src: './demo-plates/02-turquoise-peaks.jpg',
-            alt: 'A photograph: a turquoise lake under cloud-covered peaks',
-            width: 900,
-            height: 600,
-            caption: 'A turquoise lake under cloud-covered peaks'
-          },
-          {
             src: './demo-plates/03-still-water.jpg',
             alt: 'A photograph: flat blue water running out to low hills',
             width: 900,
@@ -93,32 +104,11 @@
             caption: 'Flat blue water running out to low hills'
           },
           {
-            src: './demo-plates/04-lakeside-trees.jpg',
-            alt: 'A photograph: autumn larches round a still lake',
-            width: 900,
-            height: 600,
-            caption: 'Autumn larches round a still lake'
-          },
-          {
-            src: './demo-plates/05-snow-ridge.jpg',
-            alt: 'A photograph: a snow peak reflected between conifers',
-            width: 900,
-            height: 600,
-            caption: 'A snow peak reflected between conifers'
-          },
-          {
             src: './demo-plates/06-glacier-lake.jpg',
             alt: 'A photograph: a glacial lake in flat morning light',
             width: 900,
             height: 1350,
             caption: 'A glacial lake in flat morning light'
-          },
-          {
-            src: './demo-plates/07-alpine-meadow.jpg',
-            alt: 'A photograph: daisies above a lake on a green ridge',
-            width: 900,
-            height: 600,
-            caption: 'Daisies above a lake on a green ridge'
           },
           {
             src: './demo-plates/08-emerald-lake.jpg',
