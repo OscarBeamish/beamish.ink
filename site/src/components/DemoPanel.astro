@@ -226,7 +226,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'ink-bleed-text': () => import('@items/effects/ink-bleed-text/core'),
     'halftone-magnifier': () => import('@items/effects/halftone-magnifier/core'),
     'relight-image': () => import('@items/effects/relight-image/core'),
-    'glass-panel': () => import('@items/effects/glass-panel/core')
+    'glass-search-bar': () => import('@items/effects/glass-search-bar/core')
   }
 
   /*
@@ -271,7 +271,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
      * WebGL cannot hold text that can be focused, selected, translated or read
      * aloud, so anything practical sitting on glass has to be DOM.
      */
-    'glass-panel': `<img class="demo-plate-fill" src="/plates/glass-panel/mountain.jpg" alt="Mountain ridges at dawn, lit from behind by a pink sky" />
+    'glass-search-bar': `<img class="demo-plate-fill" src="/plates/glass-search-bar/mountain.jpg" alt="Mountain ridges at dawn, lit from behind by a pink sky" />
       <form class="demo-capsule" role="search" action="#results">
         <label class="demo-capsule__label" for="demo-capsule-q">Search the library</label>
         <svg class="demo-capsule__icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="7" cy="7" r="4.4" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M10.4 10.4 L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
@@ -351,7 +351,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'halftone-reveal',
     'halftone-magnifier',
     'relight-image',
-    'glass-panel'
+    'glass-search-bar'
   ])
 
   for (const panel of document.querySelectorAll<HTMLElement>('[data-demo]')) {

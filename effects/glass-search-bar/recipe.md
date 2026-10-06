@@ -50,9 +50,9 @@ screen reader.
 ```
 
 ```ts
-import { createGlassPanel } from './beamish/effects/glass-panel/core'
+import { createGlassSearchBar } from './beamish/effects/glass-search-bar/core'
 
-const panel = createGlassPanel(document.querySelector('#hero'))
+const panel = createGlassSearchBar(document.querySelector('#hero'))
 panel.start()
 ```
 
@@ -64,14 +64,14 @@ the photograph rather than an empty box.
 
 ```tsx
 import { useEffect, useRef } from 'react'
-import { createGlassPanel } from '@/beamish/effects/glass-panel/core'
+import { createGlassSearchBar } from '@/beamish/effects/glass-search-bar/core'
 
 export function Hero() {
   const host = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!host.current) return
-    const panel = createGlassPanel(host.current)
+    const panel = createGlassSearchBar(host.current)
     panel.start()
     return () => panel.destroy()
   }, [])

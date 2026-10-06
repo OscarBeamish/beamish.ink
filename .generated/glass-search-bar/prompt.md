@@ -1,7 +1,7 @@
-You are adding **GlassPanel** from Beamish to this project.
+You are adding **GlassSearchBar** from Beamish to this project.
 
-> A slab of glass over a picture, holding a control and bending what scrolls behind it. Surfaces · effect · MIT.
-> https://beamish.ink/effects/glass-panel
+> A search capsule of real glass over a picture, bending and splitting what scrolls behind it. Surfaces · effect · MIT.
+> https://beamish.ink/effects/glass-search-bar
 
 Beamish is not a package and there is nothing to install from npm. The source
 lives in a public repo; you fetch the files, put them in this project, and wire
@@ -37,7 +37,7 @@ import between them is relative.
 | Save as | Fetch from |
 | --- | --- |
 | `src/beamish/shared/runtime.ts` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/shared/runtime.ts |
-| `src/beamish/effects/glass-panel/core.ts` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/glass-panel/core.ts |
+| `src/beamish/effects/glass-search-bar/core.ts` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/glass-search-bar/core.ts |
 
 If you cannot fetch these URLs, say so. Do not write the file from memory. There
 is a version of this prompt with the source inlined, and a guessed shader
@@ -138,8 +138,8 @@ is a finished composition rather than a broken one.
 If you would rather not hand-write the wiring, these are the same thing as a
 drop-in file. They contain no effect logic.
 
-- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/glass-panel/adapters/react.tsx
-- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/glass-panel/adapters/vue.ts
+- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/glass-search-bar/adapters/react.tsx
+- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/effects/glass-search-bar/adapters/vue.ts
 
 ---
 

@@ -1,6 +1,6 @@
 /*
- * GlassPanel: Beamish
- * https://beamish.ink/effects/glass-panel
+ * GlassSearchBar: Beamish
+ * https://beamish.ink/effects/glass-search-bar
  *
  * A slab of glass laid on a picture.
  *
@@ -29,7 +29,7 @@
 
 import { mount, type BaseOptions, type EffectHandle, type Scroll, type Surface } from '../../shared/runtime'
 
-export type GlassPanelOptions = BaseOptions & {
+export type GlassSearchBarOptions = BaseOptions & {
   /** The tint the glass leaves, and the colour its highlights take. */
   glass: string
   /** Centre of the panel across the element, 0 to 1. */
@@ -78,7 +78,7 @@ export type GlassPanelOptions = BaseOptions & {
  * Kept in step with meta.json by `pnpm generate`, which fails if the two drift.
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
-export const glassPanelDefaults: GlassPanelOptions = {
+export const glassSearchBarDefaults: GlassSearchBarOptions = {
   glass: '#ffffff',
   panelX: 0.5,
   panelY: 0.82,
@@ -102,7 +102,7 @@ export const glassPanelDefaults: GlassPanelOptions = {
   travel: 1
 }
 
-// beamish:shader-begin shaders/glass-panel.vert
+// beamish:shader-begin shaders/glass-search-bar.vert
 const VERT = `#version 300 es
 
 // Full-screen triangle from gl_VertexID. No buffers, no attributes. Bind an
@@ -115,12 +115,12 @@ void main() {
 `
 // beamish:shader-end
 
-// beamish:shader-begin shaders/glass-panel.frag
+// beamish:shader-begin shaders/glass-search-bar.frag
 const FRAG = `#version 300 es
 precision highp float;
 
 /*
- * GlassPanel: a slab of glass laid on a picture.
+ * GlassSearchBar: a slab of glass laid on a picture.
  *
  * Not a blur with a white border. Every part of this is something glass
  * actually does, and the reason it has to be WebGL rather than CSS is the first
@@ -419,18 +419,18 @@ function rgb(value: string): [number, number, number] {
 
 function compile(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader {
   const shader = gl.createShader(type)
-  if (!shader) throw new Error('GlassPanel: could not create shader')
+  if (!shader) throw new Error('GlassSearchBar: could not create shader')
   gl.shaderSource(shader, source)
   gl.compileShader(shader)
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
     const log = gl.getShaderInfoLog(shader)
     gl.deleteShader(shader)
-    throw new Error(`GlassPanel: shader failed to compile\n${log ?? ''}`)
+    throw new Error(`GlassSearchBar: shader failed to compile\n${log ?? ''}`)
   }
   return shader
 }
 
-class GlassPanelSurface implements Surface<GlassPanelOptions> {
+class GlassSearchBarSurface implements Surface<GlassSearchBarOptions> {
   private gl: WebGL2RenderingContext | null = null
   private program: WebGLProgram | null = null
   private vao: WebGLVertexArrayObject | null = null
@@ -441,7 +441,7 @@ class GlassPanelSurface implements Surface<GlassPanelOptions> {
   private image: HTMLImageElement | null = null
 
   setup(ctx: { canvas: HTMLCanvasElement | null; host: HTMLElement }): void {
-    if (!ctx.canvas) throw new Error('GlassPanel needs a canvas')
+    if (!ctx.canvas) throw new Error('GlassSearchBar needs a canvas')
     const gl = ctx.canvas.getContext('webgl2', {
       alpha: false,
       antialias: false,
@@ -452,12 +452,12 @@ class GlassPanelSurface implements Surface<GlassPanelOptions> {
       preserveDrawingBuffer: true,
       powerPreference: 'low-power'
     })
-    if (!gl) throw new Error('GlassPanel needs WebGL2, which this browser did not provide')
+    if (!gl) throw new Error('GlassSearchBar needs WebGL2, which this browser did not provide')
 
     const vert = compile(gl, gl.VERTEX_SHADER, VERT)
     const frag = compile(gl, gl.FRAGMENT_SHADER, FRAG)
     const program = gl.createProgram()
-    if (!program) throw new Error('GlassPanel: could not create program')
+    if (!program) throw new Error('GlassSearchBar: could not create program')
     gl.attachShader(program, vert)
     gl.attachShader(program, frag)
     gl.linkProgram(program)
@@ -466,7 +466,7 @@ class GlassPanelSurface implements Surface<GlassPanelOptions> {
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
       const log = gl.getProgramInfoLog(program)
       gl.deleteProgram(program)
-      throw new Error(`GlassPanel: program failed to link\n${log ?? ''}`)
+      throw new Error(`GlassSearchBar: program failed to link\n${log ?? ''}`)
     }
 
     this.gl = gl
@@ -519,7 +519,7 @@ class GlassPanelSurface implements Surface<GlassPanelOptions> {
     this.gl?.viewport(0, 0, size.pixelWidth, size.pixelHeight)
   }
 
-  render(_t: number, opts: GlassPanelOptions, _pointer: unknown, scroll: Scroll): void {
+  render(_t: number, opts: GlassSearchBarOptions, _pointer: unknown, scroll: Scroll): void {
     const gl = this.gl
     const program = this.program
     if (!gl || !program) return
@@ -587,7 +587,7 @@ class GlassPanelSurface implements Surface<GlassPanelOptions> {
 }
 
 /**
- * Mount GlassPanel into `el`. The element needs a size and one `<img>` child.
+ * Mount GlassSearchBar into `el`. The element needs a size and one `<img>` child.
  *
  * ```html
  * <figure id="plate" style="position: relative; aspect-ratio: 3 / 2">
@@ -596,15 +596,15 @@ class GlassPanelSurface implements Surface<GlassPanelOptions> {
  * ```
  *
  * ```ts
- * const halftone-magnifier = createGlassPanel(document.querySelector('#plate')!)
+ * const halftone-magnifier = createGlassSearchBar(document.querySelector('#plate')!)
  * halftone-magnifier.start()
  * ```
  */
-export function createGlassPanel(el: HTMLElement, opts: Partial<GlassPanelOptions> = {}): EffectHandle {
-  return mount<GlassPanelOptions>(el, opts, {
-    defaults: glassPanelDefaults,
-    create: () => new GlassPanelSurface()
+export function createGlassSearchBar(el: HTMLElement, opts: Partial<GlassSearchBarOptions> = {}): EffectHandle {
+  return mount<GlassSearchBarOptions>(el, opts, {
+    defaults: glassSearchBarDefaults,
+    create: () => new GlassSearchBarSurface()
   })
 }
 
-export default createGlassPanel
+export default createGlassSearchBar

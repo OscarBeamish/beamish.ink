@@ -1,13 +1,14 @@
 {
-  "name": "GlassPanel",
-  "slug": "glass-panel",
+  "name": "GlassSearchBar",
+  "slug": "glass-search-bar",
   "tier": 1,
-  "description": "A slab of glass over a picture, holding a control and bending what scrolls behind it",
+  "description": "A search capsule of real glass over a picture, bending and splitting what scrolls behind it",
   "category": "surfaces",
   "tags": [
     "webgl",
     "shader",
     "glass",
+    "search",
     "refraction",
     "dispersion",
     "image",
@@ -46,18 +47,18 @@
       "role": "runtime"
     },
     {
-      "from": "effects/glass-panel/core.ts",
-      "to": "src/beamish/effects/glass-panel/core.ts",
+      "from": "effects/glass-search-bar/core.ts",
+      "to": "src/beamish/effects/glass-search-bar/core.ts",
       "role": "core"
     },
     {
-      "from": "effects/glass-panel/adapters/react.tsx",
-      "to": "src/beamish/effects/glass-panel/react.tsx",
+      "from": "effects/glass-search-bar/adapters/react.tsx",
+      "to": "src/beamish/effects/glass-search-bar/react.tsx",
       "role": "adapter"
     },
     {
-      "from": "effects/glass-panel/adapters/vue.ts",
-      "to": "src/beamish/effects/glass-panel/vue.ts",
+      "from": "effects/glass-search-bar/adapters/vue.ts",
+      "to": "src/beamish/effects/glass-search-bar/vue.ts",
       "role": "adapter"
     }
   ],

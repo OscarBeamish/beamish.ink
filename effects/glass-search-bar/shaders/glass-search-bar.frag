@@ -2,7 +2,7 @@
 precision highp float;
 
 /*
- * GlassPanel: a slab of glass laid on a picture.
+ * GlassSearchBar: a slab of glass laid on a picture.
  *
  * Not a blur with a white border. Every part of this is something glass
  * actually does, and the reason it has to be WebGL rather than CSS is the first

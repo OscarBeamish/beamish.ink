@@ -228,7 +228,7 @@
   }
 
   /*
-   * The control that sits on GlassPanel.
+   * The control that sits on GlassSearchBar.
    *
    * Apple's rule for this material is that it belongs to the layer floating
    * above content rather than to content itself, so what goes on the glass is a

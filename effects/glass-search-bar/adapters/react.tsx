@@ -6,10 +6,10 @@
 'use client'
 
 import { useEffect, useRef, type ReactNode } from 'react'
-import { createGlassPanel, type GlassPanelOptions } from '../core'
+import { createGlassSearchBar, type GlassSearchBarOptions } from '../core'
 import type { EffectHandle } from '../../../shared/runtime'
 
-export type GlassPanelProps = Partial<GlassPanelOptions> & {
+export type GlassSearchBarProps = Partial<GlassSearchBarOptions> & {
   className?: string
   /*
    * The picture. The effect reads it out of the host element rather than taking
@@ -21,7 +21,7 @@ export type GlassPanelProps = Partial<GlassPanelOptions> & {
   autoStart?: boolean
 }
 
-export function Lens({ className, children, autoStart = true, ...options }: GlassPanelProps) {
+export function Lens({ className, children, autoStart = true, ...options }: GlassSearchBarProps) {
   const host = useRef<HTMLDivElement>(null)
   const handle = useRef<EffectHandle | null>(null)
 
@@ -29,7 +29,7 @@ export function Lens({ className, children, autoStart = true, ...options }: Glas
   // dependencies here, so changing one does not rebuild the whole scene.
   useEffect(() => {
     if (!host.current) return
-    const effect = createGlassPanel(host.current, options)
+    const effect = createGlassSearchBar(host.current, options)
     handle.current = effect
     if (autoStart) effect.start()
     return () => {
