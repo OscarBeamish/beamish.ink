@@ -1,5 +1,174 @@
 [
   {
+    "name": "AuroraCurtain",
+    "slug": "aurora-curtain",
+    "tier": 1,
+    "description": "The northern lights on a night sky, folded into curtains and lit from the bottom up",
+    "category": "backdrops",
+    "tags": [
+      "webgl",
+      "shader",
+      "backdrop",
+      "aurora",
+      "night",
+      "dark",
+      "ambient",
+      "no-dependencies"
+    ],
+    "ground": "dark",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "Built for a dark ground and declared as one. On warm paper it is a worse aurora for no reason, and the house style is a house style rather than a rule about what may exist",
+        "The shape follows the physics rather than a reference photograph. Emission runs along near-vertical magnetic field lines, which is the striation; the electrons stop at an abrupt floor around 100km and thin out upwards over hundreds of kilometres, which is why the bottom edge is sharp and the top has no edge at all",
+        "The colour is altitude. Oxygen's green line at 557.7nm low down, its red line at 630nm higher up where collisions are rare enough to let the slower transition happen. Green at the foot running to red at the top, never a hue cycle",
+        "Every moving term is a sum of sines whose time coefficients are whole numbers of turns over the period, so the loop closes exactly. A noise field advanced by time never returns to its first frame and the recorder needs it to",
+        "Three curtains at different depths, each lower, dimmer and folded on a different scale. Sharing a scale makes them read as one curtain drawn three times",
+        "The stars do not twinkle. Scintillation is strongest near the horizon and nearly absent overhead, and faking it evenly costs a per-frame change in every pixel for something nobody looks at",
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.6,
+      "contexts": 1,
+      "notes": [
+        "No texture reads and no noise lookups. The whole frame is around twenty sines and two hashes per pixel, which is cheap enough that the cost is the pixel count rather than the shader",
+        "The curtain loop is bounded at three and breaks early, so one curtain costs a third of three"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/aurora-curtain/core.ts",
+        "to": "src/beamish/effects/aurora-curtain/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/aurora-curtain/adapters/react.tsx",
+        "to": "src/beamish/effects/aurora-curtain/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/aurora-curtain/adapters/vue.ts",
+        "to": "src/beamish/effects/aurora-curtain/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "sky": {
+        "type": "color",
+        "default": "#070b18",
+        "description": "The night sky behind it. Dark, and not black: a real sky has a colour, and the shoulder that keeps the bright parts from clipping lifts pure black into a flat grey anyway."
+      },
+      "low": {
+        "type": "color",
+        "default": "#45efa0",
+        "description": "The colour at the foot, which is oxygen's green line at 557.7nm and the brightest thing in the display. Shifting it far from green stops reading as an aurora, because this is the one colour everybody has seen."
+      },
+      "high": {
+        "type": "color",
+        "default": "#d8468f",
+        "description": "The colour at the top, which is the slower red transition high up where the air is thin enough to let it happen. Magenta rather than pure red is what a camera records and what most people picture."
+      },
+      "curtains": {
+        "type": "number",
+        "default": 3,
+        "description": "How many curtains. Each is further away: lower in the frame, dimmer, and folded on a different scale. One is a quiet backdrop, three is a display.",
+        "min": 1,
+        "max": 3,
+        "step": 1
+      },
+      "height": {
+        "type": "number",
+        "default": 0.3,
+        "description": "How far up the frame the light reaches, as a share of its height. It is a falloff rather than a limit, so a curtain has no top edge: it runs out.",
+        "min": 0.15,
+        "max": 0.9,
+        "step": 0.01
+      },
+      "fold": {
+        "type": "number",
+        "default": 0.62,
+        "description": "How hard the curtains fold along their length. At 0 you have flat bands, which is a real thing a quiet aurora does and is also the safest setting behind text.",
+        "min": 0,
+        "max": 1.5,
+        "step": 0.01
+      },
+      "rays": {
+        "type": "number",
+        "default": 0.8,
+        "description": "Contrast of the vertical rays. This is the most recognisable thing about an aurora and the first thing to raise if it looks like a gradient.",
+        "min": 0,
+        "max": 1.4,
+        "step": 0.01
+      },
+      "pitch": {
+        "type": "number",
+        "default": 40,
+        "description": "How fine the rays are, as turns across the frame rather than a count: x spans the aspect ratio, so 40 is roughly a dozen ribs on a wide canvas. Past about 90 they stop resolving on a small panel and read as noise.",
+        "min": 8,
+        "max": 120,
+        "step": 1
+      },
+      "brightness": {
+        "type": "number",
+        "default": 0.8,
+        "description": "Overall strength of the light. A soft shoulder keeps it from clipping, so a high value compresses rather than flaring into a white patch.",
+        "min": 0.1,
+        "max": 2,
+        "step": 0.01
+      },
+      "stars": {
+        "type": "number",
+        "default": 0.5,
+        "description": "Stars. They sit under the aurora rather than over it, and they are brighter overhead than near the horizon, because low stars are seen through more air.",
+        "min": 0,
+        "max": 1.5,
+        "step": 0.01
+      },
+      "horizon": {
+        "type": "number",
+        "default": 0.45,
+        "description": "Light on the horizon. Nowhere on Earth is the bottom of the sky as dark as the top, and the gradient is most of what stops a flat sky colour looking like a swatch.",
+        "min": 0,
+        "max": 1.5,
+        "step": 0.01
+      },
+      "grain": {
+        "type": "number",
+        "default": 0.3,
+        "description": "The sensor noise of a long exposure. Static rather than crawling: film grain that moves is a different effect and a far noisier one.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "period": {
+        "type": "number",
+        "default": 36,
+        "description": "Seconds for one full cycle, and the pace control. Long on purpose: a backdrop has to survive being ignored, and an aurora that hurries is a screensaver.",
+        "min": 12,
+        "max": 120,
+        "step": 1,
+        "unit": "s"
+      }
+    },
+    "instruction": "it drifts on its own",
+    "oneShot": false,
+    "record": {
+      "duration": 36,
+      "fps": 30,
+      "posterAt": 9,
+      "crf": 30
+    },
+    "group": "effects",
+    "intro": "The northern lights, on a night sky.\n\nThis is the first item in the library built for a dark ground rather than for\nwarm paper, and it declares that in its meta so the site shows it on one. Paper\nis the house style here, not a rule about what may exist, and an aurora on paper\nwould be a worse aurora for no reason.\n\nIt is not a rainbow gradient with noise on it, and that is most of why those\nread as wallpaper. An aurora is emission, and every part of its shape follows\nfrom that.\n\n**It hangs in vertical rays.** Electrons spiral down the magnetic field lines,\nwhich are near vertical at those latitudes, and light up the gas along the way.\nThe striation is the single most recognisable thing about an aurora, and an\neffect without it is a coloured cloud.\n\n**The bottom edge is sharp and the top is not.** The electrons stop where the\nair finally gets thick enough, an abrupt floor at around 100km, and thin out\nupwards over hundreds of kilometres. So the foot is a hard line and the top has\nno edge at all: it runs out.\n\n**The colour is altitude.** Atomic oxygen gives the green line at 557.7nm low\ndown, and the red line at 630nm higher up, where collisions are rare enough to\nlet the slower transition finish. Green at the foot running to red at the top,\nnever the other way round and never a hue cycle.\n\n**It folds along its length.** You are looking at a sheet edge on, so a fold\nreads as a bright rib rather than as a wave passing through."
+  },
+  {
     "name": "CastShadowScene",
     "slug": "cast-shadow-scene",
     "tier": 1,
