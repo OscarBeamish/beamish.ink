@@ -266,8 +266,18 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       '<img class="demo-plate-fill" src="/plates/halftone-magnifier/plate.jpg" alt="A ring of stones on a bright green hillside, the sun coming up behind the ridge" />',
     'relight-image':
       '<img class="demo-plate-fill" src="/plates/relight-image/plate.jpg" alt="A grass headland falling away to the sea, with fog lying along the cliff" />',
-    'glass-panel':
-      '<img class="demo-plate-fill" src="/plates/glass-panel/mountain.jpg" alt="Mountain ridges at dawn, lit from behind by a pink sky" />',
+    /*
+     * The glass is drawn by the canvas; the plate on it is real markup above.
+     * WebGL cannot hold text that can be focused, selected, translated or read
+     * aloud, so anything practical sitting on glass has to be DOM.
+     */
+    'glass-panel': `<img class="demo-plate-fill" src="/plates/glass-panel/mountain.jpg" alt="Mountain ridges at dawn, lit from behind by a pink sky" />
+      <div class="demo-glass-plate">
+        <p class="demo-glass-plate__eyebrow">Field notes</p>
+        <p class="demo-glass-plate__title">A headline sits here</p>
+        <p class="demo-glass-plate__line">And a line of supporting copy under it, about the length a real one runs, so the glass has something to hold.</p>
+        <span class="demo-glass-plate__action">Read the piece</span>
+      </div>`,
     'scramble-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     'misprint-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     'ink-bleed-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,

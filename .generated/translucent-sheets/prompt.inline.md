@@ -273,6 +273,18 @@ export function mount<O extends BaseOptions>(
     canvas.style.display = 'block'
     canvas.style.width = '100%'
     canvas.style.height = '100%'
+    /*
+     * Hidden until the first frame is in it.
+     *
+     * A WebGL canvas with `alpha: false` starts opaque black, and it is in the
+     * document from the moment it is created, so between that and the first
+     * draw the browser has a black rectangle to paint. On a warm cache that is
+     * one frame and it reads as a flash; on a cold one the gap is longer.
+     *
+     * visibility rather than display, because display: none gives the element
+     * no size and the first measure would come back zero.
+     */
+    canvas.style.visibility = 'hidden'
     if (config.canvasClass) canvas.className = config.canvasClass
     el.appendChild(canvas)
   }
@@ -401,6 +413,9 @@ export function mount<O extends BaseOptions>(
   function draw(t: number) {
     if (!surface || contextLost) return
     surface.render(t, opts, pointerAt(t), scrollAt(t))
+    // There is something in the canvas now, so it can be shown. Cheap: a style
+    // write that is already the current value does not invalidate anything.
+    if (canvas && canvas.style.visibility === 'hidden') canvas.style.visibility = ''
   }
 
   function tick(stamp: number) {
@@ -512,7 +527,18 @@ export function mount<O extends BaseOptions>(
   const resizeObserver = new ResizeObserver(() => {
     if (destroyed) return
     applySize()
-    if (!running) draw(reduced ? opts.reducedMotionTime ?? 0 : elapsed)
+    /*
+     * Always redraw, not only when stopped.
+     *
+     * Assigning canvas.width or canvas.height resets the drawing buffer, and a
+     * WebGL buffer resets to opaque black. Leaving that for the next animation
+     * frame means one black frame every time the element changes size, and
+     * since the observer fires once on its first observation, that was a black
+     * flash on every mount: the canvas showed its first drawn frame, the
+     * observer cleared it, and the page painted the hole before the next tick
+     * filled it.
+     */
+    draw(reduced ? opts.reducedMotionTime ?? 0 : elapsed)
   })
   resizeObserver.observe(el)
 

@@ -20,6 +20,7 @@ Assume you have not seen this library before. Everything you need is below.
 - The slab is a signed distance field for a rounded rectangle, and its gradient is analytic rather than sampled, because an approximate normal shows up at once as a wobble along the straight runs
 - Dispersion is three samples at three offsets along that normal, taken per tap inside the blur so the fringe survives it rather than being averaged away
 - One WebGL2 context, one full-screen triangle, no buffers and no attributes
+- Legibility is a luminosity compression rather than a tint: the backdrop's brightness is scaled toward a level, so the hue and the detail survive. Mixing toward white measures the same and looks dead, because it desaturates the picture and flattens what the glass is supposed to be bending
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -72,20 +73,22 @@ as the second argument to the create function; anything omitted takes its defaul
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
 | `glass` | color | `#ffffff` | any CSS hex | The tint the glass leaves and the colour its highlights take. Near white unless the glass is meant to be coloured, because it is multiplied into the picture rather than painted over it. |
-| `panelX` | number | `0.5` | 0 to 1 | Centre of the panel across the element. |
-| `panelY` | number | `0.17` | 0 to 1 | Centre of the panel down the element. |
-| `panelWidth` | number | `0.86` | 0.05 to 1 | Width of the panel as a share of the element. |
-| `panelHeight` | number | `0.14` | 0.03 to 1 | Height of the panel as a share of the element. |
-| `radius` | number | `100` | 0 to 200 | Corner radius in CSS pixels, capped at half the shorter side, so a large number gives a capsule rather than an error. |
-| `bevel` | number | `18` | 1 to 120 | How far in from the edge the bevel reaches. This is the width of the band that bends: the middle of a slab is flat and refracts nothing, which is why the centre stays readable and only the rim distorts. |
+| `panelX` | number | `0.36` | 0 to 1 | Centre of the panel across the element. |
+| `panelY` | number | `0.63` | 0 to 1 | Centre of the panel down the element. |
+| `panelWidth` | number | `0.54` | 0.05 to 1 | Width of the panel as a share of the element. |
+| `panelHeight` | number | `0.42` | 0.03 to 1 | Height of the panel as a share of the element. |
+| `radius` | number | `26` | 0 to 200 | Corner radius in CSS pixels, capped at half the shorter side, so a large number gives a capsule rather than an error. |
+| `bevel` | number | `22` | 1 to 120 | How far in from the edge the bevel reaches. This is the width of the band that bends: the middle of a slab is flat and refracts nothing, which is why the centre stays readable and only the rim distorts. |
 | `refraction` | number | `40` | 0 to 120 | How far the bevel bends what is behind it, in pixels. At 0 you have frosted glass, and this is the setting that makes it glass rather than a blur. |
 | `dispersion` | number | `8` | 0 to 30 | How far the three channels separate as they bend. Glass has a different refractive index per wavelength, which is why a real edge fringes, and it is the cheapest thing that stops a shape reading as plastic. Past about 12 it stops being glass and starts being a prism. |
-| `frost` | number | `1.5` | 0 to 40 | Frosting, as a blur radius in pixels. Twelve taps on a ring, which is not a Gaussian and does not need to be. |
+| `frost` | number | `3` | 0 to 40 | Frosting, as a blur radius in pixels. Twelve taps on a ring, which is not a Gaussian and does not need to be. |
 | `specular` | number | `0.35` | 0 to 2 | How brightly the bevel catches the light. The highlight is lit off a real normal built from the distance field, so it moves round the rim as the light does rather than sitting where it was painted. |
 | `shine` | number | `40` | 1 to 160 | How tight that catch is. Low is a broad satin sheen along the whole bevel; high is a small hard glint at the point facing the light. |
 | `fresnel` | number | `0.06` | 0 to 1.5 | How much the rim brightens where you are looking through the most glass. This is what gives the edge its thickness. |
 | `edge` | number | `0.25` | 0 to 1.5 | The bright hairline just inside the edge, where the bevel turns over. |
-| `tint` | number | `0.04` | 0 to 1 | How much colour the glass leaves on what passes through it. This is also the contrast control if anything is going to be read on top of the panel. |
+| `tint` | number | `0.22` | 0 to 1 | How much colour the glass leaves on what passes through it. This is also the contrast control if anything is going to be read on top of the panel. |
+| `luminosity` | number | `0.65` | 0 to 1 | How far the backdrop's brightness is pulled toward `level` before the glass is drawn. This is what makes anything readable on the panel, and it is a compression rather than a wash: the luminance moves, the hue and the detail do not, so the picture is still a picture. Windows Acrylic calls this the luminosity layer and it is the part that guarantees contrast. At 0 the glass is clear and nothing is safe to put on it. |
+| `level` | number | `0.74` | 0 to 1 | The brightness the backdrop is pulled toward. High for dark text on the panel, low for light text. It is the single number that decides which way round the glass works. |
 | `lightX` | number | `-0.5` | -2 to 2 | Where the light is, across the panel. |
 | `lightY` | number | `0.7` | -2 to 2 | Where the light is, down the panel. |
 | `shadow` | number | `26` | 0 to 80 | How far the shadow under the slab reaches. Without it the panel is a window cut in the picture rather than an object resting on it. |

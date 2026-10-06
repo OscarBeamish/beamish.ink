@@ -20,6 +20,7 @@ Assume you have not seen this library before. Everything you need is below.
 - The slab is a signed distance field for a rounded rectangle, and its gradient is analytic rather than sampled, because an approximate normal shows up at once as a wobble along the straight runs
 - Dispersion is three samples at three offsets along that normal, taken per tap inside the blur so the fringe survives it rather than being averaged away
 - One WebGL2 context, one full-screen triangle, no buffers and no attributes
+- Legibility is a luminosity compression rather than a tint: the backdrop's brightness is scaled toward a level, so the hue and the detail survive. Mixing toward white measures the same and looks dead, because it desaturates the picture and flattens what the glass is supposed to be bending
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -274,6 +275,18 @@ export function mount<O extends BaseOptions>(
     canvas.style.display = 'block'
     canvas.style.width = '100%'
     canvas.style.height = '100%'
+    /*
+     * Hidden until the first frame is in it.
+     *
+     * A WebGL canvas with `alpha: false` starts opaque black, and it is in the
+     * document from the moment it is created, so between that and the first
+     * draw the browser has a black rectangle to paint. On a warm cache that is
+     * one frame and it reads as a flash; on a cold one the gap is longer.
+     *
+     * visibility rather than display, because display: none gives the element
+     * no size and the first measure would come back zero.
+     */
+    canvas.style.visibility = 'hidden'
     if (config.canvasClass) canvas.className = config.canvasClass
     el.appendChild(canvas)
   }
@@ -402,6 +415,9 @@ export function mount<O extends BaseOptions>(
   function draw(t: number) {
     if (!surface || contextLost) return
     surface.render(t, opts, pointerAt(t), scrollAt(t))
+    // There is something in the canvas now, so it can be shown. Cheap: a style
+    // write that is already the current value does not invalidate anything.
+    if (canvas && canvas.style.visibility === 'hidden') canvas.style.visibility = ''
   }
 
   function tick(stamp: number) {
@@ -513,7 +529,18 @@ export function mount<O extends BaseOptions>(
   const resizeObserver = new ResizeObserver(() => {
     if (destroyed) return
     applySize()
-    if (!running) draw(reduced ? opts.reducedMotionTime ?? 0 : elapsed)
+    /*
+     * Always redraw, not only when stopped.
+     *
+     * Assigning canvas.width or canvas.height resets the drawing buffer, and a
+     * WebGL buffer resets to opaque black. Leaving that for the next animation
+     * frame means one black frame every time the element changes size, and
+     * since the observer fires once on its first observation, that was a black
+     * flash on every mount: the canvas showed its first drawn frame, the
+     * observer cleared it, and the page painted the hole before the next tick
+     * filled it.
+     */
+    draw(reduced ? opts.reducedMotionTime ?? 0 : elapsed)
   })
   resizeObserver.observe(el)
 
@@ -673,6 +700,10 @@ export type GlassPanelOptions = BaseOptions & {
   edge: number
   /** How much colour the glass leaves on what passes through it. */
   tint: number
+  /** How far the backdrop's brightness is pulled toward `level`. */
+  luminosity: number
+  /** The brightness it is pulled toward. */
+  level: number
   /** Where the light is, across the panel. */
   lightX: number
   /** Where the light is, down the panel. */
@@ -689,20 +720,22 @@ export type GlassPanelOptions = BaseOptions & {
  */
 export const glassPanelDefaults: GlassPanelOptions = {
   glass: '#ffffff',
-  panelX: 0.5,
-  panelY: 0.17,
-  panelWidth: 0.86,
-  panelHeight: 0.14,
-  radius: 100,
-  bevel: 18,
+  panelX: 0.36,
+  panelY: 0.63,
+  panelWidth: 0.54,
+  panelHeight: 0.42,
+  radius: 26,
+  bevel: 22,
   refraction: 40,
   dispersion: 8,
-  frost: 1.5,
+  frost: 3,
   specular: 0.35,
   shine: 40,
   fresnel: 0.06,
   edge: 0.25,
-  tint: 0.04,
+  tint: 0.22,
+  luminosity: 0.65,
+  level: 0.74,
   lightX: -0.5,
   lightY: 0.7,
   shadow: 26,
@@ -769,6 +802,8 @@ uniform float u_shine;
 uniform float u_fresnel;
 uniform float u_edge;
 uniform float u_tint;
+uniform float u_luminosity;
+uniform float u_level;
 uniform vec3  u_glass;
 uniform vec2  u_light;
 uniform float u_shadow;
@@ -927,7 +962,47 @@ void main() {
     float band = smoothstep(0.55, 0.98, bevel) * smoothstep(1.0, 0.93, bevel);
     float stroke = band * (0.18 + 0.82 * facing) * u_edge;
 
-    vec3 lit = mix(glass, u_glass, u_tint * 0.6);
+    /*
+     * Legibility, the way the two systems that have solved this do it.
+     *
+     * The first attempt here was a milky core: a flat white wash through the
+     * middle of the slab. It measured well and looked dead, because washing
+     * toward white desaturates the picture and flattens its detail, and what is
+     * left is a panel with a smear on it rather than glass.
+     *
+     * Windows Acrylic does it with a luminosity layer: the backdrop's
+     * brightness is pulled toward a level, which compresses how dark or bright
+     * it is allowed to get, while the colour and the detail survive. Apple's
+     * material does the same thing adaptively, shifting only as far as
+     * legibility needs and letting as much content through as possible.
+     *
+     * So this scales the backdrop's luminance toward \`level\` rather than
+     * mixing it toward a colour. A dark passage comes up, a bright one comes
+     * down, the hue is untouched and every edge is still there to be bent. It
+     * is compression, not paint.
+     */
+    float behind = dot(glass, vec3(0.299, 0.587, 0.114));
+    float wanted = mix(behind, u_level, u_luminosity);
+
+    /*
+     * Replace the luminance, keep the colour difference. This is what a
+     * luminosity blend means and the arithmetic matters.
+     *
+     * Scaling the channels by the ratio of wanted to behind looks like the
+     * obvious way to do it and is wrong: it preserves the ratios between the
+     * channels, so a dark pixel with a slight cast gets that cast multiplied
+     * along with everything else. Lifting a dark green by six turns it into a
+     * neon one, and the panel comes out looking like an oil slick.
+     *
+     * Adding the chroma back at its original size instead moves the brightness
+     * without touching how colourful the pixel was. A dark green lifts to a
+     * pale green, which is what putting a light behind a piece of coloured
+     * glass actually does.
+     */
+    vec3 chroma = glass - behind;
+    vec3 levelled = clamp(vec3(wanted) + chroma * 0.85, 0.0, 1.0);
+
+    vec3 lit = mix(levelled, u_glass, u_tint * 0.6);
     lit += u_glass * (spec + back + rim * 0.35 + stroke);
 
     float inside = smoothstep(pixel, -pixel, d);
@@ -956,6 +1031,8 @@ const UNIFORMS = [
   'u_fresnel',
   'u_edge',
   'u_tint',
+  'u_luminosity',
+  'u_level',
   'u_glass',
   'u_light',
   'u_shadow',
@@ -1117,6 +1194,8 @@ class GlassPanelSurface implements Surface<GlassPanelOptions> {
     gl.uniform1f(loc('u_fresnel'), opts.fresnel)
     gl.uniform1f(loc('u_edge'), opts.edge)
     gl.uniform1f(loc('u_tint'), opts.tint)
+    gl.uniform1f(loc('u_luminosity'), opts.luminosity)
+    gl.uniform1f(loc('u_level'), opts.level)
     gl.uniform3fv(loc('u_glass'), rgb(opts.glass))
     gl.uniform2f(loc('u_light'), opts.lightX, opts.lightY)
     gl.uniform1f(loc('u_shadow'), opts.shadow)
@@ -1204,20 +1283,22 @@ as the second argument to the create function; anything omitted takes its defaul
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
 | `glass` | color | `#ffffff` | any CSS hex | The tint the glass leaves and the colour its highlights take. Near white unless the glass is meant to be coloured, because it is multiplied into the picture rather than painted over it. |
-| `panelX` | number | `0.5` | 0 to 1 | Centre of the panel across the element. |
-| `panelY` | number | `0.17` | 0 to 1 | Centre of the panel down the element. |
-| `panelWidth` | number | `0.86` | 0.05 to 1 | Width of the panel as a share of the element. |
-| `panelHeight` | number | `0.14` | 0.03 to 1 | Height of the panel as a share of the element. |
-| `radius` | number | `100` | 0 to 200 | Corner radius in CSS pixels, capped at half the shorter side, so a large number gives a capsule rather than an error. |
-| `bevel` | number | `18` | 1 to 120 | How far in from the edge the bevel reaches. This is the width of the band that bends: the middle of a slab is flat and refracts nothing, which is why the centre stays readable and only the rim distorts. |
+| `panelX` | number | `0.36` | 0 to 1 | Centre of the panel across the element. |
+| `panelY` | number | `0.63` | 0 to 1 | Centre of the panel down the element. |
+| `panelWidth` | number | `0.54` | 0.05 to 1 | Width of the panel as a share of the element. |
+| `panelHeight` | number | `0.42` | 0.03 to 1 | Height of the panel as a share of the element. |
+| `radius` | number | `26` | 0 to 200 | Corner radius in CSS pixels, capped at half the shorter side, so a large number gives a capsule rather than an error. |
+| `bevel` | number | `22` | 1 to 120 | How far in from the edge the bevel reaches. This is the width of the band that bends: the middle of a slab is flat and refracts nothing, which is why the centre stays readable and only the rim distorts. |
 | `refraction` | number | `40` | 0 to 120 | How far the bevel bends what is behind it, in pixels. At 0 you have frosted glass, and this is the setting that makes it glass rather than a blur. |
 | `dispersion` | number | `8` | 0 to 30 | How far the three channels separate as they bend. Glass has a different refractive index per wavelength, which is why a real edge fringes, and it is the cheapest thing that stops a shape reading as plastic. Past about 12 it stops being glass and starts being a prism. |
-| `frost` | number | `1.5` | 0 to 40 | Frosting, as a blur radius in pixels. Twelve taps on a ring, which is not a Gaussian and does not need to be. |
+| `frost` | number | `3` | 0 to 40 | Frosting, as a blur radius in pixels. Twelve taps on a ring, which is not a Gaussian and does not need to be. |
 | `specular` | number | `0.35` | 0 to 2 | How brightly the bevel catches the light. The highlight is lit off a real normal built from the distance field, so it moves round the rim as the light does rather than sitting where it was painted. |
 | `shine` | number | `40` | 1 to 160 | How tight that catch is. Low is a broad satin sheen along the whole bevel; high is a small hard glint at the point facing the light. |
 | `fresnel` | number | `0.06` | 0 to 1.5 | How much the rim brightens where you are looking through the most glass. This is what gives the edge its thickness. |
 | `edge` | number | `0.25` | 0 to 1.5 | The bright hairline just inside the edge, where the bevel turns over. |
-| `tint` | number | `0.04` | 0 to 1 | How much colour the glass leaves on what passes through it. This is also the contrast control if anything is going to be read on top of the panel. |
+| `tint` | number | `0.22` | 0 to 1 | How much colour the glass leaves on what passes through it. This is also the contrast control if anything is going to be read on top of the panel. |
+| `luminosity` | number | `0.65` | 0 to 1 | How far the backdrop's brightness is pulled toward `level` before the glass is drawn. This is what makes anything readable on the panel, and it is a compression rather than a wash: the luminance moves, the hue and the detail do not, so the picture is still a picture. Windows Acrylic calls this the luminosity layer and it is the part that guarantees contrast. At 0 the glass is clear and nothing is safe to put on it. |
+| `level` | number | `0.74` | 0 to 1 | The brightness the backdrop is pulled toward. High for dark text on the panel, low for light text. It is the single number that decides which way round the glass works. |
 | `lightX` | number | `-0.5` | -2 to 2 | Where the light is, across the panel. |
 | `lightY` | number | `0.7` | -2 to 2 | Where the light is, down the panel. |
 | `shadow` | number | `26` | 0 to 80 | How far the shadow under the slab reaches. Without it the panel is a window cut in the picture rather than an object resting on it. |

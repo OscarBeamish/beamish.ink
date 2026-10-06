@@ -32,6 +32,65 @@
         height: 100%;
         object-fit: cover;
       }
+      /*
+       * The plate's own markup, above the canvas. The canvas draws the glass;
+       * this is the content, and it has to be real DOM so it can be focused,
+       * selected, translated and read aloud.
+       *
+       * Lined up with the panel options, which are shares of the element, so
+       * the two stay together when the frame changes shape.
+       */
+      .plate {
+        position: absolute;
+        left: 9%;
+        top: 42%;
+        width: 54%;
+        height: 42%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 0.7rem;
+        padding: 0 clamp(1.2rem, 3vw, 2.4rem);
+        box-sizing: border-box;
+        color: #1c1a16;
+      }
+      .plate__eyebrow {
+        margin: 0;
+        font-size: 0.68rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        opacity: 0.75;
+      }
+      .plate__title {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: clamp(1.5rem, 4.2vw, 3rem);
+        line-height: 0.98;
+        letter-spacing: -0.03em;
+      }
+      .plate__line {
+        margin: 0;
+        max-width: 34ch;
+        font-size: clamp(0.72rem, 1.4vw, 0.92rem);
+        line-height: 1.55;
+        opacity: 0.82;
+      }
+      .plate__action {
+        margin-top: 0.3rem;
+        padding: 0.6rem 1.2rem;
+        border: 1px solid currentColor;
+        border-radius: 100px;
+        font-size: 0.66rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        text-decoration: none;
+        color: inherit;
+      }
+      .plate__action:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
     </style>
   </head>
   <body>
@@ -45,6 +104,15 @@
         src="./demo-plates/mountain.jpg"
         alt="Mountain ridges at dawn, lit from behind by a pink sky"
       />
+      <div class="plate">
+        <p class="plate__eyebrow">Field notes</p>
+        <h1 class="plate__title">A headline sits here</h1>
+        <p class="plate__line">
+          And a line of supporting copy under it, about the length a real one runs,
+          so the glass has something to hold.
+        </p>
+        <a class="plate__action" href="#read">Read the piece</a>
+      </div>
     </div>
 
     <script src="./demo.bundle.js"></script>

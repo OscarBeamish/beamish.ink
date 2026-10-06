@@ -23,7 +23,8 @@
       "The trade is that the panel owns its backdrop: it refracts the picture it was given rather than arbitrary page content. Anything that has to sit on top goes in the DOM above the canvas",
       "The slab is a signed distance field for a rounded rectangle, and its gradient is analytic rather than sampled, because an approximate normal shows up at once as a wobble along the straight runs",
       "Dispersion is three samples at three offsets along that normal, taken per tap inside the blur so the fringe survives it rather than being averaged away",
-      "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes",
+      "Legibility is a luminosity compression rather than a tint: the backdrop's brightness is scaled toward a level, so the hue and the detail survive. Mixing toward white measures the same and looks dead, because it desaturates the picture and flattens what the glass is supposed to be bending"
     ]
   },
   "perf": {
@@ -65,7 +66,7 @@
     },
     "panelX": {
       "type": "number",
-      "default": 0.5,
+      "default": 0.36,
       "min": 0,
       "max": 1,
       "step": 0.01,
@@ -73,7 +74,7 @@
     },
     "panelY": {
       "type": "number",
-      "default": 0.17,
+      "default": 0.63,
       "min": 0,
       "max": 1,
       "step": 0.01,
@@ -81,7 +82,7 @@
     },
     "panelWidth": {
       "type": "number",
-      "default": 0.86,
+      "default": 0.54,
       "min": 0.05,
       "max": 1,
       "step": 0.01,
@@ -89,7 +90,7 @@
     },
     "panelHeight": {
       "type": "number",
-      "default": 0.14,
+      "default": 0.42,
       "min": 0.03,
       "max": 1,
       "step": 0.01,
@@ -97,7 +98,7 @@
     },
     "radius": {
       "type": "number",
-      "default": 100,
+      "default": 26,
       "min": 0,
       "max": 200,
       "step": 1,
@@ -105,7 +106,7 @@
     },
     "bevel": {
       "type": "number",
-      "default": 18,
+      "default": 22,
       "min": 1,
       "max": 120,
       "step": 1,
@@ -129,7 +130,7 @@
     },
     "frost": {
       "type": "number",
-      "default": 1.5,
+      "default": 3,
       "min": 0,
       "max": 40,
       "step": 0.5,
@@ -169,11 +170,27 @@
     },
     "tint": {
       "type": "number",
-      "default": 0.04,
+      "default": 0.22,
       "min": 0,
       "max": 1,
       "step": 0.01,
       "description": "How much colour the glass leaves on what passes through it. This is also the contrast control if anything is going to be read on top of the panel."
+    },
+    "luminosity": {
+      "type": "number",
+      "default": 0.65,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How far the backdrop's brightness is pulled toward `level` before the glass is drawn. This is what makes anything readable on the panel, and it is a compression rather than a wash: the luminance moves, the hue and the detail do not, so the picture is still a picture. Windows Acrylic calls this the luminosity layer and it is the part that guarantees contrast. At 0 the glass is clear and nothing is safe to put on it."
+    },
+    "level": {
+      "type": "number",
+      "default": 0.74,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "The brightness the backdrop is pulled toward. High for dark text on the panel, low for light text. It is the single number that decides which way round the glass works."
     },
     "lightX": {
       "type": "number",

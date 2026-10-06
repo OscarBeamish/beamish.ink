@@ -44,6 +44,8 @@ uniform float u_shine;
 uniform float u_fresnel;
 uniform float u_edge;
 uniform float u_tint;
+uniform float u_luminosity;
+uniform float u_level;
 uniform vec3  u_glass;
 uniform vec2  u_light;
 uniform float u_shadow;
@@ -202,7 +204,47 @@ void main() {
     float band = smoothstep(0.55, 0.98, bevel) * smoothstep(1.0, 0.93, bevel);
     float stroke = band * (0.18 + 0.82 * facing) * u_edge;
 
-    vec3 lit = mix(glass, u_glass, u_tint * 0.6);
+    /*
+     * Legibility, the way the two systems that have solved this do it.
+     *
+     * The first attempt here was a milky core: a flat white wash through the
+     * middle of the slab. It measured well and looked dead, because washing
+     * toward white desaturates the picture and flattens its detail, and what is
+     * left is a panel with a smear on it rather than glass.
+     *
+     * Windows Acrylic does it with a luminosity layer: the backdrop's
+     * brightness is pulled toward a level, which compresses how dark or bright
+     * it is allowed to get, while the colour and the detail survive. Apple's
+     * material does the same thing adaptively, shifting only as far as
+     * legibility needs and letting as much content through as possible.
+     *
+     * So this scales the backdrop's luminance toward `level` rather than
+     * mixing it toward a colour. A dark passage comes up, a bright one comes
+     * down, the hue is untouched and every edge is still there to be bent. It
+     * is compression, not paint.
+     */
+    float behind = dot(glass, vec3(0.299, 0.587, 0.114));
+    float wanted = mix(behind, u_level, u_luminosity);
+
+    /*
+     * Replace the luminance, keep the colour difference. This is what a
+     * luminosity blend means and the arithmetic matters.
+     *
+     * Scaling the channels by the ratio of wanted to behind looks like the
+     * obvious way to do it and is wrong: it preserves the ratios between the
+     * channels, so a dark pixel with a slight cast gets that cast multiplied
+     * along with everything else. Lifting a dark green by six turns it into a
+     * neon one, and the panel comes out looking like an oil slick.
+     *
+     * Adding the chroma back at its original size instead moves the brightness
+     * without touching how colourful the pixel was. A dark green lifts to a
+     * pale green, which is what putting a light behind a piece of coloured
+     * glass actually does.
+     */
+    vec3 chroma = glass - behind;
+    vec3 levelled = clamp(vec3(wanted) + chroma * 0.85, 0.0, 1.0);
+
+    vec3 lit = mix(levelled, u_glass, u_tint * 0.6);
     lit += u_glass * (spec + back + rim * 0.35 + stroke);
 
     float inside = smoothstep(pixel, -pixel, d);

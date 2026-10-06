@@ -87,6 +87,78 @@ export function Hero() {
 **Vue** and **Astro** are the same shape. The core is a standard ES module with
 no framework in it.
 
+## Putting something on it
+
+The canvas draws the glass. Anything that sits on it is real markup above the
+canvas, because WebGL cannot hold text that can be focused, selected,
+translated or read aloud by anything assistive.
+
+```html
+<div id="hero" class="hero">
+  <img src="/mountain.jpg" alt="Mountain ridges at dawn" />
+
+  <div class="hero__plate">
+    <p class="hero__eyebrow">Field notes</p>
+    <h1>A headline sits here</h1>
+    <p>And a line of supporting copy under it.</p>
+    <a href="/read">Read the piece</a>
+  </div>
+</div>
+```
+
+Line the markup up with `panelX`, `panelY`, `panelWidth` and `panelHeight`,
+which are all shares of the element, so the two stay together through a resize.
+
+## Reading anything on glass
+
+This is the part that will catch you out, and it is worth giving the numbers.
+
+Dark text on clear glass over a photograph measures about **1.5:1**. WCAG wants
+4.5:1 for body copy. Winding `tint` up to 0.7 gets it to **4.2:1**, which is
+still short, and by then the slab is nearly opaque and there is no glass left to
+look at. Tint cannot solve this, and the first attempt here, a milky wash
+through the middle of the slab, measured beautifully and looked dead: washing
+toward white desaturates the picture and flattens the detail, so what is left is
+a panel with a smear on it.
+
+The two systems that have solved this both do the same thing, and neither of
+them paints. Windows Acrylic puts a **luminosity layer** under the tint: the
+backdrop's brightness is pulled toward a level, which limits how dark or bright
+it is allowed to get while the colour and the detail survive. Apple's material
+shifts adaptively, moving only as far as legibility needs and letting as much
+content through as possible.
+
+So `luminosity` is a compression, not a wash. It replaces the backdrop's
+luminance and adds the colour difference back at its original size, which is
+what a luminosity blend means. Scaling the channels by the ratio instead is the
+obvious way to write it and is wrong: it multiplies the colour cast along with
+the brightness, so a dark green lifts to a neon one and the panel comes out
+looking like an oil slick.
+
+`level` is what it is pulled toward. High for dark text on the panel, low for
+light text, and it is the one number that decides which way round the glass
+works.
+
+At the default 0.65 the worst tile under the plate measures **5.5:1**. 0.55
+measures 4.48:1, which just misses, so the default is the first setting with
+real margin rather than the most it could take. Those numbers are for this
+photograph: measure yours, against the worst patch under the text at every point
+in the scroll rather than the average.
+
+## What glass is actually for
+
+Apple's guidance on this is worth repeating because it is stricter than most
+people apply it: the material belongs to **the navigation layer that floats
+above content**, and not to content itself. Lists, cards, tables and media are
+not supposed to be made of it.
+
+By that reading a hero plate carrying a paragraph is the wrong use, and a nav, a
+toolbar, a search field or a set of controls is the right one. The hero plate in
+the demo is there because it shows the refraction at its best: a large area of
+bent picture behind a few words. If you are putting a lot of text on glass, the
+honest options are to raise `luminosity` until it passes, or to put the text on
+the page and the glass around the controls.
+
 ## Using it as a nav
 
 This is the arrangement it was built for, and the division of labour matters.

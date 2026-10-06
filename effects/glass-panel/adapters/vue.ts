@@ -25,6 +25,8 @@ export const Lens = defineComponent({
     fresnel: { type: Number, default: glassPanelDefaults.fresnel },
     edge: { type: Number, default: glassPanelDefaults.edge },
     tint: { type: Number, default: glassPanelDefaults.tint },
+    luminosity: { type: Number, default: glassPanelDefaults.luminosity },
+    level: { type: Number, default: glassPanelDefaults.level },
     lightX: { type: Number, default: glassPanelDefaults.lightX },
     lightY: { type: Number, default: glassPanelDefaults.lightY },
     shadow: { type: Number, default: glassPanelDefaults.shadow },
