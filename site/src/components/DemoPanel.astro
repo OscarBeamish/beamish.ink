@@ -361,18 +361,24 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       <span>Available for work</span>
       <span>Available for work</span>
     </div>`,
-    'scramble-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
-    'decode-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
+    /*
+     * A paragraph, not an h1. This is sample text inside a demo, and the page
+     * already has one h1: its own title. Two of them is a worse outline, and it
+     * also meant the review tool measured the rag of a heading that was in the
+     * middle of decoding itself and reported on whichever glyph it caught.
+     */
+    'scramble-text': `<p class="demo-heading">${HEADLINE}</p>`,
+    'decode-text': `<p class="demo-heading">${HEADLINE}</p>`,
     /* A board wants board words, and short ones: four layers of DOM a character. */
     'split-flap-text': `<div class="demo-board">Departures</div>`,
     /* A sentence with punctuation in it, because the breath at a full stop is
        half of what this item is. */
     'typewriter-text': `<p class="demo-typed">Dear Sir, I write about the matter of the press.</p>`,
-    'embossed-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
+    'embossed-text': `<p class="demo-heading">${HEADLINE}</p>`,
     /* The ring fills the box it is given, so the box is the size control. */
     'circular-text': `<div class="demo-seal">Printed and bound in England</div>`,
-    'misprint-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
-    'ink-bleed-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
+    'misprint-text': `<p class="demo-heading">${HEADLINE}</p>`,
+    'ink-bleed-text': `<p class="demo-heading">${HEADLINE}</p>`,
     /*
      * Short labels, matching the item's own demo. The full names wrapped to two
      * lines in this column, which made every other row twice the height of the
