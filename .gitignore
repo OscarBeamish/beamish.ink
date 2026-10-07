@@ -16,6 +16,10 @@ components/*/demo.bundle.js
 components/*/demo.bundle.css
 site/public/media/
 site/public/fonts/
+# Copies sync-public.mjs recreates: the grid demos served whole, and the
+# shared stylesheets that go with them.
+site/public/grid-demos/
+site/public/shared/
 site/.astro/
 tools/review/.shots/
 
