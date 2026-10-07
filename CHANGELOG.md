@@ -122,6 +122,12 @@ implementation gets wrong, because that is the part worth paying for.
 
 ### Changed
 
+- `record.posterQuality` joins `crf` and `webmCrf`, so an item that is
+  pathological for a codec can turn down its poster too. ffmpeg's `-q:v 6` was
+  hardcoded, which is right for anything with redundancy in it and extravagant
+  for a full-frame halftone: MoireScreens' poster was 521kB against a budget of
+  260. At `q:v 18` it is 246kB and the dots are still crisp.
+
 - GlowButton is now SheenButton. It is a sheen: one band of light crossing the
   face. Underneath it was worse, since the exported component, its props and
   every custom property were named Ember, the backlog metaphor, in the public
