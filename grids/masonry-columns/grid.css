@@ -1,0 +1,124 @@
+/*
+ * MasonryColumns: Beamish
+ * https://beamish.ink/grids/masonry-columns
+ *
+ * Items of unequal height packed into columns with no ragged gaps, for a
+ * gallery or an index of cards.
+ *
+ * Three things carry it, and the first is a warning rather than a technique.
+ *
+ * CSS columns destroy reading order, and most masonry layouts on the web are
+ * quietly broken because of it. `columns: 3` fills the first column top to
+ * bottom, then the second: item 2 is below item 1 rather than beside it. For a
+ * wall of photographs nobody minds. For anything read in sequence, a numbered
+ * list, a set of steps, search results, it is wrong, and it is wrong for a
+ * screen reader and for anyone tabbing through as well as for the eye. So this
+ * ships both, and says which is which, rather than giving one answer to two
+ * different questions.
+ *
+ * `break-inside: avoid` is not optional. Without it a card splits across the
+ * bottom of one column and the top of the next, and the half at the top has no
+ * heading. It is one line and it is the difference between a gallery and a
+ * mess.
+ *
+ * And the row-ordered version does not pack. That is the honest trade: keeping
+ * reading order means items in a row share its height, so there are gaps under
+ * the short ones. A layout cannot both read in order and pack perfectly, and
+ * anything claiming otherwise is measuring heights in JavaScript and
+ * repositioning on every resize.
+ */
+
+:root {
+  --mason-columns: 3;
+  --mason-gap: clamp(0.75rem, 1.6vw, 1.5rem);
+  --mason-margin: clamp(1rem, 4vw, 4rem);
+  --mason-rule: rgba(54, 54, 48, 0.2);
+}
+
+/*
+ * The packed version. Column order, so use it only where order does not carry
+ * meaning: a gallery, a moodboard, a wall of covers.
+ */
+.g-mason {
+  columns: var(--mason-columns);
+  column-gap: var(--mason-gap);
+  padding-inline: var(--mason-margin);
+  box-sizing: border-box;
+}
+
+.g-mason > * {
+  /*
+   * Not optional. Without it a card splits across the bottom of one column and
+   * the top of the next, and the half at the top has lost its heading.
+   */
+  break-inside: avoid;
+  /* Safari has wanted the older spelling for a long time. */
+  -webkit-column-break-inside: avoid;
+  margin: 0 0 var(--mason-gap);
+  /*
+   * `inline-block` stops a stray break in browsers that ignore break-inside on
+   * a block, at the cost of nothing: these are already full-column width.
+   */
+  display: inline-block;
+  width: 100%;
+}
+
+/*
+ * The ordered version. Reads left to right, which is what a sequence needs,
+ * and does not pack: items in a row share its height.
+ *
+ * `align-items: start` is what keeps a short card short rather than stretching
+ * it to the tallest in its row, which would be packing's worst feature without
+ * any of its benefit.
+ */
+.g-mason-rows {
+  display: grid;
+  grid-template-columns: repeat(var(--mason-columns), minmax(0, 1fr));
+  gap: var(--mason-gap);
+  align-items: start;
+  padding-inline: var(--mason-margin);
+  box-sizing: border-box;
+}
+
+/* A card. Plain, because the grid is the item here and this is scaffolding. */
+.g-card {
+  background: var(--background-elevated, #faf9f6);
+  border: 1px solid var(--mason-rule);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.g-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.g-card__body {
+  padding: clamp(0.7rem, 1.6vw, 1.1rem);
+}
+
+/* One that is worth two columns, in the ordered version only. Column layout
+ * has no concept of an item spanning two columns, which is another thing the
+ * packed version cannot do. */
+.g-mason-rows > .g-card--wide {
+  grid-column-end: span 2;
+}
+
+@media (max-width: 60rem) {
+  :root {
+    --mason-columns: 2;
+  }
+}
+
+@media (max-width: 38rem) {
+  :root {
+    --mason-columns: 1;
+  }
+
+  /* A span of two on one column overflows, silently, and the page scrolls
+   * sideways with nothing in the console. */
+  .g-mason-rows > .g-card--wide {
+    grid-column-end: span 1;
+  }
+}

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OverlapGrid: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <link rel="stylesheet" href="./grid.css" />
+    <style>
+      html {
+        scroll-behavior: auto;
+      }
+      body {
+        margin: 0;
+        padding-block: clamp(2rem, 5vw, 4rem);
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+        font-size: clamp(0.78rem, 1vw, 0.88rem);
+        line-height: 1.7;
+      }
+      #stage > section + section {
+        margin-top: clamp(2.5rem, 6vw, 6rem);
+      }
+      h1,
+      h2 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 0.95;
+        margin: 0;
+      }
+      h1 {
+        font-size: clamp(2.2rem, 6vw, 5rem);
+      }
+      h2 {
+        font-size: clamp(1.2rem, 2.4vw, 2rem);
+      }
+      p {
+        margin: 0.6em 0 0;
+      }
+      figure {
+        margin: 0;
+      }
+      .eyebrow {
+        font-size: 0.64rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the grid can be opened on its own.
+
+      The photographs load eagerly. The recorder waits for every image to decode
+      before capturing, so a take is deterministic rather than a race, and a
+      lazy image below the fold never starts loading: decode() never settles and
+      the recording hangs with no frames and no error.
+
+      Every overlap below is two items given the same rows and columns. There is
+      not a negative margin anywhere in this file.
+    -->
+    <main id="stage">
+      <section class="g-over">
+        <figure class="g-o-c1 g-o-w9 g-o-r1 g-o-h6">
+          <img
+            src="../_media/plate-1043.webp"
+            alt="A road running into low cloud between dark hills"
+            width="1400"
+            height="875"
+          />
+        </figure>
+        <div class="g-o-c6 g-o-w7 g-o-r4 g-o-h4 g-lift-2 g-over-shade">
+          <h1>Over, not beside</h1>
+          <p>
+            This block starts at column six and row four. The picture runs from
+            column one to nine and row one to six. They share the overlap
+            because both were told to, not because one was dragged.
+          </p>
+        </div>
+      </section>
+
+      <section class="g-over">
+        <div class="g-o-c1 g-o-w5 g-o-r1 g-o-h4 g-over-panel g-lift-2">
+          <h2>A panel breaking out</h2>
+          <p>
+            Two items in one cell paint in document order, so the lift class
+            says which is on top out loud. Reorder this markup to read better
+            aloud and the picture does not change.
+          </p>
+        </div>
+        <figure class="g-o-c4 g-o-w9 g-o-r2 g-o-h5 g-lift-1">
+          <img
+            src="../_media/plate-1015.webp"
+            alt="A river running through a steep wooded valley"
+            width="1400"
+            height="875"
+          />
+        </figure>
+      </section>
+
+      <section class="g-over">
+        <figure class="g-o-c1 g-o-w6 g-o-r1 g-o-h5">
+          <img
+            src="../_media/plate-1016.webp"
+            alt="Bare trees against a pale winter sky"
+            width="1400"
+            height="875"
+          />
+        </figure>
+        <figure class="g-o-c5 g-o-w6 g-o-r3 g-o-h5 g-lift-1">
+          <img
+            src="../_media/plate-1018.webp"
+            alt="A close view of weathered paint and rust"
+            width="1400"
+            height="875"
+          />
+        </figure>
+        <p class="g-o-c1 g-o-w4 g-o-r8 g-o-h2 eyebrow">
+          Two plates sharing a corner
+        </p>
+      </section>
+
+      <section class="g-over">
+        <div class="g-o-c2 g-o-w6 g-o-r1 g-o-h3 g-lift-2 g-over-panel">
+          <h2>Explicit rows are the price</h2>
+          <p>
+            With automatic rows, row three is wherever the content above it
+            happened to end. A fixed row unit makes row three the same place for
+            every item, which is the only way two of them can be told to meet.
+          </p>
+        </div>
+        <figure class="g-o-c7 g-o-w6 g-o-r2 g-o-h4">
+          <img
+            src="../_media/plate-1039.webp"
+            alt="A wide shoreline under an overcast sky"
+            width="1400"
+            height="875"
+          />
+        </figure>
+      </section>
+    </main>
+
+    <script>
+      /*
+       * A grid does not move, so the take is a scroll down the page and back,
+       * which closes the loop exactly: the frame at 0 and the frame at the end
+       * are the same frame.
+       */
+      const ease = k => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2)
+      let span = Number(new URLSearchParams(location.search).get('span')) || 10
+
+      window.__beamish = {
+        renderAtTime(t) {
+          const reach = Math.max(document.body.scrollHeight - innerHeight, 0)
+          const k = Math.min(Math.max(t / span, 0), 1)
+          const there = k < 0.5 ? ease(k * 2) : ease((1 - k) * 2)
+          scrollTo(0, reach * there)
+        },
+        start() {},
+        stop() {},
+        update(next) {
+          if (next && typeof next.span === 'number') span = next.span
+        },
+        destroy() {}
+      }
+
+      if (!new URLSearchParams(location.search).has('record')) scrollTo(0, 0)
+    </script>
+  </body>
+</html>

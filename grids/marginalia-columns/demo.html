@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MarginaliaColumns: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <link rel="stylesheet" href="./grid.css" />
+    <style>
+      html {
+        scroll-behavior: auto;
+      }
+      body {
+        margin: 0;
+        padding-block: clamp(2rem, 6vw, 5rem);
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+        font-size: clamp(0.8rem, 1.05vw, 0.92rem);
+        line-height: 1.75;
+      }
+      h1,
+      h2 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1;
+      }
+      h1 {
+        font-size: clamp(2rem, 5vw, 3.4rem);
+      }
+      h2 {
+        font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+      }
+      figcaption {
+        margin-top: 0.5rem;
+        font-size: 0.72rem;
+        color: var(--label-3);
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the grid can be opened on its own.
+
+      The photographs load eagerly. The recorder waits for every image to decode
+      before capturing, so a take is deterministic rather than a race, and a
+      lazy image below the fold never starts loading: decode() never settles and
+      the recording hangs with no frames and no error.
+
+      Note the source order: every aside follows the thing it annotates. That is
+      what makes it read correctly aloud and land in the right place when the
+      layout collapses to one column.
+    -->
+    <main id="stage" class="g-marg g-marg--ruled">
+      <h1>Notes in the margin</h1>
+      <aside class="g-note g-note--level">
+        The oldest layout in this library, and the one most often built wrongly.
+      </aside>
+
+      <p>
+        A note belongs to a particular sentence, and a layout that cannot keep
+        the two together has not done the job. The usual approaches both fail in
+        the same way: they put the note where the text happened to reach rather
+        than where the text means.
+      </p>
+      <aside class="g-note g-note--level">
+        Floats land wherever the line box ended. Absolute positioning holds
+        still while the paragraph reflows around it.
+      </aside>
+
+      <p>
+        Here the note is a grid item in the same row as its paragraph, so the
+        browser keeps them level at every width, with no measurement and no
+        script. There is nothing to recalculate on resize because nothing was
+        ever calculated.
+      </p>
+      <aside class="g-note g-note--level">
+        One row, two cells. The pair cannot come apart.
+      </aside>
+
+      <h2>Two measures, not one split</h2>
+      <aside class="g-note g-note--level">
+        A note wants a short line even when the window is enormous.
+      </aside>
+
+      <p>
+        The note column is a fixed width rather than a fraction of the page.
+        Give it a fraction and the notes get longer lines as the window grows,
+        which is backwards: the text has its own measure to keep and the note
+        has a different, shorter one. They are two independent decisions that a
+        single split would conflate.
+      </p>
+
+      <figure class="g-full">
+        <img
+          src="../_media/plate-1039.webp"
+          alt="A wide shoreline under an overcast sky"
+          width="1400"
+          height="875"
+        />
+        <figcaption>
+          Something that ignores the margin and runs across both columns.
+        </figcaption>
+      </figure>
+
+      <h2>Aligned to the top</h2>
+      <aside class="g-note g-note--level">
+        A short note centred beside a long paragraph stops pointing at anything.
+      </aside>
+
+      <p>
+        A note is aligned to the top of its row rather than stretched or
+        centred. This matters more than it sounds: a two-line note beside a
+        nine-line paragraph, centred, sits halfway down and reads as a comment
+        on the middle of the paragraph rather than on its first sentence.
+      </p>
+
+      <p>
+        The same rule is why a note with no paragraph beside it still sits where
+        you would expect, rather than drifting to the centre of whatever space
+        the row happened to have.
+      </p>
+      <aside class="g-note g-note--level">
+        Which is the behaviour you want when the margin is used for running
+        heads or dates rather than for commentary.
+      </aside>
+    </main>
+
+    <script>
+      /*
+       * A grid does not move, so the take is a scroll down the page and back,
+       * which closes the loop exactly: the frame at 0 and the frame at the end
+       * are the same frame.
+       */
+      const ease = k => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2)
+      let span = Number(new URLSearchParams(location.search).get('span')) || 10
+
+      window.__beamish = {
+        renderAtTime(t) {
+          const reach = Math.max(document.body.scrollHeight - innerHeight, 0)
+          const k = Math.min(Math.max(t / span, 0), 1)
+          const there = k < 0.5 ? ease(k * 2) : ease((1 - k) * 2)
+          scrollTo(0, reach * there)
+        },
+        start() {},
+        stop() {},
+        update(next) {
+          if (next && typeof next.span === 'number') span = next.span
+        },
+        destroy() {}
+      }
+
+      if (!new URLSearchParams(location.search).has('record')) scrollTo(0, 0)
+    </script>
+  </body>
+</html>

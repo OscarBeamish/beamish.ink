@@ -1,0 +1,62 @@
+{
+  "name": "OverlapGrid",
+  "slug": "overlap-grid",
+  "description": "Blocks that deliberately share cells, so a title can sit across a photograph without a negative margin anywhere",
+  "category": "overlap",
+  "ground": "paper",
+  "tags": [
+    "grid",
+    "overlap",
+    "poster",
+    "editorial",
+    "css",
+    "no-dependencies"
+  ],
+  "files": [
+    {
+      "from": "grids/overlap-grid/grid.css",
+      "to": "src/beamish/grids/overlap-grid/grid.css",
+      "role": "style"
+    }
+  ],
+  "properties": {
+    "--over-columns": {
+      "default": "12",
+      "description": "The track count. Twelve gives enough places for two blocks to meet at a sensible fraction rather than at whatever the arithmetic allows."
+    },
+    "--over-gutter": {
+      "default": "clamp(0.75rem, 1.4vw, 1.5rem)",
+      "description": "Between columns. Note that two overlapping items ignore it where they meet, which is the point: the gutter separates neighbours, not things sharing a cell."
+    },
+    "--over-margin": {
+      "default": "clamp(1.25rem, 5vw, 5rem)",
+      "description": "Between the content and the trim, kept separate from the gutter for the same reason as every other grid here."
+    },
+    "--over-row": {
+      "default": "clamp(2rem, 4vw, 4rem)",
+      "description": "The row unit, and the price of overlap. With automatic rows, row 3 is wherever the content above happened to end, so two items told to share it would not. A fixed unit makes row 3 the same place for both."
+    },
+    "--over-shade": {
+      "default": "rgba(20, 20, 18, 0.55)",
+      "description": "The wash behind a block sitting over a photograph. Type over an image is unreadable about a third of the time and which third depends on the image, so this is the fix rather than hoping."
+    },
+    "--over-rule": {
+      "default": "rgba(54, 54, 48, 0.2)",
+      "description": "The border on a panel sitting on paper rather than over a picture."
+    }
+  },
+  "notes": [
+    "Overlap is two items given the same cells, not one item pulled across by a negative margin. A negative margin is a lie told to the layout: the element still occupies its original track, nothing around it knows where it really is, and at the next width it overlaps something it was never meant to touch. Two items sharing a grid area genuinely share the space, and the browser sizes the tracks knowing about both",
+    "Explicit rows are the price of overlap. With grid-auto-rows, row 3 is wherever the content above it happened to end, so telling two items to share row 3 does not make them meet. A fixed row unit makes row 3 the same place for both",
+    "Stacking order is declared rather than inherited from source order. Items in one cell paint in document order, so reordering markup for a screen reader silently changes which block is on top. The lift classes say it out loud, which keeps reading order and painting order separate decisions",
+    "Anything on top of a photograph gets its own ground. Type over an image is unreadable about a third of the time, and the alternative to a wash is choosing pictures that happen to be dark in the right corner",
+    "Below 54rem overlap is abandoned rather than scaled. Two blocks sharing a cell on a phone is two blocks on top of each other with no room to read either, so it becomes a single column in source order. This is the one grid here whose narrow layout is a different composition rather than the same one compressed"
+  ],
+  "record": {
+    "duration": 10,
+    "fps": 24,
+    "posterAt": 2.0,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

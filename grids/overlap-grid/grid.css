@@ -1,0 +1,166 @@
+/*
+ * OverlapGrid: Beamish
+ * https://beamish.ink/grids/overlap-grid
+ *
+ * Blocks that deliberately sit over one another: a title across a photograph, a
+ * panel breaking out of its column, two plates with a corner in common. The
+ * composition that looks like it was laid out by hand rather than filled in.
+ *
+ * Three things carry it, and the first is the whole reason this is a grid
+ * rather than a pile of negative margins.
+ *
+ * Overlap is done by putting two items in the same cells, not by pulling one
+ * of them with a negative margin. A negative margin is a lie told to the
+ * layout: the element still occupies its original track, so nothing around it
+ * knows where it really is, and at the next width it overlaps something it was
+ * never meant to touch. Two items given the same `grid-area` genuinely share
+ * the space. The browser sizes the tracks knowing about both, and the overlap
+ * holds at every width because it was never a fudge.
+ *
+ * Stacking order is declared, not inherited from source order. Items placed in
+ * the same cell paint in document order, which means reordering the markup for
+ * a screen reader silently changes which block is on top. `--over-lift` says
+ * it out loud, so reading order and painting order are separate decisions.
+ *
+ * And anything on top of a photograph needs its own ground. Type over an image
+ * is unreadable about a third of the time, and which third depends on the
+ * photograph. `.g-over-shade` puts a wash behind the overlapping block, which
+ * is the honest fix: the alternative is choosing pictures that happen to be
+ * dark in the right corner.
+ */
+
+:root {
+  --over-columns: 12;
+  --over-gutter: clamp(0.75rem, 1.4vw, 1.5rem);
+  --over-margin: clamp(1.25rem, 5vw, 5rem);
+  /* The row unit. Overlap needs explicit rows, or items cannot share them. */
+  --over-row: clamp(2rem, 4vw, 4rem);
+  --over-shade: rgba(20, 20, 18, 0.55);
+  --over-rule: rgba(54, 54, 48, 0.2);
+}
+
+/*
+ * Explicit rows are the price of overlap.
+ *
+ * With `grid-auto-rows` a second item placed in "row 3" lands in whatever row 3
+ * turned out to be, which depends on the height of everything above it. Fixed
+ * row units mean row 3 is the same place for both items, which is what lets
+ * them be told to share it.
+ */
+.g-over {
+  display: grid;
+  grid-template-columns: repeat(var(--over-columns), minmax(0, 1fr));
+  grid-auto-rows: var(--over-row);
+  column-gap: var(--over-gutter);
+  padding-inline: var(--over-margin);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/*
+ * Placement. Columns and rows are given as start and span, because an overlap
+ * is defined by where two areas meet and `grid-area` shorthand hides that.
+ */
+.g-o-c1 { grid-column-start: 1 }
+.g-o-c2 { grid-column-start: 2 }
+.g-o-c3 { grid-column-start: 3 }
+.g-o-c4 { grid-column-start: 4 }
+.g-o-c5 { grid-column-start: 5 }
+.g-o-c6 { grid-column-start: 6 }
+.g-o-c7 { grid-column-start: 7 }
+.g-o-c8 { grid-column-start: 8 }
+
+.g-o-w2 { grid-column-end: span 2 }
+.g-o-w3 { grid-column-end: span 3 }
+.g-o-w4 { grid-column-end: span 4 }
+.g-o-w5 { grid-column-end: span 5 }
+.g-o-w6 { grid-column-end: span 6 }
+.g-o-w7 { grid-column-end: span 7 }
+.g-o-w8 { grid-column-end: span 8 }
+.g-o-w12 { grid-column-end: span 12 }
+
+.g-o-r1 { grid-row-start: 1 }
+.g-o-r2 { grid-row-start: 2 }
+.g-o-r3 { grid-row-start: 3 }
+.g-o-r4 { grid-row-start: 4 }
+.g-o-r5 { grid-row-start: 5 }
+.g-o-r6 { grid-row-start: 6 }
+.g-o-r7 { grid-row-start: 7 }
+.g-o-r8 { grid-row-start: 8 }
+.g-o-r9 { grid-row-start: 9 }
+.g-o-r10 { grid-row-start: 10 }
+
+.g-o-h2 { grid-row-end: span 2 }
+.g-o-h3 { grid-row-end: span 3 }
+.g-o-h4 { grid-row-end: span 4 }
+.g-o-h5 { grid-row-end: span 5 }
+.g-o-h6 { grid-row-end: span 6 }
+.g-o-h8 { grid-row-end: span 8 }
+
+/*
+ * Stacking, said out loud. Without this, two items in one cell paint in source
+ * order, so moving a block for a screen reader quietly changes the picture.
+ */
+.g-over > * {
+  position: relative;
+  z-index: var(--over-lift, 0);
+  min-width: 0;
+}
+
+.g-lift-1 { --over-lift: 1 }
+.g-lift-2 { --over-lift: 2 }
+.g-lift-3 { --over-lift: 3 }
+
+/* A plate that fills whatever area it was given. */
+.g-over img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/*
+ * A ground for anything sitting over a picture. Type over a photograph is
+ * unreadable about a third of the time and which third depends on the
+ * photograph, so this is the honest fix rather than hoping.
+ */
+.g-over-shade {
+  background: var(--over-shade);
+  color: #fff;
+  padding: clamp(0.9rem, 2vw, 1.8rem);
+  box-sizing: border-box;
+}
+
+/* A panel on paper rather than over a picture. */
+.g-over-panel {
+  background: var(--background-elevated, #faf9f6);
+  border: 1px solid var(--over-rule);
+  padding: clamp(0.9rem, 2vw, 1.8rem);
+  box-sizing: border-box;
+}
+
+/*
+ * Narrow. Overlap is abandoned rather than scaled.
+ *
+ * Two blocks sharing a cell on a phone is two blocks on top of each other with
+ * no room to read either, so everything goes to a single column in source
+ * order. This is the one grid here where the narrow layout is a different
+ * composition rather than the same one compressed, and pretending otherwise
+ * would make the page unusable at the width most people have.
+ */
+@media (max-width: 54rem) {
+  .g-over {
+    display: flex;
+    flex-direction: column;
+    gap: var(--over-row);
+    grid-auto-rows: auto;
+  }
+
+  .g-over > * {
+    z-index: auto;
+  }
+
+  .g-over img {
+    height: auto;
+  }
+}

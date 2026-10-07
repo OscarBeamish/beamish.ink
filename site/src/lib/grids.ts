@@ -63,5 +63,8 @@ export const GRID_CATEGORY_LABELS: Record<Grid['category'], string> = {
   editorial: 'Editorial',
   tiles: 'Tiles',
   baseline: 'Baseline',
-  asymmetric: 'Asymmetric'
+  asymmetric: 'Asymmetric',
+  marginalia: 'Marginalia',
+  overlap: 'Overlap',
+  masonry: 'Masonry'
 }

@@ -1,0 +1,54 @@
+{
+  "name": "MasonryColumns",
+  "slug": "masonry-columns",
+  "description": "Items of unequal height packed into columns, with the ordered variant for anything that is read in sequence",
+  "category": "masonry",
+  "ground": "paper",
+  "tags": [
+    "grid",
+    "masonry",
+    "gallery",
+    "cards",
+    "css",
+    "no-dependencies"
+  ],
+  "files": [
+    {
+      "from": "grids/masonry-columns/grid.css",
+      "to": "src/beamish/grids/masonry-columns/grid.css",
+      "role": "style"
+    }
+  ],
+  "properties": {
+    "--mason-columns": {
+      "default": "3",
+      "description": "How many columns, for both the packed and the ordered version. It drops to two below 60rem and one below 38rem, which is the only breakpoint either of them needs."
+    },
+    "--mason-gap": {
+      "default": "clamp(0.75rem, 1.6vw, 1.5rem)",
+      "description": "Between items, horizontally and vertically. In the packed version the vertical gap is a margin on the item, because a column layout has no row gap to set."
+    },
+    "--mason-margin": {
+      "default": "clamp(1rem, 4vw, 4rem)",
+      "description": "Between the content and the trim. A gallery wants less of this than a text page: the pictures are the content and the margin is only there to stop them touching the edge."
+    },
+    "--mason-rule": {
+      "default": "rgba(54, 54, 48, 0.2)",
+      "description": "The card border. Hairline, because a packed wall of cards has a great many edges and anything heavier turns the page into a lattice."
+    }
+  },
+  "notes": [
+    "CSS columns destroy reading order, and most masonry layouts on the web are quietly broken because of it. Three columns fills the first top to bottom and then the second, so item 2 is below item 1 rather than beside it. For a wall of photographs nobody minds; for a numbered list, a set of steps or search results it is wrong, and wrong for a screen reader and for anyone tabbing as well as for the eye. Both versions ship here, with which is which written down",
+    "break-inside: avoid is not optional on the packed version. Without it a card splits across the bottom of one column and the top of the next, and the half at the top has lost its heading. One line, and it is the difference between a gallery and a mess",
+    "The ordered version does not pack, and that is the honest trade. Keeping reading order means items in a row share its height, so there are gaps under the short ones. A layout cannot both read in order and pack perfectly; anything claiming otherwise is measuring heights in JavaScript and repositioning on every resize",
+    "align-items: start on the ordered version is what keeps a short card short rather than stretching it to the tallest in its row, which would be packing's worst feature with none of its benefit",
+    "A column layout has no concept of an item spanning two columns, so the wide modifier only works on the ordered version. It is reset to a single column below 38rem, because a span of two on a grid of one overflows silently and scrolls the page sideways"
+  ],
+  "record": {
+    "duration": 10,
+    "fps": 24,
+    "posterAt": 2.0,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

@@ -1,0 +1,133 @@
+/*
+ * MarginaliaColumns: Beamish
+ * https://beamish.ink/grids/marginalia-columns
+ *
+ * A column of text with a narrow margin beside it for notes, each note level
+ * with the paragraph it belongs to. The layout of a scholarly edition, and of
+ * most good documentation.
+ *
+ * Three things carry it, and the first is the one that breaks in every version
+ * built with floats or absolute positioning.
+ *
+ * A note is a grid item in the same row as its paragraph. That is the whole
+ * trick. Float it and it sits where the text happens to have reached; position
+ * it absolutely and it holds still while the paragraph above it reflows to a
+ * different height, so the note that explained the third sentence ends up
+ * beside the fifth. As a grid row, the pair cannot come apart: the browser
+ * keeps them level at every width, with no measurement and no script.
+ *
+ * The note column is a fixed measure, not a fraction. Give it `1fr` of
+ * anything and the notes get wider as the window does, which is exactly
+ * backwards: a note is a short aside and wants a short line, while the text
+ * beside it has its own measure to keep. Two independent widths, not one split
+ * two ways.
+ *
+ * And the note aligns to the top of its row, not the middle. `align-self:
+ * start` is doing real work: stretched, a two-line note next to a nine-line
+ * paragraph centres itself halfway down and stops looking like an annotation
+ * of the first sentence, which is what it is.
+ */
+
+:root {
+  /* The text column. Its own measure, independent of the note's. */
+  --marg-measure: 34rem;
+  /* The note column. A fixed width, because a note wants a short line. */
+  --marg-note: 13rem;
+  --marg-gutter: clamp(1.25rem, 3vw, 3rem);
+  --marg-step: 1.5rem;
+  --marg-rule: rgba(54, 54, 48, 0.2);
+}
+
+/*
+ * Text, then note. `auto` on the first track rather than `1fr`, so the text
+ * takes its measure and the pair sits together instead of being pushed apart
+ * by a window that happens to be wide.
+ */
+.g-marg {
+  display: grid;
+  grid-template-columns: minmax(0, var(--marg-measure)) var(--marg-note);
+  column-gap: var(--marg-gutter);
+  row-gap: var(--marg-step);
+  align-items: start;
+  margin-inline: auto;
+  width: fit-content;
+  max-width: 100%;
+  padding-inline: clamp(1rem, 4vw, 3rem);
+  box-sizing: border-box;
+}
+
+/* Anything in the text column. Explicit, because source order alone would put
+ * a second paragraph in the note column. */
+.g-marg > :where(p, h1, h2, h3, ul, ol, blockquote, figure) {
+  grid-column: 1;
+  margin: 0;
+}
+
+/*
+ * The note. Column two of its own row, aligned to the top of it.
+ *
+ * It must come immediately after the element it annotates in the source, which
+ * is also what makes it read correctly to a screen reader and what lets the
+ * narrow layout put it directly underneath.
+ */
+.g-note {
+  grid-column: 2;
+  align-self: start;
+  margin: 0;
+  font-size: 0.78em;
+  line-height: 1.55;
+  color: var(--label-3, #6b6b63);
+}
+
+/*
+ * A note that should hang level with the previous paragraph rather than start
+ * its own row. Grid puts each item in a new row by default, so a note placed
+ * after a paragraph gets its own row and sits below it; this pulls it back up.
+ */
+.g-note--level {
+  grid-row: auto / span 1;
+  margin-top: calc(var(--marg-step) * -1);
+}
+
+/* A rule down the margin, between the text and its notes. */
+.g-marg--ruled > .g-note {
+  border-left: 1px solid var(--marg-rule);
+  padding-left: calc(var(--marg-gutter) / 2);
+  margin-left: calc(var(--marg-gutter) / -2);
+}
+
+/* Something that ignores the margin and runs the full width of both. */
+.g-marg > .g-full {
+  grid-column: 1 / -1;
+}
+
+.g-marg > .g-full img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/*
+ * Narrow. One column, and the note falls directly under what it annotates,
+ * which is why the source order matters. Indented and ruled so it still reads
+ * as an aside rather than as the next paragraph.
+ */
+@media (max-width: 54rem) {
+  .g-marg {
+    grid-template-columns: minmax(0, 1fr);
+    width: auto;
+  }
+
+  .g-marg > :where(p, h1, h2, h3, ul, ol, blockquote, figure),
+  .g-note {
+    grid-column: 1;
+  }
+
+  .g-note,
+  .g-marg--ruled > .g-note {
+    margin-top: 0;
+    margin-left: 0;
+    padding-left: 1rem;
+    border-left: 2px solid var(--marg-rule);
+  }
+}

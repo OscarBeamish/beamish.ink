@@ -320,7 +320,15 @@ export const gridMetaSchema = z
     name: z.string().regex(/^[A-Z][A-Za-z]+$/, 'name must be a single CamelCase word'),
     slug,
     description: z.string().min(10).max(160),
-    category: z.enum(['editorial', 'tiles', 'baseline', 'asymmetric']),
+    category: z.enum([
+      'editorial',
+      'tiles',
+      'baseline',
+      'asymmetric',
+      'marginalia',
+      'overlap',
+      'masonry'
+    ]),
     tags: z.array(z.string()).min(1),
     ground: z.enum(['paper', 'dark', 'either']).default('paper'),
 
