@@ -4441,7 +4441,7 @@
       "notes": [
         "Two rotations, two fract calls and two smoothsteps per pixel, plus the derivative fwidth needs. No textures, no noise and no render targets",
         "The derivative is the only unusual cost and it is a hardware instruction. It is also not optional: without it the screens alias and the effect is measuring the monitor",
-        "Recorded at 15fps with a high crf, the way the halftone items are. A full-frame dot screen is nearly all high-frequency detail and every dot edge moves as the screens drift, so there is nothing for a codec to predict: at 30fps and crf 26 the take came out at 18.5MB against a 3.5MB budget, which in a repo where every media file is committed forever is not a trade worth making"
+        "Shipping this is the real constraint, not drawing it. A full-frame dot screen is nearly all high-frequency detail and every dot edge moves as the screens drift, so a codec has nothing to predict: at pitch 10, 30fps and crf 26 one aspect ratio came to 18.5MB against a 3.5MB budget, and at 15fps with crf 36 it was still 5.3MB. Coarsening the pitch to 14 is what actually fixed it, because it is the dot count that costs, and it reads better as a screen into the bargain"
       ]
     },
     "files": [
@@ -4484,14 +4484,14 @@
       },
       "pitch": {
         "type": "number",
-        "default": 10,
-        "description": "Distance between screen elements, in CSS pixels. Fine pitches give large fringes for a given angle and read as an optical event; coarse ones read as two patterns you can see individually. Below about 3 the screen is at the limit of what a display can resolve and the effect starts depending on the device.",
+        "default": 14,
+        "description": "Distance between screen elements, in CSS pixels. Fine pitches give large fringes for a given angle and read as an optical event; coarse ones read as two patterns you can see individually. It is also the one setting that decides what this costs to ship: a screen is high-frequency detail across the whole frame, so halving the pitch roughly quadruples the dot count and the video with it. At 10 the take would not fit in the repo's budget at any frame rate worth watching; at 14 it does, and the dots read more clearly as dots. Below about 3 the screen is at the limit of what a display can resolve and the effect starts depending on the device.",
         "min": 2,
         "max": 40,
         "step": 0.5,
         "sensible": [
-          4,
-          12
+          8,
+          18
         ]
       },
       "coverage": {
@@ -4555,7 +4555,7 @@
       },
       "period": {
         "type": "number",
-        "default": 40,
+        "default": 28,
         "description": "Seconds for one cycle of the drift. Long, because the fringes move much faster than the angle does and a backdrop has to survive being ignored.",
         "min": 12,
         "max": 180,
@@ -4566,11 +4566,11 @@
     "instruction": "the second screen drifts on its own",
     "oneShot": false,
     "record": {
-      "duration": 40,
+      "duration": 28,
       "fps": 15,
-      "posterAt": 10,
-      "crf": 36,
-      "webmCrf": 50
+      "posterAt": 7,
+      "crf": 34,
+      "webmCrf": 48
     },
     "group": "effects",
     "intro": "MoireScreens lays two halftone screens over each other at a small angle and\nlets them beat.\n\nThe fringes are not drawn. Nothing in the shader draws a fringe or knows where\none is: there are two regular screens, and the interference is what comes out.\nThat is the point of building it this way rather than drawing the pattern, and\nit is why the fringes behave correctly when the angle changes. The spacing of\nthe beat is the pitch over twice the sine of half the angle, so it runs away\ntowards infinity as the screens line up: ten degrees gives a tight rosette, two\ngives fringes the size of the frame, and zero gives nothing at all.\n\nThis is a printing fault, induced on purpose. It is the reason process colour is\nscreened at fifteen, forty-five, seventy-five and a hundred and five degrees:\nthose angles are chosen so four screens do not do this. Set `separation` to 30\nand you have the industry's answer. Set it to 4 and you have the thing every\nprinter has had to explain to a client."

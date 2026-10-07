@@ -61,14 +61,14 @@ export const moireScreensDefaults: MoireScreensOptions = {
   paper: '#fbfaf4',
   first: '#36362f',
   second: '#c44400',
-  pitch: 10,
+  pitch: 14,
   coverage: 0.3,
   separation: 3.2,
   angle: 15,
   drift: 0.8,
   lines: false,
   detune: 0.04,
-  period: 40,
+  period: 28,
   reducedMotionTime: 10
 }
 

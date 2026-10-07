@@ -99,14 +99,14 @@ export const moireScreensDefaults: MoireScreensOptions = {
   paper: '#fbfaf4',
   first: '#36362f',
   second: '#c44400',
-  pitch: 10,
+  pitch: 14,
   coverage: 0.3,
   separation: 3.2,
   angle: 15,
   drift: 0.8,
   lines: false,
   detune: 0.04,
-  period: 40,
+  period: 28,
   reducedMotionTime: 10
 }
 
@@ -1128,14 +1128,14 @@ as the second argument to the create function; anything omitted takes its defaul
 | `paper` | color | `#fbfaf4` | any CSS hex | The sheet both screens are printed on, and what shows where neither covers. |
 | `first` | color | `#36362f` | any CSS hex | The first screen's ink. Since the two multiply, this is the colour the sheet takes where only this screen covers. |
 | `second` | color | `#c44400` | any CSS hex | The second screen's ink. Two different inks make the fringes read as colour as well as tone, which is what makes the beat visible at low coverage. The same colour twice is the purer demonstration and the duller picture. |
-| `pitch` | number | `10` | 2 to 40 (looks right between 4 and 12) | Distance between screen elements, in CSS pixels. Fine pitches give large fringes for a given angle and read as an optical event; coarse ones read as two patterns you can see individually. Below about 3 the screen is at the limit of what a display can resolve and the effect starts depending on the device. |
+| `pitch` | number | `14` | 2 to 40 (looks right between 8 and 18) | Distance between screen elements, in CSS pixels. Fine pitches give large fringes for a given angle and read as an optical event; coarse ones read as two patterns you can see individually. It is also the one setting that decides what this costs to ship: a screen is high-frequency detail across the whole frame, so halving the pitch roughly quadruples the dot count and the video with it. At 10 the take would not fit in the repo's budget at any frame rate worth watching; at 14 it does, and the dots read more clearly as dots. Below about 3 the screen is at the limit of what a display can resolve and the effect starts depending on the device. |
 | `coverage` | number | `0.3` | 0.02 to 0.98 (looks right between 0.3 and 0.6) | Share of the sheet each screen covers. The fringes are strongest near a half, because that is where a small change in overlap makes the biggest difference to how much paper is left. At the extremes there is either nothing to overlap or nothing left uncovered. |
 | `separation` | number | `3.2` | 0 to 45 (looks right between 1 and 12) | The angle between the two screens, and the control that matters. It sets the fringe spacing through the pitch over twice the sine of half of it, so the relationship is violently non-linear: 10 degrees gives a tight rosette, 2 gives fringes the size of the frame, and 0 gives no beat at all because the screens are in register. |
 | `angle` | number | `15` | 0 to 90 deg | How the first screen is set in the frame. It does not affect the beat at all, only which way the whole thing is turned. 15 is where a printer would put the first screen of a four-colour job. |
 | `drift` | number | `0.8` | 0 to 20 deg (looks right between 0.4 and 2) | Degrees the second screen turns over one period, and the one setting that decides how busy this is. Tiny numbers are enough, because the fringe spacing depends so sharply on the angle that a degree sweeps the fringes right across the frame. It is also exactly linear in the change per frame: measured at 0.0514, 0.1028 and 0.2055 for 0.4, 0.8 and 1.6 degrees, so this is the dial to turn if it is too much. At 0 it is a still image, which is a perfectly good way to use this. |
 | `lines` | boolean | `false` | `true` · `false` | Fine lines rather than dots. A line screen beats in one axis only, so the fringes are bands rather than a rosette, which is the version you see when a striped shirt is photographed. Dots are the print version. |
 | `detune` | number | `0.04` | -0.3 to 0.3 | Difference in pitch between the two screens, as a share of the first. The other way to make a beat: two screens at the same angle but slightly different pitch give straight fringes rather than turned ones. A little of both is more interesting than either alone. |
-| `period` | number | `40` | 12 to 180 s | Seconds for one cycle of the drift. Long, because the fringes move much faster than the angle does and a backdrop has to survive being ignored. |
+| `period` | number | `28` | 12 to 180 s | Seconds for one cycle of the drift. Long, because the fringes move much faster than the angle does and a backdrop has to survive being ignored. |
 
 ## 5. Cleanup and SSR
 

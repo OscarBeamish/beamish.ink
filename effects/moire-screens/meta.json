@@ -35,7 +35,7 @@
     "notes": [
       "Two rotations, two fract calls and two smoothsteps per pixel, plus the derivative fwidth needs. No textures, no noise and no render targets",
       "The derivative is the only unusual cost and it is a hardware instruction. It is also not optional: without it the screens alias and the effect is measuring the monitor",
-      "Recorded at 15fps with a high crf, the way the halftone items are. A full-frame dot screen is nearly all high-frequency detail and every dot edge moves as the screens drift, so there is nothing for a codec to predict: at 30fps and crf 26 the take came out at 18.5MB against a 3.5MB budget, which in a repo where every media file is committed forever is not a trade worth making"
+      "Shipping this is the real constraint, not drawing it. A full-frame dot screen is nearly all high-frequency detail and every dot edge moves as the screens drift, so a codec has nothing to predict: at pitch 10, 30fps and crf 26 one aspect ratio came to 18.5MB against a 3.5MB budget, and at 15fps with crf 36 it was still 5.3MB. Coarsening the pitch to 14 is what actually fixed it, because it is the dot count that costs, and it reads better as a screen into the bargain"
     ]
   },
   "files": [
@@ -78,15 +78,15 @@
     },
     "pitch": {
       "type": "number",
-      "default": 10,
+      "default": 14,
       "min": 2,
       "max": 40,
       "step": 0.5,
       "sensible": [
-        4,
-        12
+        8,
+        18
       ],
-      "description": "Distance between screen elements, in CSS pixels. Fine pitches give large fringes for a given angle and read as an optical event; coarse ones read as two patterns you can see individually. Below about 3 the screen is at the limit of what a display can resolve and the effect starts depending on the device."
+      "description": "Distance between screen elements, in CSS pixels. Fine pitches give large fringes for a given angle and read as an optical event; coarse ones read as two patterns you can see individually. It is also the one setting that decides what this costs to ship: a screen is high-frequency detail across the whole frame, so halving the pitch roughly quadruples the dot count and the video with it. At 10 the take would not fit in the repo's budget at any frame rate worth watching; at 14 it does, and the dots read more clearly as dots. Below about 3 the screen is at the limit of what a display can resolve and the effect starts depending on the device."
     },
     "coverage": {
       "type": "number",
@@ -153,7 +153,7 @@
     },
     "period": {
       "type": "number",
-      "default": 40,
+      "default": 28,
       "min": 12,
       "max": 180,
       "step": 1,
@@ -168,10 +168,10 @@
   "instruction": "the second screen drifts on its own",
   "oneShot": false,
   "record": {
-    "duration": 40,
+    "duration": 28,
     "fps": 15,
-    "posterAt": 10,
-    "crf": 36,
-    "webmCrf": 50
+    "posterAt": 7,
+    "crf": 34,
+    "webmCrf": 48
   }
 }
