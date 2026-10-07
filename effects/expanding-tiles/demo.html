@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ExpandingTiles: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      /*
+       * The grid is the element the effect mounts on, and it is #stage because
+       * that is the id every demo page uses and the one the leak test mounts on.
+       *
+       * The effect never lays the grid out. These four columns are the page's
+       * business, which is why the item works with whatever grid you already
+       * have.
+       */
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        /*
+         * The rules between cells are drawn by the grid itself, with a gap and a
+         * background showing through. The travelling rules the effect draws are
+         * tuned to match these, because the idea is that these are those lines
+         * moving.
+         */
+        gap: 1px;
+        background: rgba(54, 54, 48, 0.28);
+      }
+      .tile {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: clamp(1rem, 2.4vw, 2rem);
+        box-sizing: border-box;
+        background: var(--background-elevated);
+        color: var(--label-1);
+        text-decoration: none;
+        cursor: pointer;
+        overflow: hidden;
+      }
+      .tile__title {
+        font-family: var(--font-display);
+        font-size: clamp(1.1rem, 2.4vw, 2rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 0.98;
+      }
+      .tile__index {
+        font-size: 0.7rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--label-3);
+        margin-bottom: auto;
+      }
+      /* The paper the opened tile is printed on, so the full page has a ground. */
+      .tile:nth-child(odd) {
+        background: var(--background-elevated);
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+
+      The tiles are ordinary anchors, which is what they are on a real page. The
+      effect positions and clips them and puts every property back on destroy.
+    -->
+    <div id="stage">
+      <a class="tile" href="#letterpress">
+        <span class="tile__index">01</span>
+        <span class="tile__title">Letterpress</span>
+      </a>
+      <a class="tile" href="#lithography">
+        <span class="tile__index">02</span>
+        <span class="tile__title">Lithography</span>
+      </a>
+      <a class="tile" href="#screen-print">
+        <span class="tile__index">03</span>
+        <span class="tile__title">Screen print</span>
+      </a>
+      <a class="tile" href="#risograph">
+        <span class="tile__index">04</span>
+        <span class="tile__title">Risograph</span>
+      </a>
+      <a class="tile" href="#gravure">
+        <span class="tile__index">05</span>
+        <span class="tile__title">Gravure</span>
+      </a>
+      <a class="tile" href="#collotype">
+        <span class="tile__index">06</span>
+        <span class="tile__title">Collotype</span>
+      </a>
+      <a class="tile" href="#foil-block">
+        <span class="tile__index">07</span>
+        <span class="tile__title">Foil block</span>
+      </a>
+      <a class="tile" href="#thermography">
+        <span class="tile__index">08</span>
+        <span class="tile__title">Thermography</span>
+      </a>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      /*
+       * follow is off here. On a real page the opened tile follows its href,
+       * which is the whole point: the page changes behind a tile that already
+       * fills the window. A navigation cannot loop, so this demo shows the
+       * gesture both ways instead, which is also what the recording needs.
+       */
+      const handle = window.Beamish.create(document.getElementById('stage'), {
+        follow: false
+      })
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      window.__beamish = handle
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
+    </script>
+  </body>
+</html>

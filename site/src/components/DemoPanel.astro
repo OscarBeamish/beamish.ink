@@ -285,6 +285,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'split-fountain-text': () => import('@items/effects/split-fountain-text/core'),
     'stroke-text': () => import('@items/effects/stroke-text/core'),
     'masked-heading': () => import('@items/effects/masked-heading/core'),
+    'expanding-tiles': () => import('@items/effects/expanding-tiles/core'),
     'gradual-blur': () => import('@items/effects/gradual-blur/core'),
     'count-up-number': () => import('@items/effects/count-up-number/core'),
     'odometer-number': () => import('@items/effects/odometer-number/core'),
@@ -413,6 +414,14 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       <article class="demo-plate"><span class="demo-plate__mark"></span><div><h3>Risograph</h3><p>Soy ink, out of register on purpose.</p></div></article>
     </div>`,
     /* On the block, not the line: one sheet comes off all of it together. */
+    'expanding-tiles': `<div class="demo-tiles">
+      <a class="demo-tiles__tile" href="#letterpress"><span class="demo-tiles__n">01</span><span class="demo-tiles__t">Letterpress</span></a>
+      <a class="demo-tiles__tile" href="#lithography"><span class="demo-tiles__n">02</span><span class="demo-tiles__t">Lithography</span></a>
+      <a class="demo-tiles__tile" href="#screen-print"><span class="demo-tiles__n">03</span><span class="demo-tiles__t">Screen print</span></a>
+      <a class="demo-tiles__tile" href="#risograph"><span class="demo-tiles__n">04</span><span class="demo-tiles__t">Risograph</span></a>
+      <a class="demo-tiles__tile" href="#gravure"><span class="demo-tiles__n">05</span><span class="demo-tiles__t">Gravure</span></a>
+      <a class="demo-tiles__tile" href="#collotype"><span class="demo-tiles__n">06</span><span class="demo-tiles__t">Collotype</span></a>
+    </div>`,
     'masked-heading': `<div class="demo-uncover">
       <p class="demo-uncover__head">Uncovered, not wiped</p>
       <p class="demo-uncover__note">A straight-edged mask crossing a heading is a wipe, and the eye reads that edge as a machine.</p>
@@ -492,7 +501,13 @@ const tweakable = tier === 1 ? Object.entries(options) : []
    * visitor whose browser is set to German sees 45.400 on an en-GB page.
    */
   const OPTIONS: Record<string, Record<string, unknown>> = {
-    'count-up-number': { locale: 'en-GB' }
+    'count-up-number': { locale: 'en-GB' },
+    /*
+     * The tiles are links, and on a real page following them is the whole
+     * gesture. Here it would walk the reader off the item page they are reading,
+     * so the panel shows the opening and the closing instead.
+     */
+    'expanding-tiles': { follow: false }
   }
 
   /* Where inside the injected markup the effect actually mounts. */
@@ -501,6 +516,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'count-up-number': '.demo-count-up-number__value',
     'odometer-number': '.demo-odometer',
     'card-stack': '.demo-pile',
+    'expanding-tiles': '.demo-tiles',
     // The lamp lights the card, not the stage around it.
     'spotlight-card': '.demo-card'
   }
