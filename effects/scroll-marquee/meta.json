@@ -95,11 +95,11 @@
     },
     "stretch": {
       "type": "number",
-      "default": 0.12,
+      "default": 0.04,
       "min": 0,
       "max": 0.5,
       "step": 0.01,
-      "description": "How much it stretches along its travel at full scroll speed. Small: it is the squash-and-stretch of the thing, and at anything over about 0.2 the type distorts enough to notice as distortion."
+      "description": "How much it stretches along its travel at full scroll speed. Keep it small on a strip of type: this is a scaleX, so it widens the letterforms rather than moving them, and 12 per cent of that is enough to read as the font changing width mid-sentence. A row of logos or images takes far more of it happily, which is what the upper end of the range is for."
     },
     "reference": {
       "type": "number",

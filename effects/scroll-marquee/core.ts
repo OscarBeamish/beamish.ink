@@ -59,7 +59,7 @@ export const scrollMarqueeDefaults: ScrollMarqueeOptions = {
   direction: 1,
   drag: 0.35,
   skew: 7,
-  stretch: 0.12,
+  stretch: 0.04,
   reference: 1.2,
   gap: 48,
   reducedMotionTime: 0
