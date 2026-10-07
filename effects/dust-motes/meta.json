@@ -1,0 +1,173 @@
+{
+  "name": "DustMotes",
+  "slug": "dust-motes",
+  "tier": 1,
+  "description": "Dust hanging in a lit room, built as a field rather than a particle system, with most of it out of focus",
+  "category": "backdrops",
+  "ground": "dark",
+  "tags": [
+    "webgl",
+    "shader",
+    "backdrop",
+    "dust",
+    "particles",
+    "dark",
+    "ambient",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "A field, not a particle system. The frame is a lattice, each cell holds one mote whose position is a function of the cell, a seed and the clock, and a pixel looks only at the nine cells around it. Nothing is stored and nothing is advanced",
+      "That is not an optimisation, it is what makes the item possible here. An array of particles advanced each frame cannot be seeked, so it cannot be recorded; it drifts on a dropped frame, because each position depends on the last; and its cost grows with the count. This way the count is a division rather than a loop, so ten thousand motes cost exactly what a hundred do",
+      "Most motes are out of focus, and that is the clearest difference between dust and snow. A real mote is a few micrometres across, so at any focal distance nearly all of them are blurred smudges and only a handful are sharp",
+      "A blurred mote is drawn both wider and fainter, because a lens spreads the same light over more area. Those two together are what make a wide smudge and a tight point read as the same object at different distances rather than as two different things",
+      "The motes catch the light rather than emitting it, so where one sits in the frame decides how bright it is. Without that the field has no direction and reads as static",
+      "They rise as often as they fall. Dust in a lit room is moved by convection rather than by gravity: it hangs. Falling dust is snow",
+      "Each mote is a gaussian rather than a disc, because a mote has no edge whether it is in focus or not",
+      "Built for a dark ground and declared as one. This is light caught on something, and on a pale ground there is nothing for it to be brighter than",
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes",
+      "Measured at 0.018 mean absolute change per frame on a 0 to 255 scale and 0.37ms at 640 by 360, with a loop seam of exactly zero. The first version drifted 0.7 turns on the vertical and the seam measured 2.59: a time coefficient has to be a whole number of turns over the period or the loop never comes home"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.3,
+    "contexts": 1,
+    "notes": [
+      "Nine cells per pixel, each one four hashes and an exponential. That is the whole cost and it does not change with the mote count: `pitch` sets the density, and a finer pitch costs nothing extra per pixel because the neighbourhood is still nine cells",
+      "No textures, no buffers and no feedback. There is nothing to allocate and nothing to respawn"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/dust-motes/core.ts",
+      "to": "src/beamish/effects/dust-motes/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/dust-motes/adapters/react.tsx",
+      "to": "src/beamish/effects/dust-motes/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/dust-motes/adapters/vue.ts",
+      "to": "src/beamish/effects/dust-motes/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "ground": {
+      "type": "color",
+      "default": "#17171c",
+      "description": "The air, and what shows where there is no dust. Dark, because everything drawn here is light caught on something: on a pale ground the motes have nothing to be brighter than and the whole thing disappears."
+    },
+    "mote": {
+      "type": "color",
+      "default": "#fdf6e4",
+      "description": "The motes. Warm rather than white, because the light catching them came from somewhere and nothing in a room is lit by a pure white source."
+    },
+    "pitch": {
+      "type": "number",
+      "default": 34,
+      "min": 8,
+      "max": 160,
+      "step": 1,
+      "unit": "px",
+      "sensible": [
+        22,
+        60
+      ],
+      "description": "Cell size, and so the density: one mote per cell. A fine pitch costs nothing extra per pixel, because a pixel always looks at the same nine cells, so this is the one density control in the library that is free to turn up. Below about 15 the motes start to overlap into a fog."
+    },
+    "size": {
+      "type": "number",
+      "default": 1.5,
+      "min": 0.3,
+      "max": 8,
+      "step": 0.1,
+      "unit": "px",
+      "description": "Radius of a mote in perfect focus, in pixels. Small: a sharp mote is a speck, and it is the blurred ones that take up room. Raising this makes the sharp ones into dots, which is the look of snow."
+    },
+    "haze": {
+      "type": "number",
+      "default": 0.72,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [
+        0.5,
+        0.9
+      ],
+      "description": "How much of the field is out of focus. High, because at the scale of a mote the depth of field is almost nothing and nearly everything you see is a smudge. At 0 every mote is sharp, which is the single clearest way to make dust look like a screensaver."
+    },
+    "light": {
+      "type": "number",
+      "default": 125,
+      "min": 0,
+      "max": 360,
+      "step": 1,
+      "unit": "deg",
+      "description": "Where the light comes from. It decides which side of the frame the dust is visible on, which is what gives the air a direction. Pair it with LightShafts set to the same angle and the motes are in the beam."
+    },
+    "falloff": {
+      "type": "number",
+      "default": 0.65,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How hard the light falls off across the frame. At 0 the dust is evenly lit everywhere, which reads as a texture rather than as a room with a window in it."
+    },
+    "drift": {
+      "type": "number",
+      "default": 0.75,
+      "min": 0,
+      "max": 2,
+      "step": 0.01,
+      "description": "How far a mote wanders, as a share of the cell. It travels a closed path, so it comes back: dust hangs rather than going anywhere. At 0 it is a still field, which is a legitimate way to use this and very quiet."
+    },
+    "sparkle": {
+      "type": "number",
+      "default": 0.12,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Share of motes bright enough to read as sharp specks. A few, and they are most of what makes the air look occupied: it is the thing you notice in a sunbeam. Past about a third it stops being dust and becomes glitter."
+    },
+    "seed": {
+      "type": "number",
+      "default": 7,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "description": "Seed for the field. The same seed gives the same air, so a recording and a live page match mote for mote."
+    },
+    "period": {
+      "type": "number",
+      "default": 44,
+      "min": 10,
+      "max": 180,
+      "step": 1,
+      "unit": "s",
+      "description": "Seconds for one cycle of the drift. Long, because dust moves slowly and a backdrop has to survive being ignored.",
+      "good": {
+        "min": 30,
+        "max": 120
+      }
+    }
+  },
+  "instruction": "the dust hangs on its own",
+  "oneShot": false,
+  "record": {
+    "duration": 44,
+    "fps": 15,
+    "posterAt": 11,
+    "crf": 32,
+    "webmCrf": 46
+  }
+}

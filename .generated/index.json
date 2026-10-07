@@ -1306,6 +1306,177 @@
     "intro": "DecodeText resolves text out of a run of substitute glyphs, one character at a time.\nIt is the effect on the hover of every studio nav bar, and on a good number of\nthe headlines that win awards for being difficult to read.\n\nIt takes an element that already contains text, splits it into characters, and\nswaps the ones that have not landed yet. There is no canvas, no WebGL and no npm\ndependency.\n\nThree things it does that the version written in an afternoon does not.\n\nIt is pure in `t`. The obvious implementation calls `Math.random()` on a timer\nand mutates as it goes, which cannot be seeked, cannot be recorded, and shows\nsomething different every time anybody looks at it. Here the glyph at each\nposition is a hash of the position, the seed and the frame number, so the same\n`t` always gives the same frame.\n\nThe glyphs change on their own cadence rather than once per display frame. At\n120Hz a per-frame swap is a grey blur with no characters in it; at 30 it reads as\ntext being typed by something in a hurry. Fixing the cadence means the effect\nlooks the same on a 60Hz laptop, on a 144Hz monitor, and in a recording of\neither.\n\nNothing moves. Each character is held in a box the width of the letter it will\nbecome, and the substitutes are chosen from the glyphs that fit that box, so a\nline decoding in the middle of a page neither pushes the page about nor collides\nwith itself while it runs.\n\n`destroy()` puts the original text back. The element is left as it was found."
   },
   {
+    "name": "DustMotes",
+    "slug": "dust-motes",
+    "tier": 1,
+    "description": "Dust hanging in a lit room, built as a field rather than a particle system, with most of it out of focus",
+    "category": "backdrops",
+    "tags": [
+      "webgl",
+      "shader",
+      "backdrop",
+      "dust",
+      "particles",
+      "dark",
+      "ambient",
+      "no-dependencies"
+    ],
+    "ground": "dark",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "A field, not a particle system. The frame is a lattice, each cell holds one mote whose position is a function of the cell, a seed and the clock, and a pixel looks only at the nine cells around it. Nothing is stored and nothing is advanced",
+        "That is not an optimisation, it is what makes the item possible here. An array of particles advanced each frame cannot be seeked, so it cannot be recorded; it drifts on a dropped frame, because each position depends on the last; and its cost grows with the count. This way the count is a division rather than a loop, so ten thousand motes cost exactly what a hundred do",
+        "Most motes are out of focus, and that is the clearest difference between dust and snow. A real mote is a few micrometres across, so at any focal distance nearly all of them are blurred smudges and only a handful are sharp",
+        "A blurred mote is drawn both wider and fainter, because a lens spreads the same light over more area. Those two together are what make a wide smudge and a tight point read as the same object at different distances rather than as two different things",
+        "The motes catch the light rather than emitting it, so where one sits in the frame decides how bright it is. Without that the field has no direction and reads as static",
+        "They rise as often as they fall. Dust in a lit room is moved by convection rather than by gravity: it hangs. Falling dust is snow",
+        "Each mote is a gaussian rather than a disc, because a mote has no edge whether it is in focus or not",
+        "Built for a dark ground and declared as one. This is light caught on something, and on a pale ground there is nothing for it to be brighter than",
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes",
+        "Measured at 0.018 mean absolute change per frame on a 0 to 255 scale and 0.37ms at 640 by 360, with a loop seam of exactly zero. The first version drifted 0.7 turns on the vertical and the seam measured 2.59: a time coefficient has to be a whole number of turns over the period or the loop never comes home"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.3,
+      "contexts": 1,
+      "notes": [
+        "Nine cells per pixel, each one four hashes and an exponential. That is the whole cost and it does not change with the mote count: `pitch` sets the density, and a finer pitch costs nothing extra per pixel because the neighbourhood is still nine cells",
+        "No textures, no buffers and no feedback. There is nothing to allocate and nothing to respawn"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/dust-motes/core.ts",
+        "to": "src/beamish/effects/dust-motes/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/dust-motes/adapters/react.tsx",
+        "to": "src/beamish/effects/dust-motes/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/dust-motes/adapters/vue.ts",
+        "to": "src/beamish/effects/dust-motes/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "ground": {
+        "type": "color",
+        "default": "#17171c",
+        "description": "The air, and what shows where there is no dust. Dark, because everything drawn here is light caught on something: on a pale ground the motes have nothing to be brighter than and the whole thing disappears."
+      },
+      "mote": {
+        "type": "color",
+        "default": "#fdf6e4",
+        "description": "The motes. Warm rather than white, because the light catching them came from somewhere and nothing in a room is lit by a pure white source."
+      },
+      "pitch": {
+        "type": "number",
+        "default": 34,
+        "description": "Cell size, and so the density: one mote per cell. A fine pitch costs nothing extra per pixel, because a pixel always looks at the same nine cells, so this is the one density control in the library that is free to turn up. Below about 15 the motes start to overlap into a fog.",
+        "min": 8,
+        "max": 160,
+        "step": 1,
+        "unit": "px",
+        "sensible": [
+          22,
+          60
+        ]
+      },
+      "size": {
+        "type": "number",
+        "default": 1.5,
+        "description": "Radius of a mote in perfect focus, in pixels. Small: a sharp mote is a speck, and it is the blurred ones that take up room. Raising this makes the sharp ones into dots, which is the look of snow.",
+        "min": 0.3,
+        "max": 8,
+        "step": 0.1,
+        "unit": "px"
+      },
+      "haze": {
+        "type": "number",
+        "default": 0.72,
+        "description": "How much of the field is out of focus. High, because at the scale of a mote the depth of field is almost nothing and nearly everything you see is a smudge. At 0 every mote is sharp, which is the single clearest way to make dust look like a screensaver.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.5,
+          0.9
+        ]
+      },
+      "light": {
+        "type": "number",
+        "default": 125,
+        "description": "Where the light comes from. It decides which side of the frame the dust is visible on, which is what gives the air a direction. Pair it with LightShafts set to the same angle and the motes are in the beam.",
+        "min": 0,
+        "max": 360,
+        "step": 1,
+        "unit": "deg"
+      },
+      "falloff": {
+        "type": "number",
+        "default": 0.65,
+        "description": "How hard the light falls off across the frame. At 0 the dust is evenly lit everywhere, which reads as a texture rather than as a room with a window in it.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "drift": {
+        "type": "number",
+        "default": 0.75,
+        "description": "How far a mote wanders, as a share of the cell. It travels a closed path, so it comes back: dust hangs rather than going anywhere. At 0 it is a still field, which is a legitimate way to use this and very quiet.",
+        "min": 0,
+        "max": 2,
+        "step": 0.01
+      },
+      "sparkle": {
+        "type": "number",
+        "default": 0.12,
+        "description": "Share of motes bright enough to read as sharp specks. A few, and they are most of what makes the air look occupied: it is the thing you notice in a sunbeam. Past about a third it stops being dust and becomes glitter.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "seed": {
+        "type": "number",
+        "default": 7,
+        "description": "Seed for the field. The same seed gives the same air, so a recording and a live page match mote for mote.",
+        "min": 0,
+        "max": 9999,
+        "step": 1
+      },
+      "period": {
+        "type": "number",
+        "default": 44,
+        "description": "Seconds for one cycle of the drift. Long, because dust moves slowly and a backdrop has to survive being ignored.",
+        "min": 10,
+        "max": 180,
+        "step": 1,
+        "unit": "s"
+      }
+    },
+    "instruction": "the dust hangs on its own",
+    "oneShot": false,
+    "record": {
+      "duration": 44,
+      "fps": 15,
+      "posterAt": 11,
+      "crf": 32,
+      "webmCrf": 46
+    },
+    "group": "effects",
+    "intro": "DustMotes is dust hanging in a lit room. It is a **field**, not a particle\nsystem, and that is the most important thing about it.\n\nEvery version of this keeps an array of particles, advances each one every\nframe, and respawns the ones that drift out. That costs three things and buys\nnothing. It cannot be seeked, so it cannot be recorded. It drifts on a dropped\nframe, because each position depends on the last. And its cost grows with the\ncount, so a thousand motes is a thousand objects to walk.\n\nThis is a shader over a lattice. The frame is divided into cells, each cell\nholds one mote at a position that is a function of the cell, a seed and the\nclock, and a pixel only ever looks at the nine cells around it. Nothing is\nstored and nothing is advanced, so **the count is a division rather than a\nloop**: ten thousand motes cost exactly what a hundred do."
+  },
+  {
     "name": "EmbossedText",
     "slug": "embossed-text",
     "tier": 1,
@@ -4230,7 +4401,8 @@
       "contexts": 1,
       "notes": [
         "Two rotations, two fract calls and two smoothsteps per pixel, plus the derivative fwidth needs. No textures, no noise and no render targets",
-        "The derivative is the only unusual cost and it is a hardware instruction. It is also not optional: without it the screens alias and the effect is measuring the monitor"
+        "The derivative is the only unusual cost and it is a hardware instruction. It is also not optional: without it the screens alias and the effect is measuring the monitor",
+        "Recorded at 15fps with a high crf, the way the halftone items are. A full-frame dot screen is nearly all high-frequency detail and every dot edge moves as the screens drift, so there is nothing for a codec to predict: at 30fps and crf 26 the take came out at 18.5MB against a 3.5MB budget, which in a repo where every media file is committed forever is not a trade worth making"
       ]
     },
     "files": [
@@ -4356,9 +4528,10 @@
     "oneShot": false,
     "record": {
       "duration": 40,
-      "fps": 30,
+      "fps": 15,
       "posterAt": 10,
-      "crf": 26
+      "crf": 36,
+      "webmCrf": 50
     },
     "group": "effects",
     "intro": "MoireScreens lays two halftone screens over each other at a small angle and\nlets them beat.\n\nThe fringes are not drawn. Nothing in the shader draws a fringe or knows where\none is: there are two regular screens, and the interference is what comes out.\nThat is the point of building it this way rather than drawing the pattern, and\nit is why the fringes behave correctly when the angle changes. The spacing of\nthe beat is the pitch over twice the sine of half the angle, so it runs away\ntowards infinity as the screens line up: ten degrees gives a tight rosette, two\ngives fringes the size of the frame, and zero gives nothing at all.\n\nThis is a printing fault, induced on purpose. It is the reason process colour is\nscreened at fifteen, forty-five, seventy-five and a hundred and five degrees:\nthose angles are chosen so four screens do not do this. Set `separation` to 30\nand you have the industry's answer. Set it to 4 and you have the thing every\nprinter has had to explain to a client."
@@ -8907,7 +9080,8 @@
       "contexts": 1,
       "notes": [
         "Four evaluations of a two-term wave, for the two threads and their index corrections, plus two square roots for the profiles. No textures, no noise and no render targets",
-        "The index correction is a branch rather than a loop, and it runs at most once per axis because the wander is bounded below half a pitch"
+        "The index correction is a branch rather than a loop, and it runs at most once per axis because the wander is bounded below half a pitch",
+        "Recorded at 15fps with a raised crf. A fine weave is high-frequency detail across the whole frame, and at 30fps the take was 5.6MB against a 3.5MB budget"
       ]
     },
     "files": [
@@ -9027,9 +9201,10 @@
     "oneShot": false,
     "record": {
       "duration": 36,
-      "fps": 30,
+      "fps": 15,
       "posterAt": 9,
-      "crf": 26
+      "crf": 32,
+      "webmCrf": 46
     },
     "group": "effects",
     "intro": "WovenThreads is cloth. Warp threads one way, weft the other, and at every\ncrossing one of them is on top.\n\nThat last clause is the whole thing. Every version of this effect draws two sets\nof lines crossing, which is a grid: the threads pass through each other and the\nsurface has no structure at all. What makes cloth cloth is the interlacing, and\nthe interlacing is **one comparison per crossing**.\n\nChange that comparison from alternating to shifting and the weave changes with\nit. `float: 1` is plain weave, the checkerboard. `float: 2` is a twill, and a\ndiagonal appears in the surface, which is the single most recognisable thing\nabout denim. Past four the floats are long enough that it reads as satin:\nshiny, and structureless.\n\nTwo things besides.\n\n**The threads are round.** Each is shaded by its own cylindrical profile: the\nheight across a cylinder is the root of one minus the square of the\nacross-coordinate, and the slope of that is the normal. Flat threads are\nstripes.\n\n**The thread underneath is darkened where it passes beneath**, which is the\nshadow of the one above it. Without it the interlacing reads as a hard edge\nrather than as one thread going under another."
