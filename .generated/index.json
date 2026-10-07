@@ -624,8 +624,8 @@
       },
       "period": {
         "type": "number",
-        "default": 48,
-        "description": "Seconds for one period of the turn. Long: a ring is a mark, not an animation, and a seal spinning fast enough to notice is a loading spinner.",
+        "default": 24,
+        "description": "Seconds for one revolution. Long: a ring is a mark, not an animation, and a seal turning fast enough to notice is a loading spinner. Twenty-four seconds is fifteen degrees a second, which is about the slowest a turn can be and still read as turning.",
         "min": 6,
         "max": 240,
         "step": 1,
@@ -635,9 +635,9 @@
     "instruction": "it turns on its own",
     "oneShot": false,
     "record": {
-      "duration": 48,
+      "duration": 24,
       "fps": 30,
-      "posterAt": 6
+      "posterAt": 4
     },
     "group": "effects",
     "intro": "CircularText sets type round a ring and turns it slowly. A roundel, a seal, the\nstamp on a bottle of something.\n\nNearly every version of this on the web places each character by hand, with a\nrotation and a translation per letter, and it is wrong in two ways that are hard\nto unsee once you know about them.\n\nThe letters are positioned but never **fitted**, so the spacing comes from a\nguess at the arc each one subtends and the ring never quite closes. There is\nalways a gap, or an overlap, at the join.\n\nAnd each letter is rotated as a rigid block, so nothing **kerns**. The browser\nhas been handed ten separate one-character strings, and kerning happens between\ncharacters in a string.\n\nThis uses an SVG `textPath`, which is the thing in the platform built for\nexactly this, and gets both back for free. The text is laid out as text, so it\nkerns and it ligates. And it is given a `textLength` equal to the circumference\nwith `lengthAdjust=\"spacing\"`, so the browser fits the string to the ring by\nopening or closing the spaces and never by distorting the letterforms.\n\nThe ring closes exactly, at any radius, in any face, with any string. There is\nno number to tune."

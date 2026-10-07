@@ -60,7 +60,7 @@ export const circularTextDefaults: CircularTextOptions = {
   spin: 360,
   inside: false,
   distort: false,
-  period: 48,
+  period: 24,
   reducedMotionTime: 0
 }
 

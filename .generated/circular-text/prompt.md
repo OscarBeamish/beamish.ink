@@ -151,7 +151,7 @@ as the second argument to the create function; anything omitted takes its defaul
 | `spin` | number | `360` | -1440 to 1440 deg (looks right between 180 and 720) | Degrees the ring turns over one period. Negative turns it the other way. A whole number of degrees over the period, so the loop closes exactly; 360 is one unhurried revolution. |
 | `inside` | boolean | `false` | `true` · `false` | Hang the letters inside the ring rather than standing them on it. This is the half of a seal that reads along the bottom, and it is done by reversing the path rather than by flipping the text, so the letters keep their own shapes. |
 | `distort` | boolean | `false` | `true` · `false` | Let the fit stretch the letterforms as well as the spaces. Off, and it should stay off: it is here so that the choice is visible rather than hidden. Turn it on once to see what a stretched face looks like, then turn it off. |
-| `period` | number | `48` | 6 to 240 s | Seconds for one period of the turn. Long: a ring is a mark, not an animation, and a seal spinning fast enough to notice is a loading spinner. |
+| `period` | number | `24` | 6 to 240 s | Seconds for one revolution. Long: a ring is a mark, not an animation, and a seal turning fast enough to notice is a loading spinner. Twenty-four seconds is fifteen degrees a second, which is about the slowest a turn can be and still read as turning. |
 
 ## 5. Accessibility. Do not skip this
 

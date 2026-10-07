@@ -67,7 +67,10 @@
       "min": 0.1,
       "max": 0.5,
       "step": 0.01,
-      "sensible": [0.3, 0.45],
+      "sensible": [
+        0.3,
+        0.45
+      ],
       "description": "Radius of the ring, as a share of the box. 0.5 puts the baseline on the very edge, which leaves the ascenders outside it: the overflow is visible rather than clipped, on purpose, but 0.38 is the largest that keeps everything inside a square box."
     },
     "repeat": {
@@ -98,7 +101,10 @@
       "max": 1440,
       "step": 10,
       "unit": "deg",
-      "sensible": [180, 720],
+      "sensible": [
+        180,
+        720
+      ],
       "description": "Degrees the ring turns over one period. Negative turns it the other way. A whole number of degrees over the period, so the loop closes exactly; 360 is one unhurried revolution."
     },
     "inside": {
@@ -113,12 +119,12 @@
     },
     "period": {
       "type": "number",
-      "default": 48,
+      "default": 24,
       "min": 6,
       "max": 240,
       "step": 1,
       "unit": "s",
-      "description": "Seconds for one period of the turn. Long: a ring is a mark, not an animation, and a seal spinning fast enough to notice is a loading spinner.",
+      "description": "Seconds for one revolution. Long: a ring is a mark, not an animation, and a seal turning fast enough to notice is a loading spinner. Twenty-four seconds is fifteen degrees a second, which is about the slowest a turn can be and still read as turning.",
       "good": {
         "min": 30,
         "max": 120
@@ -128,8 +134,8 @@
   "instruction": "it turns on its own",
   "oneShot": false,
   "record": {
-    "duration": 48,
+    "duration": 24,
     "fps": 30,
-    "posterAt": 6
+    "posterAt": 4
   }
 }
