@@ -1,0 +1,175 @@
+{
+  "name": "MoireScreens",
+  "slug": "moire-screens",
+  "tier": 1,
+  "description": "Two halftone screens laid over each other at a small angle, with the fringes left to emerge rather than drawn",
+  "category": "backdrops",
+  "ground": "paper",
+  "tags": [
+    "webgl",
+    "shader",
+    "backdrop",
+    "halftone",
+    "moire",
+    "print",
+    "ambient",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "Nothing in the shader draws a fringe or knows where one is. There are two regular screens and the interference is what comes out, which is why the fringes behave correctly when the angle changes: the spacing of the beat goes as the pitch over twice the sine of half the angle, so it runs away towards infinity as the screens line up",
+      "The anti-aliasing is load-bearing rather than a polish pass. A regular screen at this frequency aliases against the pixel grid, and that aliasing is itself a moire, so the fringes would be partly the screens beating with the display rather than with each other and the effect would be a rendering artefact wearing the costume of an optical one. Each screen's coverage is computed analytically and softened by exactly one pixel's footprint, measured with fwidth",
+      "The inks multiply rather than add, because that is what ink does: two transparent layers pass the product of what each passes. Added instead, the overlaps saturate and the fringes flatten at the dark end, which is the difference between reading as print and reading as two gels on a lightbox",
+      "Element size is derived from coverage properly, through the area of a disc in a square cell for dots and half the covered width for lines, so `coverage` means the same thing in both modes",
+      "This is a printing fault induced on purpose, and the reason process colour is screened at 15, 45, 75 and 105 degrees is to avoid it. Set `separation` to 30 for the industry's answer and 4 for the thing every printer has had to explain to a client",
+      "The drift is a sine rather than a continuous turn, so the loop closes. A screen turning continuously passes through the angles where the beat vanishes and comes out the other side, which is a busier effect and a different one",
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes",
+      "Measured at 0.103 mean absolute change per frame on a 0 to 255 scale at the default drift, which is in line with MeshGradient at 0.091, and 1.1ms at 640 by 360. The change per frame is exactly linear in the drift, so halving one halves the other"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.2,
+    "contexts": 1,
+    "notes": [
+      "Two rotations, two fract calls and two smoothsteps per pixel, plus the derivative fwidth needs. No textures, no noise and no render targets",
+      "The derivative is the only unusual cost and it is a hardware instruction. It is also not optional: without it the screens alias and the effect is measuring the monitor"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/moire-screens/core.ts",
+      "to": "src/beamish/effects/moire-screens/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/moire-screens/adapters/react.tsx",
+      "to": "src/beamish/effects/moire-screens/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/moire-screens/adapters/vue.ts",
+      "to": "src/beamish/effects/moire-screens/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "paper": {
+      "type": "color",
+      "default": "#fbfaf4",
+      "description": "The sheet both screens are printed on, and what shows where neither covers."
+    },
+    "first": {
+      "type": "color",
+      "default": "#36362f",
+      "description": "The first screen's ink. Since the two multiply, this is the colour the sheet takes where only this screen covers."
+    },
+    "second": {
+      "type": "color",
+      "default": "#c44400",
+      "description": "The second screen's ink. Two different inks make the fringes read as colour as well as tone, which is what makes the beat visible at low coverage. The same colour twice is the purer demonstration and the duller picture."
+    },
+    "pitch": {
+      "type": "number",
+      "default": 10,
+      "min": 2,
+      "max": 40,
+      "step": 0.5,
+      "sensible": [
+        4,
+        12
+      ],
+      "description": "Distance between screen elements, in CSS pixels. Fine pitches give large fringes for a given angle and read as an optical event; coarse ones read as two patterns you can see individually. Below about 3 the screen is at the limit of what a display can resolve and the effect starts depending on the device."
+    },
+    "coverage": {
+      "type": "number",
+      "default": 0.3,
+      "min": 0.02,
+      "max": 0.98,
+      "step": 0.01,
+      "sensible": [
+        0.3,
+        0.6
+      ],
+      "description": "Share of the sheet each screen covers. The fringes are strongest near a half, because that is where a small change in overlap makes the biggest difference to how much paper is left. At the extremes there is either nothing to overlap or nothing left uncovered."
+    },
+    "separation": {
+      "type": "number",
+      "default": 3.2,
+      "min": 0,
+      "max": 45,
+      "step": 0.1,
+      "sensible": [
+        1,
+        12
+      ],
+      "description": "The angle between the two screens, and the control that matters. It sets the fringe spacing through the pitch over twice the sine of half of it, so the relationship is violently non-linear: 10 degrees gives a tight rosette, 2 gives fringes the size of the frame, and 0 gives no beat at all because the screens are in register.",
+      "good": {
+        "min": 1.5,
+        "max": 9
+      }
+    },
+    "angle": {
+      "type": "number",
+      "default": 15,
+      "min": 0,
+      "max": 90,
+      "step": 1,
+      "unit": "deg",
+      "description": "How the first screen is set in the frame. It does not affect the beat at all, only which way the whole thing is turned. 15 is where a printer would put the first screen of a four-colour job."
+    },
+    "drift": {
+      "type": "number",
+      "default": 0.8,
+      "min": 0,
+      "max": 20,
+      "step": 0.1,
+      "unit": "deg",
+      "sensible": [
+        0.4,
+        2
+      ],
+      "description": "Degrees the second screen turns over one period, and the one setting that decides how busy this is. Tiny numbers are enough, because the fringe spacing depends so sharply on the angle that a degree sweeps the fringes right across the frame. It is also exactly linear in the change per frame: measured at 0.0514, 0.1028 and 0.2055 for 0.4, 0.8 and 1.6 degrees, so this is the dial to turn if it is too much. At 0 it is a still image, which is a perfectly good way to use this."
+    },
+    "lines": {
+      "type": "boolean",
+      "default": false,
+      "description": "Fine lines rather than dots. A line screen beats in one axis only, so the fringes are bands rather than a rosette, which is the version you see when a striped shirt is photographed. Dots are the print version."
+    },
+    "detune": {
+      "type": "number",
+      "default": 0.04,
+      "min": -0.3,
+      "max": 0.3,
+      "step": 0.005,
+      "description": "Difference in pitch between the two screens, as a share of the first. The other way to make a beat: two screens at the same angle but slightly different pitch give straight fringes rather than turned ones. A little of both is more interesting than either alone."
+    },
+    "period": {
+      "type": "number",
+      "default": 40,
+      "min": 12,
+      "max": 180,
+      "step": 1,
+      "unit": "s",
+      "description": "Seconds for one cycle of the drift. Long, because the fringes move much faster than the angle does and a backdrop has to survive being ignored.",
+      "good": {
+        "min": 30,
+        "max": 120
+      }
+    }
+  },
+  "instruction": "the second screen drifts on its own",
+  "oneShot": false,
+  "record": {
+    "duration": 40,
+    "fps": 30,
+    "posterAt": 10,
+    "crf": 26
+  }
+}
