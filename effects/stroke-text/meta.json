@@ -1,0 +1,157 @@
+{
+  "name": "StrokeText",
+  "slug": "stroke-text",
+  "tier": 1,
+  "description": "Hollow letters that fill with ink from the foot up, with the stroke outside the letterform where it belongs",
+  "category": "type",
+  "ground": "paper",
+  "tags": [
+    "text",
+    "outline",
+    "inline",
+    "letterpress",
+    "dom",
+    "accessible",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "-webkit-text-stroke centres the stroke on the letterform, so half of it is painted inside the glyph. On a light weight that half eats the counters: the inside of an o closes up, an e fills in, and the setting goes muddy at exactly the widths where an outline is worth having. A face designed as an inline puts the stroke outside the letter",
+      "The fix needs no new CSS and works everywhere. The text is drawn twice: behind, a stroke of twice the width asked for, centred, so it reaches the right distance outside the letter; in front, the same text filled, painting over the inner half. What is left is an outside-only stroke of exactly the width given, with the counters intact",
+      "The animated thing is the ink. The front layer is a gradient clipped to the text with a hard edge in it, so below the edge the letter is solid and above it the letter is paper. Moving the edge fills the type from the foot up, which is what inking a block looks like",
+      "The ink line tilts and has a small wobble, because a roller is not level. A dead horizontal edge across a line of type reads as a mask rather than as a surface of ink",
+      "`paper` has to match the page behind the element. It is not decoration: it is the colour that covers the inner half of the stroke, so if it is wrong the hollow of every letter is wrong and the outline looks twice as thick as it is",
+      "The stroked copy is the one in the flow and the one a screen reader reaches. The filled copy on top is marked hidden, because the text underneath is the real text and the layer over it is paint",
+      "-webkit-text-fill-color is set as well as color on the front layer. Without it WebKit paints the text over the clipped background and the fill never shows at all"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.3,
+    "contexts": 0,
+    "notes": [
+      "Two copies of the text and one gradient string per frame, written only when it changes. Text strokes and background-clip are both painted rather than composited, so this wants to be a heading",
+      "Nothing is created after mount and nothing is measured"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/stroke-text/core.ts",
+      "to": "src/beamish/effects/stroke-text/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/stroke-text/adapters/react.tsx",
+      "to": "src/beamish/effects/stroke-text/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/stroke-text/adapters/vue.ts",
+      "to": "src/beamish/effects/stroke-text/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "outline": {
+      "type": "color",
+      "default": "#36362f",
+      "description": "The outline. It carries the whole letterform while the ink is still low, so it wants enough contrast against the paper to be read on its own."
+    },
+    "ink": {
+      "type": "color",
+      "default": "#c44400",
+      "description": "The ink that fills the letters. A second colour is worth having: ink the same colour as the outline gives a letter that simply goes solid, and the point is to watch it fill."
+    },
+    "paper": {
+      "type": "color",
+      "default": "#fbfaf4",
+      "description": "What the hollow of a letter shows, and it must match the page behind the element. Load-bearing rather than decorative: this is the colour that paints over the inner half of the stroke, so if it is wrong every counter is wrong and the outline looks twice as thick as it is."
+    },
+    "width": {
+      "type": "number",
+      "default": 0.022,
+      "min": 0.002,
+      "max": 0.1,
+      "step": 0.002,
+      "unit": "em",
+      "sensible": [
+        0.012,
+        0.04
+      ],
+      "description": "Width of the outline, in ems, so it holds at any size. This is the real outside width: the stroke actually drawn is twice this and the inner half is covered. Past about 0.05 the outline starts closing the counters from the outside instead, which no trick can fix."
+    },
+    "level": {
+      "type": "number",
+      "default": 1,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How full the letters are when the run has finished. 1 fills them completely and ends on solid type. Around 0.6 leaves them half inked, which is the more interesting place to stop and reads as a block that has been rolled once."
+    },
+    "duration": {
+      "type": "number",
+      "default": 2400,
+      "min": 200,
+      "max": 20000,
+      "step": 100,
+      "unit": "ms",
+      "description": "Milliseconds for the ink to rise, eased so it arrives rather than stops. Slow enough to watch: the rise is the effect and the outline is only where it starts."
+    },
+    "hold": {
+      "type": "number",
+      "default": 300,
+      "min": 0,
+      "max": 5000,
+      "step": 50,
+      "unit": "ms",
+      "description": "Milliseconds of empty outline before the ink starts. Worth having: it is the moment that tells you the letters were hollow to begin with."
+    },
+    "tilt": {
+      "type": "number",
+      "default": 2.5,
+      "min": -15,
+      "max": 15,
+      "step": 0.5,
+      "unit": "deg",
+      "description": "How far the ink line is off level. A roller is not level, and a dead horizontal edge across a line of type reads as a mask. Two or three degrees is enough to be felt without being seen."
+    },
+    "wobble": {
+      "type": "number",
+      "default": 0.3,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How uneven the height of the ink is. Small, and fixed by the seed rather than moving: a roller lays an uneven line, it does not lay a wavy one."
+    },
+    "seed": {
+      "type": "number",
+      "default": 7,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "description": "Seed for the unevenness. The same seed gives the same pull, so a recording and a live page match."
+    },
+    "reducedMotionTime": {
+      "type": "number",
+      "default": 999,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "unit": "s",
+      "description": "The single frame shown when the user prefers reduced motion. For a one-shot rise this should be a time after it has finished, so the letters are inked to the level set. Setting it to 0 instead gives the hollow outline, which is also a perfectly good still."
+    }
+  },
+  "instruction": "press replay to ink it again",
+  "oneShot": true,
+  "record": {
+    "duration": 4,
+    "fps": 30,
+    "posterAt": 0.62
+  }
+}
