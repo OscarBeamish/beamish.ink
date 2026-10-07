@@ -488,6 +488,34 @@
 }
 
 @layer components {
+  /* The buttons CrosshairCursor takes aim at. cursor: none is set here rather
+     than in the effect, because losing the system cursor is a decision about
+     the page: over a panel of buttons it is fine, over a form it is not. */
+  .demo-reticle {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 0.8rem;
+    height: 100%;
+    cursor: none;
+  }
+
+  .demo-reticle button {
+    font: inherit;
+    font-size: clamp(0.65rem, 1.5cqw, 0.9rem);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.8em 1.5em;
+    min-width: 16ch;
+    color: var(--label-1);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    cursor: none;
+  }
+}
+
+@layer components {
   /* The sheet ClickSpark throws into. It has a size of its own because the
      burst is measured against the element it is mounted on, not the viewport. */
   .demo-spark-sheet {

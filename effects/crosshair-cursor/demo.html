@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CrosshairCursor: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        align-content: center;
+        justify-items: center;
+        gap: 1.1rem;
+        cursor: none;
+      }
+      #stage button {
+        font: inherit;
+        font-size: clamp(0.75rem, 1.8vw, 1rem);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 0.8em 1.5em;
+        min-width: 15ch;
+        color: var(--label-1);
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: 2px;
+        cursor: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+
+      Three buttons, because the point of the effect is what happens when the
+      reticle crosses one: it leaves the cursor and squares up around it.
+    -->
+    <div id="stage">
+      <button type="button">Dispatch</button>
+      <button type="button">Hold for collection</button>
+      <button type="button">Cancel</button>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const handle = window.Beamish.create(document.getElementById('stage'))
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      window.__beamish = handle
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
+    </script>
+  </body>
+</html>
