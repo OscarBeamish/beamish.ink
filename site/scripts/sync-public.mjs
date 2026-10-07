@@ -64,11 +64,19 @@ const gridsDir = path.join(ROOT, 'grids')
 if (existsSync(gridsDir)) {
   for (const entry of await readdir(gridsDir, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue
-    await cp(
-      path.join(gridsDir, entry.name),
-      path.join(PUBLIC, 'grid-demos', entry.name),
-      { recursive: true }
-    )
+    const dest = path.join(PUBLIC, 'grid-demos', entry.name)
+    await cp(path.join(gridsDir, entry.name), dest, { recursive: true })
+    /*
+     * Served as a directory index rather than by its own name.
+     *
+     * Astro normalises a request for `/x.html` by redirecting to `/x`, which
+     * then does not exist: an iframe pointed at demo.html gets a redirect and
+     * a 404. A directory URL sidesteps the rewrite entirely, and the relative
+     * paths inside the page are unchanged because it sits at the same depth.
+     */
+    if (existsSync(path.join(dest, 'demo.html'))) {
+      await cp(path.join(dest, 'demo.html'), path.join(dest, 'index.html'))
+    }
   }
   await mkdir(path.join(PUBLIC, 'shared'), { recursive: true })
   for (const file of ['tokens.css', 'fonts.css']) {

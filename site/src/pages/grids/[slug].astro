@@ -18,7 +18,8 @@ export function getStaticPaths() {
 
 const { grid } = Astro.props
 const source = loadGridSource(grid.slug)
-const demo = `/grid-demos/${grid.slug}/demo.html`
+// A directory URL: Astro redirects `/x.html` to `/x`, which would 404.
+const demo = `/grid-demos/${grid.slug}/`
 const properties = Object.entries(grid.properties)
 ---
 
