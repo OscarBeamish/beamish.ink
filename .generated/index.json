@@ -8248,5 +8248,169 @@
     },
     "group": "effects",
     "intro": "A sheet of handmade paper held up to the light.\n\nEverything here is thickness. Paper is translucent, so what you see against a\nlight is not ink but where the sheet is thinner and lets more through. That is\nthe whole premise, and it is why nothing in this effect darkens: every term\nlightens the paper, because every term is somewhere the paper is thinner.\n\nThree of them come from the mould the sheet was formed on, not from the pulp.\nThe **laid lines** are its close-set wires, so the sheet is very slightly thinner\nover each one. The **chain lines** are the heavier wires at right angles holding\nthose together, an inch or so apart. And the **formation** is the cloudiness:\nfibres never settle evenly, and that blotchy variation is most of what separates\na handmade sheet from a machine one.\n\nThe fourth is the watermark proper, a wire device sewn onto the mould. The sheet\nis much thinner there, which is why a watermark is brighter than everything\naround it and why it only shows against a light.\n\nLaid lines are drawn as a ripple and chain lines as a band, which is not an\narbitrary difference. A forming sheet follows fine wires and is drawn down\nsharply over thick ones.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency."
+  },
+  {
+    "name": "WovenThreads",
+    "slug": "woven-threads",
+    "tier": 1,
+    "description": "Cloth: warp one way, weft the other, and one of them on top at every crossing",
+    "category": "backdrops",
+    "tags": [
+      "webgl",
+      "shader",
+      "backdrop",
+      "cloth",
+      "weave",
+      "texture",
+      "ambient",
+      "no-dependencies"
+    ],
+    "ground": "paper",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "The interlacing is the item, and it is one comparison per crossing. Two sets of lines crossing is a grid: the threads pass through each other and the surface has no structure at all. The comparison is what turns it into cloth",
+        "Changing that comparison from alternating to shifting is the difference between plain weave and twill, and the diagonal appears in the surface the moment it does. That is why denim has a diagonal in it",
+        "The threads are round, shaded by their own cylindrical profile: the height across a cylinder is the root of one minus the square of the across-coordinate, and the slope of that is the normal. Flat threads are stripes",
+        "The thread that goes under is darkened where it passes beneath, which is the shadow of the one above it. Without it the interlacing reads as a hard edge rather than as depth",
+        "The cloth moves by having its threads wander along their length rather than by being translated, so the weave breathes the way fabric does when there is air in the room. A translated weave reads as a backdrop sliding past",
+        "Because the wander moves a thread's centre, the nearest thread is found from the undisplaced grid and then corrected by that thread's own offset. Exact for any wander under half a pitch, which is far more than cloth does",
+        "Two GLSL traps in one file: half is a reserved word and step is a builtin, and a variable named either fails at compile time rather than at run time",
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes",
+        "Measured at 0.035 mean absolute change per frame on a 0 to 255 scale and 1.23ms at 640 by 360, which makes it one of the quietest items here: the threads wander rather than travel"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.2,
+      "contexts": 1,
+      "notes": [
+        "Four evaluations of a two-term wave, for the two threads and their index corrections, plus two square roots for the profiles. No textures, no noise and no render targets",
+        "The index correction is a branch rather than a loop, and it runs at most once per axis because the wander is bounded below half a pitch"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/woven-threads/core.ts",
+        "to": "src/beamish/effects/woven-threads/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/woven-threads/adapters/react.tsx",
+        "to": "src/beamish/effects/woven-threads/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/woven-threads/adapters/vue.ts",
+        "to": "src/beamish/effects/woven-threads/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "ground": {
+        "type": "color",
+        "default": "#efece1",
+        "description": "What shows between the threads. On an open cloth this is most of what you see, so it is doing as much work as either thread colour. Set it dark and a loose weave reads as mesh over a void."
+      },
+      "warp": {
+        "type": "color",
+        "default": "#f7f5ed",
+        "description": "The threads running one way. Warp is the set held under tension on the loom, which is why it is the one that runs the length of a bolt."
+      },
+      "weft": {
+        "type": "color",
+        "default": "#d9d4c4",
+        "description": "The threads running the other way, passed through the warp by the shuttle. Two slightly different colours is what makes the weave legible: identical ones give a surface whose structure you can only read from the shading."
+      },
+      "pitch": {
+        "type": "number",
+        "default": 13,
+        "description": "Distance from one thread to the next, in CSS pixels. This is the count of the cloth: fine pitches read as a shirt, coarse ones as sacking or canvas. Below about 5 the shading of a round thread has nowhere to happen and the weave flattens into a check.",
+        "min": 3,
+        "max": 60,
+        "step": 0.5,
+        "sensible": [
+          8,
+          22
+        ]
+      },
+      "width": {
+        "type": "number",
+        "default": 0.86,
+        "description": "Thread width, as a share of the pitch. At 1 the cloth is closed and no ground shows; below about 0.6 it is a gauze and you are mostly looking at the gaps. Real cloth sits near the top of the range because a loom beats the weft up tight.",
+        "min": 0.1,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.7,
+          0.95
+        ]
+      },
+      "float": {
+        "type": "number",
+        "default": 1,
+        "description": "How many crossings a thread floats over before going under, which is the weave itself. 1 is plain weave, the alternating one. 2 and 3 are twills and bring a diagonal with them, which is the single most recognisable thing about denim. Past 4 the floats are long enough that the cloth reads as satin, shiny and structureless.",
+        "min": 1,
+        "max": 5,
+        "step": 1
+      },
+      "relief": {
+        "type": "number",
+        "default": 0.55,
+        "description": "How strongly the round threads are lit by their own profile. At 0 the cloth is flat colour and the weave is only readable as a pattern; this is what makes it read as made of something.",
+        "min": 0,
+        "max": 2,
+        "step": 0.01
+      },
+      "light": {
+        "type": "number",
+        "default": 135,
+        "description": "Where the light comes from. It falls differently on the two thread directions, since each is only lit across itself, so turning it shifts which set of threads is the brighter one. That is a real property of cloth and the reason fabric changes as you turn it.",
+        "min": 0,
+        "max": 360,
+        "step": 1,
+        "unit": "deg"
+      },
+      "crimp": {
+        "type": "number",
+        "default": 0.45,
+        "description": "How dark the thread underneath goes where it passes beneath. This is the shadow of the thread on top. At 0 the interlacing is a hard edge instead of depth, which is the difference between cloth and a woven-looking pattern.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "wander": {
+        "type": "number",
+        "default": 0.1,
+        "description": "How far the threads wander from their lines, as a share of the pitch. Small: real cloth is regular, and this is the slack in it rather than a wave. At 0 it is a perfect machine weave, which is a legitimate and very still way to use this.",
+        "min": 0,
+        "max": 0.45,
+        "step": 0.005
+      },
+      "period": {
+        "type": "number",
+        "default": 36,
+        "description": "Seconds for one cycle of the wander. Long, because this is a surface and not an animation.",
+        "min": 8,
+        "max": 180,
+        "step": 1,
+        "unit": "s"
+      }
+    },
+    "instruction": "the threads wander on their own",
+    "oneShot": false,
+    "record": {
+      "duration": 36,
+      "fps": 30,
+      "posterAt": 9,
+      "crf": 26
+    },
+    "group": "effects",
+    "intro": "WovenThreads is cloth. Warp threads one way, weft the other, and at every\ncrossing one of them is on top.\n\nThat last clause is the whole thing. Every version of this effect draws two sets\nof lines crossing, which is a grid: the threads pass through each other and the\nsurface has no structure at all. What makes cloth cloth is the interlacing, and\nthe interlacing is **one comparison per crossing**.\n\nChange that comparison from alternating to shifting and the weave changes with\nit. `float: 1` is plain weave, the checkerboard. `float: 2` is a twill, and a\ndiagonal appears in the surface, which is the single most recognisable thing\nabout denim. Past four the floats are long enough that it reads as satin:\nshiny, and structureless.\n\nTwo things besides.\n\n**The threads are round.** Each is shaded by its own cylindrical profile: the\nheight across a cylinder is the root of one minus the square of the\nacross-coordinate, and the slope of that is the normal. Flat threads are\nstripes.\n\n**The thread underneath is darkened where it passes beneath**, which is the\nshadow of the one above it. Without it the interlacing reads as a hard edge\nrather than as one thread going under another."
   }
 ]
