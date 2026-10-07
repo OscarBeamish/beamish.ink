@@ -36,7 +36,14 @@ afterAll(async () => {
   if (server) await closeServer(server)
 })
 
-const effects = (await listItems()).filter(item => item.tier === 1)
+/*
+ * Grids are listed as tier 1 so the recorder drives them through the same
+ * handle, but there is nothing here for them: a stylesheet holds no WebGL
+ * context and its demo exposes no window.Beamish to mount.
+ */
+const effects = (await listItems()).filter(
+  item => item.tier === 1 && item.kind !== 'grid'
+)
 
 describe('effects release their WebGL context on destroy', () => {
   for (const item of effects) {
