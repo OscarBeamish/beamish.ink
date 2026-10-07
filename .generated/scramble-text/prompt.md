@@ -16,7 +16,7 @@ Assume you have not seen this library before. Everything you need is below.
 - No canvas and no WebGL. It splits the text already in the element and animates the pieces
 - The original string stays in the accessibility tree as one label, so a screen reader does not read sixty separate characters
 - destroy() puts the original text back, leaving the element as it was found
-- A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
+- A DOM element with its content already in it. It animates what it finds rather than drawing anything, so there is no canvas and nothing to size, and destroy() puts the element back as it was.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
 

@@ -17,7 +17,7 @@ Assume you have not seen this library before. Everything you need is below.
 - The offset plates use mix-blend-mode: multiply, because overlapping ink is darker than either colour. A channel split goes brighter where the channels meet, which is light rather than ink
 - The in-register plate stays in normal flow and is the one that can be selected. The other two are aria-hidden and pointer-events: none
 - Offsets are in em, so one setting works at every type size
-- A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
+- A DOM element with its content already in it. It animates what it finds rather than drawing anything, so there is no canvas and nothing to size, and destroy() puts the element back as it was.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
 

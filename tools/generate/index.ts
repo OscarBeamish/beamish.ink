@@ -165,6 +165,14 @@ async function syncShaders(item: Item): Promise<{ file: string; contents: string
 const DEFAULTS_BLOCK = /export const \w+Defaults[^=]*=\s*\{([\s\S]*?)\n\}/
 const DEFAULT_ENTRY = /^\s*(\w+):\s*(.+?),?\s*$/
 
+/*
+ * Whether the core draws into a canvas or works on the markup it is given. The
+ * runtime defaults to a canvas, so only the DOM ones say so, and the prompt has
+ * to know: telling an agent that the canvas fills its host, for an effect with
+ * no canvas in it, sends it looking for a bug that is not there.
+ */
+const DOM_KIND = /\bkind:\s*'dom'/
+
 function assertDefaultsMatch(item: Item, coreSource: string): void {
   const block = DEFAULTS_BLOCK.exec(coreSource)
   if (!block) return
@@ -235,8 +243,10 @@ function requiredFiles(meta: Meta) {
   return meta.files.filter(file => file.role !== 'adapter')
 }
 
-function header(item: Item, pin: string): string {
+function header(item: Item, pin: string, sources: Map<string, string>): string {
   const { meta } = item
+  const core = meta.files.find(file => file.role === 'core')
+  const dom = DOM_KIND.test((core && sources.get(core.from)) ?? '')
   const webgl =
     meta.browser.webgl === 'none'
       ? null
@@ -247,9 +257,11 @@ function header(item: Item, pin: string): string {
   const requirements = [
     webgl,
     ...meta.browser.notes,
-    meta.tier === 1
-      ? 'A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.'
-      : 'React 18+ or Vue 3. This one is a component, not an imperative effect.'
+    meta.tier !== 1
+      ? 'React 18+ or Vue 3. This one is a component, not an imperative effect.'
+      : dom
+        ? 'A DOM element with its content already in it. It animates what it finds rather than drawing anything, so there is no canvas and nothing to size, and destroy() puts the element back as it was.'
+        : 'A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.'
   ].filter(Boolean) as string[]
 
   return `You are adding **${meta.name}** from Beamish to this project.
@@ -447,11 +459,11 @@ async function generate(check: boolean, pin: string) {
     const dir = path.join(OUT, item.meta.slug)
     outputs.push({
       file: path.join(dir, 'prompt.md'),
-      contents: `${header(item, pin)}\n\n${body(item, pin, false, sources)}\n`
+      contents: `${header(item, pin, sources)}\n\n${body(item, pin, false, sources)}\n`
     })
     outputs.push({
       file: path.join(dir, 'prompt.inline.md'),
-      contents: `${header(item, pin)}\n\n${body(item, pin, true, sources)}\n`
+      contents: `${header(item, pin, sources)}\n\n${body(item, pin, true, sources)}\n`
     })
   }
 

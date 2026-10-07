@@ -17,7 +17,7 @@ Assume you have not seen this library before. Everything you need is below.
 - Formatting goes through Intl.NumberFormat, so grouping and the decimal mark follow the locale rather than a hand-rolled separator
 - The finished figure stays in the accessibility tree as one string, because a screen reader on a live-updating number reads every value it passes
 - There is no target option. The number lives in the element, which is what makes the figure correct before any script runs and correct forever if none does
-- A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
+- A DOM element with its content already in it. It animates what it finds rather than drawing anything, so there is no canvas and nothing to size, and destroy() puts the element back as it was.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
 
