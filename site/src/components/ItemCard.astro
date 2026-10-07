@@ -16,7 +16,7 @@ const href = `/${item.group}/${item.slug}`
 
 <a
   href={href}
-  class="item-card group border-line bg-be block overflow-hidden rounded-[2px] border no-underline"
+  class="item-card group border-line bg-be flex h-full flex-col overflow-hidden rounded-[2px] border no-underline"
   data-card
 >
   <div class="relative aspect-video overflow-hidden">
@@ -61,7 +61,7 @@ const href = `/${item.group}/${item.slug}`
     <span class="text-l1 text-[0.95rem]">{item.name}</span>
     <span class="tag">{CATEGORY_LABELS[item.category]}</span>
   </div>
-  <p class="text-l3 px-4 pb-4 text-[0.78rem] leading-snug">{item.description}</p>
+  <p class="item-card__note text-l3 px-4 pb-4 text-[0.78rem] leading-snug">{item.description}</p>
 </a>
 
 <script>
