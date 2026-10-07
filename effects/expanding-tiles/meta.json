@@ -1,0 +1,137 @@
+{
+  "name": "ExpandingTiles",
+  "slug": "expanding-tiles",
+  "tier": 1,
+  "description": "A grid of tiles where the pressed one opens out to fill the window, and the rules that bounded its cell travel to the edges of the page with it",
+  "category": "navigation",
+  "ground": "paper",
+  "tags": [
+    "tiles",
+    "grid",
+    "navigation",
+    "transition",
+    "dom",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "Nothing is scaled. The obvious way to grow a box is a transform, and a transform takes the type with it: the title stretches as the tile grows and settles back as it lands, which reads as cheap however well it is eased. The tile is put at its final size immediately and revealed with clip-path: inset(), opening from the cell outwards, so type laid out once at its final size cannot distort",
+      "The content is carried rather than left behind. A tile jumped straight to full size has its title wherever the full-size layout puts it, which at the moment of the press is outside the clip: the title would blink out and reappear halfway through. Each child is counter-translated by the distance between where it sits at rest and where it sits open, eased to zero. That distance is measured rather than assumed, because a centred tile moves its title to the middle of the window and a top-left one does not, and a guessed offset gets one of the two wrong",
+      "The four rules that bounded the cell travel out to the edges of the window, and they lead the clip slightly. An edge that arrives at the same moment as the thing it bounds reads as a border; an edge that gets there first reads as a movement",
+      "Tiles that are links open and then follow their href, which is the whole gesture: the page changes behind a tile that already fills the window. A tile with no href stays open until it is dismissed, so it is never a dead end",
+      "Pure in t: the open tile and how far through the gesture it is are folded out of the list of presses each frame, scripted and real presses in the same list, so the recorder can seek anywhere and a live page and a take agree",
+      "The grid is laid out by your own CSS. The effect never positions the tiles, it only opens out of them, and the author's own cell borders show through whenever nothing is open",
+      "An opened tile is fixed to the window, which takes it out of the grid, and a grid with one fewer item re-places every item after it: the tiles behind the one you pressed shuffle up a cell and the grid's own background shows through the hole. A placeholder sized from the measured cell holds the slot, so nothing behind the open tile moves"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.4,
+    "contexts": 0,
+    "notes": [
+      "One clip-path and one transform per frame while a tile is opening, and nothing at all while the grid is at rest: a still grid writes no styles, because the applied state is compared before anything is set",
+      "Layout is read only when the element resizes, never during the gesture. The cells are measured while nothing is open, because an open tile is fixed to the window and no longer reports where its cell was"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/expanding-tiles/core.ts",
+      "to": "src/beamish/effects/expanding-tiles/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/expanding-tiles/adapters/react.tsx",
+      "to": "src/beamish/effects/expanding-tiles/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/expanding-tiles/adapters/vue.ts",
+      "to": "src/beamish/effects/expanding-tiles/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "duration": {
+      "type": "number",
+      "default": 620,
+      "min": 120,
+      "max": 2000,
+      "step": 10,
+      "unit": "ms",
+      "sensible": [
+        480,
+        900
+      ],
+      "description": "Milliseconds the opening takes. This is a navigation rather than a flourish, so it wants to be short enough that it never stands between the press and the page: past about a second it stops reading as a transition and starts reading as a wait."
+    },
+    "closeDuration": {
+      "type": "number",
+      "default": 420,
+      "min": 100,
+      "max": 2000,
+      "step": 10,
+      "unit": "ms",
+      "description": "Milliseconds the closing takes. Shorter than the opening on purpose: opening is the thing you asked for and is worth watching, closing is getting out of the way and should not be."
+    },
+    "bleed": {
+      "type": "number",
+      "default": 0.04,
+      "min": 0,
+      "max": 0.3,
+      "step": 0.005,
+      "description": "How far the rules run past the window, as a share of its size. A rule that stops exactly at the edge looks like it was measured to fit; one that runs off reads as a line that carries on past the page."
+    },
+    "rule": {
+      "type": "number",
+      "default": 1,
+      "min": 0,
+      "max": 6,
+      "step": 0.5,
+      "unit": "px",
+      "description": "Width of the travelling rules. At 0 none are drawn and the tile simply opens, which is the quieter version and the right one if your grid has no visible lines of its own."
+    },
+    "ruleColour": {
+      "type": "color",
+      "default": "rgba(54, 54, 48, 0.28)",
+      "description": "Colour of the travelling rules. Match whatever your grid already draws between the cells, because the whole idea is that these are those lines moving."
+    },
+    "lead": {
+      "type": "number",
+      "default": 0.18,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How far ahead of the clip the rules run, as a share of the duration. At 0 the rules arrive with the edge they bound and read as a border; a little ahead and they read as the lines pulling the tile open behind them."
+    },
+    "follow": {
+      "type": "boolean",
+      "default": true,
+      "description": "Follow the opened tile's href once it has finished opening. Turn it off to use the gesture as a disclosure, where the tile opens over the grid and closes back. A tile with no href stays open whatever this says."
+    }
+  },
+  "instruction": "press a tile",
+  "oneShot": false,
+  "presses": [
+    {
+      "t": 0.9,
+      "x": 0.17,
+      "y": 0.28
+    },
+    {
+      "t": 3.1,
+      "x": 0.5,
+      "y": 0.5
+    }
+  ],
+  "record": {
+    "duration": 5,
+    "fps": 30,
+    "posterAt": 1.0
+  }
+}
