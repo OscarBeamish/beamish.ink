@@ -393,7 +393,7 @@ async function poster(framesDir: string, outDir: string, meta: Meta) {
   await ffmpeg([
     '-i', path.join(framesDir, `${String(frame).padStart(5, '0')}.png`),
     '-vf', 'scale=1440:-2',
-    '-q:v', '6',
+    '-q:v', String(meta.record.posterQuality ?? 6),
     path.join(outDir, 'poster.jpg')
   ])
 }

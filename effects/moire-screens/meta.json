@@ -171,7 +171,8 @@
     "duration": 28,
     "fps": 15,
     "posterAt": 7,
-    "crf": 34,
-    "webmCrf": 48
+    "crf": 38,
+    "webmCrf": 56,
+    "posterQuality": 18
   }
 }

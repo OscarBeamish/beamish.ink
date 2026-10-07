@@ -4569,8 +4569,9 @@
       "duration": 28,
       "fps": 15,
       "posterAt": 7,
-      "crf": 34,
-      "webmCrf": 48
+      "crf": 38,
+      "webmCrf": 56,
+      "posterQuality": 18
     },
     "group": "effects",
     "intro": "MoireScreens lays two halftone screens over each other at a small angle and\nlets them beat.\n\nThe fringes are not drawn. Nothing in the shader draws a fringe or knows where\none is: there are two regular screens, and the interference is what comes out.\nThat is the point of building it this way rather than drawing the pattern, and\nit is why the fringes behave correctly when the angle changes. The spacing of\nthe beat is the pitch over twice the sine of half the angle, so it runs away\ntowards infinity as the screens line up: ten degrees gives a tight rosette, two\ngives fringes the size of the frame, and zero gives nothing at all.\n\nThis is a printing fault, induced on purpose. It is the reason process colour is\nscreened at fifteen, forty-five, seventy-five and a hundred and five degrees:\nthose angles are chosen so four screens do not do this. Set `separation` to 30\nand you have the industry's answer. Set it to 4 and you have the thing every\nprinter has had to explain to a client."

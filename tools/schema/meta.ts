@@ -124,6 +124,14 @@ const recordSpec = z.object({
    */
   crf: z.number().int().min(0).max(63).optional(),
   webmCrf: z.number().int().min(0).max(63).optional(),
+  /*
+   * The poster has the same problem as the video and needs the same escape
+   * hatch. ffmpeg's JPEG scale, where 2 is best and 31 is worst; the default of
+   * 6 is high quality and right for almost everything. A full-frame halftone is
+   * the exception: there is no redundancy in it, so a quality that costs 80kB
+   * for a photograph costs half a megabyte here.
+   */
+  posterQuality: z.number().int().min(2).max(31).optional(),
   /** Tier 2 only. */
   interactions: z.array(interactionStep).optional()
 })
