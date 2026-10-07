@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CircularText: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        place-items: center;
+      }
+      /* The ring fills the box it is given, so the box is the size control. */
+      .seal {
+        width: min(62vh, 62vw);
+        aspect-ratio: 1;
+        font-family: var(--font-mono);
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+    -->
+    <div id="stage">
+      <div class="seal" id="seal">Printed and bound in England</div>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const handle = window.Beamish.create(document.getElementById('seal'))
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      window.__beamish = handle
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
+    </script>
+  </body>
+</html>

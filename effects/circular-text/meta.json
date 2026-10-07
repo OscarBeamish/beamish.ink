@@ -1,0 +1,135 @@
+{
+  "name": "CircularText",
+  "slug": "circular-text",
+  "tier": 1,
+  "description": "Type set round a ring that closes exactly, because the string is fitted to the circumference rather than placed letter by letter",
+  "category": "type",
+  "ground": "either",
+  "tags": [
+    "text",
+    "svg",
+    "circular",
+    "seal",
+    "ambient",
+    "dom",
+    "accessible",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "An SVG textPath, which is the thing in the platform built for this, rather than a rotation and a translation per character. Placing letters by hand loses kerning, because the browser is handed ten one-character strings and kerning happens between characters in a string, and it never closes the ring, because the spacing comes from a guess at the arc each letter subtends",
+      "The fit is the whole trick: the string is given a textLength equal to the circumference and lengthAdjust of spacing, so the browser opens or closes the spaces until it fits exactly. The ring closes at any radius, in any face, with any string, and there is no number to tune",
+      "spacing rather than spacingAndGlyphs. A fit that stretches the letterforms has changed the typeface, which is the one thing a typesetter may not do. The option to do it anyway is there and it is off",
+      "The circle is drawn as two arcs. A single arc of 360 degrees is degenerate, its start and end points coincide, and the renderer has no way to know which way round to go, so it draws nothing",
+      "Letters hang inside the ring by reversing the path rather than by flipping the text: the baseline side follows the direction of travel, so the letters turn over without being touched",
+      "The turn is one transform on one group. Animating startOffset instead re-lays out the text sixty times a second to produce a picture that is a rotation of the one before it",
+      "The path gets an id unique to the instance. Two rings on a page sharing a path id is the one failure here that nothing in the markup hints at: the second textPath silently uses the first one's circle",
+      "The face, weight and tracking are inherited from the element. A text effect that picks its own typeface is a graphic",
+      "destroy() puts the original text back, leaving the element as it was found"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.1,
+    "contexts": 0,
+    "notes": [
+      "One attribute write per frame, and it is a rotation. The text is laid out once, when an option that affects the shape changes, and never per frame",
+      "The cheapest item in the library. A ring of forty characters turning for a minute does the same work as one that is standing still"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/circular-text/core.ts",
+      "to": "src/beamish/effects/circular-text/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/circular-text/adapters/react.tsx",
+      "to": "src/beamish/effects/circular-text/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/circular-text/adapters/vue.ts",
+      "to": "src/beamish/effects/circular-text/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "radius": {
+      "type": "number",
+      "default": 0.38,
+      "min": 0.1,
+      "max": 0.5,
+      "step": 0.01,
+      "sensible": [0.3, 0.45],
+      "description": "Radius of the ring, as a share of the box. 0.5 puts the baseline on the very edge, which leaves the ascenders outside it: the overflow is visible rather than clipped, on purpose, but 0.38 is the largest that keeps everything inside a square box."
+    },
+    "repeat": {
+      "type": "number",
+      "default": 2,
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "description": "How many times the text goes round. Because the string is fitted to the circumference, this is really a density control: one copy of a short phrase is set very wide, four copies of it are set tight. Pick the one that gives the tracking you want."
+    },
+    "separator": {
+      "type": "string",
+      "default": " · ",
+      "description": "What sits between one copy and the next. A middle dot is the one every seal and every bottle label uses, for the good reason that it reads at any size and has no direction to it. It is also what tells a reader the ring repeats rather than running on."
+    },
+    "size": {
+      "type": "number",
+      "default": 0.17,
+      "min": 0.04,
+      "max": 0.5,
+      "step": 0.01,
+      "description": "Letter height, as a share of the radius, so the ring scales as one object. It does not affect the fit at all: the string fills the circumference whatever size the letters are, and this only decides how heavy the ring looks."
+    },
+    "spin": {
+      "type": "number",
+      "default": 360,
+      "min": -1440,
+      "max": 1440,
+      "step": 10,
+      "unit": "deg",
+      "sensible": [180, 720],
+      "description": "Degrees the ring turns over one period. Negative turns it the other way. A whole number of degrees over the period, so the loop closes exactly; 360 is one unhurried revolution."
+    },
+    "inside": {
+      "type": "boolean",
+      "default": false,
+      "description": "Hang the letters inside the ring rather than standing them on it. This is the half of a seal that reads along the bottom, and it is done by reversing the path rather than by flipping the text, so the letters keep their own shapes."
+    },
+    "distort": {
+      "type": "boolean",
+      "default": false,
+      "description": "Let the fit stretch the letterforms as well as the spaces. Off, and it should stay off: it is here so that the choice is visible rather than hidden. Turn it on once to see what a stretched face looks like, then turn it off."
+    },
+    "period": {
+      "type": "number",
+      "default": 48,
+      "min": 6,
+      "max": 240,
+      "step": 1,
+      "unit": "s",
+      "description": "Seconds for one period of the turn. Long: a ring is a mark, not an animation, and a seal spinning fast enough to notice is a loading spinner.",
+      "good": {
+        "min": 30,
+        "max": 120
+      }
+    }
+  },
+  "instruction": "it turns on its own",
+  "oneShot": false,
+  "record": {
+    "duration": 48,
+    "fps": 30,
+    "posterAt": 6
+  }
+}
