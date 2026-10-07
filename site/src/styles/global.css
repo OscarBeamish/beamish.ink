@@ -488,6 +488,35 @@
 }
 
 @layer components {
+  /* The block MaskedHeading uncovers. The clip is on the whole thing, so the
+     heading and the note come away under one torn sheet. */
+  .demo-uncover {
+    display: grid;
+    align-content: center;
+    gap: 0.5rem;
+    height: 100%;
+    padding: 0 clamp(1rem, 5cqw, 3rem);
+    box-sizing: border-box;
+  }
+
+  .demo-uncover__head {
+    margin: 0;
+    max-width: 16ch;
+    font-size: clamp(1.3rem, 4.6cqw, 3rem);
+    line-height: 0.98;
+  }
+
+  .demo-uncover__note {
+    margin: 0;
+    max-width: 46ch;
+    font-family: var(--font-mono);
+    font-size: clamp(0.7rem, 1.4cqw, 0.9rem);
+    line-height: 1.65;
+    color: var(--label-2);
+  }
+}
+
+@layer components {
   /* The sheet SplitFountainText inks. Everything in here takes its colour from
      one gradient on the container, which is the whole point of the item. */
   .demo-fountain {

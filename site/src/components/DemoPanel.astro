@@ -277,6 +277,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'variable-weight-text': () => import('@items/effects/variable-weight-text/core'),
     'split-fountain-text': () => import('@items/effects/split-fountain-text/core'),
     'stroke-text': () => import('@items/effects/stroke-text/core'),
+    'masked-heading': () => import('@items/effects/masked-heading/core'),
     'gradual-blur': () => import('@items/effects/gradual-blur/core'),
     'count-up-number': () => import('@items/effects/count-up-number/core'),
     'odometer-number': () => import('@items/effects/odometer-number/core'),
@@ -394,6 +395,11 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'typewriter-text': `<p class="demo-typed">Dear Sir, I write about the matter of the press.</p>`,
     'embossed-text': `<p class="demo-heading">${HEADLINE}</p>`,
     'stroke-text': `<p class="demo-heading">${HEADLINE}</p>`,
+    /* On the block, not the line: one sheet comes off all of it together. */
+    'masked-heading': `<div class="demo-uncover">
+      <p class="demo-uncover__head">Uncovered, not wiped</p>
+      <p class="demo-uncover__note">A straight-edged mask crossing a heading is a wipe, and the eye reads that edge as a machine.</p>
+    </div>`,
     /* The ring fills the box it is given, so the box is the size control. */
     'circular-text': `<div class="demo-seal">Printed and bound in England</div>`,
     'misprint-text': `<p class="demo-heading">${HEADLINE}</p>`,

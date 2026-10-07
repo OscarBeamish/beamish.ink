@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MaskedHeading: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        align-content: center;
+        gap: 2.6rem;
+        padding: 0 8vw;
+        box-sizing: border-box;
+      }
+      /*
+       * The clip is on the block, so everything inside is uncovered together by
+       * one sheet. Each block gets its own sheet and its own tear.
+       */
+      .block h1 {
+        margin: 0;
+        max-width: 16ch;
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 8vw, 5rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 0.96;
+      }
+      .block p {
+        margin: 0.5em 0 0;
+        max-width: 52ch;
+        font-size: clamp(0.78rem, 1.5vw, 1rem);
+        line-height: 1.7;
+        color: var(--label-2);
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+
+      Two blocks, uncovered from different directions, because the tear is the
+      item and seeing two different tears is the fastest way to see that it is
+      not a wipe.
+    -->
+    <div id="stage">
+      <div class="block" id="first">
+        <h1>Uncovered, not wiped</h1>
+        <p>
+          A straight-edged mask crossing a heading is a wipe, and the eye reads
+          that edge as a machine, because nothing in the world has an edge so
+          straight.
+        </p>
+      </div>
+      <div class="block" id="second">
+        <h1>A deckle edge</h1>
+        <p>
+          The untrimmed side of a handmade sheet, where the pulp ran thin against
+          the deckle. It wanders slowly and frays finely, and it keeps its shape
+          as the sheet is pulled away.
+        </p>
+      </div>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const first = window.Beamish.create(document.getElementById('first'))
+      const second = window.Beamish.create(document.getElementById('second'), {
+        direction: 'right',
+        hold: 900,
+        duration: 1700,
+        seed: 23
+      })
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      // It drives the first handle; the second is given the same clock here so
+      // both are a function of the same time.
+      window.__beamish = {
+        ...first,
+        renderAtTime(t) {
+          first.renderAtTime(t)
+          second.renderAtTime(t)
+        },
+        update(next) {
+          first.update(next)
+        }
+      }
+
+      if (!new URLSearchParams(location.search).has('record')) {
+        first.start()
+        second.start()
+      }
+    </script>
+  </body>
+</html>
