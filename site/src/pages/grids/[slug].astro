@@ -1,19 +1,23 @@
 ---
 /*
- * A grid's page, built out of the grid it is describing.
+ * A grid's page, showing the grid in use.
  *
- * Not an iframe and not a diagram. Every band below is laid out with the
- * stylesheet this page is about, so the overlay toggle shows the columns of
- * the page you are actually reading. A page that merely exhibits a grid can be
- * wrong without anyone noticing. A page made of one cannot.
+ * The demonstration band is written in each grid's own vocabulary, which is
+ * the thing this page exists to show, and that has to be per grid. The first
+ * version of this file was written in TwelveColumn's class names and then
+ * reused for all seven, so six of them loaded a stylesheet defining none of
+ * the classes the page used and rendered as unstyled blocks.
+ *
+ * Everything around that band, the properties, the notes and the source, is
+ * the site's own layout. A grid describes itself in the demonstration; the
+ * reference material underneath is reference material.
  *
  * The standalone demo still exists, because the recorder needs a page it can
  * scroll on its own and because it is worth being able to open without the
- * site around it. It is the same grid doing the same job with other words in
- * it.
+ * site around it.
  */
 import Base from '../../layouts/Base.astro'
-import { loadGrids, loadGridSource } from '../../lib/grids'
+import { loadGrids, loadGridSource, GRID_CATEGORY_LABELS } from '../../lib/grids'
 import { loadPrompts } from '../../lib/catalogue'
 import PromptButtons from '../../components/PromptButtons.astro'
 
@@ -38,229 +42,214 @@ const properties = Object.entries(grid.properties)
  */
 const { linked, inlined } = loadPrompts(grid.slug)
 const plate = (n: string) => `/grid-demos/_media/plate-${n}.webp`
+
+/*
+ * The overlay each grid draws its rules with, where it has one. FullBleedTiles,
+ * MarginaliaColumns, OverlapGrid and MasonryColumns do not: their structure is
+ * visible without anything being drawn over it.
+ */
+const OVERLAY: Record<string, { cls: string; cells: number }> = {
+  'twelve-column': { cls: 'g-rules', cells: 12 },
+  'baseline-grid': { cls: 'g-baseline-rules', cells: 0 },
+  'asymmetric-columns': { cls: 'g-asym g-asym-rules', cells: 4 }
+}
+const overlay = OVERLAY[grid.slug]
+
+/*
+ * One composition per grid, in that grid's own classes. Short on purpose: the
+ * demo page is the long version, and this is the page saying what the thing is
+ * before you decide to open it.
+ */
+const COMPOSITION: Record<string, string> = {
+  'twelve-column': `
+    <section class="g-band">
+      <div class="g-band__grid">
+        <h2 class="g-col-7 gd-h">Set on twelve, read on seven</h2>
+        <p class="g-col-4 g-start-9 gd-p">Twelve divides by two, three, four and six, which is every division an editorial page asks for.</p>
+        <figure class="g-col-7 gd-f"><img src="${plate('1043')}" alt="A road running into low cloud between dark hills" width="1400" height="875" /></figure>
+        <p class="g-col-4 g-start-9 g-measure gd-p">The margin is not the gutter, and the band bleeds while its tracks stay inset by it.</p>
+      </div>
+    </section>`,
+
+  'full-bleed-tiles': `
+    <div class="g-tiles">
+      <div class="g-tile"><span class="gd-n">01</span><span class="gd-t">Letterpress</span></div>
+      <div class="g-tile g-tile--plate"><img src="${plate('1043')}" alt="A road running into low cloud" width="1400" height="875" /></div>
+      <div class="g-tile g-tile--wide"><span class="gd-n">02</span><span class="gd-t">Lithography</span></div>
+      <div class="g-tile g-tile--plate"><img src="${plate('1015')}" alt="A river in a wooded valley" width="1400" height="875" /></div>
+      <div class="g-tile"><span class="gd-n">03</span><span class="gd-t">Screen print</span></div>
+      <div class="g-tile"><span class="gd-n">04</span><span class="gd-t">Risograph</span></div>
+      <div class="g-tile g-tile--plate"><img src="${plate('1016')}" alt="Bare trees against a pale sky" width="1400" height="875" /></div>
+      <div class="g-tile g-tile--wide"><span class="gd-n">05</span><span class="gd-t">Gravure</span></div>
+    </div>`,
+
+  'baseline-grid': `
+    <div class="g-rhythm gd-pad">
+      <h2>Every line on the same rule</h2>
+      <div class="g-columns">
+        <div>
+          <p>Two columns read as one spread rather than as two lists that happen to be adjacent, because every line in both sits on the same invisible rule.</p>
+          <img class="g-plate" style="--plate-lines: 6" src="${plate('1015')}" alt="A river running through a steep wooded valley" width="1400" height="875" />
+          <p>Six baselines, cropped to the rhythm.</p>
+        </div>
+        <div>
+          <p>A picture is almost never a whole number of baselines, and one of them puts every line below it off the rule for the rest of the page.</p>
+          <img class="g-plate" style="--plate-lines: 6" src="${plate('1016')}" alt="Bare trees against a pale winter sky" width="1400" height="875" />
+          <p>Six baselines, so the captions agree.</p>
+        </div>
+      </div>
+    </div>`,
+
+  'asymmetric-columns': `
+    <section class="g-asym">
+      <h2 class="g-a-3 gd-h">Unequal, on one axis</h2>
+      <p class="g-axis g-a-2 g-measure gd-p">The tracks are a geometric run: each one is the last divided by a single ratio, and almost everything begins on the same line.</p>
+      <p class="g-at-4 g-a-1 g-note gd-n">Ratio 1.38</p>
+      <figure class="g-a-2 gd-f"><img src="${plate('1043')}" alt="A road running into low cloud" width="1400" height="875" /></figure>
+      <div class="g-axis g-a-2 gd-p"><p>The axis is the point rather than the unevenness. Take it away and unequal columns are a mess.</p></div>
+    </section>`,
+
+  'marginalia-columns': `
+    <article class="g-marg g-marg--ruled gd-pad">
+      <h2 class="gd-h">Notes in the margin</h2>
+      <aside class="g-note g-note--level">The oldest layout here, and the one most often built wrongly.</aside>
+      <p class="gd-p">A note belongs to a particular sentence, and a layout that cannot keep the two together has not done the job.</p>
+      <aside class="g-note g-note--level">Floats land where the line ended. Absolute positioning holds still while the text reflows.</aside>
+      <p class="gd-p">Here the note is a grid item in the same row as its paragraph, so the browser keeps them level at every width, with no measurement and no script.</p>
+      <aside class="g-note g-note--level">One row, two cells. The pair cannot come apart.</aside>
+    </article>`,
+
+  'overlap-grid': `
+    <section class="g-over">
+      <figure class="g-o-c1 g-o-w9 g-o-r1 g-o-h6 gd-f"><img src="${plate('1043')}" alt="A road running into low cloud between dark hills" width="1400" height="875" /></figure>
+      <div class="g-o-c6 g-o-w7 g-o-r4 g-o-h4 g-lift-2 g-over-shade">
+        <h2 class="gd-h">Over, not beside</h2>
+        <p class="gd-p">Both items were told to share these cells. There is not a negative margin anywhere in the file.</p>
+      </div>
+    </section>`,
+
+  'masonry-columns': `
+    <div class="g-mason">
+      <figure class="g-card"><img src="${plate('1043')}" alt="A road running into low cloud" width="1400" height="875" /><div class="g-card__body"><span class="gd-n">01</span></div></figure>
+      <figure class="g-card"><div class="g-card__body"><span class="gd-n">02</span><p class="gd-p">Taller than its neighbours, which is the whole reason to pack rather than use equal boxes.</p></div></figure>
+      <figure class="g-card"><img src="${plate('1015')}" alt="A river in a wooded valley" width="1400" height="875" /><div class="g-card__body"><span class="gd-n">03</span></div></figure>
+      <figure class="g-card"><div class="g-card__body"><span class="gd-n">04</span><p class="gd-p">Reading order runs down each column, not across. For pictures nobody minds; for a list it is a bug.</p></div></figure>
+      <figure class="g-card"><img src="${plate('1016')}" alt="Bare trees against a pale sky" width="1400" height="875" /><div class="g-card__body"><span class="gd-n">05</span></div></figure>
+      <figure class="g-card"><div class="g-card__body"><span class="gd-n">06</span></div></figure>
+    </div>`
+}
+const composition = COMPOSITION[grid.slug] ?? ''
 ---
 
 <Base title={`${grid.name}: Beamish`} description={grid.description}>
   {/*
     The stylesheet under test, on this page only. Its custom properties are all
-    namespaced --grid-*, and every class carries a g- prefix,
-    because Tailwind already defines start-8 and col-6 and this page uses both
-    vocabularies at once.
+    namespaced and every class carries a g- prefix, because Tailwind already
+    defines start-8 and col-6 and this page uses both vocabularies at once.
   */}
   <link rel="stylesheet" href={css} />
 
-  <section class="g-band" style="padding-top: clamp(7rem, 12vw, 11rem)">
-    <div class="g-band__grid">
-      <h1 class="g-col-9 text-[clamp(2.2rem,6vw,4.5rem)] leading-[0.95]">{grid.name}</h1>
-      <p class="text-l2 g-col-5 g-start-8 g-measure font-mono text-[0.85rem] leading-[1.7]">
-        {grid.description}. Every band on this page is laid out with it, so the
-        overlay shows the columns of the page you are reading.
-      </p>
-    </div>
+  <section class="spine pt-32 pb-10 md:pt-40">
+    <h1 class="col-span-12 text-[clamp(2.2rem,6vw,4.5rem)] leading-[0.95] lg:col-span-9">
+      {grid.name}
+    </h1>
+    <p
+      class="text-l2 col-span-12 mt-6 font-mono text-[0.9rem] leading-[1.7] sm:col-span-9 lg:col-span-6"
+    >
+      {grid.description}. {GRID_CATEGORY_LABELS[grid.category]}, and the band
+      below is laid out with it.
+    </p>
   </section>
 
-  <section class="g-band bg-be">
-    <div class="g-band__grid">
-      <div class="border-line g-col-5 border-t pt-3">
-        <h3 class="text-[1.05rem] leading-tight">The margin is not a gutter</h3>
-        <p class="text-l2 mt-2 font-mono text-[0.76rem] leading-[1.7]">
-          They are different measurements doing different jobs. A gutter holds
-          two columns of type apart. A margin holds the type off the trimmed
-          edge of the sheet, and it wants to be several times larger.
-        </p>
-      </div>
-      <div class="border-line g-col-5 g-start-8 border-t pt-3">
-        <h3 class="text-[1.05rem] leading-tight">The band bleeds, the grid does not</h3>
-        <p class="text-l2 mt-2 font-mono text-[0.76rem] leading-[1.7]">
-          A section spans the whole window so it can carry a ground to the
-          edges. The tracks sit inside it, inset by the margin. Put the margin
-          on the section instead and nothing can ever bleed.
-        </p>
-      </div>
-    </div>
-  </section>
+  {/* The grid doing its job, in its own class names. */}
+  <div class="grid-demo" set:html={composition} />
 
-  <section class="g-band">
-    <div class="g-band__grid">
-      <figure class="g-col-7 m-0">
-        <img
-          src={plate('1043')}
-          alt="A road running into low cloud between dark hills"
-          width="1400"
-          height="875"
-          loading="lazy"
-          decoding="async"
-          class="block h-auto w-full"
-        />
-        <figcaption class="text-l3 mt-2 font-mono text-[0.68rem]">
-          Seven columns, and five left over for something to sit beside it.
-        </figcaption>
-      </figure>
-      <div class="g-col-4 g-start-9">
-        <h2 class="text-[1.5rem] leading-tight">Thirds, halves and quarters</h2>
-        <p class="text-l2 mt-3 font-mono text-[0.78rem] leading-[1.7]">
-          Twelve divides by two, three, four and six, which is every division an
-          editorial page actually asks for. Ten looks tidier and cannot do
-          thirds, which you find out on the first spread that wants three of
-          anything.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <section class="g-band">
-    <div class="g-band__grid">
-      <h2 class="g-col-6 text-[1.6rem] leading-tight">The properties are the interface</h2>
-      <p class="text-l2 g-col-5 g-start-8 g-measure font-mono text-[0.78rem] leading-[1.7]">
-        Override these in your own stylesheet rather than editing the file, so
-        the next version is a clean replacement.
-      </p>
+  <section class="spine pt-8 pb-6">
+    <div class="col-span-12 flex flex-wrap items-center gap-3">
+      <a
+        href={demo}
+        target="_blank"
+        rel="noreferrer"
+        class="beamish-sheen-button beamish-sheen-button--quiet no-underline"
+      >
+        Open the full demo
+      </a>
       {
-        properties.map(([name, spec]) => (
-          <div class="border-line g-col-6 border-t pt-3">
-            <div class="flex flex-wrap items-baseline justify-between gap-2">
-              <code class="font-mono text-[0.78rem]">{name}</code>
-              <code class="text-l3 font-mono text-[0.68rem]">{spec.default}</code>
-            </div>
-            <p class="text-l2 mt-2 font-mono text-[0.74rem] leading-[1.65]">
-              {spec.description}
-            </p>
-          </div>
-        ))
+        overlay && (
+          <button
+            type="button"
+            class="beamish-sheen-button beamish-sheen-button--quiet"
+            aria-pressed="false"
+            data-rules-toggle
+          >
+            Show grid
+          </button>
+        )
       }
     </div>
   </section>
 
+  <section class="spine py-12">
+    <h2 class="col-span-12 text-[1.6rem] leading-tight">The properties are the interface</h2>
+    <p class="text-l2 col-span-12 mt-3 font-mono text-[0.8rem] leading-[1.7] lg:col-span-7">
+      Override these in your own stylesheet rather than editing the file, so the
+      next version is a clean replacement.
+    </p>
+    <dl class="col-span-12 mt-8 grid grid-cols-1 gap-x-8 gap-y-6 lg:grid-cols-2">
+      {
+        properties.map(([name, spec]) => (
+          <div class="border-line border-t pt-3">
+            <dt class="flex flex-wrap items-baseline justify-between gap-2">
+              <code class="font-mono text-[0.78rem]">{name}</code>
+              <code class="text-l3 font-mono text-[0.68rem]">{spec.default}</code>
+            </dt>
+            <dd class="text-l2 mt-2 ml-0 font-mono text-[0.74rem] leading-[1.65]">
+              {spec.description}
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+
   {
     grid.notes.length > 0 && (
-      <section class="g-band">
-        <div class="g-band__grid">
-          <h2 class="g-col-12 text-[1.6rem] leading-tight">What it gets right</h2>
+      <section class="spine pb-12">
+        <h2 class="col-span-12 text-[1.6rem] leading-tight">What it gets right</h2>
+        <ul class="col-span-12 mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
           {grid.notes.map(note => (
-            <p class="text-l2 border-line g-col-6 border-t pt-3 font-mono text-[0.74rem] leading-[1.65]">
+            <li class="text-l2 border-line border-t pt-3 font-mono text-[0.74rem] leading-[1.65]">
               {note}
-            </p>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
     )
   }
 
-  <section class="g-band">
-    <div class="g-band__grid">
-      <figure class="g-col-4 m-0">
-        <img
-          src={plate('1015')}
-          alt="A river running through a steep wooded valley"
-          width="1400"
-          height="875"
-          loading="lazy"
-          decoding="async"
-          class="block h-auto w-full"
-        />
-      </figure>
-      <figure class="g-col-4 m-0">
-        <img
-          src={plate('1016')}
-          alt="Bare trees against a pale winter sky"
-          width="1400"
-          height="875"
-          loading="lazy"
-          decoding="async"
-          class="block h-auto w-full"
-        />
-      </figure>
-      <figure class="g-col-4 m-0">
-        <img
-          src={plate('1018')}
-          alt="A close view of weathered paint and rust"
-          width="1400"
-          height="875"
-          loading="lazy"
-          decoding="async"
-          class="block h-auto w-full"
-        />
-      </figure>
-      <p class="text-l3 g-col-12 font-mono text-[0.68rem]">
-        Four, four and four, on the same tracks as the paragraphs above.
-      </p>
+  <section class="spine pb-32">
+    <h2 class="col-span-12 text-[1.6rem] leading-tight">The stylesheet</h2>
+    <p class="text-l2 col-span-12 mt-3 font-mono text-[0.8rem] leading-[1.7] lg:col-span-7">
+      This is the whole item. Copy it into your project, link it, and use the
+      class names. Nothing to install and nothing to mount.
+    </p>
+    <div class="col-span-12 mt-6">
+      <PromptButtons slug={grid.slug} linked={linked} inlined={inlined} />
     </div>
+    <pre
+      class="border-line bg-be text-l1 col-span-12 mt-6 max-h-[32rem] overflow-auto rounded-[2px] border p-4 font-mono text-[0.72rem] leading-[1.6]"
+    ><code>{source}</code></pre>
   </section>
 
-  <section class="g-band">
-    <div class="g-band__grid">
-      <figure class="g-col-12 m-0">
-        <img
-          src={plate('1039')}
-          alt="A wide shoreline under an overcast sky"
-          width="1400"
-          height="875"
-          loading="lazy"
-          decoding="async"
-          class="block h-auto w-full"
-        />
-        <figcaption class="text-l3 mt-2 font-mono text-[0.68rem]">
-          Full bleed inside the margin. The picture spans every track, which is
-          not the same as spanning the window.
-        </figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <section class="g-band bg-be">
-    <div class="g-band__grid">
-      <h2 class="g-col-6 text-[1.6rem] leading-tight">Measure is not span</h2>
-      <div class="g-col-5 g-start-8 g-measure">
-        <p class="text-l2 font-mono text-[0.78rem] leading-[1.7]">
-          Type does not become more readable as its column gets wider. Past
-          about seventy-five characters the eye loses the start of the next
-          line, and seven columns on a wide screen is well past that. So body
-          copy takes a measure as well as a span, and the two are different
-          instructions.
-        </p>
+  {
+    overlay && (
+      <div class={overlay.cls} data-rules hidden>
+        {Array.from({ length: overlay.cells }).map(() => (
+          <i />
+        ))}
       </div>
-    </div>
-  </section>
-
-  <section class="g-band" style="padding-bottom: clamp(5rem, 10vw, 9rem)">
-    <div class="g-band__grid">
-      <h2 class="g-col-6 text-[1.6rem] leading-tight">The stylesheet</h2>
-      <p class="text-l2 g-col-5 g-start-8 g-measure font-mono text-[0.78rem] leading-[1.7]">
-        This is the whole item. Copy it into your project, link it, and use the
-        class names. Nothing to install and nothing to mount.
-      </p>
-      <div class="g-col-12">
-        <PromptButtons slug={grid.slug} linked={linked} inlined={inlined} />
-      </div>
-      <div class="g-col-12 flex flex-wrap gap-3">
-        <a
-          href={demo}
-          target="_blank"
-          rel="noreferrer"
-          class="beamish-sheen-button beamish-sheen-button--quiet no-underline"
-        >
-          Open the demo on its own
-        </a>
-      </div>
-      <pre
-        class="border-line bg-be text-l1 g-col-12 max-h-[32rem] overflow-auto rounded-[2px] border p-4 font-mono text-[0.72rem] leading-[1.6]"
-        data-grid-source><code>{source}</code></pre>
-    </div>
-  </section>
-
-  {/* One element per column, drawn over the page this page is made of. */}
-  <div class="g-rules" data-rules hidden>
-    {Array.from({ length: 12 }).map(() => <i />)}
-  </div>
-
-  <button
-    type="button"
-    class="beamish-sheen-button beamish-sheen-button--quiet g-rules-toggle"
-    aria-pressed="false"
-    data-rules-toggle
-  >
-    Show grid
-  </button>
+    )
+  }
 </Base>
 
 <script>
@@ -273,6 +262,4 @@ const plate = (n: string) => `/grid-demos/_media/plate-${n}.webp`
     toggle.setAttribute('aria-pressed', String(!on))
     toggle.textContent = on ? 'Show grid' : 'Hide grid'
   })
-
-
 </script>
