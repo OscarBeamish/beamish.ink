@@ -1,0 +1,143 @@
+/*
+ * AsymmetricColumns: Beamish
+ * https://beamish.ink/grids/asymmetric-columns
+ *
+ * Unequal columns with one strong vertical axis running down the page. The
+ * layout a poster uses: nothing is centred, nothing is halved, and the thing
+ * that holds it together is that every block starts on the same few lines.
+ *
+ * Three things carry it, and the first is what separates this from a layout
+ * that is merely lopsided.
+ *
+ * The asymmetry comes from one ratio, applied once. The tracks here are a
+ * geometric run: each is `--asym-ratio` times the one before it, generated from
+ * a single number rather than typed out. Pick the widths by eye, section by
+ * section, and you do not have a grid, you have a series of decisions that
+ * happen to be unequal, and a reader feels the difference even if they could
+ * not name it.
+ *
+ * The axis is the point, not the unevenness. A page like this works because a
+ * great many things begin at the same x, and the eye finds that line and holds
+ * on to it. `--asym-axis` names the track everything hangs from, and
+ * `.g-axis` puts a block there whatever its width. Asymmetry without an axis is
+ * just mess.
+ *
+ * And the narrow column is for the small voice. The run is widest first by
+ * default, so the narrow tracks fall where captions, notes and numbers go. A
+ * layout that puts body copy in the narrowest track is using the system
+ * backwards, and the giveaway is a column of two-word lines.
+ */
+
+:root {
+  /*
+   * How much wider each track is than the next. 1.618 is the obvious choice
+   * and 1.3 is usually the better one: past about 1.8 the narrow tracks stop
+   * being able to hold words at all.
+   */
+  --asym-ratio: 1.38;
+  /* How many tracks. Four is the most a page can use without losing the axis. */
+  --asym-tracks: 4;
+  /* The track everything hangs from, counted from 1. */
+  --asym-axis: 2;
+  --asym-gutter: clamp(1rem, 2.5vw, 2.5rem);
+  --asym-margin: clamp(1.25rem, 5vw, 5rem);
+  --asym-rule: rgba(54, 54, 48, 0.2);
+  --asym-step: clamp(1.5rem, 4vw, 4rem);
+}
+
+/*
+ * The tracks, widest first, each one the last divided by the ratio.
+ *
+ * Written out rather than generated, because CSS cannot raise a number to a
+ * power: `calc(pow())` is not available where this has to run. Four terms is
+ * the whole system and they are legible as arithmetic, which is better than a
+ * clever rule nobody can check.
+ */
+.g-asym {
+  display: grid;
+  grid-template-columns:
+    minmax(0, calc(1fr * 1))
+    minmax(0, calc(1fr / var(--asym-ratio)))
+    minmax(0, calc(1fr / (var(--asym-ratio) * var(--asym-ratio))))
+    minmax(0, calc(1fr / (var(--asym-ratio) * var(--asym-ratio) * var(--asym-ratio))));
+  column-gap: var(--asym-gutter);
+  row-gap: var(--asym-step);
+  padding-inline: var(--asym-margin);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Reversed, for a section that should lean the other way. Use it rarely: two
+ * sections leaning opposite ways cancel out and the page reads as symmetrical
+ * again, which is the one thing this grid is not for. */
+.g-asym--mirror {
+  grid-template-columns:
+    minmax(0, calc(1fr / (var(--asym-ratio) * var(--asym-ratio) * var(--asym-ratio))))
+    minmax(0, calc(1fr / (var(--asym-ratio) * var(--asym-ratio))))
+    minmax(0, calc(1fr / var(--asym-ratio)))
+    minmax(0, calc(1fr * 1));
+}
+
+/* Spans are grid-column-end, so a start and a span compose. */
+.g-a-1 { grid-column-end: span 1 }
+.g-a-2 { grid-column-end: span 2 }
+.g-a-3 { grid-column-end: span 3 }
+.g-a-4 { grid-column-end: span 4 }
+
+.g-at-1 { grid-column-start: 1 }
+.g-at-2 { grid-column-start: 2 }
+.g-at-3 { grid-column-start: 3 }
+.g-at-4 { grid-column-start: 4 }
+
+/* The axis. Whatever its width, this block starts on the page's spine. */
+.g-axis {
+  grid-column-start: var(--asym-axis);
+}
+
+.g-measure {
+  max-width: 64ch;
+}
+
+.g-note {
+  font-size: 0.78em;
+  line-height: 1.55;
+}
+
+/*
+ * The overlay, built from the same track list rather than a second copy of it.
+ * One element per track, so it cannot describe a grid other than this one.
+ */
+.g-asym-rules {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  display: grid;
+  grid-template-columns: inherit;
+  column-gap: var(--asym-gutter);
+  padding-inline: var(--asym-margin);
+  box-sizing: border-box;
+}
+
+.g-asym-rules > * {
+  background: var(--asym-rule);
+}
+
+.g-asym-rules[hidden] {
+  display: none;
+}
+
+/*
+ * Narrow. The run collapses to one column, because four geometric tracks on a
+ * phone makes the last one about two characters wide.
+ */
+@media (max-width: 52rem) {
+  .g-asym,
+  .g-asym--mirror {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .g-asym > *:not(.g-keep) {
+    grid-column: 1 / -1;
+  }
+}

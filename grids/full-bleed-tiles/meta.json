@@ -1,0 +1,62 @@
+{
+  "name": "FullBleedTiles",
+  "slug": "full-bleed-tiles",
+  "description": "A grid of tiles running to the edges of the window, ruled by hairlines that are gaps rather than borders",
+  "category": "tiles",
+  "ground": "paper",
+  "tags": [
+    "grid",
+    "tiles",
+    "full-bleed",
+    "css",
+    "container-queries",
+    "no-dependencies"
+  ],
+  "files": [
+    {
+      "from": "grids/full-bleed-tiles/grid.css",
+      "to": "src/beamish/grids/full-bleed-tiles/grid.css",
+      "role": "style"
+    }
+  ],
+  "properties": {
+    "--tiles-columns": {
+      "default": "4",
+      "description": "How many tiles across. The rows follow from the ratio rather than from a height, so this is the only number a breakpoint has to change."
+    },
+    "--tiles-rule": {
+      "default": "1px",
+      "description": "The hairline between tiles. It is a gap rather than a border, so there is exactly one of it between any two cells and it cannot be doubled."
+    },
+    "--tiles-rule-colour": {
+      "default": "rgba(54, 54, 48, 0.28)",
+      "description": "The ground behind the gaps, which is what you see as the rules. The tiles cover everything else, so this colour only ever shows in the lines themselves."
+    },
+    "--tiles-ratio": {
+      "default": "5 / 4",
+      "description": "The shape of one tile. Rows size themselves from this, which is what lets the grid reflow without a breakpoint for every window shape."
+    },
+    "--tiles-frame": {
+      "default": "1px",
+      "description": "The outer line. A grid with no margin has its outermost cells against the trim, so whether there is a rule there is a decision: 0 lets the grid bleed off the page."
+    },
+    "--tiles-pad": {
+      "default": "clamp(0.9rem, 2cqw, 1.8rem)",
+      "description": "Padding inside a tile, in container units so it answers to the tile rather than to the window. The same grid then behaves in a sidebar and across a page."
+    }
+  },
+  "notes": [
+    "The rules are the gaps, not borders on the cells. Give every tile a 1px border and the line between two tiles is 2px while the line at the edge is 1px, so the grid reads as slightly broken without anyone being able to say why. A 1px gap with a ground behind it produces exactly one rule everywhere, because there is only ever one gap between two cells",
+    "Cells are sized by ratio rather than by height. A tile grid with fixed pixel rows needs a breakpoint every time the window changes shape; an aspect-ratio means the rows size themselves and a breakpoint only has to say how many columns there are",
+    "The outer rule is a decision rather than an accident. A grid with no margin has its outermost cells against the trim, so tiles-frame draws that line and 0 lets the grid bleed off the page. Most implementations get whichever one the gap happened to give them",
+    "The element is a container, so a tile's padding and type answer to the tile rather than to the window. The same grid in a sidebar and across a page both behave, with no breakpoint needing to know where it was put",
+    "Below 48rem the count drops to two and the tiles become square, because a 5:4 tile two across on a phone is a letterbox with a word in it. A tall tile is reset there too, since a double-height cell beside nothing is not what was meant"
+  ],
+  "record": {
+    "duration": 10,
+    "fps": 24,
+    "posterAt": 2.0,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

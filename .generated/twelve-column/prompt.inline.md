@@ -328,7 +328,19 @@ with the column above it. The alternative is re-declaring twelve tracks inside a
 six column area, where every nested track is half the width of the ones it is
 supposed to agree with and nothing lines up with anything.
 
-## 9. Common mistakes
+## 9. Tuning it
+
+Everything is a custom property on `:root`. Override them in your own stylesheet
+rather than editing the file, so the next version is a clean replacement.
+
+- `--grid-columns` the track count
+- `--grid-gutter` between columns
+- `--grid-margin` between content and trim
+- `--grid-measure` the widest the tracks ever get
+- `--grid-step` the vertical unit everything spaces in multiples of
+- `--grid-rule` the overlay colour
+
+## 10. Common mistakes
 
 1. **Making the margin a gutter.** The content ends up jammed against the trim
    on small screens, and no amount of breakpoint fiddling fixes the ratio.

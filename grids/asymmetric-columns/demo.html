@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AsymmetricColumns: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <link rel="stylesheet" href="./grid.css" />
+    <style>
+      html {
+        scroll-behavior: auto;
+      }
+      body {
+        margin: 0;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+        font-size: clamp(0.8rem, 1.05vw, 0.92rem);
+        line-height: 1.7;
+      }
+      #stage > section {
+        padding-block: var(--asym-step);
+      }
+      h1,
+      h2 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 0.95;
+        margin: 0;
+      }
+      h1 {
+        font-size: clamp(2.4rem, 7vw, 6rem);
+      }
+      h2 {
+        font-size: clamp(1.3rem, 2.6vw, 2.2rem);
+      }
+      p {
+        margin: 0 0 1em;
+      }
+      p:last-child {
+        margin-bottom: 0;
+      }
+      figure {
+        margin: 0;
+      }
+      figure img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .eyebrow {
+        font-size: 0.66rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--label-3);
+      }
+      .ink {
+        background: var(--background-elevated);
+      }
+      .rules-toggle {
+        position: fixed;
+        right: 1rem;
+        bottom: 1rem;
+        z-index: 80;
+        padding: 0.5rem 0.9rem;
+        font: inherit;
+        font-size: 0.68rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--label-1);
+        background: var(--background-elevated);
+        border: 1px solid var(--line);
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the grid can be opened on its own.
+
+      The photographs load eagerly. The recorder waits for every image to decode
+      before capturing, so a take is deterministic rather than a race, and a
+      lazy image below the fold never starts loading: decode() never settles and
+      the recording hangs with no frames and no error.
+    -->
+    <main id="stage">
+      <section class="g-asym">
+        <h1 class="g-a-3">Unequal, on one axis</h1>
+        <p class="g-axis g-a-2 g-measure">
+          The tracks are a geometric run: each one is the last divided by a
+          single ratio. Nothing here is halved and nothing is centred, and what
+          holds it together is that almost everything begins on the same line.
+        </p>
+        <p class="g-at-4 g-a-1 g-note eyebrow">Ratio 1.38, four tracks, axis on two</p>
+      </section>
+
+      <section class="g-asym ink">
+        <figure class="g-a-2">
+          <img
+            src="../_media/plate-1043.webp"
+            alt="A road running into low cloud between dark hills"
+            width="1400"
+            height="875"
+          />
+        </figure>
+        <div class="g-axis g-a-2">
+          <h2>The axis is the point</h2>
+          <p>
+            A page like this works because a great many things start at the same
+            x, and the eye finds that line and holds on to it. Take the axis
+            away and unequal columns are not a composition, they are a mess.
+          </p>
+        </div>
+      </section>
+
+      <section class="g-asym">
+        <h2 class="g-axis g-a-2">The narrow column is for the small voice</h2>
+        <p class="g-axis g-a-2 g-measure">
+          The run is widest first, so the narrow tracks fall exactly where
+          captions, notes and numbers want to be. Body copy in the narrowest
+          track is the system used backwards, and the giveaway is a column of
+          two-word lines.
+        </p>
+        <p class="g-at-4 g-a-1 g-note">
+          A note, where a note goes.
+        </p>
+      </section>
+
+      <section class="g-asym">
+        <figure class="g-a-1">
+          <img
+            src="../_media/plate-1015.webp"
+            alt="A river running through a steep wooded valley"
+            width="1400"
+            height="875"
+          />
+        </figure>
+        <figure class="g-a-1">
+          <img
+            src="../_media/plate-1016.webp"
+            alt="Bare trees against a pale winter sky"
+            width="1400"
+            height="875"
+          />
+        </figure>
+        <figure class="g-a-1">
+          <img
+            src="../_media/plate-1018.webp"
+            alt="A close view of weathered paint and rust"
+            width="1400"
+            height="875"
+          />
+        </figure>
+        <p class="g-a-1 g-note eyebrow">
+          Three plates, three different widths, one top line
+        </p>
+      </section>
+
+      <section class="g-asym ink">
+        <h2 class="g-a-2">One ratio, applied once</h2>
+        <p class="g-axis g-a-2 g-measure">
+          Pick the widths by eye, section by section, and you do not have a
+          grid. You have a series of decisions that happen to be unequal, and a
+          reader feels the difference even if they could not name it.
+        </p>
+      </section>
+
+      <section class="g-asym">
+        <figure class="g-a-4">
+          <img
+            src="../_media/plate-1039.webp"
+            alt="A wide shoreline under an overcast sky"
+            width="1400"
+            height="875"
+          />
+        </figure>
+        <p class="g-axis g-a-2 g-note">
+          Across every track. The margin is still there, so this bleeds to the
+          grid rather than to the window.
+        </p>
+      </section>
+    </main>
+
+    <div class="g-asym g-asym-rules" id="rules" hidden>
+      <i></i><i></i><i></i><i></i>
+    </div>
+
+    <button class="rules-toggle" id="toggle" aria-pressed="false">Show grid</button>
+
+    <script>
+      const rules = document.getElementById('rules')
+      const toggle = document.getElementById('toggle')
+      toggle.addEventListener('click', () => {
+        const on = toggle.getAttribute('aria-pressed') === 'true'
+        rules.hidden = on
+        toggle.setAttribute('aria-pressed', String(!on))
+        toggle.textContent = on ? 'Show grid' : 'Hide grid'
+      })
+
+      /*
+       * A grid does not move, so the take is a scroll down the page and back,
+       * which closes the loop exactly: the frame at 0 and the frame at the end
+       * are the same frame.
+       */
+      const ease = k => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2)
+      let span = Number(new URLSearchParams(location.search).get('span')) || 10
+
+      window.__beamish = {
+        renderAtTime(t) {
+          const reach = Math.max(document.body.scrollHeight - innerHeight, 0)
+          const k = Math.min(Math.max(t / span, 0), 1)
+          const there = k < 0.5 ? ease(k * 2) : ease((1 - k) * 2)
+          scrollTo(0, reach * there)
+        },
+        start() {},
+        stop() {},
+        update(next) {
+          if (next && typeof next.span === 'number') span = next.span
+        },
+        destroy() {}
+      }
+
+      if (!new URLSearchParams(location.search).has('record')) scrollTo(0, 0)
+    </script>
+  </body>
+</html>

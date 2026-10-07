@@ -1,0 +1,67 @@
+{
+  "name": "AsymmetricColumns",
+  "slug": "asymmetric-columns",
+  "description": "Unequal columns generated from one ratio, with a single vertical axis that every block hangs from",
+  "category": "asymmetric",
+  "ground": "paper",
+  "tags": [
+    "grid",
+    "asymmetric",
+    "editorial",
+    "poster",
+    "css",
+    "no-dependencies"
+  ],
+  "files": [
+    {
+      "from": "grids/asymmetric-columns/grid.css",
+      "to": "src/beamish/grids/asymmetric-columns/grid.css",
+      "role": "style"
+    }
+  ],
+  "properties": {
+    "--asym-ratio": {
+      "default": "1.38",
+      "description": "How much wider each track is than the next. 1.618 is the obvious choice and 1.3 is usually the better one: past about 1.8 the narrow tracks stop being able to hold words at all."
+    },
+    "--asym-tracks": {
+      "default": "4",
+      "description": "How many tracks. Four is the most a page can use before the axis stops being findable, and the axis is the thing holding the layout together."
+    },
+    "--asym-axis": {
+      "default": "2",
+      "description": "The track everything hangs from, counted from 1. Asymmetry without an axis is mess: the layout works because a great many things begin at the same x."
+    },
+    "--asym-gutter": {
+      "default": "clamp(1rem, 2.5vw, 2.5rem)",
+      "description": "Between tracks. Wider than an even grid wants, because unequal columns need more air to read as deliberate rather than as a mistake in the arithmetic."
+    },
+    "--asym-margin": {
+      "default": "clamp(1.25rem, 5vw, 5rem)",
+      "description": "Between the content and the trim. A separate measurement from the gutter, for the same reason it is separate in every other grid here."
+    },
+    "--asym-step": {
+      "default": "clamp(1.5rem, 4vw, 4rem)",
+      "description": "The vertical unit between rows. Generous, because a poster layout earns its asymmetry by having room around it."
+    },
+    "--asym-rule": {
+      "default": "rgba(54, 54, 48, 0.2)",
+      "description": "The overlay colour. Drawn as one element per track, inheriting the real track list rather than describing a second copy of it."
+    }
+  },
+  "notes": [
+    "The asymmetry comes from one ratio applied once, as a geometric run of tracks. Pick the widths by eye section by section and you do not have a grid, you have a series of decisions that happen to be unequal, and a reader feels the difference even if they could not name it",
+    "The axis is the point rather than the unevenness. A page like this works because a great many things begin at the same x and the eye finds that line and holds on to it, which is what the axis property and the g-axis class are for",
+    "The narrow column is for the small voice. The run is widest first, so the narrow tracks fall where captions, notes and numbers go. Body copy in the narrowest track is the system used backwards, and the giveaway is a column of two-word lines",
+    "Mirror the run rarely. Two sections leaning opposite ways cancel out and the page reads as symmetrical again, which is the one thing this grid is not for",
+    "The tracks are written out rather than generated, because CSS cannot raise a number to a power where this has to run. Four terms is the whole system and is legible as arithmetic, which beats a clever rule nobody can check",
+    "The overlay inherits grid-template-columns rather than restating it, so an unequal run cannot be described by an even one"
+  ],
+  "record": {
+    "duration": 10,
+    "fps": 24,
+    "posterAt": 2.0,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

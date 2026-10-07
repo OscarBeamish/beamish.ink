@@ -1,0 +1,55 @@
+{
+  "name": "BaselineGrid",
+  "slug": "baseline-grid",
+  "description": "Vertical rhythm where every line in adjacent columns sits on the same rule, including the lines under a photograph",
+  "category": "baseline",
+  "ground": "paper",
+  "tags": [
+    "grid",
+    "baseline",
+    "rhythm",
+    "typography",
+    "css",
+    "no-dependencies"
+  ],
+  "files": [
+    {
+      "from": "grids/baseline-grid/grid.css",
+      "to": "src/beamish/grids/baseline-grid/grid.css",
+      "role": "style"
+    }
+  ],
+  "properties": {
+    "--base-line": {
+      "default": "1.5rem",
+      "description": "The unit. Every vertical measurement on the page is a whole number of these, so changing it rescales the whole rhythm at once without anything drifting out of step."
+    },
+    "--base-size": {
+      "default": "1rem",
+      "description": "Body type size. Its line box is exactly one baseline, which is the fact the rest of the system is built on."
+    },
+    "--base-rule": {
+      "default": "rgba(54, 54, 48, 0.16)",
+      "description": "The overlay colour. Fainter than a column overlay needs to be, because unlike one this covers every line of text on the page rather than the spaces between columns."
+    },
+    "--base-measure": {
+      "default": "66ch",
+      "description": "The widest a line of body copy gets. A baseline grid does nothing for readability if the lines are too long for the eye to track back to the next one."
+    }
+  },
+  "notes": [
+    "Everything is a multiple of one number: line heights, margins, the space above a heading and below it. The moment one value is chosen by eye the rhythm is gone, and it is gone for everything after it on the page rather than just for that element",
+    "Pictures are the hard part and they are why most baseline grids are a lie. An image is whatever height its proportions make it, which is almost never a whole number of baselines, and one of them puts every line below it off the rule for the rest of the page. Either crop it to a multiple, which is the default here, or let it run free and put the rhythm back underneath it",
+    "The free-height escape hatch is corrected in the browser rather than ignored, because the error is not known until the image has been laid out at a width nobody chose. A margin cannot fix a number that does not exist yet",
+    "The first baseline is what has to land, not the box. A heading with a tall line-height has space above the letters that pushes the text off the rule while the box itself looks correct",
+    "The overlay is a repeating gradient here, which would be wrong for a column grid and is right for this one: a baseline is an even repeat with no gutter to get wrong, so the gradient cannot disagree with the layout",
+    "A heading takes two baselines above and one below, because a heading belongs to what follows it rather than to what it interrupts"
+  ],
+  "record": {
+    "duration": 10,
+    "fps": 24,
+    "posterAt": 2.0,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

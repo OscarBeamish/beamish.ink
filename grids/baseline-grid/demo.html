@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BaselineGrid: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <link rel="stylesheet" href="./grid.css" />
+    <style>
+      html {
+        scroll-behavior: auto;
+      }
+      body {
+        margin: 0;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      #stage {
+        max-width: 72rem;
+        margin-inline: auto;
+        padding: calc(var(--base-line) * 3) clamp(1.25rem, 5vw, 5rem);
+      }
+      h1,
+      h2 {
+        font-family: var(--font-display);
+        letter-spacing: -0.02em;
+      }
+      .rules-toggle {
+        position: fixed;
+        right: 1rem;
+        bottom: 1rem;
+        z-index: 80;
+        padding: 0.5rem 0.9rem;
+        font: inherit;
+        font-size: 0.68rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--label-1);
+        background: var(--background-elevated);
+        border: 1px solid var(--line);
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the grid can be opened on its own.
+
+      The photographs load eagerly. The recorder waits for every image to decode
+      before capturing, so a take is deterministic rather than a race, and a
+      lazy image below the fold never starts loading: decode() never settles and
+      the recording hangs with no frames and no error.
+    -->
+    <main id="stage" class="g-rhythm">
+      <h1>Every line on the same rule</h1>
+      <p>
+        Vertical rhythm is the agreement that every line of type on the page
+        sits on one of a fixed set of invisible rules. Two columns side by side
+        then read as one spread rather than as two lists that happen to be
+        adjacent.
+      </p>
+
+      <h2>A picture cropped to the rhythm</h2>
+      <img
+        class="g-plate"
+        style="--plate-lines: 8"
+        src="../_media/plate-1043.webp"
+        alt="A road running into low cloud between dark hills"
+        width="1400"
+        height="875"
+      />
+      <p>
+        Eight baselines, whatever the photograph's own proportions are. The crop
+        is the cost, and it is the cheaper of the two prices: the other is every
+        line below the picture sitting between the rules instead of on them.
+      </p>
+
+      <div class="g-columns">
+        <div>
+          <h2>Multiples, not judgement</h2>
+          <p>
+            Line heights, margins, the space above a heading and below it: all
+            of them whole numbers of one unit. The moment a value is chosen by
+            eye the rhythm is gone, and it is gone for everything after it.
+          </p>
+          <p>
+            A heading takes two baselines above and one below, because a heading
+            belongs to what follows it rather than to what it interrupts.
+          </p>
+        </div>
+        <div>
+          <h2>The first line, not the box</h2>
+          <p>
+            A heading with a tall line-height has space above the letters that
+            pushes the text off the rule while the box itself measures
+            perfectly. It is the hardest of these to see without the overlay on,
+            which is why there is an overlay.
+          </p>
+          <p>
+            Turn the rules on and look along a column. Every line should touch
+            one.
+          </p>
+        </div>
+      </div>
+
+      <h2>Two plates, still in step</h2>
+      <div class="g-columns">
+        <div>
+          <img
+            class="g-plate"
+            style="--plate-lines: 6"
+            src="../_media/plate-1015.webp"
+            alt="A river running through a steep wooded valley"
+            width="1400"
+            height="875"
+          />
+          <p>Six baselines.</p>
+        </div>
+        <div>
+          <img
+            class="g-plate"
+            style="--plate-lines: 6"
+            src="../_media/plate-1016.webp"
+            alt="Bare trees against a pale winter sky"
+            width="1400"
+            height="875"
+          />
+          <p>Six baselines, so the captions line up.</p>
+        </div>
+      </div>
+
+      <h2>The escape hatch</h2>
+      <img
+        class="g-plate g-plate--free"
+        src="../_media/plate-1018.webp"
+        alt="A close view of weathered paint and rust"
+        width="1400"
+        height="875"
+      />
+      <span class="g-catch"></span>
+      <p>
+        That picture keeps its own proportions, which means its height is not a
+        whole number of baselines. The gap underneath it is measured in the
+        browser and rounded up, because the error does not exist until the image
+        has been laid out at a width nobody chose. This paragraph is back on the
+        rule.
+      </p>
+    </main>
+
+    <div class="g-baseline-rules" id="rules" hidden></div>
+    <button class="rules-toggle" id="toggle" aria-pressed="false">Show baseline</button>
+
+    <script>
+      const rules = document.getElementById('rules')
+      const toggle = document.getElementById('toggle')
+      toggle.addEventListener('click', () => {
+        const on = toggle.getAttribute('aria-pressed') === 'true'
+        rules.hidden = on
+        toggle.setAttribute('aria-pressed', String(!on))
+        toggle.textContent = on ? 'Show baseline' : 'Hide baseline'
+      })
+
+      /*
+       * The free-height correction. It has to run here rather than in the
+       * stylesheet because the error is not known until the image has been laid
+       * out at a width nobody chose: no margin written in CSS can round up a
+       * number that does not exist yet.
+       */
+      const line = parseFloat(getComputedStyle(document.documentElement).fontSize) * 1.5
+      for (const img of document.querySelectorAll('.g-plate--free')) {
+        const fix = () => {
+          const over = img.getBoundingClientRect().height % line
+          const catcher = img.nextElementSibling
+          if (catcher) catcher.style.setProperty('--catch', (over ? line - over : 0) + 'px')
+        }
+        img.complete ? fix() : img.addEventListener('load', fix)
+        addEventListener('resize', fix)
+      }
+
+      /*
+       * A grid does not move, so the take is a scroll down the page and back,
+       * which closes the loop exactly: the frame at 0 and the frame at the end
+       * are the same frame.
+       */
+      const ease = k => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2)
+      let span = Number(new URLSearchParams(location.search).get('span')) || 10
+
+      window.__beamish = {
+        renderAtTime(t) {
+          const reach = Math.max(document.body.scrollHeight - innerHeight, 0)
+          const k = Math.min(Math.max(t / span, 0), 1)
+          const there = k < 0.5 ? ease(k * 2) : ease((1 - k) * 2)
+          scrollTo(0, reach * there)
+        },
+        start() {},
+        stop() {},
+        update(next) {
+          if (next && typeof next.span === 'number') span = next.span
+        },
+        destroy() {}
+      }
+
+      if (!new URLSearchParams(location.search).has('record')) scrollTo(0, 0)
+    </script>
+  </body>
+</html>

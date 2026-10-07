@@ -261,15 +261,15 @@ export async function loadGrids(): Promise<GridItem[]> {
  * it goes wrong. Taken from the recipe rather than written twice, so the page
  * and the prompt cannot drift.
  */
-const GRID_SECTIONS = [
-  'Wiring',
-  'Spans are `grid-column-end`, and that matters',
-  'Measure is not span',
-  'The overlay',
-  'Narrow widths',
-  'Subgrid',
-  'Common mistakes'
-]
+/*
+ * Everything the recipe says except the opening summary, which the
+ * description and the notes already carry.
+ *
+ * A fixed list of headings was worse: a grid whose recipe called a section
+ * something else lost it from the prompt silently, and the only sign was a
+ * prompt that happened to be short.
+ */
+const GRID_SKIP = new Set(['What it is'])
 
 function gridPrompt(item: GridItem, pin: string, inline: boolean, css: string): string {
   const { meta } = item
@@ -343,9 +343,8 @@ ${props}`
   )
 
   let next = 3
-  for (const heading of GRID_SECTIONS) {
-    const body = item.sections.get(heading)
-    if (!body) continue
+  for (const [heading, body] of item.sections) {
+    if (GRID_SKIP.has(heading) || !body.trim()) continue
     parts.push(`## ${next}. ${heading}\n\n${body.trim()}`)
     next += 1
   }

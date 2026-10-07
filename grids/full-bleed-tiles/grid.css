@@ -1,0 +1,122 @@
+/*
+ * FullBleedTiles: Beamish
+ * https://beamish.ink/grids/full-bleed-tiles
+ *
+ * A grid of tiles that runs to the edges of the window, ruled by hairlines, with
+ * no outer margin at all. The kind of front page that is a contents list and a
+ * composition at the same time.
+ *
+ * Three things carry it, and the first is the one everybody gets wrong.
+ *
+ * The rules are the gaps, not borders on the cells. Give every tile a 1px
+ * border and the line between two tiles is 2px while the line at the edge of
+ * the grid is 1px, so the whole thing reads as slightly broken without anyone
+ * being able to say why. A 1px gap with a ground behind it produces exactly one
+ * rule everywhere, because there is only ever one gap between two cells.
+ *
+ * The cells are sized by ratio, not by height. A tile grid whose rows are fixed
+ * pixels needs a breakpoint every time the window changes shape. Giving the
+ * tile an `aspect-ratio` and letting the column count change means the rows
+ * size themselves, and the only thing a breakpoint has to say is how many
+ * columns there are.
+ *
+ * And the outer rule is a decision, not an accident. A grid with no margin has
+ * its outermost cells against the trim, so whether there is a line there at all
+ * is something you choose: `--tiles-frame` draws it, and at 0 the grid bleeds
+ * off the page. Most implementations get whichever one the gap happened to give
+ * them.
+ */
+
+:root {
+  /* How many tiles across. The rows follow from the ratio. */
+  --tiles-columns: 4;
+  /* The hairline. One value: it is a gap, so it cannot be doubled. */
+  --tiles-rule: 1px;
+  --tiles-rule-colour: rgba(54, 54, 48, 0.28);
+  /* The shape of one tile. Rows size themselves from this. */
+  --tiles-ratio: 5 / 4;
+  /* The outer line, if you want one. 0 bleeds off the page. */
+  --tiles-frame: 1px;
+  --tiles-pad: clamp(0.9rem, 2cqw, 1.8rem);
+}
+
+/*
+ * The ground behind the gaps is what you actually see as the rules, so the
+ * element's background is the line colour and the tiles cover everything else.
+ */
+.g-tiles {
+  display: grid;
+  grid-template-columns: repeat(var(--tiles-columns), minmax(0, 1fr));
+  gap: var(--tiles-rule);
+  background: var(--tiles-rule-colour);
+  border: var(--tiles-frame) solid var(--tiles-rule-colour);
+  box-sizing: border-box;
+  width: 100%;
+  /*
+   * Container queries, so a tile's own padding and type can answer to the tile
+   * rather than to the window. The same grid in a sidebar and across a page
+   * then behaves, with no breakpoint knowing where it was put.
+   */
+  container-type: inline-size;
+}
+
+.g-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  aspect-ratio: var(--tiles-ratio);
+  padding: var(--tiles-pad);
+  box-sizing: border-box;
+  background: var(--background-elevated, #faf9f6);
+  color: inherit;
+  text-decoration: none;
+  overflow: hidden;
+}
+
+/*
+ * A tile that holds a picture and nothing else. The image fills it and the
+ * ratio still comes from the grid, so one row cannot be a different height
+ * from the one beside it.
+ */
+.g-tile--plate {
+  padding: 0;
+}
+
+.g-tile--plate > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Spans, as grid-column-end, for the tile that is worth two. */
+.g-tile--wide {
+  grid-column-end: span 2;
+  aspect-ratio: calc(var(--tiles-ratio) * 2);
+}
+
+.g-tile--tall {
+  grid-row-end: span 2;
+  aspect-ratio: calc(var(--tiles-ratio) / 2);
+}
+
+/*
+ * Narrow. The count drops and the tiles get squarer, because a 5:4 tile two
+ * across on a phone is a letterbox with a word in it.
+ */
+@media (max-width: 48rem) {
+  :root {
+    --tiles-columns: 2;
+    --tiles-ratio: 1 / 1;
+  }
+
+  /*
+   * A span of two on a grid of two is the whole row, which is usually what was
+   * meant, but a tall tile next to nothing is not. Both are reset.
+   */
+  .g-tile--tall {
+    grid-row-end: auto;
+    aspect-ratio: var(--tiles-ratio);
+  }
+}

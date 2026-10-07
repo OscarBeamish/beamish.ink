@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FullBleedTiles: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <link rel="stylesheet" href="./grid.css" />
+    <style>
+      html {
+        scroll-behavior: auto;
+      }
+      body {
+        margin: 0;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      .num {
+        font-size: 0.66rem;
+        letter-spacing: 0.16em;
+        color: var(--label-3);
+      }
+      .name {
+        font-family: var(--font-display);
+        font-size: clamp(0.95rem, 2.6cqw, 2.1rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 0.98;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the grid can be opened on its own.
+
+      The photographs load eagerly. The recorder waits for every image to decode
+      before capturing, so a take is deterministic rather than a race, and a
+      lazy image below the fold never starts loading: decode() never settles and
+      the recording hangs with no frames and no error.
+    -->
+    <main id="stage">
+      <div class="g-tiles">
+        <a class="g-tile" href="#letterpress">
+          <span class="num">01</span><span class="name">Letterpress</span>
+        </a>
+        <div class="g-tile g-tile--plate">
+          <img src="../_media/plate-1043.webp" alt="A road running into low cloud" width="1400" height="875" />
+        </div>
+        <a class="g-tile g-tile--wide" href="#lithography">
+          <span class="num">02</span><span class="name">Lithography</span>
+        </a>
+        <div class="g-tile g-tile--plate">
+          <img src="../_media/plate-1015.webp" alt="A river in a wooded valley" width="1400" height="875" />
+        </div>
+        <a class="g-tile" href="#screen-print">
+          <span class="num">03</span><span class="name">Screen print</span>
+        </a>
+        <a class="g-tile" href="#risograph">
+          <span class="num">04</span><span class="name">Risograph</span>
+        </a>
+        <div class="g-tile g-tile--plate">
+          <img src="../_media/plate-1016.webp" alt="Bare trees against a pale sky" width="1400" height="875" />
+        </div>
+        <a class="g-tile g-tile--wide" href="#gravure">
+          <span class="num">05</span><span class="name">Gravure</span>
+        </a>
+        <a class="g-tile" href="#collotype">
+          <span class="num">06</span><span class="name">Collotype</span>
+        </a>
+        <div class="g-tile g-tile--plate">
+          <img src="../_media/plate-1018.webp" alt="Weathered paint and rust" width="1400" height="875" />
+        </div>
+        <a class="g-tile" href="#foil-block">
+          <span class="num">07</span><span class="name">Foil block</span>
+        </a>
+        <div class="g-tile g-tile--plate">
+          <img src="../_media/plate-1039.webp" alt="A wide shoreline under cloud" width="1400" height="875" />
+        </div>
+        <a class="g-tile g-tile--wide" href="#thermography">
+          <span class="num">08</span><span class="name">Thermography</span>
+        </a>
+        <a class="g-tile" href="#duotone">
+          <span class="num">09</span><span class="name">Duotone</span>
+        </a>
+        <div class="g-tile g-tile--plate">
+          <img src="../_media/plate-1024.webp" alt="A pale textured surface" width="1400" height="875" />
+        </div>
+      </div>
+    </main>
+
+    <script>
+      /*
+       * A grid does not move, so there is nothing to animate. What there is to
+       * show is the page, and the only way to read a layout is to go down it.
+       *
+       * So the page answers the same contract every item answers: renderAtTime
+       * is a pure function of t that puts the scroll somewhere. Down over the
+       * first half and back over the second, which closes the loop exactly,
+       * because the frame at 0 and the frame at the end are the same frame.
+       */
+      const ease = k => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2)
+      let span = Number(new URLSearchParams(location.search).get('span')) || 10
+
+      window.__beamish = {
+        renderAtTime(t) {
+          const reach = Math.max(document.body.scrollHeight - innerHeight, 0)
+          const k = Math.min(Math.max(t / span, 0), 1)
+          const there = k < 0.5 ? ease(k * 2) : ease((1 - k) * 2)
+          scrollTo(0, reach * there)
+        },
+        start() {},
+        stop() {},
+        update(next) {
+          if (next && typeof next.span === 'number') span = next.span
+        },
+        destroy() {}
+      }
+
+      if (!new URLSearchParams(location.search).has('record')) scrollTo(0, 0)
+    </script>
+  </body>
+</html>
