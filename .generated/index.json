@@ -6926,6 +6926,146 @@
     "intro": "SplitFlapText is a departure board. Each character is a split-flap cell: a stack\nof hinged leaves, each carrying half a glyph, dropping one at a time until the\nright one is showing.\n\nThe mechanism is the effect, so it is built rather than suggested. Four layers\nper cell:\n\n- the top half of the glyph arriving, sitting still behind everything\n- the bottom half of the glyph leaving, likewise\n- a leaf over the top half, carrying the upper half of the leaving glyph,\n  falling from upright to edge on\n- a leaf over the bottom half, carrying the lower half of the arriving glyph,\n  rising from edge on to upright\n\nTwo things follow from that and neither had to be designed.\n\n**The leaves go through the strip in order.** A cell cannot jump from A to R. It\nhas to pass through everything between, one leaf at a time, which is why a real\nboard lands its letters in the order the alphabet puts them rather than left to\nright, and why a time takes longer to arrive than a word. That is the single\nmost recognisable thing about the object, and it falls straight out of modelling\nthe strip.\n\n**A character that is not on the strip stops at the blank.** A board cannot show\nwhat it does not carry. Inventing a leaf for it would be the one dishonest thing\nin here.\n\nIt is pure in `t`: which leaf a cell is on, and how far through its fall, are\nboth arithmetic on the clock."
   },
   {
+    "name": "SplitFountainText",
+    "slug": "split-fountain-text",
+    "tier": 1,
+    "description": "Two or three inks in the same duct, blended by the rollers, with the gradient belonging to the sheet rather than to the letters",
+    "category": "type",
+    "tags": [
+      "text",
+      "gradient",
+      "letterpress",
+      "riso",
+      "dom",
+      "accessible",
+      "no-dependencies"
+    ],
+    "ground": "paper",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "The gradient belongs to the sheet, not to the letters, and that is what makes it a split fountain rather than gradient text. One pass of ink across the whole forme: a word near the left is in one ink, a word near the right is in another, and the heading between them is caught in the blend",
+        "That falls out of mounting it on the sheet. background-clip on a container clips its background to every piece of text inside, however deeply nested, so one gradient inks a whole page in register. Put the gradient on each element instead and every heading gets the same little rainbow",
+        "It is the only text effect here that does not take the text apart. No spans, no splitting, no hidden label: the text is the text the browser already had, so it selects, wraps, translates, searches and reads exactly as before. Nothing else in this library can say that",
+        "The blend is built from several stops per ink rather than one, so its boundary can be nudged. A duct is filled by hand and the rollers do not mix evenly, so the line where two inks meet is never straight; one stop per ink is a CSS gradient and not a press",
+        "The stops are sorted before they are written. A CSS gradient quietly clamps any stop that falls before the one in front of it, which turns a wobble into a hard edge",
+        "-webkit-text-fill-color is set as well as color. Without it WebKit paints the text in its own colour over the clipped background and the effect does nothing at all",
+        "Pure in t: the whole gradient is arithmetic on the clock and a hash of the seed"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.3,
+      "contexts": 0,
+      "notes": [
+        "One string built and one style written per frame, and only when the string has changed. The cost is the repaint of the text, which is why this wants to be a sheet of headings rather than a page of body copy",
+        "No elements are created and nothing is measured. The DOM is untouched"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/split-fountain-text/core.ts",
+        "to": "src/beamish/effects/split-fountain-text/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/split-fountain-text/adapters/react.tsx",
+        "to": "src/beamish/effects/split-fountain-text/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/split-fountain-text/adapters/vue.ts",
+        "to": "src/beamish/effects/split-fountain-text/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "first": {
+        "type": "color",
+        "default": "#c44400",
+        "description": "The ink at the start of the duct. Split fountains are at their best with inks that make something worth seeing where they meet: two that mix to mud give a sheet with a dead band across the middle."
+      },
+      "second": {
+        "type": "color",
+        "default": "#8a3b6b",
+        "description": "The ink in the middle. Set it to the same value as one of its neighbours and you have a two-ink fountain, which is what most presses actually run."
+      },
+      "third": {
+        "type": "color",
+        "default": "#1b6f8c",
+        "description": "The ink at the far end."
+      },
+      "angle": {
+        "type": "number",
+        "default": 96,
+        "description": "Which way the duct runs across the sheet. A real fountain runs across the press, so the gradient is square to the sheet; a degree or two off square is the honest amount, and it stops the blend lining up with the lines of type.",
+        "min": 0,
+        "max": 360,
+        "step": 1,
+        "unit": "deg"
+      },
+      "blend": {
+        "type": "number",
+        "default": 0.42,
+        "description": "How wide the mixing zone is. Narrow is a press just started, with the inks still separate; wide is one that has been running, with the colours walked well into each other. Both are real points in a run and they look quite different.",
+        "min": 0.02,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.25,
+          0.6
+        ]
+      },
+      "wobble": {
+        "type": "number",
+        "default": 0.35,
+        "description": "How uneven the blend is. At 0 it is a perfectly even ramp, which is to say a CSS gradient. The unevenness is the whole tell that ink was involved.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "walk": {
+        "type": "number",
+        "default": 0.12,
+        "description": "How far the whole fountain walks over one period. On a press the inks creep along the duct as the run goes on, so the boundary moves and never comes back. Here it returns, because a loop has to; keep it small enough that it reads as creep rather than as a sweep.",
+        "min": 0,
+        "max": 0.5,
+        "step": 0.01
+      },
+      "seed": {
+        "type": "number",
+        "default": 7,
+        "description": "Seed for the unevenness. The same seed gives the same sheet, so a recording and a live page match.",
+        "min": 0,
+        "max": 9999,
+        "step": 1
+      },
+      "period": {
+        "type": "number",
+        "default": 30,
+        "description": "Seconds for one cycle of the walk. Long: this is the colour of the page, and the colour of a page should not be something you can watch changing.",
+        "min": 6,
+        "max": 180,
+        "step": 1,
+        "unit": "s"
+      }
+    },
+    "instruction": "the fountain walks on its own",
+    "oneShot": false,
+    "record": {
+      "duration": 30,
+      "fps": 30,
+      "posterAt": 7
+    },
+    "group": "effects",
+    "intro": "SplitFountainText is a split fountain. Two or three inks go into the same duct\non the press, the rollers blend them where they meet, and every sheet comes off\nwith a gradient running across it.\n\nWhat makes it a split fountain rather than gradient text is that **the gradient\nbelongs to the sheet, not to the letters**. One pass of ink across the whole\nforme: a word near the left is in one ink, a word near the right is in another,\nand the heading between them is caught in the blend. A heading that wraps starts\nits second line back in the first ink, because the ink depends on where you are\non the sheet and not where you are in the string.\n\nPut the gradient on each element instead, which is what every version of this\ndoes, and every element gets its own little rainbow, every heading has the same\ncolours in the same places, and the whole point is gone.\n\nThat falls out of **mounting it on the sheet rather than on the text**.\n`background-clip: text` on a container clips its background to every piece of\ntext inside it, however deeply nested, so one gradient inks a whole page in\nregister."
+  },
+  {
     "name": "SpotlightCard",
     "slug": "spotlight-card",
     "tier": 1,

@@ -488,6 +488,41 @@
 }
 
 @layer components {
+  /* The sheet SplitFountainText inks. Everything in here takes its colour from
+     one gradient on the container, which is the whole point of the item. */
+  .demo-fountain {
+    display: grid;
+    align-content: center;
+    gap: 0.7rem;
+    height: 100%;
+    padding: 0 clamp(1rem, 5cqw, 3rem);
+    box-sizing: border-box;
+  }
+
+  .demo-fountain__rule {
+    margin: 0;
+    font-size: clamp(0.6rem, 1.4cqw, 0.8rem);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .demo-fountain h2 {
+    margin: 0;
+    max-width: 19ch;
+    font-size: clamp(1.4rem, 5cqw, 3.2rem);
+    line-height: 0.98;
+  }
+
+  .demo-fountain p:last-child {
+    margin: 0;
+    max-width: 52ch;
+    font-family: var(--font-mono);
+    font-size: clamp(0.7rem, 1.4cqw, 0.9rem);
+    line-height: 1.65;
+  }
+}
+
+@layer components {
   /* The wheels OdometerNumber turns. Tabular figures, because the wheels are
      all one part and a proportional 1 would make a narrow one. */
   .demo-odometer {
