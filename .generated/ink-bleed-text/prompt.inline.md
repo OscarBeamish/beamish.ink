@@ -18,7 +18,7 @@ Assume you have not seen this library before. Everything you need is below.
 - fractalNoise rather than turbulence: turbulence takes the modulus of each octave and leaves hard creases that read as cracks in the letter
 - The filter region is widened to 150%, because displaced pixels outside it are cut off and a heavily bled letter would come back with its edges sliced square
 - Each instance gets its own filter, so two bled headings on a page do not share one
-- A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
+- A DOM element with its content already in it. It animates what it finds rather than drawing anything, so there is no canvas and nothing to size, and destroy() puts the element back as it was.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
 

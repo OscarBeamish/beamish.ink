@@ -16,7 +16,7 @@ Assume you have not seen this library before. Everything you need is below.
 - No canvas and no WebGL. One CSS transform and one radial gradient
 - The easing is a CSS transition rather than a per-frame spring, so nothing integrates and renderAtTime stays pure
 - The sheen uses mix-blend-mode: soft-light, which is unsupported below Safari 15.4 and simply does not paint there
-- A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
+- A DOM element with its content already in it. It animates what it finds rather than drawing anything, so there is no canvas and nothing to size, and destroy() puts the element back as it was.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
 

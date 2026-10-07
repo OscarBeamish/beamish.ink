@@ -16,7 +16,7 @@ Assume you have not seen this library before. Everything you need is below.
 - No canvas and no WebGL. It moves the children already in the element
 - No IntersectionObserver of its own: the runtime already holds the loop until the element is on screen
 - destroy() clears every style it set, leaving the children as they were found
-- A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
+- A DOM element with its content already in it. It animates what it finds rather than drawing anything, so there is no canvas and nothing to size, and destroy() puts the element back as it was.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
 

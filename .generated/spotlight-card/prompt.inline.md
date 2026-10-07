@@ -17,7 +17,7 @@ Assume you have not seen this library before. Everything you need is below.
 - Two layers rather than one: a wide weak sheen across the face, and a hard highlight on whichever edge is turned toward the light. Paper is matte, so it scatters rather than reflecting a bright spot
 - Light and shade together. Lifting the face alone is what the physics says and what nothing in a light room can see, so the far side darkens as the near side brightens. Painted normally rather than screened, because screening cannot darken anything
 - Window pointer scope, so the sheen moves before the cursor reaches the card
-- A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
+- A DOM element with its content already in it. It animates what it finds rather than drawing anything, so there is no canvas and nothing to size, and destroy() puts the element back as it was.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
 

@@ -18,7 +18,7 @@ Assume you have not seen this library before. Everything you need is below.
 - The content is duplicated once so the wrap is seamless, and the clone is aria-hidden with every focusable inside it given tabindex -1. A duplicate of the content is a duplicate to a screen reader too
 - The lean is scroll velocity, normalised and clipped. A trackpad reports an order of magnitude more than a wheel, and without a ceiling the strip lies flat on its side the first time somebody flicks the page
 - One transform on one element per frame, which is a composited property, so this does no layout work at all
-- A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
+- A DOM element with its content already in it. It animates what it finds rather than drawing anything, so there is no canvas and nothing to size, and destroy() puts the element back as it was.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
 

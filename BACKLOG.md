@@ -38,7 +38,7 @@ Status: `done` items exist. Everything else is unbuilt.
 
 ---
 
-## Type (32 candidates, 2 built)
+## Type (32 candidates, 5 built)
 
 Text treatments. Tier 1 where the effect takes an element containing text, which
 keeps them framework-free and recordable. Tier 2 only where they need state.
@@ -54,7 +54,7 @@ keeps them framework-free and recordable. Tier 2 only where they need state.
 | Fountain | Gradient Text | 2 | Split-fountain inking rather than an animated rainbow |
 | Gloss | Shiny Text | 2 | Sheen sweep. Restrained: theirs reads as a discount code |
 | Slug | Text Type | 2 | Typewriter. A slug is a cast line of type |
-| Cipher | Decrypted Text, Scrambled Text | 2 | Two of theirs collapse into one |
+| Cipher | Decrypted Text, Scrambled Text | 2 | **done**. Both of theirs are the same effect with a different trigger. Pure in `t`, on a cadence of its own rather than the frame rate, and with each character held in a box the width of the letter it will become so the line does not move while it runs |
 | Pied | Falling Text | 2 | Pied type is spilled type. Needs no physics library |
 | Flap | Split Flap Text | 2 | Departure board |
 | Emboss | Depth Text | 2 | Recast: pressed into paper, not extruded in 3D |
@@ -63,7 +63,7 @@ keeps them framework-free and recordable. Tier 2 only where they need state.
 | Roundel | Circular Text | 2 | |
 | Caret | Text Cursor | 3 | |
 | Rota | Text Loop, Rotating Text | 3 | Two of theirs, one of ours |
-| Shuffle | Shuffle | 3 | Close to Cipher. Build only if it reads differently |
+| Shuffle | Shuffle | 3 | **skip**. Cipher with `order: random` is this, and a second name for a setting is not an item |
 | HalftoneMagnifier | True Focus | 3 | **covered** by the Codrops HalftoneMagnifier |
 | Riser | Scroll Reveal, Scroll Float | 3 | Belongs in Reveals, not here |
 | Skew | Scroll Velocity | 3 | |
