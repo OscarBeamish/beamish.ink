@@ -34,7 +34,8 @@
     "contexts": 1,
     "notes": [
       "Two rotations, two fract calls and two smoothsteps per pixel, plus the derivative fwidth needs. No textures, no noise and no render targets",
-      "The derivative is the only unusual cost and it is a hardware instruction. It is also not optional: without it the screens alias and the effect is measuring the monitor"
+      "The derivative is the only unusual cost and it is a hardware instruction. It is also not optional: without it the screens alias and the effect is measuring the monitor",
+      "Recorded at 15fps with a high crf, the way the halftone items are. A full-frame dot screen is nearly all high-frequency detail and every dot edge moves as the screens drift, so there is nothing for a codec to predict: at 30fps and crf 26 the take came out at 18.5MB against a 3.5MB budget, which in a repo where every media file is committed forever is not a trade worth making"
     ]
   },
   "files": [
@@ -168,8 +169,9 @@
   "oneShot": false,
   "record": {
     "duration": 40,
-    "fps": 30,
+    "fps": 15,
     "posterAt": 10,
-    "crf": 26
+    "crf": 36,
+    "webmCrf": 50
   }
 }

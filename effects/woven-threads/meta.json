@@ -35,7 +35,8 @@
     "contexts": 1,
     "notes": [
       "Four evaluations of a two-term wave, for the two threads and their index corrections, plus two square roots for the profiles. No textures, no noise and no render targets",
-      "The index correction is a branch rather than a loop, and it runs at most once per axis because the wander is bounded below half a pitch"
+      "The index correction is a branch rather than a loop, and it runs at most once per axis because the wander is bounded below half a pitch",
+      "Recorded at 15fps with a raised crf. A fine weave is high-frequency detail across the whole frame, and at 30fps the take was 5.6MB against a 3.5MB budget"
     ]
   },
   "files": [
@@ -159,8 +160,9 @@
   "oneShot": false,
   "record": {
     "duration": 36,
-    "fps": 30,
+    "fps": 15,
     "posterAt": 9,
-    "crf": 26
+    "crf": 32,
+    "webmCrf": 46
   }
 }
