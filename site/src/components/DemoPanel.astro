@@ -89,7 +89,17 @@ const inUse = tier === 1 && category === 'backdrops'
  * other panel is elevated, since a shader covers it completely and only the
  * edge of it is ever seen.
  */
-const ON_PAPER = new Set(['tilt-card', 'spotlight-card'])
+const ON_PAPER = new Set([
+  'tilt-card',
+  'spotlight-card',
+  /*
+   * EmbossedText is here for a different reason from the cards: a blind emboss
+   * paints the letter face the paper colour, so the panel behind it has to be
+   * the same paper the item defaults to or the heading reads as a block of
+   * slightly wrong white.
+   */
+  'embossed-text'
+])
 
 const tweakable = tier === 1 ? Object.entries(options) : []
 ---
@@ -253,6 +263,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'decode-text': () => import('@items/effects/decode-text/core'),
     'split-flap-text': () => import('@items/effects/split-flap-text/core'),
     'typewriter-text': () => import('@items/effects/typewriter-text/core'),
+    'embossed-text': () => import('@items/effects/embossed-text/core'),
     'scroll-reveal-rows': () => import('@items/effects/scroll-reveal-rows/core'),
     'tilt-card': () => import('@items/effects/tilt-card/core'),
     'pointer-ripple-grid': () => import('@items/effects/pointer-ripple-grid/core'),
@@ -350,6 +361,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     /* A sentence with punctuation in it, because the breath at a full stop is
        half of what this item is. */
     'typewriter-text': `<p class="demo-typed">Dear Sir, I write about the matter of the press.</p>`,
+    'embossed-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     'misprint-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     'ink-bleed-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     /*

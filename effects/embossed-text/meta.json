@@ -1,0 +1,171 @@
+{
+  "name": "EmbossedText",
+  "slug": "embossed-text",
+  "tier": 1,
+  "description": "Type pressed into paper rather than extruded off it, with the impression biting unevenly across the line",
+  "category": "type",
+  "ground": "paper",
+  "tags": [
+    "text",
+    "reveal",
+    "letterpress",
+    "emboss",
+    "dom",
+    "accessible",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "No canvas and no WebGL. Two text shadows and a colour per character, and getting those right is the whole job",
+      "It presses in rather than standing out. The effect this is a recast of extrudes letters towards the viewer with a stack of shadows going down and to the right, which is a sign or a plastic badge. Letterpress leaves the type below the surface: the paper is deformed and what you read is light on the walls of the impression",
+      "The dark edge goes on the side the light comes from, because that wall of the impression is turned away from it, and the light edge goes opposite. Reversed, the letter stands up off the page, and that is the most common way this gets written",
+      "The impression is uneven across the line. Getting a forme to print evenly is a job with a name, makeready, and before it is done some letters bite harder than others. That unevenness is the difference between a press and a filter",
+      "Ink is optional, and a blind emboss with none at all is the best thing here: the letter face is the same paper as the page and the impression is the only thing to read. It needs the `paper` option to match the actual page colour, because the letter face really is painted that colour",
+      "The whole line presses at once, because a platen is one surface coming down. The variation is in how hard each letter bites, not in when",
+      "The press overshoots and settles, since paper is compressed past where it ends up and pushes some of it back. The curve is divided by its own value at 1 so it finishes at exactly 1 whatever the spring is: without that the last frame of a recording does not match the resting state",
+      "Depth and softness are in ems, so an impression looks the same at every size",
+      "destroy() puts the original text back, leaving the element as it was found"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.4,
+    "contexts": 0,
+    "notes": [
+      "Two shadows per character, written only when they change. Text shadows are painted rather than composited, so a very long string at a very large size is the case to watch: this is for a heading",
+      "No transforms, no filters and no layers. The characters never move, which is what makes it cheap: only their shadows change"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/embossed-text/core.ts",
+      "to": "src/beamish/effects/embossed-text/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/embossed-text/adapters/react.tsx",
+      "to": "src/beamish/effects/embossed-text/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/embossed-text/adapters/vue.ts",
+      "to": "src/beamish/effects/embossed-text/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "paper": {
+      "type": "color",
+      "default": "#fbfaf4",
+      "description": "The sheet. This is not decoration: with no ink the letter face is painted this colour, so it has to match the page the text is actually sitting on, or the heading appears as a block of slightly wrong white and looks like a bug rather than a setting. The default is the house paper. If the page behind the text is a gradient or an image, a blind emboss cannot work at all: put ink on the type instead."
+    },
+    "ink": {
+      "type": "color",
+      "default": "#2b2b24",
+      "description": "The ink on the type, for when there is any. Letterpress ink sits in the bottom of the impression and reads darker than the same colour printed flat, so a softer black than you would normally pick is usually right."
+    },
+    "transfer": {
+      "type": "number",
+      "default": 0,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How much ink transferred. 0 is a blind emboss, with no ink at all, and it is the setting worth trying first: it is the one thing this does that nothing else in the library does. Anything between is a light pull, which is a real thing and reads as one."
+    },
+    "depth": {
+      "type": "number",
+      "default": 0.045,
+      "min": 0,
+      "max": 0.2,
+      "step": 0.005,
+      "unit": "em",
+      "sensible": [
+        0.03,
+        0.08
+      ],
+      "description": "How deep the impression is, in ems, so it holds at any size. Small. A heavy impression is fashionable and it is also what a printer means by punching through the sheet; past about 0.1 this stops being a press and starts being a stamp."
+    },
+    "light": {
+      "type": "number",
+      "default": 125,
+      "min": 0,
+      "max": 360,
+      "step": 1,
+      "unit": "deg",
+      "description": "Where the light comes from, with 0 to the right. Up and to the left is what nearly every photograph of printed matter uses, and it is what the eye reads as recessed rather than raised. Turn it 180 degrees and the same shadows read as embossing instead."
+    },
+    "softness": {
+      "type": "number",
+      "default": 0.012,
+      "min": 0,
+      "max": 0.1,
+      "step": 0.002,
+      "unit": "em",
+      "description": "How soft the walls of the impression are. At 0 the edges are hard, which is a die cut rather than a press: paper compresses, so the wall of a real impression is a curve."
+    },
+    "press": {
+      "type": "number",
+      "default": 620,
+      "min": 60,
+      "max": 3000,
+      "step": 10,
+      "unit": "ms",
+      "description": "Milliseconds for the platen to come down. A press is quick and heavy. Slow it far past a second and it reads as the letters fading in, which is the thing this is trying not to be."
+    },
+    "hold": {
+      "type": "number",
+      "default": 240,
+      "min": 0,
+      "max": 4000,
+      "step": 10,
+      "unit": "ms",
+      "description": "Milliseconds before the press comes down. Also how you stagger two of these on one page."
+    },
+    "spring": {
+      "type": "number",
+      "default": 0.35,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How much the paper pushes back. Paper is not clay: it compresses past where it ends up and returns some of that. At 0 the press arrives and stops, which reads as a fade rather than as a strike."
+    },
+    "makeready": {
+      "type": "number",
+      "default": 0.45,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How uneven the impression is across the line. At 0 every letter bites identically, which is a forme that has been made ready properly and, on a screen, is indistinguishable from a CSS filter. The unevenness is the whole tell that something was pressed."
+    },
+    "seed": {
+      "type": "number",
+      "default": 7,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "description": "Seed for the unevenness. The same seed always gives the same forme, so a recorded video and a live page match letter for letter."
+    },
+    "reducedMotionTime": {
+      "type": "number",
+      "default": 999,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "unit": "s",
+      "description": "The single frame shown when the user prefers reduced motion. For a one-shot press this should be a time after it has finished, so the text appears already pressed. That still frame is the whole effect with its one moving part stopped, which costs the viewer nothing here."
+    }
+  },
+  "instruction": "press replay to pull it again",
+  "oneShot": true,
+  "record": {
+    "duration": 3,
+    "fps": 30,
+    "posterAt": 2.2
+  }
+}
