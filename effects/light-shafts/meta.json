@@ -1,0 +1,196 @@
+{
+  "name": "LightShafts",
+  "slug": "light-shafts",
+  "tier": 1,
+  "description": "Light coming through something and falling across the frame in bands, with the shadow edges going soft as they travel",
+  "category": "backdrops",
+  "ground": "either",
+  "tags": [
+    "webgl",
+    "shader",
+    "backdrop",
+    "light",
+    "rays",
+    "shadow",
+    "ambient",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "The whole image comes from one quantity, the angle from the source to the pixel, read against a repeating profile of bars and gaps. That is why the beams fan out from the source rather than running down the frame in parallel, and why pushing the source away straightens them on its own: distance is what turns a fan into parallel lines, and the sun is the limiting case",
+      "The shadow edges soften with distance travelled. A shadow is sharp only near the thing that cast it, because the source has width and the half-shadow it throws grows as the shadow runs. One multiplication, and it is the whole difference between a beam of light and a pale triangle",
+      "The motes are drawn only inside the beams. Light in clean air is invisible from the side, so the dust is not decoration over the shafts, it is the reason there is anything to see. They drift across the beams rather than along them, because dust in a room is moved by the air and not by the light",
+      "The bar pitch is scaled by the distance of the source, so moving the light out to straighten the beams does not also squeeze them into a sliver",
+      "There is an ambient term as well as the beams. Without it the unlit bands are flat and the frame reads as two colours rather than as one room",
+      "Declared as working on either ground. The default is sun across a pale wall; the same effect with a dark ground is a projector beam, and the dust matters more there",
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes",
+      "Measured at 0.086 mean absolute change per frame on a 0 to 255 scale, which is in line with MeshGradient at 0.091 and PrismSpectrum at 0.080. Nearly all of it is the band edges sweeping rather than the motes: the motes were the obvious suspect and changing them moved the number by 0.0004"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.2,
+    "contexts": 1,
+    "notes": [
+      "One atan, one exp and two evaluations of value noise per pixel, for the motes. No textures, no render targets and no shadow map: the occluder is a function rather than geometry, which is the whole reason this is cheap",
+      "Timed with a readPixels after each draw so the number includes the GPU. At 640 by 360 it came to 0.72ms against 0.88 for MeshGradient and 1.01 for PrismSpectrum measured the same way"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/light-shafts/core.ts",
+      "to": "src/beamish/effects/light-shafts/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/light-shafts/adapters/react.tsx",
+      "to": "src/beamish/effects/light-shafts/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/light-shafts/adapters/vue.ts",
+      "to": "src/beamish/effects/light-shafts/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "ground": {
+      "type": "color",
+      "default": "#e7e2d6",
+      "description": "The surface the light falls on, which is that surface in shadow: the lit bands are added on top of it, so it has to sit below them with room to spare. A ground as pale as the light clips to white across the whole frame, which is the first thing that went wrong here. Set it near black and the same effect is a projector beam in a dark room."
+    },
+    "light": {
+      "type": "color",
+      "default": "#fff6e2",
+      "description": "The light itself, added to the ground rather than mixed with it, because light is additive and a shaft that darkens what it crosses is a shaft of paint. Warm, because daylight through a window is warm and a neutral white beam reads as a lightbox."
+    },
+    "angle": {
+      "type": "number",
+      "default": 128,
+      "min": 0,
+      "max": 360,
+      "step": 1,
+      "unit": "deg",
+      "description": "Where the source sits, in degrees around the frame, with 0 to the right. Above and to one side is the one that reads as a window; straight on reads as a torch pointed at the viewer."
+    },
+    "distance": {
+      "type": "number",
+      "default": 1.6,
+      "min": 0.2,
+      "max": 8,
+      "step": 0.05,
+      "sensible": [
+        1,
+        3
+      ],
+      "description": "How far off frame the source is, in frame widths. Near is a lamp and the beams fan hard; far is the sun and they run very nearly parallel. There is no separate setting for parallel beams, because this is what parallel beams are."
+    },
+    "bars": {
+      "type": "number",
+      "default": 7,
+      "min": 1,
+      "max": 40,
+      "step": 1,
+      "sensible": [
+        4,
+        12
+      ],
+      "description": "How many bars the light comes through. A few wide ones read as glazing bars or a door ajar; a great many read as a blind, and past about twenty the frame is a texture rather than a room."
+    },
+    "gap": {
+      "type": "number",
+      "default": 0.44,
+      "min": 0.02,
+      "max": 0.98,
+      "step": 0.01,
+      "description": "The share of each repeat that is open. Think of it as the tilt of a blind: at 0.9 the slats are nearly edge on and the room is bright, at 0.1 they are nearly shut."
+    },
+    "softness": {
+      "type": "number",
+      "default": 0.06,
+      "min": 0,
+      "max": 0.5,
+      "step": 0.005,
+      "description": "How soft a shadow edge is where it leaves the bar. This is the near edge only. At 0 the beam starts with a razor edge, which is what a point source does and no real source is."
+    },
+    "spread": {
+      "type": "number",
+      "default": 1.5,
+      "min": 0,
+      "max": 6,
+      "step": 0.05,
+      "sensible": [
+        0.8,
+        3
+      ],
+      "description": "How much softer that edge gets with the distance the shadow has travelled. The detail that makes the light read as light. At 0 the beams are triangles with parallel sides, which is every other version of this effect."
+    },
+    "reach": {
+      "type": "number",
+      "default": 2.1,
+      "min": 0.2,
+      "max": 10,
+      "step": 0.1,
+      "description": "How far the light gets across the frame, in frame widths, falling off as it goes. Short is a small window in a large room; long floods the frame and leaves nothing for the beams to be brighter than."
+    },
+    "strength": {
+      "type": "number",
+      "default": 0.26,
+      "min": 0,
+      "max": 2,
+      "step": 0.01,
+      "description": "Brightness of the light, added to the ground rather than mixed into it. On a pale ground this clips long before it reaches 2, and a quarter is already a bright day: the numbers here are small because the ground is most of the way up the scale before any light arrives."
+    },
+    "dust": {
+      "type": "number",
+      "default": 0.7,
+      "min": 0,
+      "max": 2,
+      "step": 0.01,
+      "description": "Motes in the air. At 0 the beams are clean bands, which is what light in a vacuum would look like if you could see it, which you could not."
+    },
+    "drift": {
+      "type": "number",
+      "default": 4,
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "deg",
+      "sensible": [
+        3,
+        15
+      ],
+      "description": "Degrees the source swings over one period. Small. The sun moves through about fifteen degrees in an hour, and anything much faster reads as somebody carrying a lamp past the window. It is also the one setting that drives the cost of the animation: a band edge is the highest-contrast thing in the frame, so swinging the light moves a great many pixels. Measured, dropping this from 7 to 4 took the change per frame from 0.151 to 0.086.",
+      "good": {
+        "min": 2,
+        "max": 20
+      }
+    },
+    "period": {
+      "type": "number",
+      "default": 42,
+      "min": 12,
+      "max": 180,
+      "step": 1,
+      "unit": "s",
+      "description": "Seconds for one swing and back. Long, because this sits behind something else and a backdrop has to survive being ignored.",
+      "good": {
+        "min": 36,
+        "max": 120
+      }
+    }
+  },
+  "instruction": "the light swings on its own",
+  "oneShot": false,
+  "record": {
+    "duration": 42,
+    "fps": 30,
+    "posterAt": 10
+  }
+}
