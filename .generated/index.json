@@ -5268,6 +5268,162 @@
     "intro": "A photograph on a sheet drawn through its own frame by the scroll.\n\nOne arc across the width. The sides hold back, the middle goes the way the page\nis going, and it comes level the moment the scroll stops. Scroll down, the page\ntravels up past you and the middle leads it up; scroll back and the curve turns\nover. At rest there is no effect at all, which is the point: a reader who has\nstopped scrolling is looking at a photograph rather than at a filter.\n\n**The shape is the whole thing**, and it is worth saying what it is, because\nthere are two curves you could draw here and only one of them is a sheet.\n\n```glsl\nuv.y += velocity * bend * sin(uv.x * PI);\n```\n\nHalf a period of a sine: zero at both sides, one in the middle, one smooth curve\nwith nothing in it to catch the eye.\n\n**The sign is not a detail.** Both of them give you the same arc and they are\ndifferent effects. This one sends the middle the way the page is going, so the\nsheet reads as being drawn through its frame while the sides hold back. Subtract\ninstead and the middle lags: the sheet sags, and it reads as weight rather than\nas travel, which looks tired rather than pulled. Try both on your own picture\nbefore you settle, and if it looks wrong rather than weak, this is the line to\nchange.\n\nThe sign follows the scroll rather than being fixed, so the curve turns over\nwhen you scroll back up. A sheet that bent the same way whichever way you went\nis a sheet nothing is pulling.\n\nThe other *curve* is the distance from the centre, squared, which is what this\neffect used to do. It pins the middle and throws the sides about, and reads as\nthe frame wobbling rather than the picture moving. It also used to bend both\naxes at once. A sideways bend has no edge to run along, so all it does is muddle\nthe shape, and taking it out is most of what makes the arc read.\n\nThe edges deform with the picture. The sheet is a rectangle inset from the\nframe, the drag carries its boundary and its contents together, and whatever\nfalls outside is paper, so the edges curve rather than staying square. There is\nno geometry here beyond one triangle: the shape of the sheet is a by-product of\nthe sampling rather than a mesh.\n\nOne WebGL2 fragment shader. No three.js, no dependency, no render targets."
   },
   {
+    "name": "SplitFlapText",
+    "slug": "split-flap-text",
+    "tier": 1,
+    "description": "A departure board, built as hinged leaves that have to pass through the strip to reach their letter",
+    "category": "type",
+    "tags": [
+      "text",
+      "reveal",
+      "board",
+      "mechanical",
+      "dom",
+      "accessible",
+      "no-dependencies"
+    ],
+    "ground": "paper",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "No canvas and no WebGL. Each character becomes four layers: the top half of the glyph arriving and the bottom half of the one leaving, both still, and two leaves over them that fall and rise",
+        "The leaves go through the strip in order. A cell cannot jump from A to R, it has to pass through everything between, which is why a real board lands its letters in the order the alphabet puts them rather than left to right. Nothing about that was designed: it falls out of modelling the strip, and it is the most recognisable thing about the object",
+        "A character that is not on the strip stops at position 0, the blank. A board cannot show what it does not carry, and inventing a leaf for it would be the one dishonest thing in here",
+        "Every cell is the width of the widest glyph on the strip, measured once in the real face. The flaps on a board are all the same size because they are the same part, and a board whose cells breathe is not a board",
+        "A falling leaf darkens as it turns away from the light. It is the only shading in the effect and it is doing a lot: without it the two leaves are flat shapes sliding over each other and the cell reads as a wipe",
+        "Pure in t. Which leaf a cell is on and how far through its fall are both arithmetic on the clock, so the recorder can seek it and a dropped frame costs nothing",
+        "The original string stays in the accessibility tree as one label. A board read leaf by leaf is a stream of nonsense",
+        "destroy() puts the original text back, leaving the element as it was found"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.8,
+      "contexts": 0,
+      "notes": [
+        "Four layers of DOM per character, two of them transformed every frame. That is the cost of building the mechanism rather than suggesting it, and it is the reason this is for a board and not for a paragraph: keep it under about forty characters",
+        "Both moving leaves are composited transforms and a filter. The text of a leaf is only written when it changes, which is once per flap rather than once per frame"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/split-flap-text/core.ts",
+        "to": "src/beamish/effects/split-flap-text/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/split-flap-text/adapters/react.tsx",
+        "to": "src/beamish/effects/split-flap-text/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/split-flap-text/adapters/vue.ts",
+        "to": "src/beamish/effects/split-flap-text/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "strip": {
+        "type": "string",
+        "default": " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,:-",
+        "description": "The leaves, in the order they are stacked. Position 0 is what a cell shows at rest, and a blank there is why a board starts empty. The order is the mechanism: a cell has to pass through every leaf between where it is and where it is going, so putting the digits after the letters is what makes a time take longer to land than a word."
+      },
+      "flap": {
+        "type": "number",
+        "default": 52,
+        "description": "Milliseconds for one leaf to fall. This multiplies: a cell showing Z has to drop twenty six leaves to get there, so 52ms is already more than a second of travel for the back half of the alphabet. That is what a board does, and it is why they are satisfying.",
+        "min": 10,
+        "max": 300,
+        "step": 1,
+        "unit": "ms",
+        "sensible": [
+          35,
+          80
+        ]
+      },
+      "stagger": {
+        "type": "number",
+        "default": 110,
+        "description": "Milliseconds between one cell starting and the next. At 0 the whole board starts together, which is what a board does when the schedule changes, and the letters still land in alphabetical order because the strip decides that, not this.",
+        "min": 0,
+        "max": 500,
+        "step": 5,
+        "unit": "ms"
+      },
+      "hold": {
+        "type": "number",
+        "default": 240,
+        "description": "Milliseconds before the first cell starts. A board sits blank for a moment before it runs, and that moment is what tells you it is a board rather than a label that happens to be animating.",
+        "min": 0,
+        "max": 3000,
+        "step": 10,
+        "unit": "ms"
+      },
+      "face": {
+        "type": "color",
+        "default": "#26261f",
+        "description": "The face of a leaf. Dark, because that is what they are: these are painted metal or plastic tiles, and a pale one reads as a card being turned rather than a flap falling."
+      },
+      "ink": {
+        "type": "color",
+        "default": "#f7f5ed",
+        "description": "The type printed on the leaf. Off white rather than white, which is both what the real thing looks like after a few years and what keeps it from glaring out of a paper page."
+      },
+      "seam": {
+        "type": "number",
+        "default": 0.45,
+        "description": "How dark the line across the middle of a cell is. It is drawn as a line rather than a gap, because on a board it is two leaves meeting and not a space between them. At 0 the cell reads as one tile and the mechanism disappears.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "depth": {
+        "type": "number",
+        "default": 180,
+        "description": "Perspective applied to the fall. At 0 it is a flat fold, which looks like a sheet of paper creasing; low numbers are a strong perspective and read as a leaf that has thickness. Too low and the leaf swings past the front of the cell.",
+        "min": 0,
+        "max": 1200,
+        "step": 10,
+        "unit": "px",
+        "sensible": [
+          120,
+          400
+        ]
+      },
+      "shade": {
+        "type": "number",
+        "default": 0.55,
+        "description": "How much a falling leaf darkens as it turns away from the light. At 0 the two leaves are flat shapes sliding over each other and the cell reads as a wipe rather than as something hinged.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "reducedMotionTime": {
+        "type": "number",
+        "default": 999,
+        "description": "The single frame shown when the user prefers reduced motion. For a one-shot reveal this should be a time after the board has finished, so the text simply appears, set in its cells and still.",
+        "min": 0,
+        "max": 9999,
+        "step": 1,
+        "unit": "s"
+      }
+    },
+    "instruction": "press replay to set it again",
+    "oneShot": true,
+    "record": {
+      "duration": 7,
+      "fps": 30,
+      "posterAt": 2.2
+    },
+    "group": "effects",
+    "intro": "SplitFlapText is a departure board. Each character is a split-flap cell: a stack\nof hinged leaves, each carrying half a glyph, dropping one at a time until the\nright one is showing.\n\nThe mechanism is the effect, so it is built rather than suggested. Four layers\nper cell:\n\n- the top half of the glyph arriving, sitting still behind everything\n- the bottom half of the glyph leaving, likewise\n- a leaf over the top half, carrying the upper half of the leaving glyph,\n  falling from upright to edge on\n- a leaf over the bottom half, carrying the lower half of the arriving glyph,\n  rising from edge on to upright\n\nTwo things follow from that and neither had to be designed.\n\n**The leaves go through the strip in order.** A cell cannot jump from A to R. It\nhas to pass through everything between, one leaf at a time, which is why a real\nboard lands its letters in the order the alphabet puts them rather than left to\nright, and why a time takes longer to arrive than a word. That is the single\nmost recognisable thing about the object, and it falls straight out of modelling\nthe strip.\n\n**A character that is not on the strip stops at the blank.** A board cannot show\nwhat it does not carry. Inventing a leaf for it would be the one dishonest thing\nin here.\n\nIt is pure in `t`: which leaf a cell is on, and how far through its fall, are\nboth arithmetic on the clock."
+  },
+  {
     "name": "SpotlightCard",
     "slug": "spotlight-card",
     "tier": 1,
