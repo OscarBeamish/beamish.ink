@@ -250,7 +250,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'cast-shadow-scene': () => import('@items/effects/cast-shadow-scene/core'),
     'pointer-foil-sheen': () => import('@items/effects/pointer-foil-sheen/core'),
     'scramble-text': () => import('@items/effects/scramble-text/core'),
-    cipher: () => import('@items/effects/cipher/core'),
+    'decode-text': () => import('@items/effects/decode-text/core'),
     'scroll-reveal-rows': () => import('@items/effects/scroll-reveal-rows/core'),
     'tilt-card': () => import('@items/effects/tilt-card/core'),
     'pointer-ripple-grid': () => import('@items/effects/pointer-ripple-grid/core'),
@@ -259,6 +259,8 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'terrain-relief': () => import('@items/effects/terrain-relief/core'),
     'guilloche-lines': () => import('@items/effects/guilloche-lines/core'),
     'mesh-gradient': () => import('@items/effects/mesh-gradient/core'),
+    'light-shafts': () => import('@items/effects/light-shafts/core'),
+    tooth: () => import('@items/effects/paper-grain/core'),
     'scroll-marquee': () => import('@items/effects/scroll-marquee/core'),
     'aurora-curtain': () => import('@items/effects/aurora-curtain/core'),
     'prism-spectrum': () => import('@items/effects/prism-spectrum/core'),
@@ -340,7 +342,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       <span>Available for work</span>
     </div>`,
     'scramble-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
-    cipher: `<h1 class="demo-heading">${HEADLINE}</h1>`,
+    'decode-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     'misprint-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     'ink-bleed-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     /*
