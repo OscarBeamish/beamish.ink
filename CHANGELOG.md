@@ -9,6 +9,55 @@ Published tags are never deleted or moved.
 
 ### Added
 
+Ten more, and the same approach: each entry says what the usual implementation
+gets wrong, because that is the part worth paying for.
+
+- VariableWeightText (pointer): type that puts on weight under the cursor on a
+  line that does not move. A weight axis changes the advance width of every
+  glyph it touches, so a weighted line reflows as the cursor crosses it, which
+  is why every other version of this appears on a single centred word. Each
+  character is boxed at its heaviest: measured, the demo paragraph's last
+  character sits at the same position to the hundredth of a pixel before and
+  after a full sweep.
+
+- MoireScreens (backdrops): two halftone screens at a small angle, with nothing
+  in the shader drawing a fringe. The anti-aliasing is load-bearing rather than
+  polish: an aliased screen beats with the pixel grid, so the fringes would be
+  the screens interfering with your monitor.
+
+- RegistrationMarks (backdrops): the marks outside the trim with the plates
+  drifting. Quietest backdrop here after PaperGrain at 0.023 change per frame,
+  and the middle of the frame is bare paper.
+
+- WovenThreads (backdrops): cloth, where the interlacing is one comparison per
+  crossing. Two sets of lines crossing is a grid; changing that comparison from
+  alternating to shifting turns plain weave into twill.
+
+- DustMotes (backdrops): dust on a dark ground, as a lattice rather than a
+  particle array, so it can be seeked and the count is free. Most of it out of
+  focus, and blurred also means fainter, which is what a lens does.
+
+- OdometerNumber (type): a number on wheels where a wheel turns only while the
+  one below it goes from nine round to nought. A straight gear train never shows
+  clean figures except at exact multiples, which is why a gas meter is read to
+  the last settled digit.
+
+- SplitFountainText (type): two inks in one duct, with the gradient belonging to
+  the sheet rather than the letters. One of only two items here that never takes
+  the text apart.
+
+- StrokeText (type): hollow letters filling with ink, with the stroke outside
+  the letterform. A centred stroke eats the counters at exactly the widths where
+  an outline is worth having.
+
+- MaskedHeading (reveals): a heading uncovered by a sheet with a torn edge. A
+  straight-edged mask is a wipe, and the tear is built once and kept, because a
+  torn edge does not re-tear itself.
+
+- CardStack (surfaces): a pile being leafed through, where the card changes its
+  stacking order only at the far point of its travel. Every other version fades
+  the card out to hide a switch it could have made somewhere invisible.
+
 Ten items, built in one run. Each is the smallest honest version of a thing
 other libraries ship as several, and the entries say what the usual
 implementation gets wrong, because that is the part worth paying for.
@@ -72,6 +121,21 @@ implementation gets wrong, because that is the part worth paying for.
   rather than only on short monospace labels.
 
 ### Changed
+
+- GlowButton is now SheenButton. It is a sheen: one band of light crossing the
+  face. Underneath it was worse, since the exported component, its props and
+  every custom property were named Ember, the backlog metaphor, in the public
+  API. The effect is unchanged.
+
+- The site's own buttons no longer sweep. A band of light crossing every Get
+  prompt is a lot of movement for something pressed once, so they keep the
+  colour shift and nothing else. The sheen is turned off site-wide and back on
+  inside a demo panel, which is the one place the item has to demonstrate
+  itself.
+
+- The sample hero over a backdrop is off by default. A backdrop should be seen
+  as a backdrop first; whether text survives on it is a second question, and the
+  control was already there to ask it.
 
 - Item names are literal, and the contract says so now. Cipher became
   DecodeText: it came from the Beamish column of BACKLOG.md, which is full of

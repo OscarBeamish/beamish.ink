@@ -48,7 +48,7 @@ Status: `done` items exist. Everything else is unbuilt.
 
 ---
 
-## Type (32 candidates, 9 built)
+## Type (32 candidates, 12 built)
 
 Text treatments. Tier 1 where the effect takes an element containing text, which
 keeps them framework-free and recordable. Tier 2 only where they need state.
@@ -59,17 +59,17 @@ keeps them framework-free and recordable. Tier 2 only where they need state.
 | Focus | Blur Text | 1 | **covered**. ScrambleText already has a `blur` option that resolves to sharp. Building this would be a second name for an option that exists |
 | InkBleedText | Fuzzy Text | 1 | **done**. An SVG displacement filter, so the edge grows teeth rather than blurring. A blur is a lens out of focus, not ink spreading |
 | MisprintText | Glitch Text | 1 | **done**. A plate out of register, multiplied, so the overlap darkens. A channel split brightens, which is light rather than ink |
-| Impression | Text Pressure, Variable Proximity | 1 | Variable font weight under the cursor. Two of theirs, one of ours |
+| Impression | Text Pressure, Variable Proximity | 1 | **done**. Shipped as VariableWeightText. The line does not move, which is the whole item: a weight axis changes the advance width of every glyph, so each character is boxed at its heaviest. That is why every other version of this appears on one centred word |
 | Tally | Count Up | 1 | **done** |
-| Fountain | Gradient Text | 2 | Split-fountain inking rather than an animated rainbow |
+| Fountain | Gradient Text | 2 | **done**. Shipped as SplitFountainText. The gradient belongs to the sheet rather than the letters, which falls out of mounting it on the container. One of only two items here that never takes the text apart |
 | Gloss | Shiny Text | 2 | Sheen sweep. Restrained: theirs reads as a discount code |
 | Slug | Text Type | 2 | **done**. Shipped as TypewriterText. An uneven hand, a breath at the punctuation, and every letter struck off the baseline and off square |
 | DecodeText | Decrypted Text, Scrambled Text | 2 | **done**. Both of theirs are the same effect with a different trigger. Pure in `t`, on a cadence of its own rather than the frame rate, and with each character held in a box the width of the letter it will become so the line does not move while it runs |
 | Pied | Falling Text | 2 | Pied type is spilled type. Needs no physics library |
 | Flap | Split Flap Text | 2 | **done**. Shipped as SplitFlapText. The leaves go through the strip in order, so the letters land alphabetically rather than left to right. That came out of modelling the strip rather than being designed |
 | Emboss | Depth Text | 2 | **done**. Shipped as EmbossedText. Pressed in, not extruded, with the impression biting unevenly across the line because that is what makeready is for |
-| Outline | Stroke Text | 2 | |
-| Curtain | Masked Heading | 2 | |
+| Outline | Stroke Text | 2 | **done**. Shipped as StrokeText. Two copies, the back one stroked at double width, so the stroke sits outside the letterform and the counters survive. Fills with ink from the foot up |
+| Curtain | Masked Heading | 2 | **done**. Shipped as MaskedHeading. A deckle edge rather than a wipe, built once and kept, travelling from a tear's depth off the element to a tear's depth past it |
 | Roundel | Circular Text | 2 | **done**. Shipped as CircularText. An SVG textPath fitted to the circumference, so it kerns and the ring closes exactly at any radius in any face |
 | Caret | Text Cursor | 3 | |
 | Rota | Text Loop, Rotating Text | 3 | Two of theirs, one of ours |
@@ -103,14 +103,14 @@ exactly as they do to a sheet of paper.
 | StippleField | Dot Grid, Dot Field | 1 | **done**. Tone is the number of marks, not their size, which is what separates a stipple from a halftone |
 | Contour | Topography | 1 | **done**, as a lit relief rather than a flat shader |
 | WatermarkSheet | Silk | 2 | **done**. Laid lines, chain lines, formation and a wire device. Everything lightens, because everything is somewhere the sheet is thinner |
-| Weft | Threads, Web Threads, Floating Lines | 2 | Woven fibre. Three of theirs, one of ours |
+| Weft | Threads, Web Threads, Floating Lines | 2 | **done**. Shipped as WovenThreads. The interlacing is one comparison per crossing, and changing it from alternating to shifting turns plain weave into twill. Two sets of lines crossing is a grid |
 | LightShafts | Light Rays, Side Rays, Light Pillar, Lightfall, Beams | 2 | **done**. Shipped as LightShafts. A source off frame, a repeating occluder read against the angle to it, and shadow edges that soften with the distance they have travelled. That last part is the whole difference between a beam and a pale triangle |
 | PaperGrain | Noise, Grainient | 2 | **done**. Shipped as PaperGrain. Fibre in the height, formation in the tone, tooth in the light: which field goes where is the whole shape of it, and putting both in the height gives rough-cast plaster |
-| Register | Grid Motion, Grid Scan, Register marks | 2 | Registration marks drifting |
-| Moire | Grid Distortion, Ripple Grid | 2 | Two screens beating. Related to Overprint, must read differently |
+| Register | Grid Motion, Grid Scan, Register marks | 2 | **done**. Shipped as RegistrationMarks. Three plates on closed orbits, inks multiplying, everything softened by exactly one pixel's footprint because the subject is sub-pixel drift |
+| Moire | Grid Distortion, Ripple Grid | 2 | **done**. Shipped as MoireScreens. Nothing draws a fringe: two regular screens and the interference is what comes out. The anti-aliasing is load-bearing, since an aliased screen beats with the pixel grid and the effect would be measuring the monitor |
 | Prism | Prism, Prismatic Burst | 2 | |
 | Bloom | Plasma, Plasma Wave, Aurora, Soft Aurora | 1 | Aurora over a dark sky. Four of theirs, one of ours. Was a recast because of the paper rule; it is the thing itself now |
-| Dust | Particles, Pixel Snow, Galaxy | 2 | Three of theirs, one of ours. Paper version is fine; a dark one is now allowed and is the better object |
+| Dust | Particles, Pixel Snow, Galaxy | 2 | **done**. Shipped as DustMotes, on a dark ground. A lattice rather than a particle array, so it can be seeked and the count is free. Most of it out of focus, and blurred means fainter |
 | Vein | Lightning | 2 | Capillary spread on paper, or the strike itself on dark. Both are worth one item each, if either earns it |
 | Foundry | Letter Glitch | 3 | A tray of type, not a Matrix screen |
 | Bearings | Ballpit | 3 | Needs a physics solver. Expensive |
@@ -151,7 +151,7 @@ How things arrive on screen.
 | Fade | Fade Content | 1 | **covered**. ScrambleText with split line, rise 0 and blur 0 is a plain fade, and ScrollRevealRows covers the scroll-triggered one |
 | Haze | Gradual Blur | 2 | **done**. Shipped as GradualBlur. Stacked blurs, each twice the last, because masking one blur ramps its opacity and not its blur |
 | Expand | Scroll Expand | 2 | |
-| Curtain | Masked Heading | 2 | Shared with Type |
+| Curtain | Masked Heading | 2 | **done** as MaskedHeading. Shared with Type |
 
 ## Surfaces (from Components, 1 built)
 
@@ -164,7 +164,7 @@ Cards, panels, images.
 | Contact | Chroma Grid | 1 | A contact sheet |
 | Vellum | Glass Surface, Fluid Glass, Reflective Card, Glass Icons | 1 | **recast**. Translucent paper, not frosted glass. Four of theirs, one of ours |
 | Mosaic | Pixel Card | 2 | |
-| Deck | Card Swap, Stack, Bounce Cards, Flying Posters | 2 | Four of theirs, one of ours |
+| Deck | Card Swap, Stack, Bounce Cards, Flying Posters | 2 | **done**. Shipped as CardStack. The card changes its stacking order only at the far point of its travel, where nothing overlaps, which is why it does not need to fade out to hide the switch |
 | Masonry | Masonry | 2 | |
 | Sitter | Profile Card | 2 | Was going to be Plate. Plate is built, and it is the gallery |
 | Bento | Magic Bento | 2 | |
@@ -183,7 +183,7 @@ Cards, panels, images.
 | Gutter | Card Nav, Pill Nav, Bubble Menu, Gooey Nav | 2 | Four of theirs, one of ours |
 | Stepper | Stepper | 2 | |
 | Ledger | Animated List, Scroll Stack | 2 | |
-| Odometer | Counter | 2 | |
+| Odometer | Counter | 2 | **done**. Shipped as OdometerNumber. The carry is one line and it is the whole difference from ten spinners. A straight gear train never shows clean figures except at exact multiples, which is why a gas meter is read to the last settled digit |
 | Dial | Option Wheel, Elastic Slider, Curved Input | 3 | Three of theirs, one of ours |
 | Halo | Electric Border, Filament | 3 | |
 
