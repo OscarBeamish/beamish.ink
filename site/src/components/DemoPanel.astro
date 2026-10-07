@@ -271,6 +271,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'magnetic-button': () => import('@items/effects/magnetic-button/core'),
     'click-spark': () => import('@items/effects/click-spark/core'),
     'crosshair-cursor': () => import('@items/effects/crosshair-cursor/core'),
+    'gradual-blur': () => import('@items/effects/gradual-blur/core'),
     'count-up-number': () => import('@items/effects/count-up-number/core'),
     'terrain-relief': () => import('@items/effects/terrain-relief/core'),
     'guilloche-lines': () => import('@items/effects/guilloche-lines/core'),
@@ -386,6 +387,15 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'count-up-number': `<div class="demo-count-up-number">
       <span class="demo-count-up-number__value">45,400</span>
       <p>Stars on the library we are not competing with</p>
+    </div>`,
+    /* A column of text under the band, so there is something to go out of
+       focus. The pane clips it; the haze is at the pane's own foot. */
+    'gradual-blur': `<div class="demo-haze">
+      <h2>On the setting of a page</h2>
+      <p>A band at the edge where the content goes out of focus before it runs off, rather than a fade to the colour of the paper.</p>
+      <p>The difference is that a fade tells you the text has stopped, and a haze tells you it has not.</p>
+      <p>The ramp is built out of several blurs, each one twice as hard as the one below it and masked to its own band.</p>
+      <p>Because a backdrop filter sees everything painted beneath it, the blurs compound as they stack.</p>
     </div>`,
     /* Three buttons, because the point is what the reticle does when it crosses
        one: it leaves the cursor and squares up around it. */

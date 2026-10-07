@@ -488,6 +488,28 @@
 }
 
 @layer components {
+  /* The column that runs under GradualBlur's band. Taller than the panel on
+     purpose: a haze over content that fits is a smudge on the glass. */
+  .demo-haze {
+    padding: 1.6rem clamp(1rem, 4cqw, 2.6rem) 0;
+  }
+
+  .demo-haze h2 {
+    margin: 0 0 0.5em;
+    font-size: clamp(1.1rem, 3cqw, 2rem);
+    line-height: 1.05;
+  }
+
+  .demo-haze p {
+    margin: 0 0 1em;
+    max-width: 52ch;
+    font-size: clamp(0.72rem, 1.5cqw, 0.95rem);
+    line-height: 1.7;
+    color: var(--label-2);
+  }
+}
+
+@layer components {
   /* The buttons CrosshairCursor takes aim at. cursor: none is set here rather
      than in the effect, because losing the system cursor is a decision about
      the page: over a panel of buttons it is fine, over a form it is not. */
