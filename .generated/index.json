@@ -1,5 +1,171 @@
 [
   {
+    "name": "AsciiImage",
+    "slug": "ascii-image",
+    "tier": 1,
+    "description": "A picture set in characters, where each cell takes the glyph whose shape fits the edge running through it rather than the one whose brightness matches",
+    "category": "surfaces",
+    "tags": [
+      "webgl",
+      "shader",
+      "image",
+      "ascii",
+      "halftone",
+      "type",
+      "no-dependencies"
+    ],
+    "ground": "paper",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "Every ASCII renderer ever written does the brightness version: order characters by how much ink they carry, measure the average tone of a cell, look up the glyph at that position. The fault is always the same. A cell sitting on a hard edge averages to a midtone, a midtone glyph is a texture rather than a line, and every contour in the picture turns to mush",
+        "So each cell is measured twice. A Sobel pass gives the direction and strength of the edge through it, and where that edge is strong the cell takes a glyph lying along it, quantised to four angles. Only the cells with nothing much going on fall back to the ramp",
+        "The glyph lies along the edge, which is the gradient turned a quarter: a gradient points across an edge, not along it. Getting that backwards gives a picture whose every contour is drawn at right angles to itself, and it looks like a weave",
+        "The Sobel is taken over neighbouring cells rather than neighbouring pixels, because the question is about the picture at the scale of a cell. Measured at pixel scale a strand of hair fills the kernel and every cell comes back as an edge",
+        "`glyphs` is the tone ramp only. The four directional characters are not an option because they are not a palette: each is there because it lies along one of four angles, and a different character in the same slot is a character pointing the wrong way",
+        "The glyphs are drawn once into a texture atlas in the element's own monospace face, so the picture is set in the type the page is set in. They are rendered at 64px and minified, because a glyph rasterised straight into a 9px cell is four pixels of aliasing",
+        "The 2D canvas that sets the type is used once and never drawn to again. It is not a second live rendering context",
+        "Rec. 709 luma rather than a mean of the channels. A straight mean makes red and blue too light, which on a face is the difference between skin and a mask",
+        "The picture arrives cell by cell in reading order with a little jitter, so the front is a ragged edge rather than a diagonal line. A teleprinter delivers a character at a time",
+        "Recast for paper. The original is green on black, which is a terminal; this is ink on a sheet, which is what a teleprinter actually produced",
+        "The <img> stays in the document, hidden. Its alt text is the accessible version of the picture and a page whose script never runs still shows the photograph"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.4,
+      "contexts": 1,
+      "notes": [
+        "Nine samples of the source per pixel, for the Sobel, plus one of the atlas. The nine are the cost of knowing which way the edge runs, and they are the whole item",
+        "The atlas is built once per glyph set and per face. Nothing is allocated per frame",
+        "The reveal is a comparison against a cell index, so a finished picture costs exactly what an arriving one does. There is nothing to be gained by stopping the loop, and the runtime stops it anyway once the element is off screen"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/ascii-image/core.ts",
+        "to": "src/beamish/effects/ascii-image/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/ascii-image/adapters/react.tsx",
+        "to": "src/beamish/effects/ascii-image/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/ascii-image/adapters/vue.ts",
+        "to": "src/beamish/effects/ascii-image/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "cell": {
+        "type": "number",
+        "default": 9,
+        "description": "Size of one character cell. This is the resolution of the whole thing: at 6 it is a halftone made of letters and the subject is readable, at 20 it is a pattern and the subject is a rumour. Below about 5 the glyphs stop being distinguishable and the shape-aware half stops earning its keep.",
+        "min": 3,
+        "max": 40,
+        "step": 1,
+        "unit": "px",
+        "sensible": [
+          6,
+          14
+        ]
+      },
+      "glyphs": {
+        "type": "string",
+        "default": " .,:;ox%#@",
+        "description": "The tone ramp, lightest first, used only where no edge was found. Order it by how much ink each character carries rather than by anything else: this is the one place in the effect where brightness is the right question. The four directional characters are not here on purpose."
+      },
+      "paper": {
+        "type": "color",
+        "default": "#fbfaf4",
+        "description": "The sheet. Set this and the ink the other way round and you have the terminal version, which is what everybody else ships and what this was recast away from."
+      },
+      "ink": {
+        "type": "color",
+        "default": "#26261f",
+        "description": "The ink. A soft black rather than a true one: a teleprinter ribbon is never quite black and a page of hard black characters on warm paper reads as a screenshot."
+      },
+      "contrast": {
+        "type": "number",
+        "default": 1.25,
+        "description": "How hard the tone is pushed away from the midtone before the ramp is read. A photograph with a narrow range gives a picture made of three characters, and this is what opens it out. It does not affect the edge detection at all.",
+        "min": 0.2,
+        "max": 4,
+        "step": 0.05,
+        "sensible": [
+          1,
+          2
+        ]
+      },
+      "threshold": {
+        "type": "number",
+        "default": 0.7,
+        "description": "Edge strength above which a cell takes a directional glyph instead of a tone one, on the scale a Sobel over luminance produces, which tops out near 5.6 for a black-to-white step. The single most important number here, and it was set by looking: at 0.17 almost every cell claims an edge and the picture is a weave of dashes with no tone in it, and by 1.2 only the hardest boundary in the frame still gets one, so the contours go back to mush and you have an ordinary ASCII renderer. 0.7 keeps the horizon, the cliff line and the edge of the fog while leaving the grass and the sea as tone.",
+        "min": 0.05,
+        "max": 3,
+        "step": 0.05,
+        "sensible": [
+          0.45,
+          1
+        ]
+      },
+      "shapes": {
+        "type": "boolean",
+        "default": true,
+        "description": "Turn the shape-aware half off, leaving an ordinary brightness ramp. It is here to be turned off once, so the difference is a thing you have seen rather than a claim in a file."
+      },
+      "reveal": {
+        "type": "number",
+        "default": 2600,
+        "description": "Milliseconds for the picture to come in, cell by cell in reading order. A teleprinter is not fast, and the arrival is most of the pleasure: at 300 it is a fade, at 2600 it is something being printed.",
+        "min": 100,
+        "max": 20000,
+        "step": 100,
+        "unit": "ms"
+      },
+      "hold": {
+        "type": "number",
+        "default": 200,
+        "description": "Milliseconds of blank paper before it starts.",
+        "min": 0,
+        "max": 5000,
+        "step": 50,
+        "unit": "ms"
+      },
+      "reducedMotionTime": {
+        "type": "number",
+        "default": 999,
+        "description": "The single frame shown when the user prefers reduced motion. For a one-shot arrival this should be a time after it has finished, so the whole picture is simply there. The picture is the point; the typing is how it gets in.",
+        "min": 0,
+        "max": 9999,
+        "step": 1,
+        "unit": "s"
+      }
+    },
+    "instruction": "press replay to print it again",
+    "oneShot": true,
+    "record": {
+      "duration": 5,
+      "fps": 30,
+      "posterAt": 1.4,
+      "crf": 28
+    },
+    "credit": {
+      "what": "Choosing the glyph by the shape of the edge in a cell rather than by its average brightness, from a Codrops article on a shape-aware ASCII renderer",
+      "author": "Codrops",
+      "url": "https://tympanus.net/codrops/"
+    },
+    "group": "effects",
+    "intro": "AsciiImage sets a photograph in characters, where each cell takes the glyph\nwhose **shape** fits what is in it rather than the one whose brightness matches.\n\nEvery ASCII renderer ever written does the brightness version: order a set of\ncharacters by how much ink they carry, measure the average tone of a cell, look\nup the glyph at that position. It works, and it always has the same fault. Edges\ncome out as mush, because the average tone of a cell sitting on a hard edge is a\nmidtone, and a midtone glyph is a texture rather than a line. Set a face that\nway and the jaw disappears.\n\nSo each cell here is measured twice. A Sobel pass gives the direction and\nstrength of whatever edge runs through it, and where that edge is strong enough\nthe cell takes a glyph that lies along it: a bar for a vertical edge, a slash\nfor a diagonal, an underscore for a horizontal. Only the cells with nothing much\ngoing on fall back to the tone ramp.\n\nThe picture keeps its contours, which is the whole point.\n\nTwo details that are easy to get backwards:\n\n**The glyph lies along the edge, not across it.** A gradient points across an\nedge. Using the gradient angle directly gives a picture in which every contour\nis drawn at right angles to itself, and it reads as a woven texture rather than\nas a drawing.\n\n**The Sobel is taken over neighbouring cells, not neighbouring pixels.** The\nquestion is which way the edge in this cell runs, which is a question about the\npicture at the scale of a cell. Measured at pixel scale, a strand of grass fills\nthe kernel and every cell in the frame comes back as an edge."
+  },
+  {
     "name": "AuroraCurtain",
     "slug": "aurora-curtain",
     "tier": 1,
