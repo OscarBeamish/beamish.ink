@@ -5,6 +5,16 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## Unreleased
+
+### Removed
+
+- GlassModal. Two attempts at a glass dialog and neither earned its place: the
+  CSS one is a blur with a white border, which is what CSS glass is, and the
+  WebGL one refracts a photograph rather than the page, which is a narrow enough
+  case that it never left its branch. Prompts pinned to v0.12.0 and earlier
+  still work, because they fetch from their own tag.
+
 ## v0.12.0, 7 October 2026
 
 ### Added
@@ -18,11 +28,11 @@ Published tags are never deleted or moved.
   Escape and the return of focus, none of which is code here. What is left is
   the glass, the light dismiss, and stopping the page behind from scrolling.
 
-- GlassModalWebGL (navigation): the same dialog with the sheet drawn in a
-  shader, so it bends the picture behind it rather than blurring it, splits the
-  channels at the rim and lights the bevel. The trade is stated rather than
-  hidden: WebGL cannot read the page, so it refracts a photograph you hand it.
-  Over markup, use GlassModal.
+- GlassModalWebGL was listed here in error and is **not** in v0.12.0. It was
+  built on a branch that had not been merged when the tag was cut, so there is
+  no prompt for it and the files it names do not exist at that tag. The entry is
+  left here rather than deleted, because the tag is published and the record of
+  what a published tag contained should not quietly change shape.
 
 - GlassSearchBar (surfaces): a search capsule of real glass over a picture.
   Refraction is the point: backdrop-filter can blur what is behind an element
