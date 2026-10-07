@@ -1,0 +1,160 @@
+{
+  "name": "MaskedHeading",
+  "slug": "masked-heading",
+  "tier": 1,
+  "description": "A heading uncovered by a sheet sliding off it, with the edge of that sheet torn rather than cut",
+  "category": "reveals",
+  "ground": "either",
+  "tags": [
+    "text",
+    "reveal",
+    "mask",
+    "deckle",
+    "dom",
+    "accessible",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "A straight-edged mask crossing a heading is a wipe, and a wipe reads as a machine because nothing in the physical world has an edge that straight. The whole item is in the edge",
+      "A deckle edge, the untrimmed side of a handmade sheet, has structure at two scales: a slow wander where the pulp ran thin against the deckle, and a fine fray of fibres on top. One scale alone gives either a gentle curve or a saw blade, and neither reads as paper",
+      "The tear is built once and keeps its shape as it travels, because a torn edge does not re-tear itself while the sheet is being pulled away. Regenerating it per frame is the quickest way to turn paper into a flame",
+      "It is a clip-path polygon and nothing else, so the text is never taken apart: it selects, wraps, translates and reads exactly as before. This and SplitFountainText are the only two effects here that leave the DOM alone",
+      "The clip is composited, so a heading being uncovered costs a transform rather than a repaint",
+      "The polygon closes across the side that stays uncovered, and the corners sit outside the box. Closing it the other way round clips the half you meant to keep, which looks like the animation running backwards",
+      "The travel goes past the end by the overshoot, so the torn edge clears the type rather than coming to rest somewhere across it",
+      "The travel starts and ends entirely off the element, by the depth of the tear at each end. Starting at exactly 0 looks like a bug rather than a sheet: the parts of the tear that poke forwards are already inside the box, so a sheet supposedly at rest leaks slivers of the heading through its own edge"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.2,
+    "contexts": 0,
+    "notes": [
+      "One string built and one property written per frame, and only when the string has changed. The polygon is `points` plus two corners, so 48 points is a 50-point path",
+      "Nothing is created after mount and nothing is measured. The tear is sampled once per seed"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/masked-heading/core.ts",
+      "to": "src/beamish/effects/masked-heading/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/masked-heading/adapters/react.tsx",
+      "to": "src/beamish/effects/masked-heading/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/masked-heading/adapters/vue.ts",
+      "to": "src/beamish/effects/masked-heading/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "direction": {
+      "type": "enum",
+      "values": [
+        "up",
+        "down",
+        "left",
+        "right"
+      ],
+      "default": "up",
+      "description": "Which way the uncovered area grows. Up is a sheet lifted off, and it is the one that reads as paper rather than as a transition; the sideways ones read as a sheet being slid, which is also a real thing but a busier one on a wide heading."
+    },
+    "duration": {
+      "type": "number",
+      "default": 1500,
+      "min": 200,
+      "max": 10000,
+      "step": 50,
+      "unit": "ms",
+      "sensible": [
+        900,
+        2400
+      ],
+      "description": "Milliseconds for the sheet to come away, eased so it arrives rather than stops. Quick: somebody pulling a sheet off a print does it in about a second, and anything slower reads as a curtain in a theatre."
+    },
+    "hold": {
+      "type": "number",
+      "default": 250,
+      "min": 0,
+      "max": 5000,
+      "step": 50,
+      "unit": "ms",
+      "description": "Milliseconds before it starts, and how you stagger two blocks on one page."
+    },
+    "tear": {
+      "type": "number",
+      "default": 0.07,
+      "min": 0,
+      "max": 0.4,
+      "step": 0.005,
+      "sensible": [
+        0.04,
+        0.12
+      ],
+      "description": "How far the slow wander of the edge reaches, as a share of the element. This is the large structure: where the pulp ran thin. At 0 the edge is straight and you have a wipe."
+    },
+    "fray": {
+      "type": "number",
+      "default": 0.018,
+      "min": 0,
+      "max": 0.1,
+      "step": 0.002,
+      "description": "How far the fine fray reaches. The fibres, on top of the wander. Raise it past about 0.05 and the edge stops being torn paper and becomes a saw blade."
+    },
+    "points": {
+      "type": "number",
+      "default": 48,
+      "min": 6,
+      "max": 200,
+      "step": 2,
+      "sensible": [
+        32,
+        80
+      ],
+      "description": "Points along the edge. More is a finer tear and a longer path: below about twenty the fray has nowhere to happen and the edge reads as a gentle curve, and past a hundred you are paying for detail smaller than a pixel."
+    },
+    "overshoot": {
+      "type": "number",
+      "default": 0.12,
+      "min": 0,
+      "max": 0.5,
+      "step": 0.01,
+      "description": "How far past the end the sheet travels, so the torn edge clears the type. At 0 it comes to rest exactly at the far side, which on a tear means a few fibres are still lying across the last line."
+    },
+    "seed": {
+      "type": "number",
+      "default": 7,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "description": "Seed for the tear. The same seed gives the same sheet, so a recording and a live page match. Give two blocks on one page different seeds, or they are uncovered by the same torn sheet twice."
+    },
+    "reducedMotionTime": {
+      "type": "number",
+      "default": 999,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "unit": "s",
+      "description": "The single frame shown when the user prefers reduced motion. For a one-shot reveal this should be a time after the sheet has gone, so the heading is simply there and unclipped."
+    }
+  },
+  "instruction": "press replay to uncover it again",
+  "oneShot": true,
+  "record": {
+    "duration": 4,
+    "fps": 30,
+    "posterAt": 1.05
+  }
+}
