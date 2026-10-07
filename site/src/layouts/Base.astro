@@ -180,8 +180,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
 
     <script>
       /*
-       * Scramble-on-hover for the nav, which is Cipher from the library rather
-       * than a copy of it kept here. The site had its own for a while, with a
+       * Scramble-on-hover for the nav, which is DecodeText from the library
+       * rather than a copy of it kept here. The site had its own for a while, with a
        * comment on it saying the effect was chrome rather than an item. It is
        * an item now, so this is the item.
        *
@@ -195,14 +195,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
        * Re-entering while it is still going does nothing, so sweeping the
        * cursor along the bar does not stack three runs on one label.
        */
-      import { createCipher } from '@items/effects/cipher/core'
+      import { createDecodeText } from '@items/effects/decode-text/core'
 
       const STAGGER = 45
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
 
       for (const el of document.querySelectorAll<HTMLElement>('[data-scramble]')) {
         const characters = (el.textContent ?? '').trim().length
-        let cipher: ReturnType<typeof createCipher> | null = null
+        let decode: ReturnType<typeof createDecodeText> | null = null
         let running = false
 
         el.addEventListener('pointerenter', () => {
@@ -211,12 +211,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
           if (running || reduced.matches) return
           running = true
 
-          if (!cipher) cipher = createCipher(el, { stagger: STAGGER, hold: 0, dim: 0.5 })
-          cipher.renderAtTime(0)
-          cipher.start()
+          if (!decode) decode = createDecodeText(el, { stagger: STAGGER, hold: 0, dim: 0.5 })
+          decode.renderAtTime(0)
+          decode.start()
 
           window.setTimeout(() => {
-            cipher?.stop()
+            decode?.stop()
             running = false
           }, STAGGER * characters + 250)
         })

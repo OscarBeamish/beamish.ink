@@ -189,6 +189,22 @@ generate, then paste-test the prompt in a scratch app.
 Do not skip the paste-test. A vague prompt is as serious a defect as a broken
 shader.
 
+### Naming it
+
+Literal, descriptive, two or three words, PascalCase, saying what the thing
+does: `ScrambleText`, `HalftoneBackdrop`, `PointerRippleGrid`, `SpotlightCard`,
+`AuroraCurtain`, `ImageGalleryLightbox`. The slug is the same name in kebab
+case.
+
+Never ship the printing metaphor as the name. `BACKLOG.md` is full of them and
+says so at the top: they are working titles that say which five of theirs
+collapse into one of ours, and every one of them was renamed when it was built.
+Sort shipped as ScrambleText, Tally as CountUpNumber, Bloom as AuroraCurtain.
+
+The name is how somebody finds the item and how an agent is told what to paste.
+A metaphor is a puzzle in both jobs. Put it in the prose instead, where being
+vivid is worth something.
+
 ## Frameworks
 
 Write the core as vanilla TypeScript. Include thin React and Vue adapters.
