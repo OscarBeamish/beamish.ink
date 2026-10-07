@@ -488,6 +488,20 @@
 }
 
 @layer components {
+  /* The wheels OdometerNumber turns. Tabular figures, because the wheels are
+     all one part and a proportional 1 would make a narrow one. */
+  .demo-odometer {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: clamp(1.6rem, 7cqw, 4.2rem);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
+}
+
+@layer components {
   /* The column that runs under GradualBlur's band. Taller than the panel on
      purpose: a haze over content that fits is a smudge on the glass. */
   .demo-haze {

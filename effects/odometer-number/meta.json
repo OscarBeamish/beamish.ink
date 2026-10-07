@@ -1,0 +1,158 @@
+{
+  "name": "OdometerNumber",
+  "slug": "odometer-number",
+  "tier": 1,
+  "description": "A number on wheels, where a wheel only turns while the one below it goes from nine round to nought",
+  "category": "type",
+  "ground": "either",
+  "tags": [
+    "text",
+    "number",
+    "counter",
+    "mechanical",
+    "dom",
+    "accessible",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "The carry is the whole difference between this and ten independent spinners, and it is one line of arithmetic. A wheel is driven by the one to its right and turns only while that one is going from nine round to nought, so the tens wheel sits perfectly still for most of the units wheel's revolution and then turns all at once",
+      "You can see it on any petrol pump: the pence wheel is a blur, the pounds wheel steps, and the tens of pounds wheel has not moved all day. Get it wrong and every wheel turns at its own steady speed, which is a fruit machine",
+      "`carry` chooses the mechanism. Narrow is a geneva drive and snaps, so every figure sits squarely in its window. 1 is a straight gear train, and that one has a consequence: a continuously geared counter never shows clean figures except at exact multiples, which is why a gas meter is read to the last settled digit. The demo shows both, because they look nothing alike",
+      "Each strip carries nought to nine and then nought again. Without the repeat a wheel rolling off nine has nothing to roll on to and snaps back through the whole drum",
+      "The figures near the edge of the window are shaded, because they are on the curve of the wheel and going out of sight. Flat instead, they slide past as though printed on a belt",
+      "The window is an em tall, so it follows the type. Only the pixel value for the transform is read from the layout, and only on resize",
+      "A screen reader is given the value as a number, once, in a hidden label. A column of digits read aloud is not a number",
+      "Pure in t: each wheel's position is arithmetic on the value and the value is arithmetic on the clock"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.2,
+    "contexts": 0,
+    "notes": [
+      "One transform and one filter per wheel per frame, both written only when they change. Six wheels is six composited transforms",
+      "Nothing is measured per frame. The strips are built once per digit count"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/odometer-number/core.ts",
+      "to": "src/beamish/effects/odometer-number/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/odometer-number/adapters/react.tsx",
+      "to": "src/beamish/effects/odometer-number/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/odometer-number/adapters/vue.ts",
+      "to": "src/beamish/effects/odometer-number/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "from": {
+      "type": "number",
+      "default": 0,
+      "min": 0,
+      "max": 1000000000,
+      "step": 1,
+      "description": "Where the count starts. A real odometer starts wherever it was left, so this is also how you show a figure that is already high and only moves a little."
+    },
+    "to": {
+      "type": "number",
+      "default": 128640,
+      "min": 0,
+      "max": 1000000000,
+      "step": 1,
+      "description": "Where it ends. The distance between the two decides how much rolling there is to watch: a change of twelve on a six-wheel counter moves one wheel and nudges a second."
+    },
+    "duration": {
+      "type": "number",
+      "default": 4200,
+      "min": 200,
+      "max": 30000,
+      "step": 100,
+      "unit": "ms",
+      "sensible": [
+        2000,
+        6000
+      ],
+      "description": "Milliseconds for the whole travel, eased so it arrives rather than stops. Longer than a count-up wants to be, because the mechanism is the point and a fast roll is a blur."
+    },
+    "hold": {
+      "type": "number",
+      "default": 300,
+      "min": 0,
+      "max": 5000,
+      "step": 50,
+      "unit": "ms",
+      "description": "Milliseconds before it starts. A moment of the starting figure is what tells you the wheels were somewhere before they moved."
+    },
+    "digits": {
+      "type": "number",
+      "default": 6,
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "description": "Fewest wheels to show, padded with leading figures. Six is a car. The leading noughts are not decoration: a counter with a fixed number of wheels is what makes it a counter rather than a number, and it stops the layout changing width as the value grows."
+    },
+    "group": {
+      "type": "string",
+      "default": "",
+      "description": "What goes between groups of three, as furniture between the wheels. Empty by default, because a mechanical counter has no separators: the wheels are all the same and nothing sits between them. Set a comma if the figure is money rather than mileage."
+    },
+    "carry": {
+      "type": "number",
+      "default": 0.12,
+      "min": 0.01,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [
+        0.08,
+        0.25
+      ],
+      "description": "How much of a wheel's travel the wheel above it moves during, and the one setting that decides what machine this is. 0.12 is a geneva drive: the upper wheel is still until the lower one is nearly round, then snaps, and every figure sits squarely in its window. 1 is a straight gear train, where every wheel turns all the time, and it has a consequence worth knowing: such a counter never shows clean figures at all except at exact multiples, which is why a gas meter is read to the last settled digit. Anything between is a gear train with slack in it."
+    },
+    "drum": {
+      "type": "number",
+      "default": 0.55,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How much a wheel darkens as it turns, because the figure coming into the window is on the curve of the drum. At 0 the figures slide past as though printed on a flat belt, which is the other thing this could be and a much less interesting one."
+    },
+    "seed": {
+      "type": "number",
+      "default": 7,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "description": "Unused by the maths, and here so that two counters on a page can be told apart in a config. Nothing about an odometer is random: that is rather the point of one."
+    },
+    "reducedMotionTime": {
+      "type": "number",
+      "default": 999,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "unit": "s",
+      "description": "The single frame shown when the user prefers reduced motion. For a one-shot count this should be a time after it has finished, so the final figure is simply there. A counter is read, not watched."
+    }
+  },
+  "instruction": "press replay to run it again",
+  "oneShot": true,
+  "record": {
+    "duration": 6,
+    "fps": 30,
+    "posterAt": 1.6
+  }
+}

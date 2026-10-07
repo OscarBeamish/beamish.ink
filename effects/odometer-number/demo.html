@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OdometerNumber: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        align-content: center;
+        justify-items: center;
+        gap: 2.4rem;
+      }
+      .counter {
+        font-family: var(--font-mono);
+        font-weight: 500;
+        font-size: clamp(2rem, 10vw, 6rem);
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.02em;
+      }
+      .counter--pump {
+        font-size: clamp(1.4rem, 6vw, 3.6rem);
+        color: var(--label-2);
+      }
+      .caption {
+        font-size: clamp(0.65rem, 1.6vw, 0.85rem);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--label-3);
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+
+      Two counters with different carries, because that is the setting worth
+      seeing twice: the top one snaps like a geneva drive, the bottom one is a
+      straight gear train with every wheel always turning.
+    -->
+    <div id="stage">
+      <div class="counter" id="miles">0</div>
+      <p class="caption">Geneva drive, carry 0.12</p>
+      <div class="counter counter--pump" id="pump">0</div>
+      <p class="caption">Gear train, carry 1</p>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const miles = window.Beamish.create(document.getElementById('miles'))
+      const pump = window.Beamish.create(document.getElementById('pump'), {
+        carry: 1,
+        to: 4821,
+        digits: 5,
+        duration: 4600
+      })
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      // It drives the first handle; the second is given the same clock here so
+      // both are a function of the same time.
+      window.__beamish = {
+        ...miles,
+        renderAtTime(t) {
+          miles.renderAtTime(t)
+          pump.renderAtTime(t)
+        },
+        update(next) {
+          miles.update(next)
+        }
+      }
+
+      if (!new URLSearchParams(location.search).has('record')) {
+        miles.start()
+        pump.start()
+      }
+    </script>
+  </body>
+</html>
