@@ -1,0 +1,171 @@
+{
+  "name": "TypewriterText",
+  "slug": "typewriter-text",
+  "tier": 1,
+  "description": "Text typed on a machine with type bars: an uneven hand, a breath at the punctuation, and every letter struck a little off square",
+  "category": "type",
+  "ground": "either",
+  "tags": [
+    "text",
+    "reveal",
+    "typewriter",
+    "caret",
+    "dom",
+    "accessible",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "No canvas and no WebGL. The string is already in the element and the untyped part is hidden rather than absent, so the line boxes are final from the first frame and a paragraph typing itself in the middle of a page does not push the page about",
+      "The rhythm is uneven. Each character takes its own interval from a hash, spread around the mean rather than added to it, so raising the unevenness does not also slow the whole thing down",
+      "It takes a breath at the punctuation: a full stop costs the full pause, a comma a third of it, a space an eighth. That pause is most of what makes typing sound like language rather than like a machine gun, and it is the one thing an even timer can never give you",
+      "Every letter is struck rather than placed. It lands a fraction off the baseline, a fraction off square, and with more or less ink depending on how it was hit. All three come off one hash of the letter's index, so the same string always types the same way and the recorder gets the same frames",
+      "The caret is solid while typing and blinks once it stops, which is what a caret does. The blink runs on its own clock rather than on the typing one, so it does not stutter when the rhythm does",
+      "One caret element for the whole string, moved to the cell the next character will land in. A caret per character is 2N elements for something only one of them is ever doing",
+      "The schedule is built from the text rather than from the clock, so seeking to the middle of a run costs one scan and the effect is pure in t",
+      "The original string stays in the accessibility tree as one label. The alternative is a label that grows a character at a time, which is a live region nobody asked for",
+      "destroy() puts the original text back, leaving the element as it was found"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.3,
+    "contexts": 0,
+    "notes": [
+      "Only the letters whose state changed are touched, so typing writes about one style per frame rather than one per character per frame. On three hundred characters that is the difference between one frame and several",
+      "One offset read per frame, for the caret. Everything else is a composited transform and an opacity"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/typewriter-text/core.ts",
+      "to": "src/beamish/effects/typewriter-text/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/typewriter-text/adapters/react.tsx",
+      "to": "src/beamish/effects/typewriter-text/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/typewriter-text/adapters/vue.ts",
+      "to": "src/beamish/effects/typewriter-text/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "pace": {
+      "type": "number",
+      "default": 62,
+      "min": 8,
+      "max": 400,
+      "step": 1,
+      "unit": "ms",
+      "sensible": [25, 110],
+      "description": "Average milliseconds between one character and the next. It multiplies by the length of the string, so a sentence at 62ms is about four seconds and a paragraph at 62ms is a minute. Heading slow, body fast: about 90 for a line somebody is meant to watch and about 25 for copy they are meant to read."
+    },
+    "rhythm": {
+      "type": "number",
+      "default": 0.6,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How uneven the hand is. At 0 it is a machine, and an even typewriter is the single thing that gives away every version of this effect. Spread around the mean rather than added to it, so this does not change how long the run takes."
+    },
+    "pause": {
+      "type": "number",
+      "default": 420,
+      "min": 0,
+      "max": 2000,
+      "step": 10,
+      "unit": "ms",
+      "sensible": [200, 600],
+      "description": "Extra milliseconds after a full stop. A comma takes a third of it and a space an eighth. This is the setting that makes it read as somebody writing: at 0 the punctuation goes by at the same speed as the letters and the whole thing flattens."
+    },
+    "hold": {
+      "type": "number",
+      "default": 300,
+      "min": 0,
+      "max": 6000,
+      "step": 10,
+      "unit": "ms",
+      "description": "Milliseconds before the first character. Also how you stagger two of these: give the paragraph a hold long enough to let the heading finish."
+    },
+    "jitter": {
+      "type": "number",
+      "default": 0.035,
+      "min": 0,
+      "max": 0.2,
+      "step": 0.005,
+      "unit": "em",
+      "sensible": [0.02, 0.06],
+      "description": "How far off the baseline a letter lands, in ems, so it holds at any size. Small. A type bar is a mechanism with slack in it, not a drunk."
+    },
+    "skew": {
+      "type": "number",
+      "default": 1.1,
+      "min": 0,
+      "max": 8,
+      "step": 0.1,
+      "unit": "deg",
+      "sensible": [0.5, 2.5],
+      "description": "How far off square a letter lands. Past about three degrees it stops reading as a machine with slack and starts reading as a ransom note."
+    },
+    "ribbon": {
+      "type": "number",
+      "default": 0.35,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How much the ribbon varies: the ink a strike leaves. A worn ribbon gives an uneven page, and this is the difference between type that was struck and type that was set."
+    },
+    "caret": {
+      "type": "number",
+      "default": 0.09,
+      "min": 0,
+      "max": 0.6,
+      "step": 0.01,
+      "unit": "em",
+      "description": "Width of the caret, in ems. A real typewriter has no caret at all, so 0 is the historically honest setting and the one to use when the effect is standing in for a printed page rather than for a screen."
+    },
+    "blink": {
+      "type": "number",
+      "default": 1060,
+      "min": 200,
+      "max": 3000,
+      "step": 20,
+      "unit": "ms",
+      "description": "Milliseconds for one blink, once typing has stopped. It runs on its own clock rather than on the typing one. Keep it slow: a fast blink is the fastest way to make a block of text hard to sit with."
+    },
+    "seed": {
+      "type": "number",
+      "default": 7,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "description": "Seed for the rhythm and the strikes. The same seed always gives the same hand, so a recorded video and a live page match letter for letter. Change it to give two blocks of text on the same page two different typists."
+    },
+    "reducedMotionTime": {
+      "type": "number",
+      "default": 999,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "unit": "s",
+      "description": "The single frame shown when the user prefers reduced motion. For a one-shot reveal this should be a time after the typing has finished, so the text simply appears. The strikes are still there in that frame, which is the nice part: the page looks typed rather than set."
+    }
+  },
+  "instruction": "press replay to type it again",
+  "oneShot": true,
+  "record": {
+    "duration": 12,
+    "fps": 30,
+    "posterAt": 3.4
+  }
+}

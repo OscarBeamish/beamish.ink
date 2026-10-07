@@ -252,6 +252,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'scramble-text': () => import('@items/effects/scramble-text/core'),
     'decode-text': () => import('@items/effects/decode-text/core'),
     'split-flap-text': () => import('@items/effects/split-flap-text/core'),
+    'typewriter-text': () => import('@items/effects/typewriter-text/core'),
     'scroll-reveal-rows': () => import('@items/effects/scroll-reveal-rows/core'),
     'tilt-card': () => import('@items/effects/tilt-card/core'),
     'pointer-ripple-grid': () => import('@items/effects/pointer-ripple-grid/core'),
@@ -346,6 +347,9 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'decode-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     /* A board wants board words, and short ones: four layers of DOM a character. */
     'split-flap-text': `<div class="demo-board">Departures</div>`,
+    /* A sentence with punctuation in it, because the breath at a full stop is
+       half of what this item is. */
+    'typewriter-text': `<p class="demo-typed">Dear Sir, I write about the matter of the press.</p>`,
     'misprint-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     'ink-bleed-text': `<h1 class="demo-heading">${HEADLINE}</h1>`,
     /*
