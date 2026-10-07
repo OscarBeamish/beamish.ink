@@ -1,0 +1,142 @@
+{
+  "name": "SplitFountainText",
+  "slug": "split-fountain-text",
+  "tier": 1,
+  "description": "Two or three inks in the same duct, blended by the rollers, with the gradient belonging to the sheet rather than to the letters",
+  "category": "type",
+  "ground": "paper",
+  "tags": [
+    "text",
+    "gradient",
+    "letterpress",
+    "riso",
+    "dom",
+    "accessible",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "The gradient belongs to the sheet, not to the letters, and that is what makes it a split fountain rather than gradient text. One pass of ink across the whole forme: a word near the left is in one ink, a word near the right is in another, and the heading between them is caught in the blend",
+      "That falls out of mounting it on the sheet. background-clip on a container clips its background to every piece of text inside, however deeply nested, so one gradient inks a whole page in register. Put the gradient on each element instead and every heading gets the same little rainbow",
+      "It is the only text effect here that does not take the text apart. No spans, no splitting, no hidden label: the text is the text the browser already had, so it selects, wraps, translates, searches and reads exactly as before. Nothing else in this library can say that",
+      "The blend is built from several stops per ink rather than one, so its boundary can be nudged. A duct is filled by hand and the rollers do not mix evenly, so the line where two inks meet is never straight; one stop per ink is a CSS gradient and not a press",
+      "The stops are sorted before they are written. A CSS gradient quietly clamps any stop that falls before the one in front of it, which turns a wobble into a hard edge",
+      "-webkit-text-fill-color is set as well as color. Without it WebKit paints the text in its own colour over the clipped background and the effect does nothing at all",
+      "Pure in t: the whole gradient is arithmetic on the clock and a hash of the seed"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.3,
+    "contexts": 0,
+    "notes": [
+      "One string built and one style written per frame, and only when the string has changed. The cost is the repaint of the text, which is why this wants to be a sheet of headings rather than a page of body copy",
+      "No elements are created and nothing is measured. The DOM is untouched"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/split-fountain-text/core.ts",
+      "to": "src/beamish/effects/split-fountain-text/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/split-fountain-text/adapters/react.tsx",
+      "to": "src/beamish/effects/split-fountain-text/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/split-fountain-text/adapters/vue.ts",
+      "to": "src/beamish/effects/split-fountain-text/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "first": {
+      "type": "color",
+      "default": "#c44400",
+      "description": "The ink at the start of the duct. Split fountains are at their best with inks that make something worth seeing where they meet: two that mix to mud give a sheet with a dead band across the middle."
+    },
+    "second": {
+      "type": "color",
+      "default": "#8a3b6b",
+      "description": "The ink in the middle. Set it to the same value as one of its neighbours and you have a two-ink fountain, which is what most presses actually run."
+    },
+    "third": {
+      "type": "color",
+      "default": "#1b6f8c",
+      "description": "The ink at the far end."
+    },
+    "angle": {
+      "type": "number",
+      "default": 96,
+      "min": 0,
+      "max": 360,
+      "step": 1,
+      "unit": "deg",
+      "description": "Which way the duct runs across the sheet. A real fountain runs across the press, so the gradient is square to the sheet; a degree or two off square is the honest amount, and it stops the blend lining up with the lines of type."
+    },
+    "blend": {
+      "type": "number",
+      "default": 0.42,
+      "min": 0.02,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [
+        0.25,
+        0.6
+      ],
+      "description": "How wide the mixing zone is. Narrow is a press just started, with the inks still separate; wide is one that has been running, with the colours walked well into each other. Both are real points in a run and they look quite different."
+    },
+    "wobble": {
+      "type": "number",
+      "default": 0.35,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How uneven the blend is. At 0 it is a perfectly even ramp, which is to say a CSS gradient. The unevenness is the whole tell that ink was involved."
+    },
+    "walk": {
+      "type": "number",
+      "default": 0.12,
+      "min": 0,
+      "max": 0.5,
+      "step": 0.01,
+      "description": "How far the whole fountain walks over one period. On a press the inks creep along the duct as the run goes on, so the boundary moves and never comes back. Here it returns, because a loop has to; keep it small enough that it reads as creep rather than as a sweep."
+    },
+    "seed": {
+      "type": "number",
+      "default": 7,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "description": "Seed for the unevenness. The same seed gives the same sheet, so a recording and a live page match."
+    },
+    "period": {
+      "type": "number",
+      "default": 30,
+      "min": 6,
+      "max": 180,
+      "step": 1,
+      "unit": "s",
+      "description": "Seconds for one cycle of the walk. Long: this is the colour of the page, and the colour of a page should not be something you can watch changing.",
+      "good": {
+        "min": 20,
+        "max": 90
+      }
+    }
+  },
+  "instruction": "the fountain walks on its own",
+  "oneShot": false,
+  "record": {
+    "duration": 30,
+    "fps": 30,
+    "posterAt": 7
+  }
+}

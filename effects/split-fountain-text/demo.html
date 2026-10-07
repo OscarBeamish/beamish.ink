@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SplitFountainText: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        font-family: var(--font-mono);
+      }
+      /*
+       * The effect is mounted on the sheet, not on the heading. One pass of ink
+       * across the whole forme: every piece of text in here is inked from the
+       * same gradient, in register with the others.
+       */
+      #sheet {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        align-content: center;
+        gap: 1.2rem;
+        padding: 0 7vw;
+        box-sizing: border-box;
+      }
+      #sheet h1 {
+        margin: 0;
+        max-width: 19ch;
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 8.4vw, 5.4rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 0.95;
+      }
+      #sheet p {
+        margin: 0;
+        max-width: 62ch;
+        font-size: clamp(0.8rem, 1.6vw, 1.05rem);
+        line-height: 1.7;
+      }
+      #sheet .rule {
+        font-size: clamp(0.65rem, 1.5vw, 0.85rem);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+    -->
+    <div id="sheet">
+      <p class="rule">One pass of ink</p>
+      <h1>Two inks in the same duct</h1>
+      <p>
+        The rollers blend them where they meet, so every sheet comes off with a
+        gradient running across it. The gradient belongs to the sheet and not to
+        the letters, which is why a word on the left is in one ink and a word on
+        the right is in another.
+      </p>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const handle = window.Beamish.create(document.getElementById('sheet'))
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      window.__beamish = handle
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
+    </script>
+  </body>
+</html>
