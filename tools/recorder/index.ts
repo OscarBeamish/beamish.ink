@@ -451,7 +451,18 @@ async function recordItem(browser: Browser, item: ItemRef, only: string[], keepF
 
   for (const ratio of ratios) {
     const framesDir = path.join(FRAMES, item.slug, ratio.key)
-    const cached = keepFrames && existsSync(framesDir) && (await readdir(framesDir)).length > 0
+    /*
+     * A cache has to be complete, not merely non-empty.
+     *
+     * A run killed partway leaves a few frames behind, and --keep-frames then
+     * treated those as the take: capture was skipped and ffmpeg failed trying
+     * to open a frame number that had never been written. Counting against
+     * what the take should contain turns that into a recapture instead of an
+     * error about a missing file.
+     */
+    const wanted = Math.round(meta.record.duration * meta.record.fps)
+    const onDiskBefore = existsSync(framesDir) ? (await readdir(framesDir)).length : 0
+    const cached = keepFrames && onDiskBefore === wanted
     if (!cached) {
       // Empty the directory rather than removing it. On Windows a directory that
       // was recently written to is often still held open by the indexer, and
