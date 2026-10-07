@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FallingLetters: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      /*
+       * The letters fall out of the element by design, so nothing above them
+       * may clip. This sheet is deliberately not `overflow: hidden`, and the
+       * line sits high in it so there is somewhere to fall to.
+       */
+      .sheet {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        align-content: start;
+        gap: 1.5rem;
+        padding: 14vh 7vw 0;
+        box-sizing: border-box;
+      }
+      /*
+       * The heading is #stage because the effect replaces its host's contents
+       * with per-letter spans, and #stage is the id the leak test mounts on.
+       * Wrapping the paragraph in it as well would feed the paragraph to the
+       * splitter.
+       */
+      #stage {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: clamp(2.2rem, 10vw, 7rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1;
+      }
+      p {
+        margin: 0;
+        max-width: 54ch;
+        font-size: clamp(0.78rem, 1.5vw, 0.95rem);
+        line-height: 1.7;
+        color: var(--label-3);
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+    -->
+    <div class="sheet">
+      <h1 id="stage">Pied type</h1>
+      <p>
+        Every letter's position is the parabola itself rather than a simulation
+        stepped frame by frame, so any moment can be asked for directly and two
+        runs are identical. The line keeps the height it had, which is what
+        stops this paragraph moving as the letters go.
+      </p>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const handle = window.Beamish.create(document.getElementById('stage'))
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      window.__beamish = handle
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
+    </script>
+  </body>
+</html>

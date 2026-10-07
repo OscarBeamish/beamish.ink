@@ -287,6 +287,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'masked-heading': () => import('@items/effects/masked-heading/core'),
     'expanding-tiles': () => import('@items/effects/expanding-tiles/core'),
     'rotating-words': () => import('@items/effects/rotating-words/core'),
+    'falling-letters': () => import('@items/effects/falling-letters/core'),
     'gradual-blur': () => import('@items/effects/gradual-blur/core'),
     'count-up-number': () => import('@items/effects/count-up-number/core'),
     'odometer-number': () => import('@items/effects/odometer-number/core'),
@@ -415,6 +416,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       <article class="demo-plate"><span class="demo-plate__mark"></span><div><h3>Risograph</h3><p>Soy ink, out of register on purpose.</p></div></article>
     </div>`,
     /* On the block, not the line: one sheet comes off all of it together. */
+    'falling-letters': `<p class="demo-pied">Pied type</p>`,
     'rotating-words': `<p class="demo-rotating">Printed by <span class="demo-rotating__set"><span>letterpress</span><span>lithography</span><span>screen print</span><span>risograph</span></span></p>`,
     'expanding-tiles': `<div class="demo-tiles">
       <a class="demo-tiles__tile" href="#letterpress"><span class="demo-tiles__n">01</span><span class="demo-tiles__t">Letterpress</span></a>
@@ -520,6 +522,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'card-stack': '.demo-pile',
     'expanding-tiles': '.demo-tiles',
     'rotating-words': '.demo-rotating__set',
+    'falling-letters': '.demo-pied',
     // The lamp lights the card, not the stage around it.
     'spotlight-card': '.demo-card'
   }

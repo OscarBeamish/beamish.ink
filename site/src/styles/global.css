@@ -620,6 +620,21 @@
     object-fit: cover;
   }
 
+  /*
+   * The letters fall out of this element by design, so the panel must not
+   * clip them. It sits high in the stage for the same reason: the fall needs
+   * somewhere to go.
+   */
+  .demo-pied {
+    margin: 0;
+    padding: 14% clamp(1rem, 5cqw, 3rem) 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 9cqw, 5rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
   .demo-rotating {
     display: grid;
     align-content: center;

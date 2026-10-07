@@ -1,0 +1,147 @@
+{
+  "name": "FallingLetters",
+  "slug": "falling-letters",
+  "tier": 1,
+  "description": "A line of type comes apart and falls, each letter dropping and bouncing once, with every position a closed form in t",
+  "category": "type",
+  "ground": "either",
+  "tags": [
+    "text",
+    "fall",
+    "pied",
+    "one-shot",
+    "dom",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "Every letter's position is a closed form in t rather than a simulation. A solver steps from the last frame to the next, so frame 200 can only be reached by computing the 199 before it: you cannot seek, you cannot record a loop, and two runs drift apart as soon as one misses a frame. Here the fall is the parabola itself and the bounce is the same parabola reflected and damped, so any t in any order gives the same frame",
+      "The letters are measured once and taken out of flow, so nothing reflows. Split a line into spans and animate them in place and every letter that moves changes the line box, so the letters that have not fallen yet shuffle along underneath",
+      "The measuring has to finish before any letter is taken out of flow. Do it letter by letter and each removal reflows the rest, so every measurement after the first is of a line that no longer exists",
+      "One damped bounce, not none and not five. A letter that falls and stops dead reads as a dropped frame rather than as a thing with weight; five is a rubber ball. One is a piece of lead type landing on a stone",
+      "Distances are in line heights rather than pixels, so the same numbers behave at any type size",
+      "The original text stays in the accessibility tree as a label on the element, and the per-letter spans are hidden from it. A word split into letters is otherwise read out one letter at a time",
+      "destroy() puts the original text back exactly as it was found, including the spaces"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.4,
+    "contexts": 0,
+    "notes": [
+      "One transform per letter per frame while the line is falling, composited, and nothing at all before the first letter goes: a letter that has not started writes no style",
+      "No per-frame allocation and no layout reads during the fall. Everything was measured once at build, and the arithmetic is a square root and two multiplications per letter"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/falling-letters/core.ts",
+      "to": "src/beamish/effects/falling-letters/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/falling-letters/adapters/react.tsx",
+      "to": "src/beamish/effects/falling-letters/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/falling-letters/adapters/vue.ts",
+      "to": "src/beamish/effects/falling-letters/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "hold": {
+      "type": "number",
+      "default": 400,
+      "min": 0,
+      "max": 4000,
+      "step": 50,
+      "unit": "ms",
+      "description": "Milliseconds before the first letter goes. Long enough that the line is read as a line first, because the whole gesture depends on it having been intact a moment ago."
+    },
+    "stagger": {
+      "type": "number",
+      "default": 42,
+      "min": 0,
+      "max": 300,
+      "step": 2,
+      "unit": "ms",
+      "sensible": [
+        25,
+        80
+      ],
+      "description": "Milliseconds between one letter leaving and the next. At 0 the whole line goes at once, which reads as the shelf giving way rather than as the type coming loose."
+    },
+    "scatter": {
+      "type": "number",
+      "default": 0.55,
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "description": "How scattered the order is. At 0 the letters drop strictly left to right, which reads as mechanical; at 1 the order is unrelated to position, which reads as random. The middle is what looks like something coming apart."
+    },
+    "gravity": {
+      "type": "number",
+      "default": 26,
+      "min": 4,
+      "max": 120,
+      "step": 1,
+      "description": "Fall acceleration, in line heights per second squared. In line heights rather than pixels so the same value behaves at any type size."
+    },
+    "bounce": {
+      "type": "number",
+      "default": 0.28,
+      "min": 0,
+      "max": 0.8,
+      "step": 0.02,
+      "description": "How much of its speed a letter keeps on the bounce. At 0 it stops dead, which reads as a dropped frame. Past about 0.5 it is a rubber ball rather than a piece of lead type."
+    },
+    "drift": {
+      "type": "number",
+      "default": 0.35,
+      "min": 0,
+      "max": 2,
+      "step": 0.05,
+      "description": "How far a letter wanders sideways as it falls, in line heights. A little is the difference between type coming loose and a row of counters dropping down a slot."
+    },
+    "spin": {
+      "type": "number",
+      "default": 150,
+      "min": 0,
+      "max": 900,
+      "step": 10,
+      "unit": "deg/s",
+      "description": "Degrees a letter turns per second while falling, in whichever direction its hash gives it. At 0 the letters stay upright, which is quieter and is the right answer for a line that has to stay readable as it goes."
+    },
+    "floor": {
+      "type": "number",
+      "default": 3.2,
+      "min": 0.5,
+      "max": 20,
+      "step": 0.1,
+      "description": "How far below the baseline the letters come to rest, in line heights. Make sure there is room: the element keeps its original height, so anything past the bottom of its container needs the container to allow overflow."
+    },
+    "seed": {
+      "type": "number",
+      "default": 7,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "description": "Seed for the scatter and the spin directions. The same seed gives the same fall, so a recording and a live page agree letter for letter."
+    }
+  },
+  "instruction": "press replay to drop it again",
+  "oneShot": true,
+  "record": {
+    "duration": 4,
+    "fps": 30,
+    "posterAt": 1.5
+  }
+}
