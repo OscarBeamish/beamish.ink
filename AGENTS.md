@@ -189,6 +189,21 @@ generate, then paste-test the prompt in a scratch app.
 Do not skip the paste-test. A vague prompt is as serious a defect as a broken
 shader.
 
+### The demo page
+
+`demo.html` is a real page the tools drive, not a sketch. Two things in it are
+load-bearing:
+
+- **The element the effect mounts on is `id="stage"`.** Every one of the fifty
+  demo pages uses it and `tools/tests/context-leak.test.ts` mounts on
+  `document.getElementById('stage')`. Call it something more descriptive and the
+  test fails with a null dereference inside the runtime, which reads as a bug in
+  the effect.
+- **`window.__beamish` is the handle the recorder drives**, and nothing may run
+  a RAF loop when `?record` is in the query. A page with two handles composes
+  them into one object whose `renderAtTime` drives both, so the whole frame is a
+  function of one clock.
+
 ### Naming it
 
 Literal, descriptive, two or three words, PascalCase, saying what the thing

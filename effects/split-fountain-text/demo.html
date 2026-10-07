@@ -18,8 +18,12 @@
        * The effect is mounted on the sheet, not on the heading. One pass of ink
        * across the whole forme: every piece of text in here is inked from the
        * same gradient, in register with the others.
+       *
+       * The sheet is #stage because that is the id every demo page uses and the
+       * one the leak test mounts on. Calling it #sheet read better and cost a
+       * failing test.
        */
-      #sheet {
+      #stage {
         width: 100vw;
         height: 100vh;
         display: grid;
@@ -28,7 +32,7 @@
         padding: 0 7vw;
         box-sizing: border-box;
       }
-      #sheet h1 {
+      #stage h1 {
         margin: 0;
         max-width: 19ch;
         font-family: var(--font-display);
@@ -37,13 +41,13 @@
         letter-spacing: -0.03em;
         line-height: 0.95;
       }
-      #sheet p {
+      #stage p {
         margin: 0;
         max-width: 62ch;
         font-size: clamp(0.8rem, 1.6vw, 1.05rem);
         line-height: 1.7;
       }
-      #sheet .rule {
+      #stage .rule {
         font-size: clamp(0.65rem, 1.5vw, 0.85rem);
         letter-spacing: 0.14em;
         text-transform: uppercase;
@@ -56,7 +60,7 @@
       deterministic to screenshot, and so the effect can be opened on its own
       without a build step. `pnpm build:items` produces demo.bundle.js.
     -->
-    <div id="sheet">
+    <div id="stage">
       <p class="rule">One pass of ink</p>
       <h1>Two inks in the same duct</h1>
       <p>
@@ -69,7 +73,7 @@
 
     <script src="./demo.bundle.js"></script>
     <script>
-      const handle = window.Beamish.create(document.getElementById('sheet'))
+      const handle = window.Beamish.create(document.getElementById('stage'))
 
       // The recorder drives renderAtTime itself and must not race a RAF loop.
       window.__beamish = handle
