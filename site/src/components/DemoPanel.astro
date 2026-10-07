@@ -274,6 +274,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'variable-weight-text': () => import('@items/effects/variable-weight-text/core'),
     'gradual-blur': () => import('@items/effects/gradual-blur/core'),
     'count-up-number': () => import('@items/effects/count-up-number/core'),
+    'odometer-number': () => import('@items/effects/odometer-number/core'),
     'terrain-relief': () => import('@items/effects/terrain-relief/core'),
     'guilloche-lines': () => import('@items/effects/guilloche-lines/core'),
     'mesh-gradient': () => import('@items/effects/mesh-gradient/core'),
@@ -402,6 +403,12 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       <span class="demo-count-up-number__value">45,400</span>
       <p>Stars on the library we are not competing with</p>
     </div>`,
+    /* Mounted on the wheels, with the caption outside them, the same way the
+       count-up panel is put together. */
+    'odometer-number': `<div class="demo-count-up-number">
+      <span class="demo-odometer">128640</span>
+      <p>Miles since the last service</p>
+    </div>`,
     /* A column of text under the band, so there is something to go out of
        focus. The pane clips it; the haze is at the pane's own foot. */
     'gradual-blur': `<div class="demo-haze">
@@ -456,6 +463,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
   const MOUNT_ON: Record<string, string> = {
     'magnetic-button': '.beamish-glow-button',
     'count-up-number': '.demo-count-up-number__value',
+    'odometer-number': '.demo-odometer',
     // The lamp lights the card, not the stage around it.
     'spotlight-card': '.demo-card'
   }
