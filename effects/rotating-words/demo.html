@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RotatingWords: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      .sheet {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        align-content: center;
+        gap: 2rem;
+        padding: 0 7vw;
+        box-sizing: border-box;
+      }
+      h1 {
+        margin: 0;
+        max-width: 18ch;
+        font-family: var(--font-display);
+        font-size: clamp(2.2rem, 8vw, 6rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1.02;
+      }
+      /*
+       * Nothing here sizes the word list. Every word sits in one grid cell, so
+       * the box is already as wide as the longest of them and the rest of the
+       * line cannot move. That is the effect's own doing, not this stylesheet's.
+       */
+      #stage {
+        color: var(--accent);
+      }
+      p {
+        margin: 0;
+        max-width: 56ch;
+        font-size: clamp(0.8rem, 1.6vw, 1rem);
+        line-height: 1.7;
+        color: var(--label-3);
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+
+      The words are ordinary markup, written in the order they appear. The first
+      is what a reader sees before the script runs and what a screen reader is
+      given; the effect hides the rest from the accessibility tree itself.
+    -->
+    <div class="sheet">
+      <h1>
+        Printed by
+        <span id="stage"
+          ><span>letterpress</span><span>lithography</span><span>screen print</span><span>risograph</span></span
+        >
+      </h1>
+      <p>
+        The box is the width of the longest word before anything moves, so the
+        line it sits in never changes length. Every word is in the same grid
+        cell, which means no measurement, nothing to recompute on resize, and
+        nothing that can be wrong before the font has loaded.
+      </p>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const handle = window.Beamish.create(document.getElementById('stage'))
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      window.__beamish = handle
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
+    </script>
+  </body>
+</html>

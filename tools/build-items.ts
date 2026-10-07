@@ -129,6 +129,15 @@ async function main() {
   }
   for (const item of items) {
     await buildItem(item)
+    /*
+     * A grid has no bundle, so there is no size to report. Reading the file
+     * anyway was an ENOENT on every run that touched one, from a step that
+     * had correctly decided there was nothing to do.
+     */
+    if (item.kind === 'grid') {
+      console.log(`  ${item.slug.padEnd(14)} stylesheet, nothing to bundle`)
+      continue
+    }
     const bytes = (await readFile(path.join(item.dir, 'demo.bundle.js'))).byteLength
     console.log(`  ${item.slug.padEnd(14)} ${(bytes / 1024).toFixed(1)} kB`)
   }

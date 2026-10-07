@@ -540,6 +540,29 @@
    * showing through is what draws the rules between cells, and the effect's
    * travelling rules are tuned to match it.
    */
+  .demo-rotating {
+    display: grid;
+    align-content: center;
+    height: 100%;
+    margin: 0;
+    padding: 0 clamp(1rem, 5cqw, 3rem);
+    box-sizing: border-box;
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 6cqw, 4rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+  }
+
+  /*
+   * Nothing here sizes the word list. Every word sits in one grid cell, so
+   * the box is already as wide as the longest and the line cannot move. That
+   * is the effect doing it, not this rule.
+   */
+  .demo-rotating__set {
+    color: var(--accent);
+  }
+
   .demo-tiles {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

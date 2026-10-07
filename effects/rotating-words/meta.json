@@ -1,0 +1,115 @@
+{
+  "name": "RotatingWords",
+  "slug": "rotating-words",
+  "tier": 1,
+  "description": "One word in a sentence swaps for another on a loop, in a box sized to the longest so the line never moves",
+  "category": "type",
+  "ground": "either",
+  "tags": [
+    "text",
+    "rotating",
+    "loop",
+    "ambient",
+    "dom",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "The box is sized to the longest word before anything moves. A list of words of different lengths swapped in place changes the width of its own line on every swap, so everything after it slides back and forth for as long as the page is open. It is the most common fault in this effect and it is entirely avoidable",
+      "The sizing needs no measurement. Every word is placed in the same cell of an inline-grid, so the cell is as wide as the longest and as tall as the tallest, and it stays that size whichever word is showing. Nothing to recompute on resize and nothing that can be wrong before a font has loaded",
+      "The words are the author's markup and are never replaced. Passing a list of strings and building spans means the text is invisible to anything reading the page before the script runs, and it puts copy inside a configuration object where nobody will think to translate it",
+      "Only the first word is in the accessibility tree; the rest are aria-hidden and the element is aria-live off. A screen reader meeting eight alternatives in a row would otherwise read the sentence eight times, and a live region would announce a change nobody asked for every two seconds",
+      "Pure in t: which word is showing and how far through its handover are arithmetic on the clock, so the recorder can seek anywhere and a live page and a take agree",
+      "Only the arriving and leaving words are touched. Everything else is parked with no transform to compute, so twelve words cost the same per frame as two"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.15,
+    "contexts": 0,
+    "notes": [
+      "Two transforms and two opacities per frame during a handover, and nothing at all between them: the applied state is compared before anything is written, so a word being held writes no styles",
+      "A blur of 0 is left off entirely rather than written as blur(0px), because a filter costs a compositing layer whether or not it does anything"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/rotating-words/core.ts",
+      "to": "src/beamish/effects/rotating-words/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/rotating-words/adapters/react.tsx",
+      "to": "src/beamish/effects/rotating-words/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/rotating-words/adapters/vue.ts",
+      "to": "src/beamish/effects/rotating-words/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "interval": {
+      "type": "number",
+      "default": 2200,
+      "min": 600,
+      "max": 10000,
+      "step": 100,
+      "unit": "ms",
+      "sensible": [
+        1800,
+        3200
+      ],
+      "description": "Milliseconds each word is held, including its handover. This sets the length of the whole loop, which is the interval times the number of words, so four words at 2200ms is an 8.8 second cycle and that is what a recording has to span."
+    },
+    "swap": {
+      "type": "number",
+      "default": 520,
+      "min": 80,
+      "max": 2000,
+      "step": 20,
+      "unit": "ms",
+      "description": "Milliseconds the handover takes, clamped to the interval so one word cannot still be leaving when the next starts. Around a quarter of the interval reads as a deliberate change rather than as a flicker."
+    },
+    "rise": {
+      "type": "number",
+      "default": 0.9,
+      "min": 0,
+      "max": 2,
+      "step": 0.05,
+      "description": "How far a word travels as it goes, as a share of its own line height. At 0 the words cross-fade in place, which is quieter and is the right answer inside running text."
+    },
+    "tilt": {
+      "type": "number",
+      "default": 0,
+      "min": -20,
+      "max": 20,
+      "step": 0.5,
+      "unit": "deg",
+      "description": "Degrees the moving words tip. Zero by default because a tilted word in the middle of a sentence reads as a mistake; it earns its place in a large display line and almost nowhere else."
+    },
+    "blur": {
+      "type": "number",
+      "default": 0,
+      "min": 0,
+      "max": 8,
+      "step": 0.5,
+      "unit": "px",
+      "description": "Blur on a word in motion. Zero is crisper and cheaper, and a filter costs a compositing layer whether or not it does anything, so a value of 0 is left off rather than written as blur(0px)."
+    }
+  },
+  "instruction": "the word changes on its own",
+  "oneShot": false,
+  "record": {
+    "duration": 8.8,
+    "fps": 30,
+    "posterAt": 1.1
+  }
+}
