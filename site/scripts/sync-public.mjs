@@ -20,7 +20,7 @@ await rm(path.join(PUBLIC, 'media'), { recursive: true, force: true })
 await mkdir(path.join(PUBLIC, 'media'), { recursive: true })
 
 let copied = 0
-for (const group of ['effects', 'components']) {
+for (const group of ['effects', 'components', 'grids']) {
   const base = path.join(ROOT, group)
   if (!existsSync(base)) continue
   for (const entry of await readdir(base, { withFileTypes: true })) {
@@ -45,6 +45,38 @@ for (const group of ['effects', 'components']) {
     if (!entry.isDirectory() || !existsSync(plates)) continue
     await cp(plates, path.join(PUBLIC, 'plates', entry.name), { recursive: true })
   }
+}
+
+/*
+ * Grid demos, served whole.
+ *
+ * A grid is a stylesheet and a page using it, and the page is the product: it
+ * is shown on the site in an iframe rather than rebuilt in Astro, because the
+ * demo sets its own custom properties on :root and lays out full-bleed bands.
+ * Rendered inside the site's own document those two would fight, and what the
+ * reader saw would not be what the prompt hands out.
+ *
+ * The shared stylesheets go with them, because the demo links them by the same
+ * relative path it uses on disk, and fonts.css asks for ./fonts.
+ */
+await rm(path.join(PUBLIC, 'grid-demos'), { recursive: true, force: true })
+const gridsDir = path.join(ROOT, 'grids')
+if (existsSync(gridsDir)) {
+  for (const entry of await readdir(gridsDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue
+    await cp(
+      path.join(gridsDir, entry.name),
+      path.join(PUBLIC, 'grid-demos', entry.name),
+      { recursive: true }
+    )
+  }
+  await mkdir(path.join(PUBLIC, 'shared'), { recursive: true })
+  for (const file of ['tokens.css', 'fonts.css']) {
+    await cp(path.join(ROOT, 'shared', file), path.join(PUBLIC, 'shared', file))
+  }
+  await cp(path.join(ROOT, 'shared', 'fonts'), path.join(PUBLIC, 'shared', 'fonts'), {
+    recursive: true
+  })
 }
 
 await mkdir(path.join(PUBLIC, 'fonts'), { recursive: true })

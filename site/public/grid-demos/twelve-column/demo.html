@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TwelveColumn: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <link rel="stylesheet" href="./grid.css" />
+    <style>
+      html {
+        scroll-behavior: auto;
+      }
+      body {
+        margin: 0;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+        font-size: clamp(0.82rem, 1.1vw, 0.95rem);
+        line-height: 1.7;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 0.96;
+        margin: 0;
+      }
+      h1 {
+        font-size: clamp(2.6rem, 8vw, 7rem);
+      }
+      h2 {
+        font-size: clamp(1.6rem, 3.6vw, 3rem);
+      }
+      h3 {
+        font-size: clamp(1rem, 1.6vw, 1.3rem);
+        letter-spacing: -0.01em;
+      }
+      p {
+        margin: 0 0 1em;
+      }
+      p:last-child {
+        margin-bottom: 0;
+      }
+      .eyebrow {
+        font-size: 0.68rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--label-3);
+      }
+      .rule-top {
+        border-top: 1px solid var(--grid-rule);
+        padding-top: var(--grid-step);
+      }
+      figure {
+        margin: 0;
+      }
+      figure img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      figcaption {
+        margin-top: 0.6rem;
+        font-size: 0.7rem;
+        color: var(--label-3);
+      }
+      .band--ink {
+        background: var(--background-elevated);
+      }
+      .lede {
+        font-size: clamp(1rem, 1.5vw, 1.25rem);
+        line-height: 1.5;
+      }
+      /* The one control: a grid you cannot see is a grid you cannot judge. */
+      .rules-toggle {
+        position: fixed;
+        right: 1rem;
+        bottom: 1rem;
+        z-index: 80;
+        padding: 0.5rem 0.9rem;
+        font: inherit;
+        font-size: 0.68rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--label-1);
+        background: var(--background-elevated);
+        border: 1px solid var(--line);
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the grid can be opened on its own
+      without a build step.
+
+      This is a page using the grid rather than a diagram of it. A grid laid out
+      with grey boxes tells you nothing: you cannot see whether a measure works
+      until a paragraph and a photograph are competing for the same columns.
+    -->
+    <main id="stage">
+      <section class="band">
+        <div class="band__grid">
+          <p class="eyebrow col-12">Twelve column, editorial</p>
+          <h1 class="col-10">Set on twelve, read on seven</h1>
+          <p class="lede col-6 start-7 measure">
+            A grid is not the columns. It is the agreement that everything on the
+            page starts and stops in the same few places, which is what lets a
+            reader stop noticing the layout and start reading.
+          </p>
+        </div>
+      </section>
+
+      <section class="band band--ink">
+        <div class="band__grid">
+          <div class="col-5 rule-top">
+            <h3>The margin is not a gutter</h3>
+            <p>
+              They are different measurements doing different jobs. A gutter
+              holds two columns of type apart. A margin holds the type off the
+              trimmed edge of the sheet, and it wants to be several times larger.
+            </p>
+          </div>
+          <div class="col-5 start-8 rule-top">
+            <h3>The band bleeds, the grid does not</h3>
+            <p>
+              A section spans the whole window so it can carry a ground to the
+              edges. The tracks sit inside it, inset by the margin. Put the
+              margin on the section instead and nothing can ever bleed.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="band">
+        <div class="band__grid">
+          <figure class="col-7">
+            <img
+              src="../_media/plate-1043.webp"
+              alt="A road running into low cloud between dark hills"
+              loading="lazy"
+              width="1400"
+              height="875"
+            />
+            <figcaption>
+              Seven columns. Wide enough to carry a landscape, and it leaves five
+              for something to sit beside it.
+            </figcaption>
+          </figure>
+          <div class="col-4 start-9">
+            <h2>Thirds, halves and quarters</h2>
+            <p>
+              Twelve divides by two, three, four and six, which is every division
+              an editorial page actually asks for. Ten looks tidier on paper and
+              cannot do thirds, which you discover on the first spread that wants
+              three of anything.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="band">
+        <div class="band__grid">
+          <figure class="col-4">
+            <img
+              src="../_media/plate-1015.webp"
+              alt="A river running through a steep wooded valley"
+              loading="lazy"
+              width="1400"
+              height="875"
+            />
+            <figcaption>Four columns</figcaption>
+          </figure>
+          <figure class="col-4">
+            <img
+              src="../_media/plate-1016.webp"
+              alt="Bare trees against a pale winter sky"
+              loading="lazy"
+              width="1400"
+              height="875"
+            />
+            <figcaption>Four columns</figcaption>
+          </figure>
+          <figure class="col-4">
+            <img
+              src="../_media/plate-1018.webp"
+              alt="A close view of weathered paint and rust"
+              loading="lazy"
+              width="1400"
+              height="875"
+            />
+            <figcaption>Four columns</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="band band--ink">
+        <div class="band__grid">
+          <h2 class="col-6">
+            The rules are drawn from the grid, not alongside it
+          </h2>
+          <div class="col-5 start-8 measure">
+            <p>
+              An overlay that is its own repeating gradient is correct on the day
+              it is made and wrong after the first change to a gutter. This one
+              reads the same three custom properties the layout does, so it
+              cannot describe a grid other than the one it is sitting on.
+            </p>
+            <p>Press the control to see it.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="band">
+        <div class="band__grid">
+          <figure class="col-12">
+            <img
+              src="../_media/plate-1039.webp"
+              alt="A wide shoreline under an overcast sky"
+              loading="lazy"
+              width="1400"
+              height="875"
+            />
+            <figcaption class="col-6">
+              Full bleed inside the margin. The picture spans every track, which
+              is not the same as spanning the window.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="band">
+        <div class="band__grid">
+          <p class="eyebrow col-12 rule-top">Measure</p>
+          <div class="col-7 measure">
+            <p>
+              Type does not become more readable as its column gets wider. Past
+              about seventy-five characters the eye loses the start of the next
+              line, and a span of seven columns on a wide screen is well past
+              that. So body copy takes a measure as well as a span, and the two
+              are not the same instruction.
+            </p>
+          </div>
+          <div class="col-3 start-10">
+            <p class="eyebrow">68ch, held</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div class="grid-rules" id="rules" hidden>
+      <i></i><i></i><i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+
+    <button class="rules-toggle" id="toggle" aria-pressed="false">Show grid</button>
+
+    <script>
+      const rules = document.getElementById('rules')
+      const toggle = document.getElementById('toggle')
+      toggle.addEventListener('click', () => {
+        const on = toggle.getAttribute('aria-pressed') === 'true'
+        rules.hidden = on
+        toggle.setAttribute('aria-pressed', String(!on))
+        toggle.textContent = on ? 'Show grid' : 'Hide grid'
+      })
+
+      /*
+       * A grid does not move, so there is nothing to animate and nothing for the
+       * recorder to drive. What there is to show is the page, and the only way
+       * to read a layout is to go down it.
+       *
+       * So the page answers the same contract every item answers: renderAtTime
+       * is a pure function of t that puts the scroll somewhere. Down over the
+       * first half and back over the second, which closes the loop exactly,
+       * because the frame at 0 and the frame at the end are the same frame.
+       */
+      const ease = k => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2)
+
+      window.__beamish = {
+        renderAtTime(t) {
+          const span = Number(new URLSearchParams(location.search).get('span')) || 12
+          const reach = Math.max(document.body.scrollHeight - innerHeight, 0)
+          const k = Math.min(Math.max(t / span, 0), 1)
+          // There and back, so the last frame matches the first.
+          const there = k < 0.5 ? ease(k * 2) : ease((1 - k) * 2)
+          scrollTo(0, reach * there)
+        },
+        start() {},
+        stop() {},
+        update() {},
+        destroy() {}
+      }
+
+      if (!new URLSearchParams(location.search).has('record')) {
+        window.scrollTo(0, 0)
+      }
+    </script>
+  </body>
+</html>

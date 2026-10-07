@@ -300,3 +300,61 @@ export const CATEGORY_BLURBS: Record<Meta['category'], string> = {
   surfaces: 'Cards, panels, images',
   navigation: 'Menus, headers, page transitions'
 }
+
+// --- grids -----------------------------------------------------------------
+
+/*
+ * A grid is not an effect and not a component, so it does not use the schema
+ * above and does not pretend to.
+ *
+ * It has no runtime, no `renderAtTime`, no options to drive and no frame cost,
+ * and forcing it through a schema that demands a tier, a core and an options
+ * record would mean inventing all four. AGENTS.md says not to unify the two
+ * existing contracts; this is a third, kept separate for the same reason.
+ *
+ * What a grid does have is a stylesheet, a set of custom properties that are
+ * its real interface, and a page using it.
+ */
+export const gridMetaSchema = z
+  .object({
+    name: z.string().regex(/^[A-Z][A-Za-z]+$/, 'name must be a single CamelCase word'),
+    slug,
+    description: z.string().min(10).max(160),
+    category: z.enum(['editorial', 'tiles', 'baseline', 'asymmetric']),
+    tags: z.array(z.string()).min(1),
+    ground: z.enum(['paper', 'dark', 'either']).default('paper'),
+
+    /** The stylesheet, and anything else a paste needs. */
+    files: z.array(fileSpec).min(1),
+
+    /**
+     * The custom properties, which are the whole interface. A grid is tuned by
+     * overriding these rather than by editing the file, so they are documented
+     * the way an effect's options are.
+     */
+    properties: z.record(
+      z.object({
+        default: z.string().min(1),
+        description: z.string().min(20)
+      })
+    ),
+
+    notes: z.array(z.string()).default([]),
+
+    /*
+     * A grid does not move, so the take is a scroll down the example page and
+     * back. `duration` is handed to the demo as `?span`, which is what makes
+     * the last frame match the first.
+     */
+    record: z.object({
+      duration: z.number().positive(),
+      fps: z.number().int().positive().default(30),
+      posterAt: z.number().nonnegative(),
+      crf: z.number().int().min(0).max(63).optional(),
+      webmCrf: z.number().int().min(0).max(63).optional(),
+      posterQuality: z.number().int().min(2).max(31).optional()
+    })
+  })
+  .strict()
+
+export type GridMeta = z.infer<typeof gridMetaSchema>

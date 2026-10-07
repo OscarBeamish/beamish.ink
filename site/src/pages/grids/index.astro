@@ -1,0 +1,83 @@
+---
+/*
+ * The grids wall.
+ *
+ * Same cards as the effects index, and deliberately a separate page rather than
+ * another band on the homepage: a grid is not an effect, it has no runtime and
+ * nothing to pause, and mixing them would suggest you paste them the same way.
+ */
+import Base from '../../layouts/Base.astro'
+import { loadGrids, loadGridMedia, GRID_CATEGORY_LABELS } from '../../lib/grids'
+
+const grids = loadGrids().map(grid => ({ grid, media: loadGridMedia(grid.slug) }))
+---
+
+<Base
+  title="Beamish: grid systems"
+  description="Editorial grid systems as plain CSS. Nothing to install: copy the stylesheet and the rules that go with it."
+>
+  <section class="spine pt-32 pb-16 md:pt-44">
+    <h1 class="col-span-12 text-[clamp(2.3rem,7vw,5rem)] leading-[0.95] lg:col-span-10">
+      <span class="block">Grid systems.</span>
+      <span class="text-l3 block">Plain CSS.</span>
+    </h1>
+    <p class="text-l2 col-span-12 mt-8 text-[1rem] sm:col-span-9 lg:col-span-6">
+      No runtime, nothing to mount and nothing to destroy. A stylesheet, the
+      custom properties that are its real interface, and a page using it, because
+      you cannot tell whether a measure works until a paragraph and a photograph
+      are competing for the same columns.
+    </p>
+  </section>
+
+  <section class="spine pb-32">
+    <ul class="col-span-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        grids.map(({ grid, media }) => (
+          <li class="h-full">
+            <a
+              href={`/grids/${grid.slug}`}
+              class="item-card group border-line bg-be flex h-full flex-col overflow-hidden rounded-[2px] border no-underline"
+              data-card
+            >
+              <div class="relative aspect-video overflow-hidden">
+                {media.poster ? (
+                  <img
+                    src={media.poster}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    class="absolute inset-0 h-full w-full object-cover"
+                  />
+                ) : (
+                  <div class="bg-b1 absolute inset-0" />
+                )}
+                {media.mp4 && (
+                  <video
+                    class="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                    muted
+                    loop
+                    playsinline
+                    preload="none"
+                    data-card-video
+                  >
+                    {media.webm && <source src={media.webm} type="video/webm" />}
+                    <source src={media.mp4} type="video/mp4" />
+                  </video>
+                )}
+              </div>
+              <div class="flex flex-1 flex-col gap-2 p-4">
+                <p class="text-l3 font-mono text-[0.62rem] tracking-[0.14em] uppercase">
+                  {GRID_CATEGORY_LABELS[grid.category]}
+                </p>
+                <h2 class="text-[1.1rem] leading-tight">{grid.name}</h2>
+                <p class="item-card__note text-l2 font-mono text-[0.76rem] leading-[1.6]">
+                  {grid.description}
+                </p>
+              </div>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>
