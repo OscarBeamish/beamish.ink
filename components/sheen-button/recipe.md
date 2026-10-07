@@ -1,49 +1,13 @@
-You are adding **GlowButton** from Beamish to this project.
+## What it is
 
-> The action pill: mono, uppercase, with a slow band of light crossing it. Navigation · component · MIT.
-> https://beamish.ink/components/glow-button
-
-Beamish is not a package and there is nothing to install from npm. The source
-lives in a public repo; you fetch the files, put them in this project, and wire
-them in. Adapt them to whatever this project already uses. That is the point of
-shipping it this way.
-
-Assume you have not seen this library before. Everything you need is below.
-
-## What it needs
-
-- **npm dependencies:** `react@>=18`
-- Uses color-mix(); Chrome 111+, Safari 16.2+, Firefox 113+. Older browsers get the base colour with no hover shift, which is a graceful loss
-- No JavaScript animation at all. The motion is two CSS transitions
-- React 18+ or Vue 3. This one is a component, not an imperative effect.
-
-Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
-
-## 1. Fetch these files
-
-Fetch each URL and save it at the path given. Adjust the paths to match this
-project's conventions, but keep them in the same relative arrangement. The
-import between them is relative.
-
-| Save as | Fetch from |
-| --- | --- |
-| `src/beamish/components/glow-button/react.tsx` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/components/glow-button/react.tsx |
-| `src/beamish/components/glow-button/styles.css` | https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/components/glow-button/styles.css |
-
-If you cannot fetch these URLs, say so. Do not write the file from memory. There
-is a version of this prompt with the source inlined, and a guessed shader
-compiles and looks wrong.
-
-## 2. What it is
-
-Ember is the action pill: mono, uppercase, 100px radius, with one slow band of
+SheenButton is the action pill: mono, uppercase, 100px radius, with one slow band of
 light crossing its face on hover. It is the one piece of the library that is
 deliberately ordinary. The surprising things are meant to be the effects. This is
 the thing you press to get one.
 
 Two tones. `solid` is the accent pill and belongs to the single most important
 action on a screen. `quiet` is the outlined secondary. If a page has two solid
-Embers on it, one of them is wrong.
+SheenButtons on it, one of them is wrong.
 
 It renders a `<button>` by default and an `<a>` when given an `href`. A thing
 that navigates should be a link and a thing that acts should be a button. There
@@ -54,20 +18,20 @@ The hover state darkens. The accent sits near the top of its range already, and
 lifting it drops white lettering below 4.5:1. The direction most libraries go is
 the one that fails.
 
-## 3. Wire it in
+## Wiring
 
 **React.**
 
 ```tsx
-import { Ember } from '@/beamish/components/glow-button/react'
+import { SheenButton } from '@/beamish/components/sheen-button/react'
 
 export function Cta() {
   return (
     <div className="flex gap-4">
-      <Ember onClick={() => copy()}>Get prompt</Ember>
-      <Ember tone="quiet" href="https://github.com/OscarBeamish/beamish.ink">
+      <SheenButton onClick={() => copy()}>Get prompt</SheenButton>
+      <SheenButton tone="quiet" href="https://github.com/OscarBeamish/beamish.ink">
         View source
-      </Ember>
+      </SheenButton>
     </div>
   )
 }
@@ -77,12 +41,12 @@ export function Cta() {
 
 ```vue
 <script setup lang="ts">
-import { Ember } from '@/beamish/components/glow-button/vue'
+import { SheenButton } from '@/beamish/components/sheen-button/vue'
 </script>
 
 <template>
-  <Ember @click="copy">Get prompt</Ember>
-  <Ember tone="quiet" href="https://github.com/OscarBeamish/beamish.ink">View source</Ember>
+  <SheenButton @click="copy">Get prompt</SheenButton>
+  <SheenButton tone="quiet" href="https://github.com/OscarBeamish/beamish.ink">View source</SheenButton>
 </template>
 ```
 
@@ -96,18 +60,7 @@ right in a project that has never heard of Beamish. If you already define
 `--accent`, `--label-1`, `--control-line`, `--font-mono` or `--ease-66`, it picks
 those up and inherits your theme. Set `--accent` and it becomes your button.
 
-## 4. Options
-
-Every option, with its default and the range that actually looks good. Pass them
-as the second argument; anything omitted takes its default.
-
-| Option | Type | Default | Range | What it does |
-| --- | --- | --- | --- | --- |
-| `tone` | enum | `solid` | `solid` · `quiet` | `solid` is the accent pill and is for the one action on the page that matters. `quiet` is the outlined secondary. If a screen has two solid Embers on it, one of them is wrong. |
-| `href` | string | `` | any value | Given an href it renders an <a>. Without one it renders a <button type="button">. Do not fake a link with a click handler. Keyboard users and screen readers both notice. |
-| `disabled` | boolean | `false` | `true` · `false` | Button form only. An anchor cannot be disabled, so the anchor form sets aria-disabled instead and you must stop the navigation yourself. |
-
-## 5. Accessibility. Do not skip this
+## Accessibility
 
 - Focus is a ring on the outside, not a recoloured border. WCAG 2.4.11 requires
   the focus indicator to be distinguishable from the unfocused state at 3:1, and
@@ -123,7 +76,7 @@ as the second argument; anything omitted takes its default.
 - The light sweep is decorative and drawn in a pseudo-element, so it is invisible
   to assistive technology and cannot be selected or copied.
 
-## 6. Cleanup and SSR
+## Cleanup and SSR
 
 Nothing to clean up. There is no JavaScript animation, no timer, and no listener.
 The motion is two CSS transitions.
@@ -133,7 +86,7 @@ top of the React file is there because the component takes an `onClick`, not
 because it needs the browser. If you are rendering it purely as a link, remove
 that line.
 
-## 7. Pausing and reduced motion
+## Reduced motion
 
 Under `prefers-reduced-motion: reduce` the light sweep is removed entirely rather
 than shortened, and the press scale is dropped. A sweep that completes in a
@@ -142,7 +95,7 @@ millisecond is a flash, which is worse than no sweep at all.
 The colour change on hover stays. It is state, not decoration, and people who
 have asked for less motion still need to know what they are pointing at.
 
-## 8. The three mistakes most likely to be made here
+## Common mistakes
 
 1. **Using `solid` for everything.** The accent is for actions, and on this
    library's own site it appears once per screen. Two solid pills side by side
@@ -155,16 +108,3 @@ have asked for less motion still need to know what they are pointing at.
 3. **Deleting the `outline` in `:focus-visible` because it looks untidy.** It is
    the only focus affordance the component has. Recolour it, offset it further,
    change its width, but leave something there.
-
-## Ready-made wrappers
-
-If you would rather not hand-write the wiring, these are the same thing as a
-drop-in file. They contain no effect logic.
-
-- https://raw.githubusercontent.com/OscarBeamish/beamish.ink/{{PIN}}/components/glow-button/vue.ts
-
----
-
-When you are done, confirm the effect renders and that its cleanup runs on
-unmount. If something does not work, the most likely cause is at the top of the
-mistakes list above, not in the shader.

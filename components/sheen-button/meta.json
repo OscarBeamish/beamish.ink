@@ -1,6 +1,6 @@
 {
-  "name": "GlowButton",
-  "slug": "glow-button",
+  "name": "SheenButton",
+  "slug": "sheen-button",
   "tier": 2,
   "description": "The action pill: mono, uppercase, with a slow band of light crossing it",
   "category": "navigation",
@@ -32,18 +32,18 @@
   },
   "files": [
     {
-      "from": "components/glow-button/react.tsx",
-      "to": "src/beamish/components/glow-button/react.tsx",
+      "from": "components/sheen-button/react.tsx",
+      "to": "src/beamish/components/sheen-button/react.tsx",
       "role": "component"
     },
     {
-      "from": "components/glow-button/styles.css",
-      "to": "src/beamish/components/glow-button/styles.css",
+      "from": "components/sheen-button/styles.css",
+      "to": "src/beamish/components/sheen-button/styles.css",
       "role": "style"
     },
     {
-      "from": "components/glow-button/vue.ts",
-      "to": "src/beamish/components/glow-button/vue.ts",
+      "from": "components/sheen-button/vue.ts",
+      "to": "src/beamish/components/sheen-button/vue.ts",
       "role": "adapter"
     }
   ],
@@ -55,7 +55,7 @@
         "quiet"
       ],
       "default": "solid",
-      "description": "`solid` is the accent pill and is for the one action on the page that matters. `quiet` is the outlined secondary. If a screen has two solid Embers on it, one of them is wrong."
+      "description": "`solid` is the accent pill and is for the one action on the page that matters. `quiet` is the outlined secondary. If a screen has two solid SheenButtons on it, one of them is wrong."
     },
     "href": {
       "type": "string",
@@ -78,17 +78,17 @@
       {
         "at": 0.4,
         "action": "hover",
-        "target": "#solid .beamish-glow-button"
+        "target": "#solid .beamish-sheen-button"
       },
       {
         "at": 1.8,
         "action": "click",
-        "target": "#solid .beamish-glow-button"
+        "target": "#solid .beamish-sheen-button"
       },
       {
         "at": 2.4,
         "action": "hover",
-        "target": "#quiet .beamish-glow-button"
+        "target": "#quiet .beamish-sheen-button"
       },
       {
         "at": 3.8,

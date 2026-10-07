@@ -186,7 +186,7 @@ Works. The densest thing in the repo at 12MB of media, six times the next worst.
   is a question every reader will have and the recipe does not answer it.
 - **improve** No `prefers-reduced-transparency` handling on the backdrop blur.
 
-### Ember
+### SheenButton
 
 - **improve** `color-mix` has no fallback, so on an older browser the hover state
   simply does not change. The note says this is a graceful loss. It is, but a

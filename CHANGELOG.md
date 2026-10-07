@@ -466,7 +466,7 @@ Seventeen items, and every one of them renamed.
       Overprint  -> HalftoneBackdrop      Riser     -> ScrollRevealRows
       Sundial    -> CastShadowScene       Tilt      -> TiltCard
       Contour    -> TerrainRelief         Contents  -> FullscreenMenu
-      Foil       -> PointerFoilSheen      Ember     -> GlowButton
+      Foil       -> PointerFoilSheen      SheenButton     -> SheenButton
       Swell      -> PointerRippleGrid     Guilloche -> GuillocheLines
       Magnet     -> MagneticButton        Plate     -> ImageGalleryLightbox
       Sort       -> ScrambleText          Vellum    -> TranslucentSheets
@@ -641,7 +641,7 @@ private. Nothing here has been published.
   `renderAtTime`. Components have their CSS transitions paused and scrubbed
   through the Web Animations API.
 - Effects: Overprint, Sundial, Foil.
-- Components: Contents, Ember.
+- Components: Contents, SheenButton.
 - The site.
 - One test: mount and destroy each effect 50 times, then prove the browser still
   hands out a WebGL context.

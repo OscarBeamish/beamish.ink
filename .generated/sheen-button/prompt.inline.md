@@ -1,7 +1,7 @@
-You are adding **GlowButton** from Beamish to this project.
+You are adding **SheenButton** from Beamish to this project.
 
 > The action pill: mono, uppercase, with a slow band of light crossing it. Navigation · component · MIT.
-> https://beamish.ink/components/glow-button
+> https://beamish.ink/components/sheen-button
 
 Beamish is not a package and there is nothing to install from npm. The source
 lives in a public repo; you fetch the files, put them in this project, and wire
@@ -26,12 +26,12 @@ Create each file at the path given, verbatim. Adjust the paths to match this
 project's conventions, but keep them in the same relative arrangement. The
 import between them is relative.
 
-**`src/beamish/components/glow-button/react.tsx`**
+**`src/beamish/components/sheen-button/react.tsx`**
 
 ```tsx
 /*
- * Ember: Beamish
- * https://beamish.ink/components/glow-button
+ * SheenButton: Beamish
+ * https://beamish.ink/components/sheen-button
  *
  * The action pill: mono, uppercase, 100px radius, with a slow band of light
  * crossing it on hover. Renders a <button> by default and an <a> when given an
@@ -51,12 +51,12 @@ import type {
 } from 'react'
 import './styles.css'
 
-export type EmberTone = 'solid' | 'quiet'
+export type SheenButtonTone = 'solid' | 'quiet'
 
 type Common = {
   children: ReactNode
   /** `solid` is the accent pill. `quiet` is the outlined secondary. */
-  tone?: EmberTone
+  tone?: SheenButtonTone
   className?: string
 }
 
@@ -66,13 +66,13 @@ type ButtonProps = Common &
 type AnchorProps = Common &
   Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'className'> & { href: string }
 
-export type GlowButtonProps = ButtonProps | AnchorProps
+export type SheenButtonProps = ButtonProps | AnchorProps
 
-const classes = (tone: EmberTone, className?: string) =>
-  ['beamish-glow-button', `beamish-glow-button--${tone}`, className].filter(Boolean).join(' ')
+const classes = (tone: SheenButtonTone, className?: string) =>
+  ['beamish-sheen-button', `beamish-sheen-button--${tone}`, className].filter(Boolean).join(' ')
 
-export const Ember = forwardRef<HTMLButtonElement | HTMLAnchorElement, GlowButtonProps>(
-  function Ember({ children, tone = 'solid', className, ...rest }, ref) {
+export const SheenButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, SheenButtonProps>(
+  function SheenButton({ children, tone = 'solid', className, ...rest }, ref) {
     if ('href' in rest && rest.href !== undefined) {
       const anchor = rest as AnchorHTMLAttributes<HTMLAnchorElement>
       return (
@@ -102,25 +102,25 @@ export const Ember = forwardRef<HTMLButtonElement | HTMLAnchorElement, GlowButto
   }
 )
 
-export default Ember
+export default SheenButton
 ```
 
-**`src/beamish/components/glow-button/styles.css`**
+**`src/beamish/components/sheen-button/styles.css`**
 
 ```text
 /*
- * Ember: Beamish
+ * SheenButton: Beamish
  *
  * Every custom property has a fallback, so the component looks right dropped into
  * a project that has never heard of Beamish tokens. If the tokens are present it
  * inherits them instead, which is the whole point of shipping it this way.
  */
 
-.beamish-glow-button {
-  --ember-accent: var(--accent, #c44400);
-  --ember-ink: var(--label-1, #000);
-  --ember-line: var(--control-line, rgba(54, 54, 48, 0.7));
-  --ember-ease: var(--ease-66, cubic-bezier(0.66, 0, 0.01, 1));
+.beamish-sheen-button {
+  --sheen-accent: var(--accent, #c44400);
+  --sheen-ink: var(--label-1, #000);
+  --sheen-line: var(--control-line, rgba(54, 54, 48, 0.7));
+  --sheen-ease: var(--ease-66, cubic-bezier(0.66, 0, 0.01, 1));
 
   position: relative;
   display: inline-flex;
@@ -145,22 +145,22 @@ export default Ember
   isolation: isolate;
 
   transition:
-    background-color 0.4s var(--ember-ease),
-    border-color 0.4s var(--ember-ease),
-    color 0.4s var(--ember-ease),
-    transform 0.25s var(--ember-ease);
+    background-color 0.4s var(--sheen-ease),
+    border-color 0.4s var(--sheen-ease),
+    color 0.4s var(--sheen-ease),
+    transform 0.25s var(--sheen-ease);
 }
 
-.beamish-glow-button:disabled,
-.beamish-glow-button[aria-disabled='true'] {
+.beamish-sheen-button:disabled,
+.beamish-sheen-button[aria-disabled='true'] {
   opacity: 0.45;
   cursor: not-allowed;
 }
 
 /* --- solid -------------------------------------------------------------- */
 
-.beamish-glow-button--solid {
-  background-color: var(--ember-accent);
+.beamish-sheen-button--solid {
+  background-color: var(--sheen-accent);
   color: #fff;
 }
 
@@ -168,30 +168,31 @@ export default Ember
  * Darkens on hover rather than lightening. The accent sits near the top of its
  * range already, and lifting it drops the white lettering below 4.5:1.
  */
-.beamish-glow-button--solid:hover:not(:disabled) {
-  background-color: color-mix(in srgb, var(--ember-accent) 84%, #000);
+.beamish-sheen-button--solid:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--sheen-accent) 84%, #000);
 }
 
 /* --- quiet -------------------------------------------------------------- */
 
-.beamish-glow-button--quiet {
+.beamish-sheen-button--quiet {
   background-color: transparent;
-  border-color: var(--ember-line);
-  color: var(--ember-ink);
+  border-color: var(--sheen-line);
+  color: var(--sheen-ink);
 }
 
-.beamish-glow-button--quiet:hover:not(:disabled) {
-  background-color: color-mix(in srgb, var(--ember-line) 10%, transparent);
+.beamish-sheen-button--quiet:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--sheen-line) 10%, transparent);
 }
 
 /* --- the catch ---------------------------------------------------------- */
 
 /*
- * A single band of light crossing the face on hover, the ember of the name. It
+ * A single band of light crossing the face on hover, which is the sheen of the
+ * name. It
  * is deliberately slow and low-contrast: a fast bright sweep on a button reads as
  * a discount code, not as a piece of design.
  */
-.beamish-glow-button::after {
+.beamish-sheen-button::after {
   content: '';
   position: absolute;
   inset: -40% -10%;
@@ -204,25 +205,25 @@ export default Ember
     rgba(255, 255, 255, 0.34) 55%,
     transparent 100%
   );
-  transition: transform 0.9s var(--ember-ease);
+  transition: transform 0.9s var(--sheen-ease);
   pointer-events: none;
 }
 
-.beamish-glow-button--quiet::after {
+.beamish-sheen-button--quiet::after {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    color-mix(in srgb, var(--ember-accent) 18%, transparent) 50%,
+    color-mix(in srgb, var(--sheen-accent) 18%, transparent) 50%,
     transparent 100%
   );
 }
 
-.beamish-glow-button:hover:not(:disabled)::after,
-.beamish-glow-button:focus-visible::after {
+.beamish-sheen-button:hover:not(:disabled)::after,
+.beamish-sheen-button:focus-visible::after {
   transform: translateX(130%) rotate(14deg);
 }
 
-.beamish-glow-button:active:not(:disabled) {
+.beamish-sheen-button:active:not(:disabled) {
   transform: scale(0.985);
 }
 
@@ -233,23 +234,23 @@ export default Ember
  * indicator to be distinguishable from the unfocused state at 3:1, and swapping
  * a border colour on a pill this size does not clear that.
  */
-.beamish-glow-button:focus-visible {
-  outline: 2px solid var(--ember-ink);
+.beamish-sheen-button:focus-visible {
+  outline: 2px solid var(--sheen-ink);
   outline-offset: 3px;
 }
 
 /* --- reduced motion ------------------------------------------------------ */
 
 @media (prefers-reduced-motion: reduce) {
-  .beamish-glow-button,
-  .beamish-glow-button::after {
+  .beamish-sheen-button,
+  .beamish-sheen-button::after {
     transition-duration: 0.01ms;
   }
   /* No sweep at all rather than an instant one, which would read as a flash. */
-  .beamish-glow-button::after {
+  .beamish-sheen-button::after {
     display: none;
   }
-  .beamish-glow-button:active:not(:disabled) {
+  .beamish-sheen-button:active:not(:disabled) {
     transform: none;
   }
 }
@@ -257,14 +258,14 @@ export default Ember
 
 ## 2. What it is
 
-Ember is the action pill: mono, uppercase, 100px radius, with one slow band of
+SheenButton is the action pill: mono, uppercase, 100px radius, with one slow band of
 light crossing its face on hover. It is the one piece of the library that is
 deliberately ordinary. The surprising things are meant to be the effects. This is
 the thing you press to get one.
 
 Two tones. `solid` is the accent pill and belongs to the single most important
 action on a screen. `quiet` is the outlined secondary. If a page has two solid
-Embers on it, one of them is wrong.
+SheenButtons on it, one of them is wrong.
 
 It renders a `<button>` by default and an `<a>` when given an `href`. A thing
 that navigates should be a link and a thing that acts should be a button. There
@@ -280,15 +281,15 @@ the one that fails.
 **React.**
 
 ```tsx
-import { Ember } from '@/beamish/components/glow-button/react'
+import { SheenButton } from '@/beamish/components/sheen-button/react'
 
 export function Cta() {
   return (
     <div className="flex gap-4">
-      <Ember onClick={() => copy()}>Get prompt</Ember>
-      <Ember tone="quiet" href="https://github.com/OscarBeamish/beamish.ink">
+      <SheenButton onClick={() => copy()}>Get prompt</SheenButton>
+      <SheenButton tone="quiet" href="https://github.com/OscarBeamish/beamish.ink">
         View source
-      </Ember>
+      </SheenButton>
     </div>
   )
 }
@@ -298,12 +299,12 @@ export function Cta() {
 
 ```vue
 <script setup lang="ts">
-import { Ember } from '@/beamish/components/glow-button/vue'
+import { SheenButton } from '@/beamish/components/sheen-button/vue'
 </script>
 
 <template>
-  <Ember @click="copy">Get prompt</Ember>
-  <Ember tone="quiet" href="https://github.com/OscarBeamish/beamish.ink">View source</Ember>
+  <SheenButton @click="copy">Get prompt</SheenButton>
+  <SheenButton tone="quiet" href="https://github.com/OscarBeamish/beamish.ink">View source</SheenButton>
 </template>
 ```
 
@@ -324,7 +325,7 @@ as the second argument; anything omitted takes its default.
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `tone` | enum | `solid` | `solid` · `quiet` | `solid` is the accent pill and is for the one action on the page that matters. `quiet` is the outlined secondary. If a screen has two solid Embers on it, one of them is wrong. |
+| `tone` | enum | `solid` | `solid` · `quiet` | `solid` is the accent pill and is for the one action on the page that matters. `quiet` is the outlined secondary. If a screen has two solid SheenButtons on it, one of them is wrong. |
 | `href` | string | `` | any value | Given an href it renders an <a>. Without one it renders a <button type="button">. Do not fake a link with a click handler. Keyboard users and screen readers both notice. |
 | `disabled` | boolean | `false` | `true` · `false` | Button form only. An anchor cannot be disabled, so the anchor form sets aria-disabled instead and you must stop the navigation yourself. |
 

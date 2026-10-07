@@ -21,7 +21,7 @@ export const props = {
       title: 'Navigation',
       items: [
         { label: 'Contents', href: '/components/fullscreen-menu', meta: 'react · vue' },
-        { label: 'Ember', href: '/components/glow-button', meta: 'react · vue' }
+        { label: 'SheenButton', href: '/components/glow-button', meta: 'react · vue' }
       ]
     }
   ]

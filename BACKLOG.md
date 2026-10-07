@@ -178,7 +178,7 @@ Cards, panels, images.
 | Beamish | React Bits | P | Note |
 | --- | --- | --- | --- |
 | Contents | Staggered Menu, Infinite Menu, Flowing Menu | 1 | **done** |
-| Ember | Specular Button, Star Border | 1 | **done** |
+| SheenButton | Specular Button, Star Border | 1 | **done** |
 | Rail | Line Sidebar, Dock | 1 | |
 | Gutter | Card Nav, Pill Nav, Bubble Menu, Gooey Nav | 2 | Four of theirs, one of ours |
 | Stepper | Stepper | 2 | |

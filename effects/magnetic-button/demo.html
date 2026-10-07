@@ -6,7 +6,7 @@
     <title>Magnet: Beamish demo</title>
     <link rel="stylesheet" href="../../shared/tokens.css" />
     <link rel="stylesheet" href="../../shared/fonts.css" />
-    <link rel="stylesheet" href="../../components/glow-button/styles.css" />
+    <link rel="stylesheet" href="../../components/sheen-button/styles.css" />
     <style>
       html,
       body {
@@ -34,7 +34,7 @@
         border: 1px dashed var(--label-4);
         border-radius: 100px;
       }
-      .beamish-glow-button {
+      .beamish-sheen-button {
         grid-area: 1 / 1;
       }
     </style>
@@ -45,17 +45,17 @@
       deterministic to screenshot, and so the effect can be opened on its own
       without a build step. `pnpm build:items` produces demo.bundle.js.
 
-      Mounted on an Ember, because a magnet is only ever worth putting on
+      Mounted on an SheenButton, because a magnet is only ever worth putting on
       something worth pressing.
     -->
     <div id="stage">
       <div class="rest" aria-hidden="true"></div>
-      <button type="button" class="beamish-glow-button beamish-glow-button--solid">Get prompt</button>
+      <button type="button" class="beamish-sheen-button beamish-sheen-button--solid">Get prompt</button>
     </div>
 
     <script src="./demo.bundle.js"></script>
     <script>
-      const handle = window.Beamish.create(document.querySelector('.beamish-glow-button'))
+      const handle = window.Beamish.create(document.querySelector('.beamish-sheen-button'))
 
       // The recorder drives renderAtTime itself and must not race a RAF loop.
       window.__beamish = handle

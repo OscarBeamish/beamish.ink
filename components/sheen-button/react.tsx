@@ -1,6 +1,6 @@
 /*
- * Ember: Beamish
- * https://beamish.ink/components/glow-button
+ * SheenButton: Beamish
+ * https://beamish.ink/components/sheen-button
  *
  * The action pill: mono, uppercase, 100px radius, with a slow band of light
  * crossing it on hover. Renders a <button> by default and an <a> when given an
@@ -20,12 +20,12 @@ import type {
 } from 'react'
 import './styles.css'
 
-export type EmberTone = 'solid' | 'quiet'
+export type SheenButtonTone = 'solid' | 'quiet'
 
 type Common = {
   children: ReactNode
   /** `solid` is the accent pill. `quiet` is the outlined secondary. */
-  tone?: EmberTone
+  tone?: SheenButtonTone
   className?: string
 }
 
@@ -35,13 +35,13 @@ type ButtonProps = Common &
 type AnchorProps = Common &
   Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'className'> & { href: string }
 
-export type GlowButtonProps = ButtonProps | AnchorProps
+export type SheenButtonProps = ButtonProps | AnchorProps
 
-const classes = (tone: EmberTone, className?: string) =>
-  ['beamish-glow-button', `beamish-glow-button--${tone}`, className].filter(Boolean).join(' ')
+const classes = (tone: SheenButtonTone, className?: string) =>
+  ['beamish-sheen-button', `beamish-sheen-button--${tone}`, className].filter(Boolean).join(' ')
 
-export const Ember = forwardRef<HTMLButtonElement | HTMLAnchorElement, GlowButtonProps>(
-  function Ember({ children, tone = 'solid', className, ...rest }, ref) {
+export const SheenButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, SheenButtonProps>(
+  function SheenButton({ children, tone = 'solid', className, ...rest }, ref) {
     if ('href' in rest && rest.href !== undefined) {
       const anchor = rest as AnchorHTMLAttributes<HTMLAnchorElement>
       return (
@@ -71,4 +71,4 @@ export const Ember = forwardRef<HTMLButtonElement | HTMLAnchorElement, GlowButto
   }
 )
 
-export default Ember
+export default SheenButton

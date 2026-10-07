@@ -1,7 +1,7 @@
 ---
-import '@items/components/glow-button/styles.css'
+import '@items/components/sheen-button/styles.css'
 import ContentsDemo from '../demos/ContentsDemo'
-import EmberDemo from '../demos/EmberDemo'
+import SheenButtonDemo from '../demos/SheenButtonDemo'
 import PlateDemo from '../demos/PlateDemo'
 import CrossbarDemo from '../demos/CrossbarDemo'
 /*
@@ -132,21 +132,21 @@ const tweakable = tier === 1 ? Object.entries(options) : []
   >
     <div class={flows ? 'relative' : 'absolute inset-0'} data-stage>
       {island === 'fullscreen-menu' && <ContentsDemo client:only="react" />}
-      {island === 'glow-button' && <EmberDemo client:only="react" />}
+      {island === 'sheen-button' && <SheenButtonDemo client:only="react" />}
       {island === 'image-gallery-lightbox' && <PlateDemo client:only="react" />}
       {island === 'glass-nav' && <CrossbarDemo client:only="react" />}
     </div>
 
     {
       inUse && (
-        <div class="demo-use" data-use aria-hidden="true">
-          {/* A paragraph, not a heading. It is a picture of a hero rather than
-              one, and a real h2 would put a second outline on the page.
+        <div class="demo-use" data-use aria-hidden="true" hidden>
+          {/* Off by default, and the control offers to put it there. A backdrop
+              should be seen as a backdrop first: the sample hero answers a
+              second question, which is whether text survives on it, and that is
+              worth asking only once somebody has looked at the thing itself.
 
-              No eyebrow over it. A small letterspaced word above a large
-              heading is the house style of every generated landing page, and
-              the panel already has a control that says In use or Bare, so the
-              word was labelling something that was labelled. */}
+              A paragraph, not a heading. It is a picture of a hero rather than
+              one, and a real h2 would put a second outline on the page. */}
           <p class="demo-use__title">A headline sits here</p>
           <p class="demo-use__line">
             And a line of supporting copy under it, about the length a real one runs,
@@ -163,9 +163,9 @@ const tweakable = tier === 1 ? Object.entries(options) : []
             type="button"
             class="demo-control"
             data-use-toggle
-            aria-pressed="true"
+            aria-pressed="false"
           >
-            Bare
+            In use
           </button>
         )
       }
@@ -448,11 +448,11 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     /* Mounted on the sheet rather than on the button, so the sparks are sized
        against the area they are thrown into. The button inside keeps working. */
     'click-spark': `<div class="demo-spark-sheet">
-      <button type="button" class="beamish-glow-button beamish-glow-button--solid">Press me</button>
+      <button type="button" class="beamish-sheen-button beamish-sheen-button--solid">Press me</button>
     </div>`,
     'magnetic-button': `<div class="demo-magnetic-button">
       <div class="demo-magnetic-button__rest" aria-hidden="true"></div>
-      <button type="button" class="beamish-glow-button beamish-glow-button--solid">Get prompt</button>
+      <button type="button" class="beamish-sheen-button beamish-sheen-button--solid">Get prompt</button>
     </div>`,
     'tilt-card': `<article class="demo-card">
       <div class="demo-card__mark"></div>
@@ -481,7 +481,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
 
   /* Where inside the injected markup the effect actually mounts. */
   const MOUNT_ON: Record<string, string> = {
-    'magnetic-button': '.beamish-glow-button',
+    'magnetic-button': '.beamish-sheen-button',
     'count-up-number': '.demo-count-up-number__value',
     'odometer-number': '.demo-odometer',
     // The lamp lights the card, not the stage around it.

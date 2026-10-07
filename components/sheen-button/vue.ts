@@ -1,6 +1,6 @@
 /*
- * Ember: Beamish
- * https://beamish.ink/components/glow-button
+ * SheenButton: Beamish
+ * https://beamish.ink/components/sheen-button
  *
  * Vue build of the action pill. Same markup rules as the React one: a <button>
  * by default, an <a> when given an href, because a thing that navigates should be
@@ -10,8 +10,8 @@
 import { computed, defineComponent, h } from 'vue'
 import './styles.css'
 
-export const Ember = defineComponent({
-  name: 'Ember',
+export const SheenButton = defineComponent({
+  name: 'SheenButton',
   props: {
     /** `solid` is the accent pill. `quiet` is the outlined secondary. */
     tone: { type: String as () => 'solid' | 'quiet', default: 'solid' },
@@ -20,7 +20,7 @@ export const Ember = defineComponent({
     type: { type: String as () => 'button' | 'submit' | 'reset', default: 'button' }
   },
   setup(props, { slots, attrs }) {
-    const className = computed(() => `beamish-glow-button beamish-glow-button--${props.tone}`)
+    const className = computed(() => `beamish-sheen-button beamish-sheen-button--${props.tone}`)
 
     return () => {
       if (props.href !== undefined) {
@@ -47,4 +47,4 @@ export const Ember = defineComponent({
   }
 })
 
-export default Ember
+export default SheenButton

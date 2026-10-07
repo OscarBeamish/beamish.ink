@@ -1,14 +1,14 @@
 /*
- * The Ember demo, as an Astro island. See ContentsDemo for why this is an
+ * The SheenButton demo, as an Astro island. See ContentsDemo for why this is an
  * island rather than a hand mount.
  *
  * Both tones side by side, because the whole point of the component is the
  * pairing: one solid, one quiet.
  */
 
-import { Ember } from '@items/components/glow-button/react'
+import { SheenButton } from '@items/components/sheen-button/react'
 
-export default function EmberDemo() {
+export default function SheenButtonDemo() {
   return (
     <div
       style={{
@@ -21,8 +21,8 @@ export default function EmberDemo() {
         height: '100%'
       }}
     >
-      <Ember>Get prompt</Ember>
-      <Ember tone="quiet">View source</Ember>
+      <SheenButton>Get prompt</SheenButton>
+      <SheenButton tone="quiet">View source</SheenButton>
     </div>
   )
 }

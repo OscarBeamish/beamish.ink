@@ -2164,110 +2164,6 @@
     "intro": "A slab of glass laid on a picture, bending and splitting what scrolls behind it.\n\nNot a blur with a white border. Every part of this is something glass does:\n\n**It bends.** The slab is a signed distance field for a rounded rectangle, and\nthe direction light bends is that field's gradient, which is the surface normal.\nThe amount is weighted towards the edge, because the middle of a slab is flat\nand only the bevel has an angle to refract through. That is why the centre of\nthe panel stays readable while the rim distorts.\n\n**It splits.** Glass has a different refractive index per wavelength, so the\nthree channels bend by slightly different amounts. This is why a real glass edge\nfringes, and it is the single cheapest thing that stops a shape reading as\nplastic.\n\n**It catches the light.** The 2D gradient plus a height gives a real 3D normal,\nso the highlight moves round the bevel as the light moves rather than sitting\nwhere somebody painted it. The rim brightens where you are looking through the\nmost glass, which is what gives the edge its thickness.\n\n**It sits on something.** There is a shadow under it. Without one the panel is a\nwindow cut in the picture rather than an object resting on it."
   },
   {
-    "name": "GlowButton",
-    "slug": "glow-button",
-    "tier": 2,
-    "description": "The action pill: mono, uppercase, with a slow band of light crossing it",
-    "category": "navigation",
-    "tags": [
-      "button",
-      "link",
-      "cta",
-      "accessible",
-      "react",
-      "vue",
-      "no-dependencies"
-    ],
-    "ground": "paper",
-    "peerDependencies": {
-      "react": ">=18"
-    },
-    "browser": {
-      "webgl": "none",
-      "notes": [
-        "Uses color-mix(); Chrome 111+, Safari 16.2+, Firefox 113+. Older browsers get the base colour with no hover shift, which is a graceful loss",
-        "No JavaScript animation at all. The motion is two CSS transitions"
-      ]
-    },
-    "perf": {
-      "frameBudgetMs": 0.1,
-      "contexts": 0,
-      "notes": [
-        "Composited transform and opacity only; nothing here triggers layout"
-      ]
-    },
-    "files": [
-      {
-        "from": "components/glow-button/react.tsx",
-        "to": "src/beamish/components/glow-button/react.tsx",
-        "role": "component"
-      },
-      {
-        "from": "components/glow-button/styles.css",
-        "to": "src/beamish/components/glow-button/styles.css",
-        "role": "style"
-      },
-      {
-        "from": "components/glow-button/vue.ts",
-        "to": "src/beamish/components/glow-button/vue.ts",
-        "role": "adapter"
-      }
-    ],
-    "options": {
-      "tone": {
-        "type": "enum",
-        "default": "solid",
-        "description": "`solid` is the accent pill and is for the one action on the page that matters. `quiet` is the outlined secondary. If a screen has two solid Embers on it, one of them is wrong.",
-        "values": [
-          "solid",
-          "quiet"
-        ]
-      },
-      "href": {
-        "type": "string",
-        "default": "",
-        "description": "Given an href it renders an <a>. Without one it renders a <button type=\"button\">. Do not fake a link with a click handler. Keyboard users and screen readers both notice."
-      },
-      "disabled": {
-        "type": "boolean",
-        "default": false,
-        "description": "Button form only. An anchor cannot be disabled, so the anchor form sets aria-disabled instead and you must stop the navigation yourself."
-      }
-    },
-    "instruction": "hover, then tab to it",
-    "oneShot": false,
-    "record": {
-      "duration": 5,
-      "fps": 30,
-      "posterAt": 1.2,
-      "interactions": [
-        {
-          "at": 0.4,
-          "action": "hover",
-          "target": "#solid .beamish-glow-button"
-        },
-        {
-          "at": 1.8,
-          "action": "click",
-          "target": "#solid .beamish-glow-button"
-        },
-        {
-          "at": 2.4,
-          "action": "hover",
-          "target": "#quiet .beamish-glow-button"
-        },
-        {
-          "at": 3.8,
-          "action": "move",
-          "x": 0.5,
-          "y": 0.92
-        }
-      ]
-    },
-    "group": "components",
-    "intro": "Ember is the action pill: mono, uppercase, 100px radius, with one slow band of\nlight crossing its face on hover. It is the one piece of the library that is\ndeliberately ordinary. The surprising things are meant to be the effects. This is\nthe thing you press to get one.\n\nTwo tones. `solid` is the accent pill and belongs to the single most important\naction on a screen. `quiet` is the outlined secondary. If a page has two solid\nEmbers on it, one of them is wrong.\n\nIt renders a `<button>` by default and an `<a>` when given an `href`. A thing\nthat navigates should be a link and a thing that acts should be a button. There\nis no `as` prop and no polymorphic generic: the distinction is small enough to\nmake by hand and important enough not to get wrong.\n\nThe hover state darkens. The accent sits near the top of its range already, and\nlifting it drops white lettering below 4.5:1. The direction most libraries go is\nthe one that fails."
-  },
-  {
     "name": "GradualBlur",
     "slug": "gradual-blur",
     "tier": 1,
@@ -7103,6 +6999,110 @@
     },
     "group": "effects",
     "intro": "A photograph on a sheet drawn through its own frame by the scroll.\n\nOne arc across the width. The sides hold back, the middle goes the way the page\nis going, and it comes level the moment the scroll stops. Scroll down, the page\ntravels up past you and the middle leads it up; scroll back and the curve turns\nover. At rest there is no effect at all, which is the point: a reader who has\nstopped scrolling is looking at a photograph rather than at a filter.\n\n**The shape is the whole thing**, and it is worth saying what it is, because\nthere are two curves you could draw here and only one of them is a sheet.\n\n```glsl\nuv.y += velocity * bend * sin(uv.x * PI);\n```\n\nHalf a period of a sine: zero at both sides, one in the middle, one smooth curve\nwith nothing in it to catch the eye.\n\n**The sign is not a detail.** Both of them give you the same arc and they are\ndifferent effects. This one sends the middle the way the page is going, so the\nsheet reads as being drawn through its frame while the sides hold back. Subtract\ninstead and the middle lags: the sheet sags, and it reads as weight rather than\nas travel, which looks tired rather than pulled. Try both on your own picture\nbefore you settle, and if it looks wrong rather than weak, this is the line to\nchange.\n\nThe sign follows the scroll rather than being fixed, so the curve turns over\nwhen you scroll back up. A sheet that bent the same way whichever way you went\nis a sheet nothing is pulling.\n\nThe other *curve* is the distance from the centre, squared, which is what this\neffect used to do. It pins the middle and throws the sides about, and reads as\nthe frame wobbling rather than the picture moving. It also used to bend both\naxes at once. A sideways bend has no edge to run along, so all it does is muddle\nthe shape, and taking it out is most of what makes the arc read.\n\nThe edges deform with the picture. The sheet is a rectangle inset from the\nframe, the drag carries its boundary and its contents together, and whatever\nfalls outside is paper, so the edges curve rather than staying square. There is\nno geometry here beyond one triangle: the shape of the sheet is a by-product of\nthe sampling rather than a mesh.\n\nOne WebGL2 fragment shader. No three.js, no dependency, no render targets."
+  },
+  {
+    "name": "SheenButton",
+    "slug": "sheen-button",
+    "tier": 2,
+    "description": "The action pill: mono, uppercase, with a slow band of light crossing it",
+    "category": "navigation",
+    "tags": [
+      "button",
+      "link",
+      "cta",
+      "accessible",
+      "react",
+      "vue",
+      "no-dependencies"
+    ],
+    "ground": "paper",
+    "peerDependencies": {
+      "react": ">=18"
+    },
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "Uses color-mix(); Chrome 111+, Safari 16.2+, Firefox 113+. Older browsers get the base colour with no hover shift, which is a graceful loss",
+        "No JavaScript animation at all. The motion is two CSS transitions"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.1,
+      "contexts": 0,
+      "notes": [
+        "Composited transform and opacity only; nothing here triggers layout"
+      ]
+    },
+    "files": [
+      {
+        "from": "components/sheen-button/react.tsx",
+        "to": "src/beamish/components/sheen-button/react.tsx",
+        "role": "component"
+      },
+      {
+        "from": "components/sheen-button/styles.css",
+        "to": "src/beamish/components/sheen-button/styles.css",
+        "role": "style"
+      },
+      {
+        "from": "components/sheen-button/vue.ts",
+        "to": "src/beamish/components/sheen-button/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "tone": {
+        "type": "enum",
+        "default": "solid",
+        "description": "`solid` is the accent pill and is for the one action on the page that matters. `quiet` is the outlined secondary. If a screen has two solid SheenButtons on it, one of them is wrong.",
+        "values": [
+          "solid",
+          "quiet"
+        ]
+      },
+      "href": {
+        "type": "string",
+        "default": "",
+        "description": "Given an href it renders an <a>. Without one it renders a <button type=\"button\">. Do not fake a link with a click handler. Keyboard users and screen readers both notice."
+      },
+      "disabled": {
+        "type": "boolean",
+        "default": false,
+        "description": "Button form only. An anchor cannot be disabled, so the anchor form sets aria-disabled instead and you must stop the navigation yourself."
+      }
+    },
+    "instruction": "hover, then tab to it",
+    "oneShot": false,
+    "record": {
+      "duration": 5,
+      "fps": 30,
+      "posterAt": 1.2,
+      "interactions": [
+        {
+          "at": 0.4,
+          "action": "hover",
+          "target": "#solid .beamish-sheen-button"
+        },
+        {
+          "at": 1.8,
+          "action": "click",
+          "target": "#solid .beamish-sheen-button"
+        },
+        {
+          "at": 2.4,
+          "action": "hover",
+          "target": "#quiet .beamish-sheen-button"
+        },
+        {
+          "at": 3.8,
+          "action": "move",
+          "x": 0.5,
+          "y": 0.92
+        }
+      ]
+    },
+    "group": "components",
+    "intro": "SheenButton is the action pill: mono, uppercase, 100px radius, with one slow band of\nlight crossing its face on hover. It is the one piece of the library that is\ndeliberately ordinary. The surprising things are meant to be the effects. This is\nthe thing you press to get one.\n\nTwo tones. `solid` is the accent pill and belongs to the single most important\naction on a screen. `quiet` is the outlined secondary. If a page has two solid\nSheenButtons on it, one of them is wrong.\n\nIt renders a `<button>` by default and an `<a>` when given an `href`. A thing\nthat navigates should be a link and a thing that acts should be a button. There\nis no `as` prop and no polymorphic generic: the distinction is small enough to\nmake by hand and important enough not to get wrong.\n\nThe hover state darkens. The accent sits near the top of its range already, and\nlifting it drops white lettering below 4.5:1. The direction most libraries go is\nthe one that fails."
   },
   {
     "name": "SplitFlapText",

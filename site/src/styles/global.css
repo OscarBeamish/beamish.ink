@@ -741,7 +741,7 @@
     border-radius: 100px;
   }
 
-  .demo-magnetic-button .beamish-glow-button {
+  .demo-magnetic-button .beamish-sheen-button {
     grid-area: 1 / 1;
   }
 }
@@ -1411,4 +1411,45 @@
   .controls__rows {
     grid-template-columns: minmax(4rem, 7rem) 1fr 3.25rem auto;
   }
+}
+
+/* --- the site's own buttons --------------------------------------------- */
+
+/*
+ * The site uses SheenButton's shape and type and none of its sheen.
+ *
+ * The band of light crossing the face is the item, and it is worth having as an
+ * item, but it is not what this site's buttons should do: a sweep on every Get
+ * prompt is a lot of movement for a thing that is pressed once, and read at
+ * speed it is closer to a discount banner than to a piece of design. So the
+ * site turns the sweep off and keeps the colour shift, which is one property
+ * and one transition.
+ *
+ * Not in @layer components, because the component's own stylesheet is
+ * unlayered: a layered rule loses to it whatever its specificity, which is the
+ * same trap that caught the panel backgrounds.
+ */
+.beamish-sheen-button::after {
+  display: none;
+}
+
+/*
+ * Except inside a demo panel, which is the one place the sheen has to work: a
+ * panel showing the item with its own effect turned off would be documenting
+ * something the library does not ship. Turning it off site-wide and back on
+ * here is the right way round, because the site has many buttons and one panel
+ * that is about them.
+ */
+[data-demo] .beamish-sheen-button::after {
+  display: block;
+}
+
+/*
+ * With no sweep, the quiet button's hover was doing almost nothing: a tenth of
+ * the line colour over transparent is under a per cent of change. It gets the
+ * line itself instead, which is the same gesture the dotted hits make.
+ */
+.beamish-sheen-button--quiet:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--sheen-line) 14%, transparent);
+  border-color: var(--label-1);
 }
