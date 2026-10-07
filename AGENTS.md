@@ -100,6 +100,13 @@ the intended cost. Do not inline the runtime into each effect.
   with fractional ones, so the loop never closed and the video jumped once a
   cycle. `tools/tests/loop-closes.test.ts` checks this now; the schema cannot,
   because it can only see `record.duration`.
+- An item over the media budget has three knobs before it has an excuse. `crf`,
+  `webmCrf` and `posterQuality` in `record` exist for the item that is
+  pathological for a codec, which in practice means a full-frame field of hard
+  edges: there is no redundancy in it, so a setting that is generous for a
+  photograph is extravagant here. Raise them and look at the result, rather than
+  shipping over budget. MoireScreens needed 38/56/18 and lost nothing visible.
+  Coarsen the effect itself only if that is what the effect wanted anyway.
 
 ## Measuring without taking the machine down
 
