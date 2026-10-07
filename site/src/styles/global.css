@@ -488,6 +488,17 @@
 }
 
 @layer components {
+  /* The board SplitFlapText sets. Monospace, because the cells are all one
+     width anyway and a proportional face wastes the difference. */
+  .demo-board {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: clamp(1.1rem, 4cqw, 2.6rem);
+    text-align: center;
+  }
+}
+
+@layer components {
   /* The card the Tilt panel leans. */
   /*
    * Big enough to be a card rather than a thumbnail of one. Both card effects

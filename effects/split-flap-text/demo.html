@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SplitFlapText: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        align-content: center;
+        justify-items: center;
+        gap: 1.4rem;
+        padding: 0 6vw;
+        box-sizing: border-box;
+      }
+      .board {
+        font-family: var(--font-mono);
+        font-weight: 500;
+        font-size: clamp(1.3rem, 4.6vw, 3.2rem);
+      }
+      .board--small {
+        font-size: clamp(0.75rem, 2vw, 1.4rem);
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+
+      Two boards, because the second shows the thing one word hides: the cells
+      land in the order the strip puts their letters, not left to right.
+    -->
+    <div id="stage">
+      <div class="board" id="one">Departures</div>
+      <div class="board board--small" id="two">Platform 4 . 19:42</div>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const one = window.Beamish.create(document.getElementById('one'))
+      const two = window.Beamish.create(document.getElementById('two'), {
+        stagger: 55,
+        hold: 900,
+        flap: 44
+      })
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      // It drives the first handle; the second is given the same clock here so
+      // both boards are a function of the same time.
+      window.__beamish = {
+        ...one,
+        renderAtTime(t) {
+          one.renderAtTime(t)
+          two.renderAtTime(t)
+        },
+        update(next) {
+          one.update(next)
+        }
+      }
+
+      if (!new URLSearchParams(location.search).has('record')) {
+        one.start()
+        two.start()
+      }
+    </script>
+  </body>
+</html>
