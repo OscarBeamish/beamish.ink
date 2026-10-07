@@ -9,6 +9,54 @@ Published tags are never deleted or moved.
 
 ### Added
 
+Ten items, built in one run. Each is the smallest honest version of a thing
+other libraries ship as several, and the entries say what the usual
+implementation gets wrong, because that is the part worth paying for.
+
+- PaperGrain (backdrops): the surface of a sheet with nothing on it, lit by its
+  own roughness. Fibre in the height, formation in the tone, tooth in the light,
+  and which field goes where is the whole shape of it: both in the height gives
+  rough-cast plaster. The quietest item in the library at 0.013 change per
+  frame, and the cheapest backdrop at 0.31ms.
+
+- LightShafts (backdrops): light through an occluder, falling across the frame
+  in bands. Five of React Bits' entries are this one thing. The shadow edges
+  soften with the distance they have travelled, which is one multiplication and
+  the whole difference between a beam and a pale triangle.
+
+- SplitFlapText (type): a departure board, built as hinged leaves. They go
+  through the strip in order, so the letters land alphabetically rather than
+  left to right. That is the most recognisable thing about the object and it
+  was not designed: it falls out of modelling the strip.
+
+- TypewriterText (type): an uneven hand, a breath at the punctuation, and every
+  letter struck a little off the baseline and off square. Nothing reflows,
+  because the untyped part is hidden rather than absent.
+
+- EmbossedText (type): pressed into the paper rather than extruded off it, with
+  the impression biting unevenly across the line. A blind emboss, with no ink at
+  all, is the setting worth trying first.
+
+- CircularText (type): type set round a ring with an SVG textPath fitted to the
+  circumference. It kerns, and the ring closes exactly at any radius, in any
+  face, with any string. The cheapest item in the library at 0.1ms.
+
+- ClickSpark (pointer): a burst where you click, drawn as streaks whose length
+  is their speed and which slow against the air. A fixed pool of elements, so
+  forty clicks cost what four do.
+
+- CrosshairCursor (pointer): a viewfinder that squares up around anything you
+  can press. What it locks on to is a selector you chose, not a guess at what
+  looks clickable.
+
+- GradualBlur (reveals): a progressive blur at the edge of a scrolling area,
+  built from stacked blurs each twice the last. One masked blur, which is the
+  obvious build, ramps its opacity and not its blur.
+
+- AsciiImage (surfaces): a photograph set in characters, each cell taking the
+  glyph whose shape fits the edge through it rather than the one whose
+  brightness matches. Recast from the Codrops original as ink on paper.
+
 - DecodeText (type): text resolving out of a run of substitute glyphs, one character
   at a time. The effect on the hover of every studio nav bar, and until now the
   one piece of this site's own chrome that was not in the library.
@@ -22,6 +70,21 @@ Published tags are never deleted or moved.
   fit that box, so a decoding line neither moves the page nor collides with
   itself. That last part is what lets it be used on a headline in a display face
   rather than only on short monospace labels.
+
+### Changed
+
+- Item names are literal, and the contract says so now. Cipher became
+  DecodeText: it came from the Beamish column of BACKLOG.md, which is full of
+  printing metaphors, and those are working titles that get renamed when a row
+  is built, as Sort did to ScrambleText and Tally to CountUpNumber. BACKLOG.md
+  says that at the top now and AGENTS.md carries the rule with the rest of the
+  item checklist. No tag pointed at the item, so the rename cost nothing.
+
+- The runtime gained `pressPath`, and the schema `presses`, for tier-1 items
+  that answer to a click. A cursor path says where the pointer is at any moment,
+  but a press is an instant rather than a position. Unlike `pointerPath` it does
+  not replace the live input, because a scripted press and a real one are the
+  same kind of event.
 
 ### Fixed
 
