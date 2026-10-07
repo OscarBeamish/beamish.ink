@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TypewriterText: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        align-content: center;
+        gap: 1.5rem;
+        padding: 0 9vw;
+        box-sizing: border-box;
+      }
+      #stage h1 {
+        margin: 0;
+        max-width: 22ch;
+        font-family: var(--font-display);
+        font-size: clamp(1.8rem, 6vw, 4rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1;
+      }
+      #stage p {
+        margin: 0;
+        max-width: 56ch;
+        font-size: clamp(0.8rem, 1.5vw, 1rem);
+        line-height: 1.7;
+        color: var(--label-2);
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+
+      A heading and a paragraph, because the two want different hands: the
+      heading is struck hard and slowly, the paragraph runs at speed and takes
+      its breath at the punctuation.
+    -->
+    <div id="stage">
+      <h1>Dear Sir, I write about the matter of the press.</h1>
+      <p>
+        It is uneven on purpose. A typist does not keep time, and a type bar does
+        not land square; the pauses fall after the full stops, which is most of
+        what makes typing sound like language rather than like a machine.
+      </p>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const heading = window.Beamish.create(document.querySelector('#stage h1'), {
+        pace: 96,
+        jitter: 0.05,
+        skew: 1.6,
+        ribbon: 0.45
+      })
+      const copy = window.Beamish.create(document.querySelector('#stage p'), {
+        pace: 26,
+        hold: 2600,
+        pause: 260,
+        seed: 31,
+        caret: 0.07
+      })
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      // It drives the first handle; the second is given the same clock here so
+      // both are a function of the same time.
+      window.__beamish = {
+        ...heading,
+        renderAtTime(t) {
+          heading.renderAtTime(t)
+          copy.renderAtTime(t)
+        },
+        update(next) {
+          heading.update(next)
+        }
+      }
+
+      if (!new URLSearchParams(location.search).has('record')) {
+        heading.start()
+        copy.start()
+      }
+    </script>
+  </body>
+</html>

@@ -488,6 +488,17 @@
 }
 
 @layer components {
+  /* The letter TypewriterText types. */
+  .demo-typed {
+    margin: 0;
+    max-width: 22ch;
+    font-family: var(--font-mono);
+    font-size: clamp(0.85rem, 2.4cqw, 1.5rem);
+    line-height: 1.6;
+  }
+}
+
+@layer components {
   /* The board SplitFlapText sets. Monospace, because the cells are all one
      width anyway and a proportional face wastes the difference. */
   .demo-board {
