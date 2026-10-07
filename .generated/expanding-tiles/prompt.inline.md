@@ -1120,7 +1120,22 @@ class ExpandingTilesSurface implements Surface<ExpandingTilesOptions> {
       layer.style.display = 'none'
       return
     }
+    /*
+     * Faded out at the cell, because there the rules are sitting exactly where
+     * the grid's own lines between the cells already are. Drawn at full strength
+     * they double that line, so the tile ends its gesture wearing a border no
+     * other cell has, held for the last breath of the close and then cut. The
+     * ramp is short: these are invisible only while they coincide with the lines
+     * they are pretending to be, and at full strength for the rest of the
+     * travel.
+     */
+    const fade = clamp01(pRule / 0.15)
+    if (fade <= 0.001) {
+      layer.style.display = 'none'
+      return
+    }
     layer.style.display = 'block'
+    layer.style.opacity = fade.toFixed(3)
 
     const overX = vw * opts.bleed * pRule
     const overY = vh * opts.bleed * pRule
