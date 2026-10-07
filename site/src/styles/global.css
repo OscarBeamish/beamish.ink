@@ -488,6 +488,50 @@
 }
 
 @layer components {
+  /* The pile CardStack deals. The element is the height of one card, because
+     the cards are stacked over one another rather than laid out. */
+  .demo-pile {
+    position: relative;
+    height: 78cqh;
+    aspect-ratio: 5 / 6;
+    margin: 0 auto;
+  }
+
+  .demo-plate {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(0.9rem, 2.4cqw, 1.8rem);
+    box-sizing: border-box;
+    background: var(--background-elevated);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+
+  .demo-plate__mark {
+    display: block;
+    width: clamp(1.4rem, 2.6cqw, 2.2rem);
+    height: clamp(1.4rem, 2.6cqw, 2.2rem);
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .demo-plate h3 {
+    margin: 0;
+    font-size: clamp(1rem, 2.6cqw, 1.8rem);
+    line-height: 1;
+  }
+
+  .demo-plate p {
+    margin: 0.4em 0 0;
+    font-family: var(--font-mono);
+    font-size: clamp(0.62rem, 1.2cqw, 0.8rem);
+    line-height: 1.5;
+    color: var(--label-3);
+  }
+}
+
+@layer components {
   /* The block MaskedHeading uncovers. The clip is on the whole thing, so the
      heading and the note come away under one torn sheet. */
   .demo-uncover {

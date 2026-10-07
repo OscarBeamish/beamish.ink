@@ -1,0 +1,141 @@
+{
+  "name": "CardStack",
+  "slug": "card-stack",
+  "tier": 1,
+  "description": "A pile of prints being leafed through, where the card changes its stacking order only while it is clear of the pile",
+  "category": "surfaces",
+  "ground": "paper",
+  "tags": [
+    "cards",
+    "stack",
+    "deck",
+    "ambient",
+    "dom",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "The card changes its stacking order only while it is clear of the pile, and that is the difference between this and every version that fades the card out. A card going from front to back has to pass the others, and there is no interpolating between being in front of something and behind it: at some instant the order flips. Done while the card is still over the pile it is visible, as a flicker that reads as a dropped frame; done at the far point of the travel, where nothing overlaps, it cannot be seen at all",
+      "The card goes out to the side and back rather than straight through, which is what makes the far point exist. A card that crosses the pile face on has nowhere clear to change order",
+      "Nobody squares a pile. The scatter is fixed to the card rather than to the position, so the third card is always the one sitting a degree crooked wherever it happens to be, and the pile keeps its own character as the cards move through it. A pile with an even offset per position is a diagram of a pile",
+      "The cards are the author's own markup and are never replaced. They are positioned absolutely over one another, because a pile is a pile and the element keeps the height of one card",
+      "destroy() puts every property it set back, including the element's own position",
+      "Pure in t: which card is moving and how far through its travel it is are both arithmetic on the clock, and the scatter is a hash of the card's index",
+      "A pile seen straight on is one card and a few edges, however much the cards are offset, because they are the same object at the same angle. That is honest and it is also why the scatter and the tilt are worth having: the corners are what tell you there is more than one"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.3,
+    "contexts": 0,
+    "notes": [
+      "One transform per card per frame, composited, plus a z-index and a shadow written only when they change. Four cards is four transforms",
+      "The box shadow is the one painted property here. It is written per card and only on change, so a pile at rest writes nothing at all"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/card-stack/core.ts",
+      "to": "src/beamish/effects/card-stack/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/card-stack/adapters/react.tsx",
+      "to": "src/beamish/effects/card-stack/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/card-stack/adapters/vue.ts",
+      "to": "src/beamish/effects/card-stack/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "interval": {
+      "type": "number",
+      "default": 1800,
+      "min": 400,
+      "max": 12000,
+      "step": 50,
+      "unit": "ms",
+      "sensible": [
+        1400,
+        3200
+      ],
+      "description": "Milliseconds each card spends at the front before it is moved. This sets the length of the whole loop, which is the interval times the number of cards, so four cards at 1800ms is a 7.2 second cycle and that is what the recording has to span."
+    },
+    "travel": {
+      "type": "number",
+      "default": 900,
+      "min": 100,
+      "max": 4000,
+      "step": 50,
+      "unit": "ms",
+      "description": "Milliseconds the move itself takes, clamped to the interval so a card cannot still be moving when the next one starts. Half the interval is a good rule: it leaves the pile still for as long as it is moving, which is what makes the movement read as a deliberate act rather than as a carousel."
+    },
+    "aside": {
+      "type": "number",
+      "default": 0.62,
+      "min": 0.1,
+      "max": 1.5,
+      "step": 0.01,
+      "description": "How far aside the card goes, as a share of the pile's width. It has to clear the pile, because the far point of the travel is where the stacking order changes: below about 0.4 the card is still overlapping when it flips, and you can see it happen."
+    },
+    "spread": {
+      "type": "number",
+      "default": 18,
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "description": "How far each card sits from the one beneath. This is what makes it a pile rather than a single card: at 0 the cards are exactly aligned and the whole thing reads as one object until something moves."
+    },
+    "shrink": {
+      "type": "number",
+      "default": 0.045,
+      "min": 0,
+      "max": 0.2,
+      "step": 0.005,
+      "description": "How much smaller each card down the pile is drawn. A little perspective, and it should be very little: a pile seen from above has almost none, and anything more reads as a fan of cards rather than a stack."
+    },
+    "tilt": {
+      "type": "number",
+      "default": 3,
+      "min": 0,
+      "max": 12,
+      "step": 0.1,
+      "unit": "deg",
+      "description": "Degrees of scatter. Nobody squares a pile, and at 0 this looks like a specimen diagram. Fixed per card rather than per position, so a card keeps its own angle as it moves through the pile."
+    },
+    "lift": {
+      "type": "number",
+      "default": 26,
+      "min": 0,
+      "max": 120,
+      "step": 1,
+      "unit": "px",
+      "description": "How far the moving card lifts as it goes. A hand picks a card up before moving it sideways, and the lift is most of what makes the move read as a hand rather than as a slide."
+    },
+    "seed": {
+      "type": "number",
+      "default": 7,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "description": "Seed for the scatter. The same seed gives the same pile, so a recording and a live page match card for card."
+    }
+  },
+  "instruction": "the pile deals itself",
+  "oneShot": false,
+  "record": {
+    "duration": 7.2,
+    "fps": 30,
+    "posterAt": 2.25
+  }
+}

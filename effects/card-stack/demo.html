@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CardStack: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        place-items: center;
+      }
+      /*
+       * The element is the height of one card, because a pile is a pile: the
+       * cards are stacked on top of one another rather than laid out.
+       */
+      .pile {
+        width: min(26rem, 62vw);
+        aspect-ratio: 5 / 6;
+      }
+      .plate {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: clamp(1.2rem, 3vw, 2rem);
+        box-sizing: border-box;
+        background: var(--background-elevated);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+      }
+      .plate h2 {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: clamp(1.4rem, 3.6vw, 2.4rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 0.98;
+      }
+      .plate p {
+        margin: 0;
+        font-size: clamp(0.7rem, 1.4vw, 0.9rem);
+        line-height: 1.6;
+        color: var(--label-3);
+      }
+      .plate__mark {
+        width: clamp(1.8rem, 3vw, 2.6rem);
+        height: clamp(1.8rem, 3vw, 2.6rem);
+        border-radius: 50%;
+        background: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+
+      The cards are ordinary markup. The effect positions them and puts every
+      property back on destroy, so these stay four plates in a div.
+    -->
+    <div id="stage">
+      <div class="pile" id="pile">
+        <article class="plate">
+          <div class="plate__mark"></div>
+          <div>
+            <h2>Letterpress</h2>
+            <p>Handset, one colour, on mould-made paper.</p>
+          </div>
+        </article>
+        <article class="plate">
+          <div class="plate__mark"></div>
+          <div>
+            <h2>Lithography</h2>
+            <p>Four plates, wet on wet, off an offset press.</p>
+          </div>
+        </article>
+        <article class="plate">
+          <div class="plate__mark"></div>
+          <div>
+            <h2>Screen print</h2>
+            <p>Two pulls, the second once the first is dry.</p>
+          </div>
+        </article>
+        <article class="plate">
+          <div class="plate__mark"></div>
+          <div>
+            <h2>Risograph</h2>
+            <p>Soy ink, out of register on purpose.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const handle = window.Beamish.create(document.getElementById('pile'))
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      window.__beamish = handle
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
+    </script>
+  </body>
+</html>
