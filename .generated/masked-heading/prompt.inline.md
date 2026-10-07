@@ -582,7 +582,21 @@ export function mount<O extends BaseOptions>(
           },
           { threshold: 0 }
         )
-  intersectionObserver?.observe(el)
+  /*
+   * The gate watches the element's parent, not the element.
+   *
+   * Watching the element deadlocks any effect that clips or moves its own host.
+   * A reveal starts with its host clipped to nothing, the observer reports that
+   * as not intersecting, the runtime stops the loop, and the clip therefore
+   * never advances off the host: blank for ever, with the replay button unable
+   * to escape it because `visible` can never become true again. The gate's
+   * input must not be geometry the effect controls.
+   *
+   * The parent is laid out by the page rather than by the effect, so it breaks
+   * the cycle. It is usually a little larger, which means an effect can start a
+   * frame or two before it is strictly on screen. That is the cheaper mistake.
+   */
+  intersectionObserver?.observe(el.parentElement ?? el)
 
   const onVisibilityChange = () => {
     if (document.hidden) stop()
