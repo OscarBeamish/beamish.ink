@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GradualBlur: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        place-items: center;
+      }
+      /* The haze is a band at this element's edge, and the content moves under
+         it. The overflow is hidden here rather than scrolled, because the
+         recorder drives the travel. */
+      .pane {
+        position: relative;
+        width: min(78vw, 60ch);
+        height: 76vh;
+        overflow: hidden;
+      }
+      .column {
+        will-change: transform;
+      }
+      .column p {
+        margin: 0 0 1.2em;
+        font-size: clamp(0.78rem, 1.5vw, 1rem);
+        line-height: 1.75;
+        color: var(--label-2);
+      }
+      .column h2 {
+        margin: 0 0 0.6em;
+        font-family: var(--font-display);
+        font-size: clamp(1.4rem, 3.4vw, 2.4rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--label-1);
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+
+      The column is moved by the demo rather than by a scrollbar, so the travel
+      is a function of t and the take is reproducible. The haze itself is the
+      band at the foot of the pane.
+    -->
+    <div id="stage">
+      <div class="pane" id="pane">
+        <div class="column" id="column">
+          <h2>On the setting of a page</h2>
+          <p>
+            A band at the edge where the content goes out of focus before it runs
+            off, rather than a fade to the colour of the paper. The difference is
+            that a fade tells you the text has stopped and a haze tells you it has
+            not.
+          </p>
+          <p>
+            The obvious way to build it does not work. One element, a backdrop
+            filter and a gradient mask give a band of fully blurred content whose
+            opacity ramps away: masking a blur fades how much of it you can see,
+            and does nothing at all to how blurred it is.
+          </p>
+          <p>
+            So the ramp is built out of several blurs instead. Each layer blurs
+            twice as hard as the one below it and is masked to its own band, and
+            because a backdrop filter sees everything painted beneath it the
+            blurs compound as they stack.
+          </p>
+          <p>
+            The doubling is what makes six layers enough. A linear ramp over the
+            same range needs dozens of them before the steps stop showing, and
+            every one of those is another backdrop filter for the compositor.
+          </p>
+          <p>
+            The bands overlap by one step on each side. Butted up against each
+            other they leave faint but perfectly visible seams, which on a pale
+            page read as printing bands.
+          </p>
+          <p>
+            What is left is a decision about taste: how far in from the edge it
+            reaches, and whether there is any light in it. Over a photograph a
+            little wash reads as distance; over paper it usually wants none.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const column = document.getElementById('column')
+      const handle = window.Beamish.create(document.getElementById('pane'))
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      // The travel is a function of t, and it returns to where it started, so
+      // the loop closes exactly.
+      const PERIOD = 18
+      window.__beamish = {
+        ...handle,
+        renderAtTime(t) {
+          const phase = (t / PERIOD) * Math.PI * 2
+          const travel = (1 - Math.cos(phase)) * 0.5
+          const span = Math.max(column.scrollHeight - column.clientHeight, 0)
+          column.style.transform = `translateY(${(-travel * span).toFixed(2)}px)`
+          handle.renderAtTime(t)
+        }
+      }
+
+      if (!new URLSearchParams(location.search).has('record')) {
+        let start = null
+        const tick = (now) => {
+          if (start === null) start = now
+          window.__beamish.renderAtTime((now - start) / 1000)
+          requestAnimationFrame(tick)
+        }
+        requestAnimationFrame(tick)
+      }
+    </script>
+  </body>
+</html>

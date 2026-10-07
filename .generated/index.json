@@ -1931,6 +1931,155 @@
     "intro": "Ember is the action pill: mono, uppercase, 100px radius, with one slow band of\nlight crossing its face on hover. It is the one piece of the library that is\ndeliberately ordinary. The surprising things are meant to be the effects. This is\nthe thing you press to get one.\n\nTwo tones. `solid` is the accent pill and belongs to the single most important\naction on a screen. `quiet` is the outlined secondary. If a page has two solid\nEmbers on it, one of them is wrong.\n\nIt renders a `<button>` by default and an `<a>` when given an `href`. A thing\nthat navigates should be a link and a thing that acts should be a button. There\nis no `as` prop and no polymorphic generic: the distinction is small enough to\nmake by hand and important enough not to get wrong.\n\nThe hover state darkens. The accent sits near the top of its range already, and\nlifting it drops white lettering below 4.5:1. The direction most libraries go is\nthe one that fails."
   },
   {
+    "name": "GradualBlur",
+    "slug": "gradual-blur",
+    "tier": 1,
+    "description": "A band at the edge of a scrolling area where the content goes progressively out of focus, built from stacked blurs because a masked one does not ramp",
+    "category": "reveals",
+    "tags": [
+      "blur",
+      "edge",
+      "scroll",
+      "haze",
+      "dom",
+      "no-dependencies"
+    ],
+    "ground": "either",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "The obvious build does not work, and the failure looks like a browser bug rather than a mistake. One element, a backdrop-filter and a gradient mask give a band of fully blurred content whose opacity ramps away: masking a blur fades how much of the blurred layer you can see and does nothing to how blurred it is. The hard edge where the blur starts is not in the mask, so softening the mask will never move it",
+        "A blur that ramps has to be several blurs. Each layer blurs twice as hard as the one below it and is masked to its own band, and because a backdrop-filter sees everything painted beneath it, including the previous layers, the blurs compound",
+        "The doubling is what makes six layers enough. A linear ramp over the same range needs dozens before the steps stop showing, and each one is another backdrop-filter for the compositor",
+        "The bands overlap by one step on each side. Butted up against each other they leave faint but perfectly visible seams, which on a pale page read as printing bands",
+        "The wash is a separate layer and is not the same thing as the blur. Haze over a dark photograph wants a little light in it, or the blurred content stays as dark as it was and nothing reads as distance",
+        "backdrop-filter needs the content to be painted beneath the band, so this goes on the scrolling element and not on the thing inside it",
+        "destroy() removes the band and puts the element's position back"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.1,
+      "contexts": 0,
+      "notes": [
+        "The stack is built once and rebuilt only when something about its shape changes. Per frame there is at most one opacity write, and none at all when `follow` is off",
+        "The real cost is the compositor's, not the main thread's: every layer is a backdrop-filter over the same region. Six is a deliberate ceiling, and the doubling is what buys the range without raising it"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/gradual-blur/core.ts",
+        "to": "src/beamish/effects/gradual-blur/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/gradual-blur/adapters/react.tsx",
+        "to": "src/beamish/effects/gradual-blur/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/gradual-blur/adapters/vue.ts",
+        "to": "src/beamish/effects/gradual-blur/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "edge": {
+        "type": "enum",
+        "default": "bottom",
+        "description": "Which edge the haze sits on. The foot of a scrolling panel is the one that earns its keep: it says the text continues. At the top it competes with whatever header is already there.",
+        "values": [
+          "top",
+          "bottom",
+          "left",
+          "right"
+        ]
+      },
+      "depth": {
+        "type": "number",
+        "default": 0.22,
+        "description": "How far the band reaches in from the edge, as a share of the element. A share rather than pixels, so a tall panel gets a long ramp and a short one does not lose a third of itself to haze.",
+        "min": 0.03,
+        "max": 0.6,
+        "step": 0.01,
+        "sensible": [
+          0.12,
+          0.3
+        ]
+      },
+      "strength": {
+        "type": "number",
+        "default": 14,
+        "description": "Blur at the very edge. This is the end of the ramp, not the whole of it: everything between here and the far side of the band is a fraction of it. Past about 30 the last line is a smear rather than something going out of focus.",
+        "min": 1,
+        "max": 60,
+        "step": 1,
+        "unit": "px",
+        "sensible": [
+          8,
+          24
+        ]
+      },
+      "layers": {
+        "type": "number",
+        "default": 6,
+        "description": "How many blurs the ramp is built from. Six is enough because each one is twice the last; below about four the steps are visible as bands, and above eight you are paying the compositor for a difference nobody can see.",
+        "min": 2,
+        "max": 12,
+        "step": 1
+      },
+      "tint": {
+        "type": "color",
+        "default": "#fbfaf4",
+        "description": "The colour of the wash, if there is one. The page's own paper is the usual answer. Over a photograph a colour taken out of the image reads better than white."
+      },
+      "wash": {
+        "type": "number",
+        "default": 0.35,
+        "description": "How strong the wash is at the edge. At 0 there is only blur, which is right on paper. Over a dark photograph it wants some, or the blurred content stays as dark as it was and nothing reads as distance.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "follow": {
+        "type": "boolean",
+        "default": false,
+        "description": "Bring the haze in as the element is scrolled rather than leaving it always on. For a panel with a top edge this is the honest setting: there is nothing above a list until it has been scrolled, and a haze over nothing is a smudge on the glass."
+      }
+    },
+    "instruction": "the column travels under it",
+    "oneShot": false,
+    "scroll": {
+      "duration": 18,
+      "keys": [
+        {
+          "t": 0,
+          "progress": 0
+        },
+        {
+          "t": 9,
+          "progress": 1
+        },
+        {
+          "t": 18,
+          "progress": 0
+        }
+      ]
+    },
+    "record": {
+      "duration": 18,
+      "fps": 30,
+      "posterAt": 5
+    },
+    "group": "effects",
+    "intro": "GradualBlur puts a band at the edge of a scrolling area where the content goes\nprogressively out of focus before it runs off. Haze, rather than a fade to the\nbackground colour. A fade tells you the text has stopped; a haze tells you it\nhas not.\n\nThe obvious way to build it does not work, and it is worth saying why, because\nthe failure looks like a bug in the browser rather than a mistake of yours.\n\nOne element, a `backdrop-filter` and a gradient mask gives you a band of **fully\nblurred** content whose *opacity* ramps away. Masking a blur fades how much of\nthe blurred layer you can see. It does nothing at all to how blurred it is. So\nthere is a hard edge where the blur starts, and no amount of softening the mask\nwill move it, because the edge is not in the mask.\n\nA blur that actually ramps has to be made of several blurs. Each layer here\nblurs twice as hard as the one below it and is masked to its own band, and\nbecause a `backdrop-filter` sees everything painted beneath it, including the\nprevious layers, the blurs compound.\n\nThe doubling is what makes six layers enough. A linear ramp over the same range\nneeds dozens before the steps stop showing, and every one of them is another\nbackdrop filter for the compositor."
+  },
+  {
     "name": "GuillocheLines",
     "slug": "guilloche-lines",
     "tier": 1,
