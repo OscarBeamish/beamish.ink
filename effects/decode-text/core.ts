@@ -1,6 +1,6 @@
 /*
- * Cipher: Beamish
- * https://beamish.ink/effects/cipher
+ * DecodeText: Beamish
+ * https://beamish.ink/effects/decode-text
  *
  * Text that resolves out of a run of cipher glyphs, one character at a time.
  * The thing on the hover of every studio nav bar, and on the headline of about
@@ -34,13 +34,13 @@
 
 import { mount, type BaseOptions, type EffectHandle, type Surface } from '../../shared/runtime'
 
-export type CipherOrder = 'forward' | 'reverse' | 'centre' | 'random'
+export type DecodeTextOrder = 'forward' | 'reverse' | 'centre' | 'random'
 
-export type CipherOptions = BaseOptions & {
+export type DecodeTextOptions = BaseOptions & {
   /** The characters it cycles through before each letter lands. */
   glyphs: string
   /** The order the characters land in. */
-  order: CipherOrder
+  order: DecodeTextOrder
   /** Milliseconds between one character landing and the next. */
   stagger: number
   /** Milliseconds of cipher before the first character lands. */
@@ -59,7 +59,7 @@ export type CipherOptions = BaseOptions & {
  * Kept in step with meta.json by `pnpm generate`, which fails if the two drift.
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
-export const cipherDefaults: CipherOptions = {
+export const decodeTextDefaults: DecodeTextOptions = {
   glyphs: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+-=?/<>[]{}',
   order: 'forward',
   stagger: 45,
@@ -83,7 +83,7 @@ function hash3(a: number, b: number, c: number): number {
   return ((h ^ (h >>> 14)) >>> 0) / 4294967296
 }
 
-function orderFor(mode: CipherOrder, count: number, seed: number): number[] {
+function orderFor(mode: DecodeTextOrder, count: number, seed: number): number[] {
   const indices = Array.from({ length: count }, (_, i) => i)
   if (mode === 'reverse') return indices.map(i => count - 1 - i)
   if (mode === 'centre') {
@@ -126,7 +126,7 @@ function matchCase(glyph: string, letter: string): string {
   return glyph
 }
 
-class CipherSurface implements Surface<CipherOptions> {
+class DecodeTextSurface implements Surface<DecodeTextOptions> {
   private host: HTMLElement | null = null
   private original = ''
   private cells: HTMLElement[] = []
@@ -297,10 +297,10 @@ class CipherSurface implements Surface<CipherOptions> {
     this.measured = false
   }
 
-  render(t: number, opts: CipherOptions): void {
+  render(t: number, opts: DecodeTextOptions): void {
     this.build()
     if (this.cells.length === 0) return
-    const glyphs = opts.glyphs.length > 0 ? opts.glyphs : cipherDefaults.glyphs
+    const glyphs = opts.glyphs.length > 0 ? opts.glyphs : decodeTextDefaults.glyphs
     this.measure(opts.steady, glyphs)
 
     if (this.ranks.length !== this.cells.length) {
@@ -359,24 +359,24 @@ class CipherSurface implements Surface<CipherOptions> {
 }
 
 /**
- * Mount Cipher into `el`. The element must already contain the text.
+ * Mount DecodeText into `el`. The element must already contain the text.
  *
  * ```ts
- * const cipher = createCipher(document.querySelector('h1')!)
- * cipher.start()
+ * const decode = createDecodeText(document.querySelector('h1')!)
+ * decode.start()
  * // …later
- * cipher.destroy()
+ * decode.destroy()
  * ```
  *
  * `destroy()` puts the original text back, so the element is left exactly as it
  * was found.
  */
-export function createCipher(el: HTMLElement, opts: Partial<CipherOptions> = {}): EffectHandle {
-  return mount<CipherOptions>(el, opts, {
-    defaults: cipherDefaults,
+export function createDecodeText(el: HTMLElement, opts: Partial<DecodeTextOptions> = {}): EffectHandle {
+  return mount<DecodeTextOptions>(el, opts, {
+    defaults: decodeTextDefaults,
     kind: 'dom',
-    create: () => new CipherSurface()
+    create: () => new DecodeTextSurface()
   })
 }
 
-export default createCipher
+export default createDecodeText

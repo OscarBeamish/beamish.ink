@@ -1,6 +1,6 @@
 {
-  "name": "Cipher",
-  "slug": "cipher",
+  "name": "DecodeText",
+  "slug": "decode-text",
   "tier": 1,
   "description": "Text resolving out of a run of cipher glyphs, one character at a time, without the line moving while it does",
   "category": "type",
@@ -43,18 +43,18 @@
       "role": "runtime"
     },
     {
-      "from": "effects/cipher/core.ts",
-      "to": "src/beamish/effects/cipher/core.ts",
+      "from": "effects/decode-text/core.ts",
+      "to": "src/beamish/effects/decode-text/core.ts",
       "role": "core"
     },
     {
-      "from": "effects/cipher/adapters/react.tsx",
-      "to": "src/beamish/effects/cipher/react.tsx",
+      "from": "effects/decode-text/adapters/react.tsx",
+      "to": "src/beamish/effects/decode-text/react.tsx",
       "role": "adapter"
     },
     {
-      "from": "effects/cipher/adapters/vue.ts",
-      "to": "src/beamish/effects/cipher/vue.ts",
+      "from": "effects/decode-text/adapters/vue.ts",
+      "to": "src/beamish/effects/decode-text/vue.ts",
       "role": "adapter"
     }
   ],

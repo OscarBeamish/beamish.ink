@@ -338,163 +338,6 @@
     "intro": "Sundial is a still life. Seven matte forms stand on paper, lit by one sun that\nmakes a complete circuit over the loop. The forms never move. The shadows are the\nsubject: they lengthen, swing round, cross each other, and arrive back exactly\nwhere they started.\n\nIt is a real three.js scene. A perspective camera, seven meshes, standard\nmaterials, a directional light with a shadow map, and a dim bounce light standing\nin for light coming back off the paper. Not a full-bleed shader pretending to be\nthree-dimensional.\n\nThe paper is never lit. It is the scene background, and the ground plane is a\n`ShadowMaterial` that draws nothing but the shadow. A lit plane picks up the sun\nat a grazing angle and lands around 85% of its own colour, which on warm paper is\na warm grey. This way the paper comes out the colour you asked for.\n\nThe forms sit in the middle and the sun keeps the edges clear, so there is room\nfor a headline over the top. That is what it is for."
   },
   {
-    "name": "Cipher",
-    "slug": "cipher",
-    "tier": 1,
-    "description": "Text resolving out of a run of cipher glyphs, one character at a time, without the line moving while it does",
-    "category": "type",
-    "tags": [
-      "text",
-      "reveal",
-      "scramble",
-      "decode",
-      "hover",
-      "dom",
-      "accessible",
-      "no-dependencies"
-    ],
-    "ground": "either",
-    "peerDependencies": {},
-    "browser": {
-      "webgl": "none",
-      "notes": [
-        "No canvas and no WebGL. It splits the text already in the element and swaps the characters that have not landed yet",
-        "Pure in t. The usual way to write this is Math.random on a timer, which cannot be seeked, cannot be recorded, and shows something different every time anybody looks at it. The glyph at each position is a hash of the position, the seed and the frame number, so the same t always gives the same frame",
-        "The glyphs change on their own cadence rather than once per frame. A per-frame swap is a grey blur at 120Hz and a legible stream at 30, which means the effect would look like a different effect depending on the monitor",
-        "Each character is held in a box the width of the letter it will become, so a line decoding in the middle of a page does not push the page about. Turn `steady` off for monospace, where every box is the same width anyway",
-        "Whitespace and punctuation are left alone. They carry the shape of the sentence, and scrambling the spaces turns text being decoded into a block of noise. It is also what keeps the word wrapping intact",
-        "The original string stays in the accessibility tree as one label, so a screen reader reads the sentence rather than a live stream of junk",
-        "destroy() puts the original text back, leaving the element as it was found"
-      ]
-    },
-    "perf": {
-      "frameBudgetMs": 0.4,
-      "contexts": 0,
-      "notes": [
-        "One text swap per unlanded character per cadence tick, and nothing at all once a character has landed. The comparison before each write matters: setting textContent every frame on a paragraph is a layout invalidation per character per frame for a string that is usually the one already there",
-        "Widths are measured once, again when the webfont arrives, and again on resize. Never per frame"
-      ]
-    },
-    "files": [
-      {
-        "from": "shared/runtime.ts",
-        "to": "src/beamish/shared/runtime.ts",
-        "role": "runtime"
-      },
-      {
-        "from": "effects/cipher/core.ts",
-        "to": "src/beamish/effects/cipher/core.ts",
-        "role": "core"
-      },
-      {
-        "from": "effects/cipher/adapters/react.tsx",
-        "to": "src/beamish/effects/cipher/react.tsx",
-        "role": "adapter"
-      },
-      {
-        "from": "effects/cipher/adapters/vue.ts",
-        "to": "src/beamish/effects/cipher/vue.ts",
-        "role": "adapter"
-      }
-    ],
-    "options": {
-      "glyphs": {
-        "type": "string",
-        "default": "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+-=?/<>[]{}",
-        "description": "The characters it cycles through before each letter lands. Keep them the same case and roughly the same weight as the text, or the line flickers between dark and light as it runs. Katakana is the one everybody reaches for and the one that dates the effect hardest."
-      },
-      "order": {
-        "type": "enum",
-        "default": "forward",
-        "description": "The order the characters land in. Forward reads as something being typed or decoded. Random reads as something settling, and is the better one for a paragraph, where a left to right sweep takes long enough to watch.",
-        "values": [
-          "forward",
-          "reverse",
-          "centre",
-          "random"
-        ]
-      },
-      "stagger": {
-        "type": "number",
-        "default": 45,
-        "description": "Milliseconds between one character landing and the next. This is the control that sets the length of the whole run, because the last character lands at hold plus stagger times the number of characters. Short text can afford to be slow; a paragraph at 45ms is a run most of a minute long.",
-        "min": 0,
-        "max": 300,
-        "step": 1,
-        "unit": "ms",
-        "sensible": [
-          20,
-          90
-        ]
-      },
-      "hold": {
-        "type": "number",
-        "default": 160,
-        "description": "Milliseconds of cipher before the first character lands. A short hold is what makes it read as text arriving from somewhere rather than as text already there and merely untidy.",
-        "min": 0,
-        "max": 2000,
-        "step": 10,
-        "unit": "ms",
-        "sensible": [
-          0,
-          400
-        ]
-      },
-      "rate": {
-        "type": "number",
-        "default": 18,
-        "description": "Glyph changes per second, and a cadence rather than a frame rate: everything still running changes on the same tick, which is what makes the line read as one mechanism rather than a row of independent ones. Past about 30 the characters stop being readable and the whole thing greys out.",
-        "min": 2,
-        "max": 60,
-        "step": 1,
-        "unit": "per second",
-        "sensible": [
-          12,
-          24
-        ]
-      },
-      "dim": {
-        "type": "number",
-        "default": 0.45,
-        "description": "How much paler an unlanded glyph is than the settled text. The reason to have it at all is that it separates the two states by more than the letters themselves do, so the text reads as arriving rather than as correcting itself.",
-        "min": 0,
-        "max": 1,
-        "step": 0.01
-      },
-      "steady": {
-        "type": "boolean",
-        "default": true,
-        "description": "Hold each character in a box the width of the letter it will become. On for anything set in a proportional face, where an I becoming a W is enough to shift the rest of the line. Off for monospace, where the boxes are all the same width and measuring them is work for nothing."
-      },
-      "seed": {
-        "type": "number",
-        "default": 7,
-        "description": "Seed for the glyphs and for the random order. The same seed always gives the same run, so a recorded video and a live page match character for character.",
-        "min": 0,
-        "max": 9999,
-        "step": 1
-      },
-      "reducedMotionTime": {
-        "type": "number",
-        "default": 999,
-        "description": "The single frame shown when the user prefers reduced motion. For a one-shot reveal this should be a time after the run has finished, so the text simply appears.",
-        "min": 0,
-        "max": 9999,
-        "step": 1,
-        "unit": "s"
-      }
-    },
-    "instruction": "press replay to set it again",
-    "oneShot": true,
-    "record": {
-      "duration": 4,
-      "fps": 30,
-      "posterAt": 1
-    },
-    "group": "effects",
-    "intro": "Cipher resolves text out of a run of substitute glyphs, one character at a time.\nIt is the effect on the hover of every studio nav bar, and on a good number of\nthe headlines that win awards for being difficult to read.\n\nIt takes an element that already contains text, splits it into characters, and\nswaps the ones that have not landed yet. There is no canvas, no WebGL and no npm\ndependency.\n\nThree things it does that the version written in an afternoon does not.\n\nIt is pure in `t`. The obvious implementation calls `Math.random()` on a timer\nand mutates as it goes, which cannot be seeked, cannot be recorded, and shows\nsomething different every time anybody looks at it. Here the glyph at each\nposition is a hash of the position, the seed and the frame number, so the same\n`t` always gives the same frame.\n\nThe glyphs change on their own cadence rather than once per display frame. At\n120Hz a per-frame swap is a grey blur with no characters in it; at 30 it reads as\ntext being typed by something in a hurry. Fixing the cadence means the effect\nlooks the same on a 60Hz laptop, on a 144Hz monitor, and in a recording of\neither.\n\nNothing moves. Each character is held in a box the width of the letter it will\nbecome, and the substitutes are chosen from the glyphs that fit that box, so a\nline decoding in the middle of a page neither pushes the page about nor collides\nwith itself while it runs.\n\n`destroy()` puts the original text back. The element is left as it was found."
-  },
-  {
     "name": "CountUpNumber",
     "slug": "count-up-number",
     "tier": 1,
@@ -614,6 +457,163 @@
     },
     "group": "effects",
     "intro": "Tally counts a number up to the one already written in the element. No canvas, no\nWebGL, no npm dependency.\n\nIt reads the target from the text content, and there is no option to override\nthat. The real figure is therefore in the HTML before any JavaScript runs, stays\nthere if none ever does, and is what a search engine indexes. A counter that\nrenders `0` until hydration is a counter that is wrong most of the time.\n\nFormatting goes through `Intl.NumberFormat`. That is the part most counters get\nwrong: 1,284 in Britain is 1.284 in Germany, and a hand-rolled thousands\nseparator is wrong in about half the world. Tally also parses both conventions on\nthe way in, so `1.284,50` and `1,284.50` both mean the same thing to it.\n\n`destroy()` puts the original text back."
+  },
+  {
+    "name": "DecodeText",
+    "slug": "decode-text",
+    "tier": 1,
+    "description": "Text resolving out of a run of cipher glyphs, one character at a time, without the line moving while it does",
+    "category": "type",
+    "tags": [
+      "text",
+      "reveal",
+      "scramble",
+      "decode",
+      "hover",
+      "dom",
+      "accessible",
+      "no-dependencies"
+    ],
+    "ground": "either",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "No canvas and no WebGL. It splits the text already in the element and swaps the characters that have not landed yet",
+        "Pure in t. The usual way to write this is Math.random on a timer, which cannot be seeked, cannot be recorded, and shows something different every time anybody looks at it. The glyph at each position is a hash of the position, the seed and the frame number, so the same t always gives the same frame",
+        "The glyphs change on their own cadence rather than once per frame. A per-frame swap is a grey blur at 120Hz and a legible stream at 30, which means the effect would look like a different effect depending on the monitor",
+        "Each character is held in a box the width of the letter it will become, so a line decoding in the middle of a page does not push the page about. Turn `steady` off for monospace, where every box is the same width anyway",
+        "Whitespace and punctuation are left alone. They carry the shape of the sentence, and scrambling the spaces turns text being decoded into a block of noise. It is also what keeps the word wrapping intact",
+        "The original string stays in the accessibility tree as one label, so a screen reader reads the sentence rather than a live stream of junk",
+        "destroy() puts the original text back, leaving the element as it was found"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.4,
+      "contexts": 0,
+      "notes": [
+        "One text swap per unlanded character per cadence tick, and nothing at all once a character has landed. The comparison before each write matters: setting textContent every frame on a paragraph is a layout invalidation per character per frame for a string that is usually the one already there",
+        "Widths are measured once, again when the webfont arrives, and again on resize. Never per frame"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/decode-text/core.ts",
+        "to": "src/beamish/effects/decode-text/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/decode-text/adapters/react.tsx",
+        "to": "src/beamish/effects/decode-text/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/decode-text/adapters/vue.ts",
+        "to": "src/beamish/effects/decode-text/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "glyphs": {
+        "type": "string",
+        "default": "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+-=?/<>[]{}",
+        "description": "The characters it cycles through before each letter lands. Keep them the same case and roughly the same weight as the text, or the line flickers between dark and light as it runs. Katakana is the one everybody reaches for and the one that dates the effect hardest."
+      },
+      "order": {
+        "type": "enum",
+        "default": "forward",
+        "description": "The order the characters land in. Forward reads as something being typed or decoded. Random reads as something settling, and is the better one for a paragraph, where a left to right sweep takes long enough to watch.",
+        "values": [
+          "forward",
+          "reverse",
+          "centre",
+          "random"
+        ]
+      },
+      "stagger": {
+        "type": "number",
+        "default": 45,
+        "description": "Milliseconds between one character landing and the next. This is the control that sets the length of the whole run, because the last character lands at hold plus stagger times the number of characters. Short text can afford to be slow; a paragraph at 45ms is a run most of a minute long.",
+        "min": 0,
+        "max": 300,
+        "step": 1,
+        "unit": "ms",
+        "sensible": [
+          20,
+          90
+        ]
+      },
+      "hold": {
+        "type": "number",
+        "default": 160,
+        "description": "Milliseconds of cipher before the first character lands. A short hold is what makes it read as text arriving from somewhere rather than as text already there and merely untidy.",
+        "min": 0,
+        "max": 2000,
+        "step": 10,
+        "unit": "ms",
+        "sensible": [
+          0,
+          400
+        ]
+      },
+      "rate": {
+        "type": "number",
+        "default": 18,
+        "description": "Glyph changes per second, and a cadence rather than a frame rate: everything still running changes on the same tick, which is what makes the line read as one mechanism rather than a row of independent ones. Past about 30 the characters stop being readable and the whole thing greys out.",
+        "min": 2,
+        "max": 60,
+        "step": 1,
+        "unit": "per second",
+        "sensible": [
+          12,
+          24
+        ]
+      },
+      "dim": {
+        "type": "number",
+        "default": 0.45,
+        "description": "How much paler an unlanded glyph is than the settled text. The reason to have it at all is that it separates the two states by more than the letters themselves do, so the text reads as arriving rather than as correcting itself.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "steady": {
+        "type": "boolean",
+        "default": true,
+        "description": "Hold each character in a box the width of the letter it will become. On for anything set in a proportional face, where an I becoming a W is enough to shift the rest of the line. Off for monospace, where the boxes are all the same width and measuring them is work for nothing."
+      },
+      "seed": {
+        "type": "number",
+        "default": 7,
+        "description": "Seed for the glyphs and for the random order. The same seed always gives the same run, so a recorded video and a live page match character for character.",
+        "min": 0,
+        "max": 9999,
+        "step": 1
+      },
+      "reducedMotionTime": {
+        "type": "number",
+        "default": 999,
+        "description": "The single frame shown when the user prefers reduced motion. For a one-shot reveal this should be a time after the run has finished, so the text simply appears.",
+        "min": 0,
+        "max": 9999,
+        "step": 1,
+        "unit": "s"
+      }
+    },
+    "instruction": "press replay to set it again",
+    "oneShot": true,
+    "record": {
+      "duration": 4,
+      "fps": 30,
+      "posterAt": 1
+    },
+    "group": "effects",
+    "intro": "DecodeText resolves text out of a run of substitute glyphs, one character at a time.\nIt is the effect on the hover of every studio nav bar, and on a good number of\nthe headlines that win awards for being difficult to read.\n\nIt takes an element that already contains text, splits it into characters, and\nswaps the ones that have not landed yet. There is no canvas, no WebGL and no npm\ndependency.\n\nThree things it does that the version written in an afternoon does not.\n\nIt is pure in `t`. The obvious implementation calls `Math.random()` on a timer\nand mutates as it goes, which cannot be seeked, cannot be recorded, and shows\nsomething different every time anybody looks at it. Here the glyph at each\nposition is a hash of the position, the seed and the frame number, so the same\n`t` always gives the same frame.\n\nThe glyphs change on their own cadence rather than once per display frame. At\n120Hz a per-frame swap is a grey blur with no characters in it; at 30 it reads as\ntext being typed by something in a hurry. Fixing the cadence means the effect\nlooks the same on a 60Hz laptop, on a 144Hz monitor, and in a recording of\neither.\n\nNothing moves. Each character is held in a box the width of the letter it will\nbecome, and the substitutes are chosen from the glyphs that fit that box, so a\nline decoding in the middle of a page neither pushes the page about nor collides\nwith itself while it runs.\n\n`destroy()` puts the original text back. The element is left as it was found."
   },
   {
     "name": "FullscreenMenu",
@@ -2217,6 +2217,196 @@
     "intro": "Type printed on paper that is too absorbent for it.\n\nThe usual version of this is a CRT wobble: the glyph edges shimmer sideways like\na signal losing lock. Paper has its own way of ruining a letter and it is nothing\nlike that. Ink wicks along the fibres, so the edge does not move, it grows teeth.\nSerifs fill in, counters close up, and the letter gains a fuzz that is irregular\nat the scale of the fibre rather than smooth.\n\nAn SVG displacement filter is the honest way to draw it. Turbulence supplies the\nfibre and `feDisplacementMap` pushes each pixel of the glyph sideways by the\namount of fibre under it, which is exactly the mechanism: the ink goes where the\npaper lets it.\n\nIt is deliberately **not** a blur. A Gaussian softens an edge evenly, which is a\nlens out of focus rather than ink spreading, and it is the thing that makes most\nattempts at this look photographic rather than printed.\n\nIt also uses `fractalNoise` rather than turbulence proper. Turbulence takes the\nmodulus of each octave, which leaves hard creases that read as cracks in the\nletter rather than as fibre.\n\nNo canvas and no WebGL."
   },
   {
+    "name": "LightShafts",
+    "slug": "light-shafts",
+    "tier": 1,
+    "description": "Light coming through something and falling across the frame in bands, with the shadow edges going soft as they travel",
+    "category": "backdrops",
+    "tags": [
+      "webgl",
+      "shader",
+      "backdrop",
+      "light",
+      "rays",
+      "shadow",
+      "ambient",
+      "no-dependencies"
+    ],
+    "ground": "either",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "The whole image comes from one quantity, the angle from the source to the pixel, read against a repeating profile of bars and gaps. That is why the beams fan out from the source rather than running down the frame in parallel, and why pushing the source away straightens them on its own: distance is what turns a fan into parallel lines, and the sun is the limiting case",
+        "The shadow edges soften with distance travelled. A shadow is sharp only near the thing that cast it, because the source has width and the half-shadow it throws grows as the shadow runs. One multiplication, and it is the whole difference between a beam of light and a pale triangle",
+        "The motes are drawn only inside the beams. Light in clean air is invisible from the side, so the dust is not decoration over the shafts, it is the reason there is anything to see. They drift across the beams rather than along them, because dust in a room is moved by the air and not by the light",
+        "The bar pitch is scaled by the distance of the source, so moving the light out to straighten the beams does not also squeeze them into a sliver",
+        "There is an ambient term as well as the beams. Without it the unlit bands are flat and the frame reads as two colours rather than as one room",
+        "Declared as working on either ground. The default is sun across a pale wall; the same effect with a dark ground is a projector beam, and the dust matters more there",
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes",
+        "Measured at 0.086 mean absolute change per frame on a 0 to 255 scale, which is in line with MeshGradient at 0.091 and PrismSpectrum at 0.080. Nearly all of it is the band edges sweeping rather than the motes: the motes were the obvious suspect and changing them moved the number by 0.0004"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.2,
+      "contexts": 1,
+      "notes": [
+        "One atan, one exp and two evaluations of value noise per pixel, for the motes. No textures, no render targets and no shadow map: the occluder is a function rather than geometry, which is the whole reason this is cheap",
+        "Timed with a readPixels after each draw so the number includes the GPU. At 640 by 360 it came to 0.72ms against 0.88 for MeshGradient and 1.01 for PrismSpectrum measured the same way"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/light-shafts/core.ts",
+        "to": "src/beamish/effects/light-shafts/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/light-shafts/adapters/react.tsx",
+        "to": "src/beamish/effects/light-shafts/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/light-shafts/adapters/vue.ts",
+        "to": "src/beamish/effects/light-shafts/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "ground": {
+        "type": "color",
+        "default": "#e7e2d6",
+        "description": "The surface the light falls on, which is that surface in shadow: the lit bands are added on top of it, so it has to sit below them with room to spare. A ground as pale as the light clips to white across the whole frame, which is the first thing that went wrong here. Set it near black and the same effect is a projector beam in a dark room."
+      },
+      "light": {
+        "type": "color",
+        "default": "#fff6e2",
+        "description": "The light itself, added to the ground rather than mixed with it, because light is additive and a shaft that darkens what it crosses is a shaft of paint. Warm, because daylight through a window is warm and a neutral white beam reads as a lightbox."
+      },
+      "angle": {
+        "type": "number",
+        "default": 128,
+        "description": "Where the source sits, in degrees around the frame, with 0 to the right. Above and to one side is the one that reads as a window; straight on reads as a torch pointed at the viewer.",
+        "min": 0,
+        "max": 360,
+        "step": 1,
+        "unit": "deg"
+      },
+      "distance": {
+        "type": "number",
+        "default": 1.6,
+        "description": "How far off frame the source is, in frame widths. Near is a lamp and the beams fan hard; far is the sun and they run very nearly parallel. There is no separate setting for parallel beams, because this is what parallel beams are.",
+        "min": 0.2,
+        "max": 8,
+        "step": 0.05,
+        "sensible": [
+          1,
+          3
+        ]
+      },
+      "bars": {
+        "type": "number",
+        "default": 7,
+        "description": "How many bars the light comes through. A few wide ones read as glazing bars or a door ajar; a great many read as a blind, and past about twenty the frame is a texture rather than a room.",
+        "min": 1,
+        "max": 40,
+        "step": 1,
+        "sensible": [
+          4,
+          12
+        ]
+      },
+      "gap": {
+        "type": "number",
+        "default": 0.44,
+        "description": "The share of each repeat that is open. Think of it as the tilt of a blind: at 0.9 the slats are nearly edge on and the room is bright, at 0.1 they are nearly shut.",
+        "min": 0.02,
+        "max": 0.98,
+        "step": 0.01
+      },
+      "softness": {
+        "type": "number",
+        "default": 0.06,
+        "description": "How soft a shadow edge is where it leaves the bar. This is the near edge only. At 0 the beam starts with a razor edge, which is what a point source does and no real source is.",
+        "min": 0,
+        "max": 0.5,
+        "step": 0.005
+      },
+      "spread": {
+        "type": "number",
+        "default": 1.5,
+        "description": "How much softer that edge gets with the distance the shadow has travelled. The detail that makes the light read as light. At 0 the beams are triangles with parallel sides, which is every other version of this effect.",
+        "min": 0,
+        "max": 6,
+        "step": 0.05,
+        "sensible": [
+          0.8,
+          3
+        ]
+      },
+      "reach": {
+        "type": "number",
+        "default": 2.1,
+        "description": "How far the light gets across the frame, in frame widths, falling off as it goes. Short is a small window in a large room; long floods the frame and leaves nothing for the beams to be brighter than.",
+        "min": 0.2,
+        "max": 10,
+        "step": 0.1
+      },
+      "strength": {
+        "type": "number",
+        "default": 0.26,
+        "description": "Brightness of the light, added to the ground rather than mixed into it. On a pale ground this clips long before it reaches 2, and a quarter is already a bright day: the numbers here are small because the ground is most of the way up the scale before any light arrives.",
+        "min": 0,
+        "max": 2,
+        "step": 0.01
+      },
+      "dust": {
+        "type": "number",
+        "default": 0.7,
+        "description": "Motes in the air. At 0 the beams are clean bands, which is what light in a vacuum would look like if you could see it, which you could not.",
+        "min": 0,
+        "max": 2,
+        "step": 0.01
+      },
+      "drift": {
+        "type": "number",
+        "default": 4,
+        "description": "Degrees the source swings over one period. Small. The sun moves through about fifteen degrees in an hour, and anything much faster reads as somebody carrying a lamp past the window. It is also the one setting that drives the cost of the animation: a band edge is the highest-contrast thing in the frame, so swinging the light moves a great many pixels. Measured, dropping this from 7 to 4 took the change per frame from 0.151 to 0.086.",
+        "min": 0,
+        "max": 60,
+        "step": 1,
+        "unit": "deg",
+        "sensible": [
+          3,
+          15
+        ]
+      },
+      "period": {
+        "type": "number",
+        "default": 42,
+        "description": "Seconds for one swing and back. Long, because this sits behind something else and a backdrop has to survive being ignored.",
+        "min": 12,
+        "max": 180,
+        "step": 1,
+        "unit": "s"
+      }
+    },
+    "instruction": "the light swings on its own",
+    "oneShot": false,
+    "record": {
+      "duration": 42,
+      "fps": 30,
+      "posterAt": 10
+    },
+    "group": "effects",
+    "intro": "LightShafts is light coming into a room through something, and falling across\nthe frame in bands. Sun through a blind, through glazing bars, through a door\nleft ajar.\n\nEvery version of this effect anybody ships is a few pale triangles fanned out\nfrom a corner, and they all have the same tell: the beams are solid, their edges\nare equally sharp all the way along, and nothing accounts for why they are there\nat all. A shaft of light is not a shape. It is the gap in whatever is between\nyou and the sun.\n\nSo this is built the way the thing works.\n\n**There is a source, off frame, at a distance.** Everything is drawn from the\nangle to it, which is what makes the beams fan rather than run parallel. Move\nthe source far enough away and they do run parallel, because that is what\ndistance does to a fan, and the sun is the limiting case. There is no separate\nsetting for parallel beams, because this is what parallel beams are.\n\n**There is an occluder.** A repeating profile of bars and gaps, crossed by the\nrays. The bright bands are the gaps, not the bars.\n\n**The edges go soft with distance.** A shadow edge is sharp only near the thing\nthat cast it, because the source has width and the half-shadow it throws grows\nas the shadow travels. This one multiplication is the whole difference between a\nbeam of light and a triangle.\n\n**The beam is visible because of what is in the air.** Light in clean air cannot\nbe seen from the side, so the motes are not decoration over the top of the\nshafts: they are the reason there is anything to see, and they are drawn only\ninside the beams."
+  },
+  {
     "name": "MagneticButton",
     "slug": "magnetic-button",
     "tier": 1,
@@ -2829,6 +3019,189 @@
     },
     "group": "effects",
     "intro": "A printing plate slipping out of register, so the word prints twice in two inks.\n\nThe usual version of this splits the red and blue channels apart and calls it a\nglitch. That is a television fault: an analogue signal arriving at the wrong\ntime. Paper has its own version of the same idea and it looks quite different. A\npress lays one plate per ink, and if a plate is a fraction out of position its\ncolour prints beside the others rather than on top of them.\n\nSo this is three copies of the same text, two of them coloured and offset, and\nthe stack **multiplies** rather than composites, because that is what overlapping\nink does. The overlap going darker is the whole tell. A channel split goes\nbrighter where the channels meet, which is light, not ink, and it is the thing\nthat makes the usual version read as a screen rather than as a page.\n\nRegistration does not drift, either. A plate sits wrong for a whole run and then\ngets knocked, so the offset holds still and then jumps. Easing it would turn a\npress into a wobble, and a wobble is a very different and much less interesting\nfault.\n\nNo canvas and no WebGL. Three stacked spans and two transforms per frame."
+  },
+  {
+    "name": "PaperGrain",
+    "slug": "paper-grain",
+    "tier": 1,
+    "description": "The surface of a sheet of paper with nothing on it, lit by its own roughness",
+    "category": "backdrops",
+    "tags": [
+      "webgl",
+      "shader",
+      "backdrop",
+      "paper",
+      "texture",
+      "grain",
+      "ambient",
+      "no-dependencies"
+    ],
+    "ground": "paper",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "The image is a lighting calculation rather than a pattern. One noise field becomes a height, the height is differenced into a normal, and the normal meets one low light. Drawn as tone instead, the same field is a grey cloud that could be anything",
+        "Which field goes into the height and which goes into the tone is the whole shape of this rather than a detail. Only the fibre is surface. Formation is a density, so it changes how much light comes back and not which way the sheet faces, and it belongs in the tone: put both in the height, which is the obvious way to write it, and the broad field contributes almost nothing while the fine fibre dominates the derivative. The first version of this was rough-cast plaster",
+        "The fibre is stretched along the machine direction, because stock runs in a direction on a paper machine and the fibres lie along it. Isotropic noise is the single thing that stops a paper texture reading as paper: the sheets that really are isotropic are the handmade ones, and they look like felt",
+        "The tooth is smaller than a pixel, so it is in neither the height nor the tone. It is a flicker added to the light and weighted by how much the light rakes, because roughness you cannot resolve only shows as sparkle in grazing light. Raise `light` towards overhead and it goes flat, which is what happens to real paper under a ceiling light",
+        "Nothing in the paper moves. The light swings through a few degrees and back. Grain that crawls is film grain, which is a different effect and a far noisier one: measured at 0.013 mean absolute change per frame on a 0 to 255 scale, this is the quietest thing in the library by a factor of several",
+        "The normal is differenced over exactly one CSS pixel and divided by that step, so it is a slope rather than a difference and `relief` means the same thing at every canvas size. A shorter step samples detail the screen cannot resolve, which comes back as sparkle that changes when the canvas is resized",
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.2,
+      "contexts": 1,
+      "notes": [
+        "Four evaluations of four-octave value noise per pixel: three of the fibre, for the height and the two differences, and one of the much broader formation field. That is the cost of lighting something rather than drawing it, and it is the whole reason it reads as a surface",
+        "Timed with a readPixels after each draw so the number includes the GPU. At 640 by 360 it came to 0.31ms against 0.88 for MeshGradient and 1.01 for PrismSpectrum measured the same way, which makes it the cheapest backdrop in the library",
+        "No textures, no render targets and no feedback buffer. The cost is the pixel count, so a full-screen canvas at 2x device pixel ratio is the thing to watch"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/paper-grain/core.ts",
+        "to": "src/beamish/effects/paper-grain/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/paper-grain/adapters/react.tsx",
+        "to": "src/beamish/effects/paper-grain/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/paper-grain/adapters/vue.ts",
+        "to": "src/beamish/effects/paper-grain/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "paper": {
+        "type": "color",
+        "default": "#f7f5ed",
+        "description": "The stock. A warm white, because a true white sheet is a thing almost nobody prints on: it is bleached, it is colder than the ink wants, and on a screen it leaves the lighting nowhere to go above it."
+      },
+      "fibre": {
+        "type": "color",
+        "default": "#fffdf6",
+        "description": "What the sheet is tinted towards where the fibre lies thickest. Close to the stock on purpose. The difference between the two is doing the same job as the difference between two whites in a real sheet, which is to say it should be almost nothing."
+      },
+      "scale": {
+        "type": "number",
+        "default": 340,
+        "description": "Fibres across the short side. Higher is a finer, harder sheet; lower is closer to a heavy rag paper, where the fibre is visible as fibre rather than as texture.",
+        "min": 40,
+        "max": 600,
+        "step": 5,
+        "sensible": [
+          240,
+          460
+        ]
+      },
+      "direction": {
+        "type": "number",
+        "default": 12,
+        "description": "The machine direction: the axis the fibre lies along, and the axis a sheet tears cleanly down. Slightly off square is better than square, for the same reason a halftone screen is set at an angle.",
+        "min": -90,
+        "max": 90,
+        "step": 1,
+        "unit": "deg"
+      },
+      "stretch": {
+        "type": "number",
+        "default": 3.4,
+        "description": "How far the fibre is drawn out along that axis. At 1 there is no direction at all, which is a handmade sheet, and handmade sheets read as felt rather than as paper.",
+        "min": 1,
+        "max": 8,
+        "step": 0.1,
+        "sensible": [
+          2.5,
+          5
+        ]
+      },
+      "formation": {
+        "type": "number",
+        "default": 0.55,
+        "description": "Strength of the cloud: the uneven spread of fibre you see when a sheet is held up to a window. Papermakers judge stock by it. It works on the tone rather than on the surface, because it is a density and not a shape. At 0 the sheet is perfectly even, which no sheet is.",
+        "min": 0,
+        "max": 1.5,
+        "step": 0.01
+      },
+      "tooth": {
+        "type": "number",
+        "default": 0.5,
+        "description": "The micro-roughness that takes the ink, which is what a printer means by the tooth of a paper. It is in the light rather than in the surface, so it fades as the light rises: that is not a shortcut, it is what grazing light does to a rough surface.",
+        "min": 0,
+        "max": 1.5,
+        "step": 0.01
+      },
+      "light": {
+        "type": "number",
+        "default": 0.18,
+        "description": "Height of the light. 0 rakes along the surface and 1 is straight down on it. Low, always: this is a flat sheet, and the only thing that can make a flat sheet interesting is light arriving across it rather than onto it.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.08,
+          0.35
+        ]
+      },
+      "relief": {
+        "type": "number",
+        "default": 0.6,
+        "description": "How strongly the surface is lit by its own slope. Past about 1.5 the sheet stops being paper and becomes hammered metal, which is a real effect and not this one.",
+        "min": 0.05,
+        "max": 2,
+        "step": 0.01
+      },
+      "sweep": {
+        "type": "number",
+        "default": 26,
+        "description": "Degrees the light swings over one period, and the only moving thing here. At 0 it is a still image, which is a perfectly good way to use this and the quietest thing in the library.",
+        "min": 0,
+        "max": 120,
+        "step": 1,
+        "unit": "deg",
+        "sensible": [
+          12,
+          45
+        ]
+      },
+      "shive": {
+        "type": "number",
+        "default": 0.35,
+        "description": "Specks of fibre the beater did not break down. Papermakers call it shive, and it is the one thing here that is a mark rather than a surface. Sparse on purpose: a sheet with visible shive all over it is a sheet nobody bought.",
+        "min": 0,
+        "max": 2,
+        "step": 0.01
+      },
+      "period": {
+        "type": "number",
+        "default": 36,
+        "description": "Seconds for one swing of the light and back. Long, because this sits behind something else and a backdrop has to survive being ignored.",
+        "min": 12,
+        "max": 180,
+        "step": 1,
+        "unit": "s"
+      }
+    },
+    "instruction": "the light swings on its own",
+    "oneShot": false,
+    "record": {
+      "duration": 36,
+      "fps": 30,
+      "posterAt": 9,
+      "crf": 28
+    },
+    "group": "effects",
+    "intro": "PaperGrain is the surface of a sheet of paper, with nothing on it. Not a pattern laid\nover a background: the paper is the subject, and what you are looking at is\nlight falling across its own roughness.\n\nThree things make a surface read as paper rather than as noise, and leaving any\none of them out gives you grey static.\n\n**Fibre.** A sheet is a mat of fibres, and on a machine-made sheet they lie more\nalong one axis than the other, because the stock runs in a direction. So the\nnoise is stretched along that axis rather than isotropic. This is the machine\ndirection, and it is why a sheet tears cleanly one way and raggedly the other.\n\n**Formation.** Hold a sheet up to a window and you see cloud: the fibre is not\nspread evenly, and the patches are far larger than the fibres themselves.\nPapermakers call it formation, or look-through, and it is what separates good\nstock from newsprint.\n\n**PaperGrain.** The micro-roughness that takes the ink, and the thing the effect is\nnamed after. Too small to see as shape, so it shows only as a flicker in the\nlight, and only where the light is raking.\n\nWhich of those goes into the surface and which goes into the tone is the whole\nshape of this effect rather than a detail of it. Only the fibre is surface: it\nis differenced into a normal and lit. Formation is a density, so it changes how\nmuch light comes back rather than which way the sheet faces, and it belongs in\nthe tone. The tooth is smaller than a pixel, so it is in neither, and it is\nadded to the light.\n\nGet that wrong and no amount of tuning will save it. The first version of this\nput both fields in the height, which is the obvious way to write it, and the\nresult was rough-cast plaster: the broad field contributed nothing, because a\nbroad field has almost no slope, and the fine fibre dominated the derivative."
   },
   {
     "name": "PointerFilings",

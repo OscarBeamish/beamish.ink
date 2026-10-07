@@ -1,6 +1,6 @@
 ## What it is
 
-Cipher resolves text out of a run of substitute glyphs, one character at a time.
+DecodeText resolves text out of a run of substitute glyphs, one character at a time.
 It is the effect on the hover of every studio nav bar, and on a good number of
 the headlines that win awards for being difficult to read.
 
@@ -31,16 +31,16 @@ with itself while it runs.
 
 ## Wiring
 
-**Plain HTML.** The text must already be in the element. Cipher splits what it
+**Plain HTML.** The text must already be in the element. DecodeText splits what it
 finds.
 
 ```html
 <h1 id="headline">A headline sits here</h1>
 
 <script type="module">
-  import { createCipher } from './beamish/effects/cipher/core.js'
+  import { createDecodeText } from './beamish/effects/decode-text/core.js'
 
-  const cipher = createCipher(document.querySelector('#headline'))
+  const cipher = createDecodeText(document.querySelector('#headline'))
   cipher.start()
 </script>
 ```
@@ -50,14 +50,14 @@ the spans in JSX: React will fight the DOM changes on the next render.
 
 ```tsx
 import { useEffect, useRef } from 'react'
-import { createCipher } from '@/beamish/effects/cipher/core'
+import { createDecodeText } from '@/beamish/effects/decode-text/core'
 
 export function Headline({ children }: { children: string }) {
   const host = useRef<HTMLHeadingElement>(null)
 
   useEffect(() => {
     if (!host.current) return
-    const cipher = createCipher(host.current, { stagger: 45 })
+    const cipher = createDecodeText(host.current, { stagger: 45 })
     cipher.start()
     return () => cipher.destroy()
   }, [children])
@@ -74,7 +74,7 @@ be rebuilt.
 ```vue
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
-import { createCipher } from '@/beamish/effects/cipher/core'
+import { createDecodeText } from '@/beamish/effects/decode-text/core'
 import type { EffectHandle } from '@/beamish/shared/runtime'
 
 const host = ref<HTMLElement | null>(null)
@@ -82,7 +82,7 @@ let cipher: EffectHandle | null = null
 
 onMounted(() => {
   if (!host.value) return
-  cipher = createCipher(host.value)
+  cipher = createDecodeText(host.value)
   cipher.start()
 })
 
@@ -97,7 +97,7 @@ onBeforeUnmount(() => cipher?.destroy())
 **Astro.** Nothing extra is required. The core is a standard ES module and works
 from a plain `<script>` in the page.
 
-**Replaying it.** Cipher runs once from `t = 0`. To play it again, reset the clock
+**Replaying it.** DecodeText runs once from `t = 0`. To play it again, reset the clock
 and start:
 
 ```ts
@@ -113,7 +113,7 @@ moment somebody is trying to read it.
 
 ```ts
 const link = document.querySelector('#nav-link')
-const cipher = createCipher(link, { stagger: 28, hold: 0 })
+const cipher = createDecodeText(link, { stagger: 28, hold: 0 })
 
 let running = false
 link.addEventListener('pointerenter', () => {
@@ -160,7 +160,7 @@ observers and removes every listener. There is no GPU resource to release.
 
 The text renders on the server as ordinary text, and stays readable if the
 JavaScript never arrives. Splitting only happens on the first frame. Call
-`createCipher` from `useEffect`, `onMounted`, or a `client:*` island.
+`createDecodeText` from `useEffect`, `onMounted`, or a `client:*` island.
 
 ## Accessibility
 
@@ -199,7 +199,7 @@ resolves, which is the worst of the three states it could be in.
    appear on short monospace labels.
 
 4. **Scrambling the spaces.** Text with its spaces replaced is not text being
-   decoded, it is a block of noise, and it rewraps on every tick. Cipher leaves
+   decoded, it is a block of noise, and it rewraps on every tick. DecodeText leaves
    whitespace and punctuation alone.
 
 5. **Running it on hover with no guard.** A cursor swept along a nav bar starts a

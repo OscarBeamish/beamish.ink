@@ -1,5 +1,5 @@
 /*
- * React adapter for Cipher. Thin on purpose. It wires a ref to the core and
+ * React adapter for DecodeText. Thin on purpose. It wires a ref to the core and
  * nothing else. If you find yourself adding logic here, it belongs in core.ts.
  *
  * The text is passed as children and split by the core inside an effect. Do not
@@ -10,10 +10,10 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { createCipher, type CipherOptions } from '../core'
+import { createDecodeText, type DecodeTextOptions } from '../core'
 import type { EffectHandle } from '../../../shared/runtime'
 
-export type CipherProps = Partial<CipherOptions> & {
+export type DecodeTextProps = Partial<DecodeTextOptions> & {
   children: string
   className?: string
   /** The element to render. A heading or a link is usually right. */
@@ -22,20 +22,20 @@ export type CipherProps = Partial<CipherOptions> & {
   autoStart?: boolean
 }
 
-export function Cipher({
+export function DecodeText({
   children,
   className,
   as: Tag = 'span',
   autoStart = true,
   ...options
-}: CipherProps) {
+}: DecodeTextProps) {
   const host = useRef<HTMLElement>(null)
   const handle = useRef<EffectHandle | null>(null)
 
   // Remounts when the text changes, because the split has to be rebuilt.
   useEffect(() => {
     if (!host.current) return
-    const effect = createCipher(host.current, options)
+    const effect = createDecodeText(host.current, options)
     handle.current = effect
     if (autoStart) effect.start()
     return () => {
@@ -56,4 +56,4 @@ export function Cipher({
   )
 }
 
-export default Cipher
+export default DecodeText

@@ -1,25 +1,25 @@
 /*
- * Vue adapter for Cipher. Thin on purpose. It wires a ref to the core and
+ * Vue adapter for DecodeText. Thin on purpose. It wires a ref to the core and
  * nothing else. If you find yourself adding logic here, it belongs in core.ts.
  */
 
 import { defineComponent, h, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue'
-import { createCipher, cipherDefaults, type CipherOptions } from '../core'
+import { createDecodeText, decodeTextDefaults, type DecodeTextOptions } from '../core'
 import type { EffectHandle } from '../../../shared/runtime'
 
-export const Cipher = defineComponent({
-  name: 'Cipher',
+export const DecodeText = defineComponent({
+  name: 'DecodeText',
   props: {
     text: { type: String, required: true },
     tag: { type: String, default: 'span' },
-    glyphs: { type: String, default: cipherDefaults.glyphs },
-    order: { type: String as () => CipherOptions['order'], default: cipherDefaults.order },
-    stagger: { type: Number, default: cipherDefaults.stagger },
-    hold: { type: Number, default: cipherDefaults.hold },
-    rate: { type: Number, default: cipherDefaults.rate },
-    dim: { type: Number, default: cipherDefaults.dim },
-    steady: { type: Boolean, default: cipherDefaults.steady },
-    seed: { type: Number, default: cipherDefaults.seed },
+    glyphs: { type: String, default: decodeTextDefaults.glyphs },
+    order: { type: String as () => DecodeTextOptions['order'], default: decodeTextDefaults.order },
+    stagger: { type: Number, default: decodeTextDefaults.stagger },
+    hold: { type: Number, default: decodeTextDefaults.hold },
+    rate: { type: Number, default: decodeTextDefaults.rate },
+    dim: { type: Number, default: decodeTextDefaults.dim },
+    steady: { type: Boolean, default: decodeTextDefaults.steady },
+    seed: { type: Number, default: decodeTextDefaults.seed },
     autoStart: { type: Boolean, default: true }
   },
   setup(props) {
@@ -29,7 +29,7 @@ export const Cipher = defineComponent({
     const build = () => {
       handle?.destroy()
       if (!host.value) return
-      handle = createCipher(host.value, props as Partial<CipherOptions>)
+      handle = createDecodeText(host.value, props as Partial<DecodeTextOptions>)
       if (props.autoStart) handle.start()
     }
 
@@ -50,4 +50,4 @@ export const Cipher = defineComponent({
   }
 })
 
-export default Cipher
+export default DecodeText
