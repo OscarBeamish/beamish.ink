@@ -1,0 +1,186 @@
+/*
+ * TwelveColumn: Beamish
+ * https://beamish.ink/grids/twelve-column
+ *
+ * A twelve column editorial grid, for pages built out of full-bleed bands with
+ * their content placed on a shared set of tracks.
+ *
+ * Four things carry it, and the last two are what every other version of this
+ * gets wrong.
+ *
+ * The margin is not a gutter. They are different measurements doing different
+ * jobs: the gutter is the space between two columns of content, and the margin
+ * is the space between the content and the trimmed edge of the page. Systems
+ * that make the outer margin one more gutter end up with text sitting a
+ * sixteenth of an inch off the edge on a phone, because a gutter that works
+ * between columns is far too tight against a trim.
+ *
+ * A band is full bleed and its grid is not. The band spans the whole window so
+ * it can carry a ground colour or a photograph to the edges; the tracks live
+ * inside it, inset by the margin. Putting the margin on the band instead means
+ * no section can ever bleed, which is the first thing anyone wants.
+ *
+ * The rules are drawn from the same custom properties as the layout. A grid
+ * overlay that is its own repeating gradient, or worse an exported image, is
+ * correct on the day it is made and wrong after the first change to a gutter.
+ * Here `.grid-rules` reads `--grid-columns`, `--grid-gutter` and `--grid-margin`
+ * and cannot describe a grid other than the one it is sitting on.
+ *
+ * And the column count is a custom property, so narrow widths redefine it
+ * rather than re-stating every span. Twelve columns on a phone is not a grid,
+ * it is a list of slivers: below the breakpoint everything spans the full set
+ * unless it opts out, so a span of 8 does not silently overflow a grid of 4.
+ */
+
+:root {
+  /*
+   * Twelve because it divides by two, three, four and six, which is every
+   * division an editorial page actually asks for. Ten looks tidier and cannot
+   * do thirds.
+   */
+  --grid-columns: 12;
+  /* Between columns. Tight: this is the space that holds two columns apart. */
+  --grid-gutter: clamp(0.75rem, 1.4vw, 1.5rem);
+  /* Between content and trim. Generous, and nothing to do with the gutter. */
+  --grid-margin: clamp(1.25rem, 5vw, 6rem);
+  /* The widest the tracks ever get, however wide the window is. */
+  --grid-measure: 110rem;
+  --grid-rule: rgba(54, 54, 48, 0.2);
+  /* Vertical rhythm. One unit, and everything spaces in multiples of it. */
+  --grid-step: clamp(1rem, 2vw, 2rem);
+}
+
+/* A band is full bleed, so it can carry a ground to the edges of the page. */
+.band {
+  position: relative;
+  width: 100%;
+  padding-block: calc(var(--grid-step) * 3);
+}
+
+/*
+ * The tracks. Inset by the margin and capped by the measure, centred in
+ * whatever is left. `minmax(0, 1fr)` rather than `1fr`, because a `1fr` track
+ * refuses to go below the intrinsic width of its content: one long word or one
+ * unconstrained image and the whole grid is wider than the window.
+ */
+.band__grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+  column-gap: var(--grid-gutter);
+  row-gap: calc(var(--grid-step) * 2);
+  max-width: var(--grid-measure);
+  margin-inline: auto;
+  padding-inline: var(--grid-margin);
+  box-sizing: border-box;
+}
+
+/*
+ * Nested alignment by subgrid, so a caption under a picture lines up with the
+ * column above it. The alternative is re-declaring twelve tracks inside a
+ * six column area, where every nested track is half the width of the ones it
+ * is supposed to agree with, and nothing lines up with anything.
+ */
+.band__sub {
+  display: grid;
+  grid-template-columns: subgrid;
+  column-gap: var(--grid-gutter);
+}
+
+/*
+ * Spans, as `grid-column-end` rather than the `grid-column` shorthand.
+ *
+ * The shorthand sets the start as well: `grid-column: span 6` means a start of
+ * `span 6` and an end of `auto`. Add a start class on top and the start is
+ * overridden while the end stays `auto`, which resolves to a span of one. The
+ * element lands in the right column and is a twelfth of the width it asked for,
+ * and nothing anywhere reports an error. Setting only the end leaves the start
+ * free for auto-placement or for a start class, and the two compose.
+ */
+.col-1 { grid-column-end: span 1 }
+.col-2 { grid-column-end: span 2 }
+.col-3 { grid-column-end: span 3 }
+.col-4 { grid-column-end: span 4 }
+.col-5 { grid-column-end: span 5 }
+.col-6 { grid-column-end: span 6 }
+.col-7 { grid-column-end: span 7 }
+.col-8 { grid-column-end: span 8 }
+.col-9 { grid-column-end: span 9 }
+.col-10 { grid-column-end: span 10 }
+.col-11 { grid-column-end: span 11 }
+.col-12 { grid-column-end: span 12 }
+
+/*
+ * Starts, for the asymmetry that makes a grid worth having. A page where
+ * everything begins at column 1 has a grid and no composition.
+ */
+.start-2 { grid-column-start: 2 }
+.start-3 { grid-column-start: 3 }
+.start-4 { grid-column-start: 4 }
+.start-5 { grid-column-start: 5 }
+.start-6 { grid-column-start: 6 }
+.start-7 { grid-column-start: 7 }
+.start-8 { grid-column-start: 8 }
+.start-9 { grid-column-start: 9 }
+.start-10 { grid-column-start: 10 }
+
+/*
+ * Measure. Type does not become more readable as its column gets wider, it
+ * becomes less: past about 75 characters the eye loses the start of the next
+ * line. A span of 7 columns on a wide screen is well past that, so body copy
+ * takes a measure as well as a span.
+ */
+.measure {
+  max-width: 68ch;
+}
+
+/*
+ * The overlay, drawn from the same properties as the grid.
+ *
+ * It is a grid of the same tracks holding one element per column, rather than a
+ * repeating gradient: a gradient has to be told the gutter as a percentage and
+ * is then wrong at every width where the gutter is a clamp rather than a ratio.
+ * This cannot be wrong, because it is the grid.
+ */
+.grid-rules {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+  column-gap: var(--grid-gutter);
+  max-width: var(--grid-measure);
+  margin-inline: auto;
+  padding-inline: var(--grid-margin);
+  box-sizing: border-box;
+}
+
+.grid-rules > * {
+  background: var(--grid-rule);
+}
+
+/*
+ * `hidden` has to be said again here, because the attribute's `display: none`
+ * lives in the browser's own stylesheet and any author `display` beats it. A
+ * `.grid-rules` element carrying `hidden` is otherwise still a grid, and the
+ * overlay ships switched on with its own button insisting it is off.
+ */
+.grid-rules[hidden] {
+  display: none;
+}
+
+/* Narrow. Twelve slivers is not a grid, so the tracks are redefined. */
+@media (max-width: 48rem) {
+  :root {
+    --grid-columns: 4;
+  }
+
+  /*
+   * Everything spans the full set unless it says otherwise. Without this a
+   * span of 8 on a grid of 4 overflows, silently, and the page scrolls
+   * sideways on a phone.
+   */
+  .band__grid > *:not(.keep-span) {
+    grid-column: 1 / -1;
+  }
+}
