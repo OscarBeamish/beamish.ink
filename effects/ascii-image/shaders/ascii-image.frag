@@ -118,7 +118,14 @@ void main() {
    * the front is a ragged edge rather than a diagonal line. A teleprinter
    * arrives a character at a time and so does this.
    */
-  float order = (id.y * cells.x + id.x) / max(cells.x * cells.y, 1.0);
+  /*
+   * Rows counted from the top, because gl_FragCoord has its origin at the
+   * bottom left and reading order does not. Without the flip the picture prints
+   * upwards from the floor, which is not what any machine has ever done and is
+   * invisible until you look at a frame from the middle of the run.
+   */
+  float row = cells.y - 1.0 - id.y;
+  float order = (row * cells.x + id.x) / max(cells.x * cells.y, 1.0);
   float jitter = (hash12(id + 3.7) - 0.5) * 0.06;
   float arrived = step(order + jitter, u_progress);
 
