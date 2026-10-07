@@ -1,13 +1,16 @@
 ---
 /*
- * A grid's page.
+ * A grid's page, built out of the grid it is describing.
  *
- * The demo is an iframe rather than markup rebuilt in Astro, and that is the
- * whole design of this page. The demo sets custom properties on :root and lays
- * out full-bleed bands; rendered inside this document those would fight the
- * site's own styles, and what the reader saw would not be what the stylesheet
- * actually does. An iframe is its own document, so the grid is shown doing
- * exactly what it will do in your project.
+ * Not an iframe and not a diagram. Every band below is laid out with the
+ * stylesheet this page is about, so the overlay toggle shows the columns of
+ * the page you are actually reading. A page that merely exhibits a grid can be
+ * wrong without anyone noticing. A page made of one cannot.
+ *
+ * The standalone demo still exists, because the recorder needs a page it can
+ * scroll on its own and because it is worth being able to open without the
+ * site around it. It is the same grid doing the same job with other words in
+ * it.
  */
 import Base from '../../layouts/Base.astro'
 import { loadGrids, loadGridSource, GRID_CATEGORY_LABELS } from '../../lib/grids'
@@ -18,104 +21,203 @@ export function getStaticPaths() {
 
 const { grid } = Astro.props
 const source = loadGridSource(grid.slug)
-// A directory URL: Astro redirects `/x.html` to `/x`, which would 404.
-const demo = `/grid-demos/${grid.slug}/`
+/*
+ * demo.html rather than the directory. Measured: `astro dev` returns 404 for
+ * `/grid-demos/<slug>/`, because its static middleware does not resolve a
+ * directory to its index, while the built site serves it happily. Both serve
+ * this one.
+ */
+const demo = `/grid-demos/${grid.slug}/demo.html`
+const css = `/grid-demos/${grid.slug}/grid.css`
 const properties = Object.entries(grid.properties)
+const plate = (n: string) => `/grid-demos/_media/plate-${n}.webp`
 ---
 
 <Base title={`${grid.name}: Beamish`} description={grid.description}>
-  <section class="spine pt-32 pb-10 md:pt-40">
-    <p class="text-l3 col-span-12 font-mono text-[0.68rem] tracking-[0.16em] uppercase">
-      {GRID_CATEGORY_LABELS[grid.category]}, a grid system
-    </p>
-    <h1 class="col-span-12 mt-4 text-[clamp(2.2rem,6vw,4.5rem)] leading-[0.95] lg:col-span-9">
-      {grid.name}
-    </h1>
-    <p class="text-l2 col-span-12 mt-6 font-mono text-[0.9rem] leading-[1.7] sm:col-span-9 lg:col-span-6">
-      {grid.description}.
-    </p>
-  </section>
-
   {/*
-    The page using the grid. Tall, because a layout is read by going down it,
-    and scrollable inside its own frame.
+    The stylesheet under test, on this page only. Its custom properties are all
+    namespaced --grid-*, and every class carries a g- prefix,
+    because Tailwind already defines start-8 and col-6 and this page uses both
+    vocabularies at once.
   */}
-  <section class="spine pb-6">
-    <div class="border-line col-span-12 overflow-hidden rounded-[2px] border">
-      <iframe
-        src={demo}
-        title={`${grid.name} in use`}
-        loading="lazy"
-        class="block h-[80vh] w-full border-0 bg-white"
-      ></iframe>
+  <link rel="stylesheet" href={css} />
+
+  <section class="g-band" style="padding-top: clamp(7rem, 12vw, 11rem)">
+    <div class="g-band__grid">
+      <p class="text-l3 g-col-12 font-mono text-[0.68rem] tracking-[0.16em] uppercase">
+        {GRID_CATEGORY_LABELS[grid.category]}, a grid system
+      </p>
+      <h1 class="g-col-9 text-[clamp(2.2rem,6vw,4.5rem)] leading-[0.95]">{grid.name}</h1>
+      <p class="text-l2 g-col-5 g-start-8 g-measure font-mono text-[0.85rem] leading-[1.7]">
+        {grid.description}. Every band on this page is laid out with it, so the
+        overlay shows the columns of the page you are reading.
+      </p>
     </div>
-    <p class="text-l3 col-span-12 mt-3 font-mono text-[0.68rem]">
-      Scroll inside the frame. Press Show grid to see the columns.
-      <a href={demo} target="_blank" rel="noreferrer" class="underline">
-        Open it on its own
-      </a>
-      .
-    </p>
   </section>
 
-  <section class="spine py-16">
-    <h2 class="col-span-12 text-[1.6rem] leading-tight">The properties are the interface</h2>
-    <p class="text-l2 col-span-12 mt-3 font-mono text-[0.8rem] leading-[1.7] lg:col-span-7">
-      Override these in your own stylesheet rather than editing the file, so the
-      next version is a clean replacement.
-    </p>
-    <dl class="col-span-12 mt-8 grid grid-cols-1 gap-x-8 gap-y-6 lg:grid-cols-2">
+  <section class="g-band">
+    <div class="g-band__grid">
+      <figure class="g-col-7 m-0">
+        <img
+          src={plate('1043')}
+          alt="A road running into low cloud between dark hills"
+          width="1400"
+          height="875"
+          loading="lazy"
+          decoding="async"
+          class="block h-auto w-full"
+        />
+        <figcaption class="text-l3 mt-2 font-mono text-[0.68rem]">
+          Seven columns, and five left over for something to sit beside it.
+        </figcaption>
+      </figure>
+      <div class="g-col-4 g-start-9">
+        <h2 class="text-[1.5rem] leading-tight">Thirds, halves and quarters</h2>
+        <p class="text-l2 mt-3 font-mono text-[0.78rem] leading-[1.7]">
+          Twelve divides by two, three, four and six, which is every division an
+          editorial page actually asks for. Ten looks tidier and cannot do
+          thirds, which you find out on the first spread that wants three of
+          anything.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="g-band">
+    <div class="g-band__grid">
+      <h2 class="g-col-6 text-[1.6rem] leading-tight">The properties are the interface</h2>
+      <p class="text-l2 g-col-5 g-start-8 g-measure font-mono text-[0.78rem] leading-[1.7]">
+        Override these in your own stylesheet rather than editing the file, so
+        the next version is a clean replacement.
+      </p>
       {
         properties.map(([name, spec]) => (
-          <div class="border-line border-t pt-3">
-            <dt class="flex flex-wrap items-baseline justify-between gap-2">
+          <div class="border-line g-col-6 border-t pt-3">
+            <div class="flex flex-wrap items-baseline justify-between gap-2">
               <code class="font-mono text-[0.78rem]">{name}</code>
               <code class="text-l3 font-mono text-[0.68rem]">{spec.default}</code>
-            </dt>
-            <dd class="text-l2 mt-2 ml-0 font-mono text-[0.74rem] leading-[1.65]">
+            </div>
+            <p class="text-l2 mt-2 font-mono text-[0.74rem] leading-[1.65]">
               {spec.description}
-            </dd>
+            </p>
           </div>
         ))
       }
-    </dl>
-  </section>
-
-  {grid.notes.length > 0 && (
-    <section class="spine pb-16">
-      <h2 class="col-span-12 text-[1.6rem] leading-tight">What it gets right</h2>
-      <ul class="col-span-12 mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
-        {grid.notes.map(note => (
-          <li class="text-l2 border-line border-t pt-3 font-mono text-[0.74rem] leading-[1.65]">
-            {note}
-          </li>
-        ))}
-      </ul>
-    </section>
-  )}
-
-  <section class="spine pb-32">
-    <h2 class="col-span-12 text-[1.6rem] leading-tight">The stylesheet</h2>
-    <p class="text-l2 col-span-12 mt-3 font-mono text-[0.8rem] leading-[1.7] lg:col-span-7">
-      This is the whole item. Copy it into your project, link it, and use the
-      class names.
-    </p>
-    <div class="col-span-12 mt-6">
-      <button
-        type="button"
-        class="beamish-sheen-button beamish-sheen-button--quiet"
-        data-copy-grid
-      >
-        Copy stylesheet
-      </button>
     </div>
-    <pre
-      class="border-line bg-be text-l1 col-span-12 mt-6 max-h-[32rem] overflow-auto rounded-[2px] border p-4 font-mono text-[0.72rem] leading-[1.6]"
-      data-grid-source><code>{source}</code></pre>
   </section>
+
+  {
+    grid.notes.length > 0 && (
+      <section class="g-band">
+        <div class="g-band__grid">
+          <h2 class="g-col-12 text-[1.6rem] leading-tight">What it gets right</h2>
+          {grid.notes.map(note => (
+            <p class="text-l2 border-line g-col-6 border-t pt-3 font-mono text-[0.74rem] leading-[1.65]">
+              {note}
+            </p>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="g-band">
+    <div class="g-band__grid">
+      <figure class="g-col-4 m-0">
+        <img
+          src={plate('1015')}
+          alt="A river running through a steep wooded valley"
+          width="1400"
+          height="875"
+          loading="lazy"
+          decoding="async"
+          class="block h-auto w-full"
+        />
+      </figure>
+      <figure class="g-col-4 m-0">
+        <img
+          src={plate('1016')}
+          alt="Bare trees against a pale winter sky"
+          width="1400"
+          height="875"
+          loading="lazy"
+          decoding="async"
+          class="block h-auto w-full"
+        />
+      </figure>
+      <figure class="g-col-4 m-0">
+        <img
+          src={plate('1018')}
+          alt="A close view of weathered paint and rust"
+          width="1400"
+          height="875"
+          loading="lazy"
+          decoding="async"
+          class="block h-auto w-full"
+        />
+      </figure>
+      <p class="text-l3 g-col-12 font-mono text-[0.68rem]">
+        Four, four and four, on the same tracks as the paragraphs above.
+      </p>
+    </div>
+  </section>
+
+  <section class="g-band" style="padding-bottom: clamp(5rem, 10vw, 9rem)">
+    <div class="g-band__grid">
+      <h2 class="g-col-6 text-[1.6rem] leading-tight">The stylesheet</h2>
+      <p class="text-l2 g-col-5 g-start-8 g-measure font-mono text-[0.78rem] leading-[1.7]">
+        This is the whole item. Copy it into your project, link it, and use the
+        class names. Nothing to install and nothing to mount.
+      </p>
+      <div class="g-col-12 flex flex-wrap gap-3">
+        <button
+          type="button"
+          class="beamish-sheen-button beamish-sheen-button--quiet"
+          data-copy-grid
+        >
+          Copy stylesheet
+        </button>
+        <a
+          href={demo}
+          target="_blank"
+          rel="noreferrer"
+          class="beamish-sheen-button beamish-sheen-button--quiet no-underline"
+        >
+          Open the demo on its own
+        </a>
+      </div>
+      <pre
+        class="border-line bg-be text-l1 g-col-12 max-h-[32rem] overflow-auto rounded-[2px] border p-4 font-mono text-[0.72rem] leading-[1.6]"
+        data-grid-source><code>{source}</code></pre>
+    </div>
+  </section>
+
+  {/* One element per column, drawn over the page this page is made of. */}
+  <div class="g-rules" data-rules hidden>
+    {Array.from({ length: 12 }).map(() => <i />)}
+  </div>
+
+  <button
+    type="button"
+    class="beamish-sheen-button beamish-sheen-button--quiet fixed right-4 bottom-4 z-[80]"
+    aria-pressed="false"
+    data-rules-toggle
+  >
+    Show grid
+  </button>
 </Base>
 
 <script>
+  const rules = document.querySelector<HTMLElement>('[data-rules]')
+  const toggle = document.querySelector<HTMLButtonElement>('[data-rules-toggle]')
+  toggle?.addEventListener('click', () => {
+    if (!rules) return
+    const on = toggle.getAttribute('aria-pressed') === 'true'
+    rules.hidden = on
+    toggle.setAttribute('aria-pressed', String(!on))
+    toggle.textContent = on ? 'Show grid' : 'Hide grid'
+  })
+
   const button = document.querySelector<HTMLButtonElement>('[data-copy-grid]')
   const source = document.querySelector<HTMLElement>('[data-grid-source]')
   button?.addEventListener('click', async () => {

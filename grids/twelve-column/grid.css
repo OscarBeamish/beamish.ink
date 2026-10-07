@@ -23,8 +23,13 @@
  * The rules are drawn from the same custom properties as the layout. A grid
  * overlay that is its own repeating gradient, or worse an exported image, is
  * correct on the day it is made and wrong after the first change to a gutter.
- * Here `.grid-rules` reads `--grid-columns`, `--grid-gutter` and `--grid-margin`
+ * Here `.g-rules` reads `--grid-columns`, `--grid-gutter` and `--grid-margin`
  * and cannot describe a grid other than the one it is sitting on.
+ *
+ * Every class carries a `g-` prefix, which looks fussy until you paste this
+ * into a project that already has a `.band`, or into a Tailwind one, where
+ * `start-8` and `col-6` are utilities that already mean something. A grid is
+ * pasted into code nobody here has seen, so it may not claim common words.
  *
  * And the column count is a custom property, so narrow widths redefine it
  * rather than re-stating every span. Twelve columns on a phone is not a grid,
@@ -51,7 +56,7 @@
 }
 
 /* A band is full bleed, so it can carry a ground to the edges of the page. */
-.band {
+.g-band {
   position: relative;
   width: 100%;
   padding-block: calc(var(--grid-step) * 3);
@@ -63,7 +68,7 @@
  * refuses to go below the intrinsic width of its content: one long word or one
  * unconstrained image and the whole grid is wider than the window.
  */
-.band__grid {
+.g-band__grid {
   display: grid;
   grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
   column-gap: var(--grid-gutter);
@@ -80,7 +85,7 @@
  * six column area, where every nested track is half the width of the ones it
  * is supposed to agree with, and nothing lines up with anything.
  */
-.band__sub {
+.g-band__sub {
   display: grid;
   grid-template-columns: subgrid;
   column-gap: var(--grid-gutter);
@@ -96,32 +101,32 @@
  * and nothing anywhere reports an error. Setting only the end leaves the start
  * free for auto-placement or for a start class, and the two compose.
  */
-.col-1 { grid-column-end: span 1 }
-.col-2 { grid-column-end: span 2 }
-.col-3 { grid-column-end: span 3 }
-.col-4 { grid-column-end: span 4 }
-.col-5 { grid-column-end: span 5 }
-.col-6 { grid-column-end: span 6 }
-.col-7 { grid-column-end: span 7 }
-.col-8 { grid-column-end: span 8 }
-.col-9 { grid-column-end: span 9 }
-.col-10 { grid-column-end: span 10 }
-.col-11 { grid-column-end: span 11 }
-.col-12 { grid-column-end: span 12 }
+.g-col-1 { grid-column-end: span 1 }
+.g-col-2 { grid-column-end: span 2 }
+.g-col-3 { grid-column-end: span 3 }
+.g-col-4 { grid-column-end: span 4 }
+.g-col-5 { grid-column-end: span 5 }
+.g-col-6 { grid-column-end: span 6 }
+.g-col-7 { grid-column-end: span 7 }
+.g-col-8 { grid-column-end: span 8 }
+.g-col-9 { grid-column-end: span 9 }
+.g-col-10 { grid-column-end: span 10 }
+.g-col-11 { grid-column-end: span 11 }
+.g-col-12 { grid-column-end: span 12 }
 
 /*
  * Starts, for the asymmetry that makes a grid worth having. A page where
  * everything begins at column 1 has a grid and no composition.
  */
-.start-2 { grid-column-start: 2 }
-.start-3 { grid-column-start: 3 }
-.start-4 { grid-column-start: 4 }
-.start-5 { grid-column-start: 5 }
-.start-6 { grid-column-start: 6 }
-.start-7 { grid-column-start: 7 }
-.start-8 { grid-column-start: 8 }
-.start-9 { grid-column-start: 9 }
-.start-10 { grid-column-start: 10 }
+.g-start-2 { grid-column-start: 2 }
+.g-start-3 { grid-column-start: 3 }
+.g-start-4 { grid-column-start: 4 }
+.g-start-5 { grid-column-start: 5 }
+.g-start-6 { grid-column-start: 6 }
+.g-start-7 { grid-column-start: 7 }
+.g-start-8 { grid-column-start: 8 }
+.g-start-9 { grid-column-start: 9 }
+.g-start-10 { grid-column-start: 10 }
 
 /*
  * Measure. Type does not become more readable as its column gets wider, it
@@ -129,7 +134,7 @@
  * line. A span of 7 columns on a wide screen is well past that, so body copy
  * takes a measure as well as a span.
  */
-.measure {
+.g-measure {
   max-width: 68ch;
 }
 
@@ -141,7 +146,7 @@
  * is then wrong at every width where the gutter is a clamp rather than a ratio.
  * This cannot be wrong, because it is the grid.
  */
-.grid-rules {
+.g-rules {
   position: fixed;
   inset: 0;
   z-index: 60;
@@ -155,17 +160,17 @@
   box-sizing: border-box;
 }
 
-.grid-rules > * {
+.g-rules > * {
   background: var(--grid-rule);
 }
 
 /*
  * `hidden` has to be said again here, because the attribute's `display: none`
  * lives in the browser's own stylesheet and any author `display` beats it. A
- * `.grid-rules` element carrying `hidden` is otherwise still a grid, and the
+ * `.g-rules` element carrying `hidden` is otherwise still a grid, and the
  * overlay ships switched on with its own button insisting it is off.
  */
-.grid-rules[hidden] {
+.g-rules[hidden] {
   display: none;
 }
 
@@ -180,7 +185,7 @@
    * span of 8 on a grid of 4 overflows, silently, and the page scrolls
    * sideways on a phone.
    */
-  .band__grid > *:not(.keep-span) {
+  .g-band__grid > *:not(.g-keep) {
     grid-column: 1 / -1;
   }
 }

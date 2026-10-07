@@ -26,7 +26,7 @@ like this.
 **The rules are drawn from the same custom properties as the layout.** A grid
 overlay that is its own repeating gradient is correct on the day it is made and
 wrong after the first change to a gutter. An overlay exported as an image is
-wrong sooner. `.grid-rules` reads `--grid-columns`, `--grid-gutter` and
+wrong sooner. `.g-rules` reads `--grid-columns`, `--grid-gutter` and
 `--grid-margin`, which means it cannot describe a grid other than the one it is
 sitting on.
 
@@ -40,16 +40,20 @@ Link the stylesheet and write the markup. That is the whole installation.
 ```html
 <link rel="stylesheet" href="./beamish/grids/twelve-column/grid.css" />
 
-<section class="band">
-  <div class="band__grid">
-    <h1 class="col-10">A heading across ten</h1>
-    <p class="col-5 start-7 measure">A column of text in the right half.</p>
+<section class="g-band">
+  <div class="g-band__grid">
+    <h1 class="g-col-10">A heading across ten</h1>
+    <p class="g-col-5 g-start-7 g-measure">A column of text in the right half.</p>
   </div>
 </section>
 ```
 
-`.band` is the full-bleed section. `.band__grid` is the tracks. `.col-N` sets a
-span, `.start-N` sets where it begins, and the two compose.
+`.g-band` is the full-bleed section. `.g-band__grid` is the tracks. `.g-col-N`
+sets a span, `.g-start-N` sets where it begins, and the two compose.
+
+Every class carries a `g-` prefix, which looks fussy until you paste this into
+a project that already has a `.band`, or into a Tailwind one, where `start-8`
+and `col-6` are utilities that already mean something.
 
 **React, Vue, Astro.** Nothing to do. It is a stylesheet: import it once at the
 root and use the class names. There is no component to render, which is the
@@ -57,7 +61,7 @@ point of shipping a grid rather than a layout component.
 
 ## Spans are `grid-column-end`, and that matters
 
-`.col-6` sets `grid-column-end: span 6` rather than the `grid-column`
+`.g-col-6` sets `grid-column-end: span 6` rather than the `grid-column`
 shorthand, and this is the one piece of the file you should not simplify.
 
 The shorthand sets both ends: `grid-column: span 6` means a start of `span 6`
@@ -73,14 +77,14 @@ Type does not become more readable as its column gets wider. Past about
 seventy-five characters the eye loses the start of the next line, and seven
 columns on a wide screen is well past that.
 
-So `.measure` caps body copy at 68ch independently of how many columns it
-spans. A span says where something sits. A measure says how wide the text inside
-it is allowed to get. Use both on anything anyone has to read.
+So `.g-measure` caps body copy at 68ch independently of how many columns it
+spans. A span says where something sits. A measure says how wide the text inside it
+is allowed to get. Use both on anything anyone has to read.
 
 ## The overlay
 
 ```html
-<div class="grid-rules" hidden>
+<div class="g-rules" hidden>
   <i></i><i></i><i></i><i></i><i></i><i></i>
   <i></i><i></i><i></i><i></i><i></i><i></i>
 </div>
@@ -88,9 +92,9 @@ it is allowed to get. Use both on anything anyone has to read.
 
 One element per column. Toggle the `hidden` attribute.
 
-Note that `.grid-rules[hidden]` is declared explicitly in the stylesheet. The
+Note that `.g-rules[hidden]` is declared explicitly in the stylesheet. The
 `hidden` attribute's `display: none` lives in the browser's own stylesheet, and
-any author `display` beats it, so a `.grid-rules` element carrying `hidden` is
+any author `display` beats it, so a `.g-rules` element carrying `hidden` is
 otherwise still a grid: the overlay ships switched on with its own button
 insisting it is off. This catches people every time they style something that
 also uses `hidden`.
@@ -98,7 +102,7 @@ also uses `hidden`.
 ## Narrow widths
 
 Below 48rem the grid becomes four columns and everything spans the full set
-unless it carries `.keep-span`.
+unless it carries `.g-keep`.
 
 This is deliberate rather than lazy. Twelve columns on a phone is not a grid, it
 is a list of slivers, and the alternative to collapsing is re-stating every span
@@ -106,11 +110,11 @@ at every breakpoint. It also prevents the silent failure: a span of 8 on a grid
 of 4 overflows, and the page scrolls sideways with nothing in the console.
 
 If a particular element genuinely should keep its span when narrow, give it
-`.keep-span` and set the span you want in your own stylesheet.
+`.g-keep` and set the span you want in your own stylesheet.
 
 ## Subgrid
 
-`.band__sub` inherits the parent's tracks, so a caption under a picture lines up
+`.g-band__sub` inherits the parent's tracks, so a caption under a picture lines up
 with the column above it. The alternative is re-declaring twelve tracks inside a
 six column area, where every nested track is half the width of the ones it is
 supposed to agree with and nothing lines up with anything.
