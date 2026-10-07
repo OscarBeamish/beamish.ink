@@ -208,6 +208,16 @@ async function captureTier1(page: Page, meta: Meta, dir: string): Promise<number
     )
   }
 
+  /*
+   * And for an item that answers to a click. A press is an instant rather than a
+   * position, so it is a list of moments rather than a path, but it is handed
+   * over the same way and for the same reason: synthesising real clicks would
+   * land them at whatever moment a frame happened to be taken.
+   */
+  if (meta.presses) {
+    await page.evaluate(presses => window.__beamish.update({ pressPath: presses }), meta.presses)
+  }
+
   // Same contract for a scroll-driven item. Its velocity comes out of the
   // path's own slope, so it is a function of t like everything else.
   if (meta.scroll) {

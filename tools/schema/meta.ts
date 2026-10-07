@@ -202,6 +202,13 @@ export const metaSchema = z
       .optional(),
 
     /**
+     * Scripted presses for tier-1 items that answer to a click. Same idea as
+     * `cursor`, but a press is an instant rather than a position, so it is a
+     * list of moments rather than a path with a duration.
+     */
+    presses: z.array(pointerKey).min(1).optional(),
+
+    /**
      * Scripted scroll path for scroll-driven tier-1 items. Same idea as
      * `cursor`: the runtime samples it at the exact time being drawn, so the
      * take is deterministic without synthesising wheel events.
@@ -229,10 +236,15 @@ export const metaSchema = z
         message: 'tier 2 items are recorded by replaying interactions, and none are declared'
       })
     }
-    if (value.category === 'pointer' && value.tier === 1 && !value.cursor) {
+    /*
+     * A pointer item has to give the recorder something to drive, or the take is
+     * a still. A path is the usual answer; a list of presses is the other one,
+     * for the items that answer to a click rather than to a position.
+     */
+    if (value.category === 'pointer' && value.tier === 1 && !value.cursor && !value.presses) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'pointer-driven tier-1 items need a cursor path or the recorder gets a still'
+        message: 'pointer-driven tier-1 items need a cursor path or a list of presses, or the recorder gets a still'
       })
     }
     /*

@@ -494,6 +494,18 @@ export type Pointer = {
 /** One sample of a scripted cursor path. `t` is seconds; x/y are 0 to 1. */
 export type PointerKey = { t: number; x: number; y: number }
 
+/**
+ * One scripted press. `t` is seconds from the start of the loop; x/y are 0 to 1
+ * across the element.
+ *
+ * A path can say where the cursor is at any moment, but a press is an instant
+ * rather than a position, so it needs its own list. An effect that answers to
+ * clicks reads this alongside whatever real presses it has seen, which is what
+ * lets the recorder produce a take with clicks in it without anything having
+ * been clicked.
+ */
+export type PressKey = { t: number; x: number; y: number }
+
 export type Scroll = {
   /**
    * How far the host has travelled through the viewport. 0 when its top edge is
@@ -555,6 +567,16 @@ export type BaseOptions = {
   pointerPath?: PointerKey[]
   /** Seconds the scripted path takes to run once before repeating. */
   pointerPathDuration?: number
+  /**
+   * Scripted presses, for effects that answer to a click. Each is a time and a
+   * point, and an effect treats them exactly as it treats a real press that
+   * happened at that moment, so a recorded take and a live page agree.
+   *
+   * Unlike `pointerPath`, this does not replace the live input: a scripted press
+   * and a real one are the same kind of event, and an effect that ignored the
+   * cursor while a script was running would be dead on the page.
+   */
+  pressPath?: PressKey[]
   /**
    * Scripted scroll path. When set, the real scroll position is ignored and both
    * progress and velocity are read from this path at the current time.

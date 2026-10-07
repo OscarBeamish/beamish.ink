@@ -269,6 +269,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'tilt-card': () => import('@items/effects/tilt-card/core'),
     'pointer-ripple-grid': () => import('@items/effects/pointer-ripple-grid/core'),
     'magnetic-button': () => import('@items/effects/magnetic-button/core'),
+    'click-spark': () => import('@items/effects/click-spark/core'),
     'count-up-number': () => import('@items/effects/count-up-number/core'),
     'terrain-relief': () => import('@items/effects/terrain-relief/core'),
     'guilloche-lines': () => import('@items/effects/guilloche-lines/core'),
@@ -384,6 +385,11 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'count-up-number': `<div class="demo-count-up-number">
       <span class="demo-count-up-number__value">45,400</span>
       <p>Stars on the library we are not competing with</p>
+    </div>`,
+    /* Mounted on the sheet rather than on the button, so the sparks are sized
+       against the area they are thrown into. The button inside keeps working. */
+    'click-spark': `<div class="demo-spark-sheet">
+      <button type="button" class="beamish-glow-button beamish-glow-button--solid">Press me</button>
     </div>`,
     'magnetic-button': `<div class="demo-magnetic-button">
       <div class="demo-magnetic-button__rest" aria-hidden="true"></div>
