@@ -1,0 +1,151 @@
+{
+  "name": "CrosshairCursor",
+  "slug": "crosshair-cursor",
+  "tier": 1,
+  "description": "A viewfinder that follows the pointer and squares up around anything you can press",
+  "category": "pointer",
+  "ground": "either",
+  "tags": [
+    "pointer",
+    "cursor",
+    "crosshair",
+    "reticle",
+    "dom",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "The part worth having is the lock: when the reticle passes over something you can press, the brackets leave the cursor and square up around that element. Without it this is two divs tracking a mouse. Nothing locks on to empty space",
+      "What counts as a target is a CSS selector rather than a guess at what is clickable. Sniffing gets it wrong in both directions: it misses the div somebody wired a handler to, and it locks on to every link in a paragraph of running text",
+      "The lock comes from a hit test at the pointer rather than from a listener for entering an element. A scripted path moves no real pointer and fires no events, so an effect that locked on only for a live cursor would record as a reticle that never finds anything",
+      "The hit test is skipped while the pointer is still. It flushes layout, and the answer cannot have changed if nothing moved",
+      "The brackets take a target faster than the crosshair follows the hand. A reticle that drifts lazily into place has not locked on to anything: the snap is the feedback",
+      "Four corner brackets rather than a box, because a box round a button is a selection and a bracket at each corner is a sight. Each is the same two borders turned a quarter further round",
+      "Like every pointer effect here it eases against its own last frame, so it is deliberately not pure in t, and the recorder drives it from the scripted path in this file",
+      "The element keeps its own content: the reticle is drawn in a layer over the top that the pointer cannot touch. Set `cursor: none` on the element yourself if you want the real one hidden, which is a decision about the page rather than about the effect"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.3,
+    "contexts": 0,
+    "notes": [
+      "Six elements, all composited transforms. Nothing is created or destroyed after mount",
+      "One hit test and two rects per frame in which the pointer moved, and none at all in a frame where it did not"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/crosshair-cursor/core.ts",
+      "to": "src/beamish/effects/crosshair-cursor/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/crosshair-cursor/adapters/react.tsx",
+      "to": "src/beamish/effects/crosshair-cursor/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/crosshair-cursor/adapters/vue.ts",
+      "to": "src/beamish/effects/crosshair-cursor/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "colour": {
+      "type": "color",
+      "default": "#c44400",
+      "description": "The lines and the brackets. One colour: a reticle is an instrument, and an instrument is drawn in one ink."
+    },
+    "thickness": {
+      "type": "number",
+      "default": 1,
+      "min": 0.5,
+      "max": 4,
+      "step": 0.5,
+      "unit": "px",
+      "description": "Thickness of a hairline. 1 is right, and anything above about 2 stops being a sight and starts being a frame. In pixels rather than relative, because a hairline is a hairline at any size."
+    },
+    "size": {
+      "type": "number",
+      "default": 13,
+      "min": 3,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "description": "Half-width of the reticle when it is not locked on to anything. Small, so that locking on is a visible change: a free reticle the size of a button has nowhere to go when it finds one."
+    },
+    "corner": {
+      "type": "number",
+      "default": 9,
+      "min": 2,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "description": "Length of a bracket's arms. Fixed rather than a share of the box it is framing, which is what keeps a bracket round a wide button from turning into a box round it."
+    },
+    "padding": {
+      "type": "number",
+      "default": 6,
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "description": "Space left around a locked target. At 0 the brackets sit exactly on the element's edge, which reads as a border rather than as a sight trained on it."
+    },
+    "ease": {
+      "type": "number",
+      "default": 0.22,
+      "min": 0.02,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [0.12, 0.35],
+      "description": "How fast the crosshair follows the hand, per frame. At 1 it is welded to the pointer, which is the same as not having an effect. Low enough to have weight, high enough that it is never somewhere the hand has left."
+    },
+    "snap": {
+      "type": "number",
+      "default": 0.42,
+      "min": 0.02,
+      "max": 1,
+      "step": 0.01,
+      "description": "How fast the brackets take a target, per frame. Higher than the ease on purpose. This is the one number that decides whether the effect reads as locking on or as catching up."
+    },
+    "target": {
+      "type": "string",
+      "default": "a, button, [data-target]",
+      "description": "What the brackets will lock on to, as a CSS selector. The data attribute is there so you can nominate anything else without changing the selector: put it on the card, the image, the row."
+    },
+    "lines": {
+      "type": "boolean",
+      "default": true,
+      "description": "Draw the long hairlines as well as the brackets. Off leaves the brackets alone, which is quieter and better over text: the lines cross everything on the page, and over a paragraph that is a strikethrough following the cursor."
+    }
+  },
+  "instruction": "move the pointer over the buttons",
+  "oneShot": false,
+  "cursor": {
+    "duration": 9,
+    "keys": [
+      { "t": 0, "x": 0.12, "y": 0.18 },
+      { "t": 1.1, "x": 0.5, "y": 0.385 },
+      { "t": 2.3, "x": 0.5, "y": 0.385 },
+      { "t": 3.3, "x": 0.5, "y": 0.5 },
+      { "t": 4.5, "x": 0.5, "y": 0.5 },
+      { "t": 5.5, "x": 0.5, "y": 0.615 },
+      { "t": 6.7, "x": 0.5, "y": 0.615 },
+      { "t": 7.8, "x": 0.86, "y": 0.84 },
+      { "t": 9, "x": 0.12, "y": 0.18 }
+    ]
+  },
+  "record": {
+    "duration": 9,
+    "fps": 30,
+    "posterAt": 2
+  }
+}

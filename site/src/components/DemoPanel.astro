@@ -270,6 +270,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'pointer-ripple-grid': () => import('@items/effects/pointer-ripple-grid/core'),
     'magnetic-button': () => import('@items/effects/magnetic-button/core'),
     'click-spark': () => import('@items/effects/click-spark/core'),
+    'crosshair-cursor': () => import('@items/effects/crosshair-cursor/core'),
     'count-up-number': () => import('@items/effects/count-up-number/core'),
     'terrain-relief': () => import('@items/effects/terrain-relief/core'),
     'guilloche-lines': () => import('@items/effects/guilloche-lines/core'),
@@ -385,6 +386,13 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'count-up-number': `<div class="demo-count-up-number">
       <span class="demo-count-up-number__value">45,400</span>
       <p>Stars on the library we are not competing with</p>
+    </div>`,
+    /* Three buttons, because the point is what the reticle does when it crosses
+       one: it leaves the cursor and squares up around it. */
+    'crosshair-cursor': `<div class="demo-reticle">
+      <button type="button">Dispatch</button>
+      <button type="button">Hold for collection</button>
+      <button type="button">Cancel</button>
     </div>`,
     /* Mounted on the sheet rather than on the button, so the sparks are sized
        against the area they are thrown into. The button inside keeps working. */
