@@ -5439,6 +5439,167 @@
     "intro": "A beam of white light through a slowly turning prism, on a dark ground.\n\nThe fan is **traced, not drawn**. Sixteen wavelengths, each with its own\nrefractive index, each refracted at the entry face, carried through the glass\nand refracted again on the way out, each cast as its own ray.\n\nThat matters because everything people recognise about a prism then falls out\nof it rather than being arranged:\n\n**Red bends least and violet most**, because the refractive index of glass rises\ntowards the blue end. The ordering is not a choice here. Reverse `dispersion`\nand the spectrum reverses, as it would in a material with anomalous dispersion.\n\n**The fan is narrow.** A real 60 degree prism in crown glass spreads the visible\nband by about one degree. That is why a prism throws a long thin spectrum rather\nthan a wide one, and why the picture everybody has in mind is of a spectrum cast\nseveral metres away.\n\n**The spread changes as it turns**, and it is tightest near minimum deviation,\nwhere the beam passes through symmetrically. That is the one moment in the cycle\nwhen the fan narrows and brightens, and it is the detail that says this is being\nworked out rather than painted.\n\n**Some wavelengths do not get out.** Where the angle inside the glass is past\nthe critical angle the ray is totally internally reflected and no line is drawn\nfor it, which is a real thing a prism does and not a case to paper over."
   },
   {
+    "name": "RegistrationMarks",
+    "slug": "registration-marks",
+    "tier": 1,
+    "description": "The marks a printer puts outside the trim, with the plates slightly out of register and drifting",
+    "category": "backdrops",
+    "tags": [
+      "webgl",
+      "shader",
+      "backdrop",
+      "print",
+      "registration",
+      "ambient",
+      "no-dependencies"
+    ],
+    "ground": "paper",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "A registration mark is a ring with a cross through it, and the arms run past the ring on all four sides. That is not a style: the ring reads rotation and the arms read translation, so a printer can judge both through a loupe at once",
+        "The subject is the error. Three plates, each drifting on its own closed orbit, which is what a press operator is looking for when they pull a sheet and hold it up. At spread 0 it is a sheet in perfect register, which is the correct answer and much the duller picture",
+        "The inks multiply. Where all three plates land together the mark goes nearly black, and where they have come apart you see three coloured marks beside each other, which is exactly how misregistration announces itself. Added instead, that difference is lost",
+        "Everything is a signed distance in CSS pixels, softened by one pixel's footprint. That is not for looks: these are hairlines moving by fractions of a pixel, and a hairline without anti-aliasing crawls between whole pixels as it drifts. The sub-pixel movement is the entire subject, so it has to be the thing that survives",
+        "The plates orbit rather than wander, a third of a turn apart, so after one period every plate is back where it started and the loop closes. A press drifts because something is turning",
+        "The colour bar along the foot is the other half of what a printer reads off a sheet: one solid patch per plate, for a densitometer",
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes",
+        "Measured at 0.023 mean absolute change per frame on a 0 to 255 scale, which makes it the quietest backdrop here after PaperGrain, and 0.55ms at 640 by 360. Nearly all of the frame is bare paper"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.2,
+      "contexts": 1,
+      "notes": [
+        "Three plates, each one a handful of signed distances and a derivative. The four marks are one evaluation, not four: the frame is folded about its centre so a corner mark is the same arithmetic as all of them",
+        "No textures, no noise and no render targets. Nearly all of the frame is paper and costs a single comparison"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/registration-marks/core.ts",
+        "to": "src/beamish/effects/registration-marks/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/registration-marks/adapters/react.tsx",
+        "to": "src/beamish/effects/registration-marks/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/registration-marks/adapters/vue.ts",
+        "to": "src/beamish/effects/registration-marks/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "paper": {
+        "type": "color",
+        "default": "#fbfaf4",
+        "description": "The sheet. Nearly all of the frame is this, which is the point: registration marks live in the margin and the margin is mostly empty."
+      },
+      "first": {
+        "type": "color",
+        "default": "#1b6f8c",
+        "description": "The first plate. Process colours are the honest choice here, but any three inks that can be told apart will do: the whole effect depends on seeing which plate has moved."
+      },
+      "second": {
+        "type": "color",
+        "default": "#c44400",
+        "description": "The second plate."
+      },
+      "third": {
+        "type": "color",
+        "default": "#36362f",
+        "description": "The third plate. Making one of them the key black is worth it, because black over the other two is what a mark in register actually looks like."
+      },
+      "size": {
+        "type": "number",
+        "default": 17,
+        "description": "Radius of a mark's ring. Real ones are a few millimetres across and read at arm's length, so keep them small: a large registration mark is a logo.",
+        "min": 5,
+        "max": 60,
+        "step": 1,
+        "unit": "px",
+        "sensible": [
+          12,
+          26
+        ]
+      },
+      "weight": {
+        "type": "number",
+        "default": 1.4,
+        "description": "Thickness of the rules. Hairline, because the whole purpose of the mark is to resolve a small error, and a thick rule cannot show a small error. It is also why the anti-aliasing matters so much here.",
+        "min": 0.4,
+        "max": 6,
+        "step": 0.1,
+        "unit": "px"
+      },
+      "arms": {
+        "type": "number",
+        "default": 1.8,
+        "description": "How far the cross runs past the ring, as a share of the radius. At 1 the arms stop at the ring and it is a target rather than a registration mark.",
+        "min": 1,
+        "max": 4,
+        "step": 0.1
+      },
+      "margin": {
+        "type": "number",
+        "default": 0.13,
+        "description": "How far the marks sit in from the edge, as a share of the short side. On a press sheet they are outside the trim, so near the edge is the truthful setting and also the one that leaves the middle of the frame free.",
+        "min": 0.02,
+        "max": 0.45,
+        "step": 0.01
+      },
+      "spread": {
+        "type": "number",
+        "default": 3.2,
+        "description": "Worst misregistration, in pixels, and the whole subject. A few pixels is a press that needs attention; twenty is a sheet nobody would let off the floor. At 0 the plates sit exactly on top of each other and the marks read as one black mark, which is what a printer is aiming for and the dullest version of this.",
+        "min": 0,
+        "max": 30,
+        "step": 0.1,
+        "unit": "px",
+        "sensible": [
+          1.5,
+          6
+        ]
+      },
+      "bar": {
+        "type": "number",
+        "default": 18,
+        "description": "Height of the colour bar along the foot, one solid patch per plate. 0 leaves only the marks, which is cleaner and loses the other half of what a printer reads off a sheet.",
+        "min": 0,
+        "max": 60,
+        "step": 1,
+        "unit": "px"
+      },
+      "period": {
+        "type": "number",
+        "default": 32,
+        "description": "Seconds for one cycle of the drift. A press does not go out of register quickly, and this is a backdrop, so long.",
+        "min": 8,
+        "max": 180,
+        "step": 1,
+        "unit": "s"
+      }
+    },
+    "instruction": "the plates drift on their own",
+    "oneShot": false,
+    "record": {
+      "duration": 32,
+      "fps": 30,
+      "posterAt": 8
+    },
+    "group": "effects",
+    "intro": "RegistrationMarks draws the marks a printer puts outside the trim so the plates\ncan be lined up, with the plates slightly out of register and drifting.\n\nA registration mark is a ring with a cross through it, and the arms run past the\nring on all four sides. That is not a style choice: the ring reads rotation and\nthe arms read translation, so an operator can judge both through a loupe at\nonce. Each ink gets its own set in its own colour, and when the press is right\nthey sit exactly on top of one another and read as a single black mark.\n\nSo the subject here is the error. Three plates, each drifting on its own closed\norbit, which is what a press operator is looking at when they pull a sheet and\nhold it up to the light. At `spread: 0` the plates land together and the marks\ngo black, which is the correct answer and much the duller picture.\n\nAlong the foot is the colour bar: one solid patch per plate, the way a sheet\ncarries them for a densitometer. It is the other half of what a printer reads\noff a sheet."
+  },
+  {
     "name": "RelightImage",
     "slug": "relight-image",
     "tier": 1,
