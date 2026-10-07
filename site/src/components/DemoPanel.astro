@@ -98,7 +98,10 @@ const ON_PAPER = new Set([
    * the same paper the item defaults to or the heading reads as a block of
    * slightly wrong white.
    */
-  'embossed-text'
+  'embossed-text',
+  /* StrokeText for the same reason: the hollow of a letter is painted the
+     paper colour, because that is what covers the inner half of the stroke. */
+  'stroke-text'
 ])
 
 const tweakable = tier === 1 ? Object.entries(options) : []
@@ -273,6 +276,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'crosshair-cursor': () => import('@items/effects/crosshair-cursor/core'),
     'variable-weight-text': () => import('@items/effects/variable-weight-text/core'),
     'split-fountain-text': () => import('@items/effects/split-fountain-text/core'),
+    'stroke-text': () => import('@items/effects/stroke-text/core'),
     'gradual-blur': () => import('@items/effects/gradual-blur/core'),
     'count-up-number': () => import('@items/effects/count-up-number/core'),
     'odometer-number': () => import('@items/effects/odometer-number/core'),
@@ -389,6 +393,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
        half of what this item is. */
     'typewriter-text': `<p class="demo-typed">Dear Sir, I write about the matter of the press.</p>`,
     'embossed-text': `<p class="demo-heading">${HEADLINE}</p>`,
+    'stroke-text': `<p class="demo-heading">${HEADLINE}</p>`,
     /* The ring fills the box it is given, so the box is the size control. */
     'circular-text': `<div class="demo-seal">Printed and bound in England</div>`,
     'misprint-text': `<p class="demo-heading">${HEADLINE}</p>`,

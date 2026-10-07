@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>StrokeText: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        /*
+         * Must match the `paper` option. The hollow of a letter is painted that
+         * colour, because that is what covers the inner half of the stroke.
+         */
+        background: #fbfaf4;
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        align-content: center;
+        padding: 0 7vw;
+        box-sizing: border-box;
+      }
+      #stage h1 {
+        margin: 0;
+        max-width: 13ch;
+        font-family: var(--font-display);
+        font-size: clamp(2.6rem, 12vw, 8rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 0.92;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+    -->
+    <div id="stage">
+      <h1>Inked from the foot up</h1>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const handle = window.Beamish.create(document.querySelector('#stage h1'))
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      window.__beamish = handle
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
+    </script>
+  </body>
+</html>
