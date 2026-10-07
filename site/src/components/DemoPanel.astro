@@ -295,6 +295,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'ink-bleed-text': () => import('@items/effects/ink-bleed-text/core'),
     'halftone-magnifier': () => import('@items/effects/halftone-magnifier/core'),
     'relight-image': () => import('@items/effects/relight-image/core'),
+    'ascii-image': () => import('@items/effects/ascii-image/core'),
     'glass-search-bar': () => import('@items/effects/glass-search-bar/core')
   }
 
@@ -335,6 +336,8 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       '<img class="demo-plate-fill" src="/plates/halftone-magnifier/plate.jpg" alt="A ring of stones on a bright green hillside, the sun coming up behind the ridge" />',
     'relight-image':
       '<img class="demo-plate-fill" src="/plates/relight-image/plate.jpg" alt="A grass headland falling away to the sea, with fog lying along the cliff" />',
+    'ascii-image':
+      '<img class="demo-plate-fill" src="/plates/ascii-image/plate.jpg" alt="A grass headland falling away to the sea, with fog lying along the cliff" />',
     /*
      * The glass is drawn by the canvas; the plate on it is real markup above.
      * WebGL cannot hold text that can be focused, selected, translated or read
