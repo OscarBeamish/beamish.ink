@@ -358,6 +358,17 @@ class ExpandingTilesSurface implements Surface<ExpandingTilesOptions> {
     const eased = easeOutQuint(raw)
     const p = phase.opening ? eased : 1 - eased
 
+    /*
+     * The rules run on the same gesture, read slightly further along it. Leading
+     * has to mean "further along the way it is going", not "further out": a
+     * closing tile that trailed its rules would leave four lines boxing in grid
+     * it had already given back, which is what makes the dismiss look broken.
+     * Taking the lead on the gesture's own progress and then turning it round
+     * for the close gets both directions from one number.
+     */
+    const ledEase = easeOutQuint(clamp01(raw * (1 + opts.lead)))
+    const pRule = phase.opening ? ledEase : 1 - ledEase
+
     const state = `${phase.index}|${p.toFixed(4)}|${vw}x${vh}`
     if (state === this.applied) return
     this.applied = state
@@ -405,7 +416,7 @@ class ExpandingTilesSurface implements Surface<ExpandingTilesOptions> {
       kids[i]!.style.transform = `translate3d(${dx.toFixed(2)}px, ${dy.toFixed(2)}px, 0)`
     }
 
-    this.drawRules(opts, cell, p, vw, vh)
+    this.drawRules(opts, cell, pRule, vw, vh)
 
     if (phase.opening && raw >= 1 && opts.follow && this.followed !== phase.index) {
       const href = tile.getAttribute('href')
@@ -424,7 +435,7 @@ class ExpandingTilesSurface implements Surface<ExpandingTilesOptions> {
   private drawRules(
     opts: ExpandingTilesOptions,
     cell: Box,
-    p: number,
+    pRule: number,
     vw: number,
     vh: number
   ): void {
@@ -436,20 +447,14 @@ class ExpandingTilesSurface implements Surface<ExpandingTilesOptions> {
     }
     layer.style.display = 'block'
 
-    /*
-     * The rules run on `led` rather than on `p`, which is what puts them ahead
-     * of the clip. Clamped, so leading does not overshoot the window edge and
-     * come back.
-     */
-    const led = clamp01(p * (1 + opts.lead))
-    const overX = vw * opts.bleed * led
-    const overY = vh * opts.bleed * led
+    const overX = vw * opts.bleed * pRule
+    const overY = vh * opts.bleed * pRule
     const w = opts.rule
     // Each rule travels from its cell edge to the window edge.
-    const top = cell.top * (1 - led)
-    const bottom = (vh - cell.bottom) * (1 - led)
-    const left = cell.left * (1 - led)
-    const right = (vw - cell.right) * (1 - led)
+    const top = cell.top * (1 - pRule)
+    const bottom = (vh - cell.bottom) * (1 - pRule)
+    const left = cell.left * (1 - pRule)
+    const right = (vw - cell.right) * (1 - pRule)
     const geometry = [
       `left:${-overX}px;right:${-overX}px;top:${top.toFixed(2)}px;height:${w}px`,
       `left:${-overX}px;right:${-overX}px;bottom:${bottom.toFixed(2)}px;height:${w}px`,
