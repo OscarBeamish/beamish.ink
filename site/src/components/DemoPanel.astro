@@ -82,6 +82,15 @@ const inUse = tier === 1 && category === 'backdrops'
  *
  * Tier 2 has no `update()` on its handle, so it gets no panel.
  */
+/*
+ * Items whose demo is itself a surface sitting on a page: a card, a sheet, a
+ * plate. The panel is paper for those and the thing inside it is the elevated
+ * one, because a card the same colour as the box around it is not a card. Every
+ * other panel is elevated, since a shader covers it completely and only the
+ * edge of it is ever seen.
+ */
+const ON_PAPER = new Set(['tilt-card', 'spotlight-card'])
+
 const tweakable = tier === 1 ? Object.entries(options) : []
 ---
 
@@ -95,7 +104,11 @@ const tweakable = tier === 1 ? Object.entries(options) : []
        * cascade layer than components, so a rule in global.css loses to it
        * whatever its specificity and does so silently.
        */
-      ground === 'dark' ? 'border-white/15 bg-[#131316]' : 'border-line bg-be'
+      ground === 'dark'
+        ? 'border-white/15 bg-[#131316]'
+        : ON_PAPER.has(slug)
+          ? 'border-line bg-b1'
+          : 'border-line bg-be'
     ]}
     data-demo
     data-slug={slug}

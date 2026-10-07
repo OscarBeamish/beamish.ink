@@ -508,7 +508,9 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background: rgb(var(--background-deep));
+    /* Elevated, on a paper panel. The item's own demo page is set up the same
+       way, so the site and the recording of it agree. */
+    background: var(--background-elevated);
     border: 1px solid var(--line);
     border-radius: 4px;
     box-shadow: 0 20px 50px rgba(54, 54, 48, 0.1);
