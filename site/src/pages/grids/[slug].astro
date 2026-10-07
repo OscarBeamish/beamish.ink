@@ -59,6 +59,27 @@ const plate = (n: string) => `/grid-demos/_media/plate-${n}.webp`
     </div>
   </section>
 
+  <section class="g-band bg-be">
+    <div class="g-band__grid">
+      <div class="border-line g-col-5 border-t pt-3">
+        <h3 class="text-[1.05rem] leading-tight">The margin is not a gutter</h3>
+        <p class="text-l2 mt-2 font-mono text-[0.76rem] leading-[1.7]">
+          They are different measurements doing different jobs. A gutter holds
+          two columns of type apart. A margin holds the type off the trimmed
+          edge of the sheet, and it wants to be several times larger.
+        </p>
+      </div>
+      <div class="border-line g-col-5 g-start-8 border-t pt-3">
+        <h3 class="text-[1.05rem] leading-tight">The band bleeds, the grid does not</h3>
+        <p class="text-l2 mt-2 font-mono text-[0.76rem] leading-[1.7]">
+          A section spans the whole window so it can carry a ground to the
+          edges. The tracks sit inside it, inset by the margin. Put the margin
+          on the section instead and nothing can ever bleed.
+        </p>
+      </div>
+    </div>
+  </section>
+
   <section class="g-band">
     <div class="g-band__grid">
       <figure class="g-col-7 m-0">
@@ -166,6 +187,41 @@ const plate = (n: string) => `/grid-demos/_media/plate-${n}.webp`
     </div>
   </section>
 
+  <section class="g-band">
+    <div class="g-band__grid">
+      <figure class="g-col-12 m-0">
+        <img
+          src={plate('1039')}
+          alt="A wide shoreline under an overcast sky"
+          width="1400"
+          height="875"
+          loading="lazy"
+          decoding="async"
+          class="block h-auto w-full"
+        />
+        <figcaption class="text-l3 mt-2 font-mono text-[0.68rem]">
+          Full bleed inside the margin. The picture spans every track, which is
+          not the same as spanning the window.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="g-band bg-be">
+    <div class="g-band__grid">
+      <h2 class="g-col-6 text-[1.6rem] leading-tight">Measure is not span</h2>
+      <div class="g-col-5 g-start-8 g-measure">
+        <p class="text-l2 font-mono text-[0.78rem] leading-[1.7]">
+          Type does not become more readable as its column gets wider. Past
+          about seventy-five characters the eye loses the start of the next
+          line, and seven columns on a wide screen is well past that. So body
+          copy takes a measure as well as a span, and the two are different
+          instructions.
+        </p>
+      </div>
+    </div>
+  </section>
+
   <section class="g-band" style="padding-bottom: clamp(5rem, 10vw, 9rem)">
     <div class="g-band__grid">
       <h2 class="g-col-6 text-[1.6rem] leading-tight">The stylesheet</h2>
@@ -199,7 +255,7 @@ const plate = (n: string) => `/grid-demos/_media/plate-${n}.webp`
 
   <button
     type="button"
-    class="beamish-sheen-button beamish-sheen-button--quiet fixed right-4 bottom-4 z-[80]"
+    class="beamish-sheen-button beamish-sheen-button--quiet g-rules-toggle"
     aria-pressed="false"
     data-rules-toggle
   >

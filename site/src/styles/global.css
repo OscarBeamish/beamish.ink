@@ -1556,16 +1556,44 @@
  * rule loses to it whatever its specificity, which is the trap that caught the
  * panel backgrounds and the sheen.
  */
+/*
+ * The class is doubled to outweigh the component's own rule. Both are
+ * unlayered and both are a single class, so at equal specificity the later
+ * sheet wins, and the component's is imported after this one. Specificity is
+ * the only lever left, which is the third time this file has had to say so.
+ */
 .beamish-sheen-button.beamish-sheen-button,
 .demo-control.demo-control {
-  position: relative;
-  /*
-   * The class is doubled to outweigh the component's own rule. Both are
-   * unlayered and both are a single class, so at equal specificity the later
-   * sheet wins, and the component's is imported after this one. Specificity is
-   * the only lever left, which is the third time this file has had to say so.
-   */
   border-radius: 0;
+}
+
+/*
+ * The dotted ::before needs a positioned ancestor, and only the demo control
+ * lacks one: SheenButton's own stylesheet already sets it.
+ *
+ * One class, deliberately. This was written at doubled specificity along with
+ * the radius, which then outweighed Tailwind's `fixed` and quietly unpinned
+ * every button carrying it. The Show grid control on a grid page scrolled away
+ * with the content instead of staying in the corner.
+ */
+.demo-control {
+  position: relative;
+}
+
+/*
+ * The grid overlay toggle, pinned.
+ *
+ * It cannot be done with Tailwind's `fixed`. SheenButton's stylesheet sets
+ * position: relative and is unlayered, while utilities live in
+ * @layer utilities, and a layered rule loses to an unlayered one whatever its
+ * specificity. The button scrolled away with the page and the utility class
+ * sat there in the markup looking correct.
+ */
+.g-rules-toggle.g-rules-toggle {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 80;
 }
 
 /*

@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro'
 import ItemCard from '../components/ItemCard.astro'
-import { loadCatalogue, CATEGORY_ORDER } from '../lib/catalogue'
+import { loadCatalogue, loadMedia, CATEGORY_ORDER } from '../lib/catalogue'
 import { CATEGORY_LABELS, CATEGORY_BLURBS } from '../../../tools/schema/meta'
 
 const items = loadCatalogue()
@@ -83,7 +83,13 @@ const groups = CATEGORY_ORDER.map(category => ({
           </div>
           {group.items.map(item => (
             <div class="col-span-12 sm:col-span-6 lg:col-span-4">
-              <ItemCard item={item} />
+              <ItemCard
+                href={`/${item.group}/${item.slug}`}
+                name={item.name}
+                description={item.description}
+                label={CATEGORY_LABELS[item.category]}
+                media={loadMedia(item)}
+              />
             </div>
           ))}
         </Fragment>

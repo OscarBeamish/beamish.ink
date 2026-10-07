@@ -3,15 +3,22 @@
  * A card on the wall. Poster by default, video on hover, and never a live
  * context. The index page cannot host live demos and stay inside the browser's
  * WebGL budget. See DemoPanel.astro.
+ *
+ * It takes the five things a card shows rather than a catalogue entry, because
+ * grids are a separate catalogue with categories of their own. The alternative
+ * was a second copy of this markup, and that copy is exactly how the grids wall
+ * ended up with a video that never played and a category in the wrong place:
+ * the hover script below only binds what this file renders.
  */
-import { loadMedia, type Item } from '../lib/catalogue'
-import { CATEGORY_LABELS } from '../../../tools/schema/meta'
+type Props = {
+  href: string
+  name: string
+  description: string
+  label: string
+  media: { poster: string | null; mp4: string | null; webm: string | null }
+}
 
-type Props = { item: Item }
-
-const { item } = Astro.props
-const media = loadMedia(item)
-const href = `/${item.group}/${item.slug}`
+const { href, name, description, label, media } = Astro.props
 ---
 
 <a
@@ -58,10 +65,10 @@ const href = `/${item.group}/${item.slug}`
   </div>
 
   <div class="border-line flex items-baseline justify-between gap-3 border-t px-4 py-3">
-    <span class="text-l1 text-[0.95rem]">{item.name}</span>
-    <span class="tag">{CATEGORY_LABELS[item.category]}</span>
+    <span class="text-l1 text-[0.95rem]">{name}</span>
+    <span class="tag">{label}</span>
   </div>
-  <p class="item-card__note text-l3 px-4 pb-4 text-[0.78rem] leading-snug">{item.description}</p>
+  <p class="item-card__note text-l3 px-4 pb-4 text-[0.78rem] leading-snug">{description}</p>
 </a>
 
 <script>
