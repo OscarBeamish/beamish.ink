@@ -488,6 +488,20 @@
 }
 
 @layer components {
+  /* The seal CircularText sets. Square, and sized off the panel height, because
+     the panel is 16:9 and a ring is not. */
+  .demo-seal {
+    height: 86cqh;
+    aspect-ratio: 1;
+    margin: 0 auto;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+}
+
+@layer components {
   /* The letter TypewriterText types. */
   .demo-typed {
     margin: 0;
