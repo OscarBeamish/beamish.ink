@@ -7,11 +7,21 @@ published demo gets a credit in its `meta.json`.
 
 ## Naming
 
-Effects that touch type are named from typesetting and printing: a *sort* is one
-piece of metal type, *pied* type is spilled and jumbled, an *impression* is the
-pressure of the press, a *split fountain* is a gradient inked into one pass.
-Backdrops borrow from paper and print finishing: marbling, watermark, guilloche,
-stipple. This is the naming system. Keep using it.
+**The names in the Beamish column of these tables are working titles, not
+shipping names.** They are printing and typesetting words, and they are useful
+here because they say in one word which of their five entries collapse into one
+of ours. They are not what the item is called when it is built.
+
+A built item ships under a literal, descriptive name of two or three words, in
+PascalCase, saying what it does: ScrambleText, HalftoneBackdrop,
+PointerRippleGrid, SpotlightCard, AuroraCurtain, ImageGalleryLightbox. Every
+poetic row that has been built was renamed on the way: Sort shipped as
+ScrambleText, Tally as CountUpNumber, Bloom as AuroraCurtain, Vellum as
+TranslucentSheets, Plate as ImageGalleryLightbox.
+
+The name is how somebody finds the item and how an agent is told what to paste,
+and a metaphor is a puzzle in both jobs. Keep the metaphor for the prose, where
+it is doing something useful.
 
 Where an item is a gimmick or depends on their brand, it is marked **skip**.
 
@@ -38,7 +48,7 @@ Status: `done` items exist. Everything else is unbuilt.
 
 ---
 
-## Type (32 candidates, 5 built)
+## Type (32 candidates, 9 built)
 
 Text treatments. Tier 1 where the effect takes an element containing text, which
 keeps them framework-free and recordable. Tier 2 only where they need state.
@@ -53,17 +63,17 @@ keeps them framework-free and recordable. Tier 2 only where they need state.
 | Tally | Count Up | 1 | **done** |
 | Fountain | Gradient Text | 2 | Split-fountain inking rather than an animated rainbow |
 | Gloss | Shiny Text | 2 | Sheen sweep. Restrained: theirs reads as a discount code |
-| Slug | Text Type | 2 | Typewriter. A slug is a cast line of type |
-| Cipher | Decrypted Text, Scrambled Text | 2 | **done**. Both of theirs are the same effect with a different trigger. Pure in `t`, on a cadence of its own rather than the frame rate, and with each character held in a box the width of the letter it will become so the line does not move while it runs |
+| Slug | Text Type | 2 | **done**. Shipped as TypewriterText. An uneven hand, a breath at the punctuation, and every letter struck off the baseline and off square |
+| DecodeText | Decrypted Text, Scrambled Text | 2 | **done**. Both of theirs are the same effect with a different trigger. Pure in `t`, on a cadence of its own rather than the frame rate, and with each character held in a box the width of the letter it will become so the line does not move while it runs |
 | Pied | Falling Text | 2 | Pied type is spilled type. Needs no physics library |
-| Flap | Split Flap Text | 2 | Departure board |
-| Emboss | Depth Text | 2 | Recast: pressed into paper, not extruded in 3D |
+| Flap | Split Flap Text | 2 | **done**. Shipped as SplitFlapText. The leaves go through the strip in order, so the letters land alphabetically rather than left to right. That came out of modelling the strip rather than being designed |
+| Emboss | Depth Text | 2 | **done**. Shipped as EmbossedText. Pressed in, not extruded, with the impression biting unevenly across the line because that is what makeready is for |
 | Outline | Stroke Text | 2 | |
 | Curtain | Masked Heading | 2 | |
-| Roundel | Circular Text | 2 | |
+| Roundel | Circular Text | 2 | **done**. Shipped as CircularText. An SVG textPath fitted to the circumference, so it kerns and the ring closes exactly at any radius in any face |
 | Caret | Text Cursor | 3 | |
 | Rota | Text Loop, Rotating Text | 3 | Two of theirs, one of ours |
-| Shuffle | Shuffle | 3 | **skip**. Cipher with `order: random` is this, and a second name for a setting is not an item |
+| Shuffle | Shuffle | 3 | **skip**. DecodeText with `order: random` is this, and a second name for a setting is not an item |
 | HalftoneMagnifier | True Focus | 3 | **covered** by the Codrops HalftoneMagnifier |
 | Riser | Scroll Reveal, Scroll Float | 3 | Belongs in Reveals, not here |
 | Skew | Scroll Velocity | 3 | |
@@ -72,7 +82,7 @@ keeps them framework-free and recordable. Tier 2 only where they need state.
 | Fold | Fold Text | 3 | |
 | Echo | Echo Text | 3 | |
 | Pigment | Particle Text | 3 | Canvas particles from glyph pixels. Expensive |
-| Teletype | ASCII Text | 3 | **recast** for paper, theirs is green-on-black |
+| Teletype | ASCII Text | 3 | **covered** by AsciiImage |
 
 ## Backdrops (56 candidates, 7 built)
 
@@ -94,8 +104,8 @@ exactly as they do to a sheet of paper.
 | Contour | Topography | 1 | **done**, as a lit relief rather than a flat shader |
 | WatermarkSheet | Silk | 2 | **done**. Laid lines, chain lines, formation and a wire device. Everything lightens, because everything is somewhere the sheet is thinner |
 | Weft | Threads, Web Threads, Floating Lines | 2 | Woven fibre. Three of theirs, one of ours |
-| Rake | Light Rays, Side Rays, Light Pillar, Lightfall, Beams | 2 | Raking light across a surface. Five of theirs, one of ours |
-| Tooth | Noise, Grainient | 2 | Paper grain as the whole subject |
+| LightShafts | Light Rays, Side Rays, Light Pillar, Lightfall, Beams | 2 | **done**. Shipped as LightShafts. A source off frame, a repeating occluder read against the angle to it, and shadow edges that soften with the distance they have travelled. That last part is the whole difference between a beam and a pale triangle |
+| PaperGrain | Noise, Grainient | 2 | **done**. Shipped as PaperGrain. Fibre in the height, formation in the tone, tooth in the light: which field goes where is the whole shape of it, and putting both in the height gives rough-cast plaster |
 | Register | Grid Motion, Grid Scan, Register marks | 2 | Registration marks drifting |
 | Moire | Grid Distortion, Ripple Grid | 2 | Two screens beating. Related to Overprint, must read differently |
 | Prism | Prism, Prismatic Burst | 2 | |
@@ -116,12 +126,12 @@ exactly as they do to a sheet of paper.
 | Beamish | React Bits | P | Note |
 | --- | --- | --- | --- |
 | Foil | Metallic Paint | 1 | **done** |
-| Spark | Click Spark | 1 | Cheap, popular, and genuinely useful |
+| Spark | Click Spark | 1 | **done**. Shipped as ClickSpark. Streaks whose length is their speed, slowing against the air. It is also the item that added `pressPath` to the runtime |
 | Magnet | Magnet | 1 | **done** |
 | PointerFilings | Magnet Lines | 1 | **done**. The real dipole expression, so the field loops rather than radiating |
 | PointerSmoke | Image Trail, Pixel Trail | 1 | **done**. Puffs that get wider and fainter with age, which is smoke spreading rather than a particle dying. Shipped as PointerTrail and renamed, because it was never reading as ink |
 | Splash | Splash Cursor | 2 | Fluid sim. The most expensive item in this table |
-| Reticle | Target Cursor, Crosshair | 2 | |
+| Reticle | Target Cursor, Crosshair | 2 | **done**. Shipped as CrosshairCursor. The lock is the item: the brackets leave the cursor and square up around anything matching the target selector |
 | Comet | Blob Cursor, Ghost Cursor, Glow Cursor | 2 | Three of theirs, one of ours |
 | Swarm | Swarm Cursor | 2 | |
 | Peel | Sticker Peel | 2 | |
@@ -139,7 +149,7 @@ How things arrive on screen.
 | Riser | Animated Content, Scroll Reveal, Scroll Float | 1 | **done** |
 | HalftoneReveal | Pixel Transition, Pixel Swap, Halftone Reveal | 1 | **done**. The dots grow rather than the opacity rising, which is how a halftone carries tone in the first place |
 | Fade | Fade Content | 1 | **covered**. ScrambleText with split line, rise 0 and blur 0 is a plain fade, and ScrollRevealRows covers the scroll-triggered one |
-| Haze | Gradual Blur | 2 | |
+| Haze | Gradual Blur | 2 | **done**. Shipped as GradualBlur. Stacked blurs, each twice the last, because masking one blur ramps its opacity and not its blur |
 | Expand | Scroll Expand | 2 | |
 | Curtain | Masked Heading | 2 | Shared with Type |
 
@@ -198,7 +208,7 @@ backdrops. Codrops publishes cameras, meshes, depth maps and physics every week.
 | RelightImage | Relighting Images with Depth Maps, Aug 2026 | 1 | **done**, without the depth map. It lights the print rather than the scene: height is the picture's own luminance, so what the lamp finds is relief in the sheet. Nothing to author and nothing extra to ship |
 | Swell | Interactive Wave Propagation Cube Grid, Jul 2026 | 1 | **done** |
 | Threshold | Persistent Page Transitions with WebGPU, Jun 2026 | 2 | Page transitions with a scene that survives navigation. **Recast** to WebGL2: WebGPU is Chrome-only for our purposes |
-| Teletype | Shape-Aware ASCII Renderer, Sep 2026 | 2 | Every cell picks the glyph whose shape fits, not the one whose brightness matches. Far better than the usual luminance ramp. **Recast**: ink on paper, not green on black |
+| Teletype | Shape-Aware ASCII Renderer, Sep 2026 | 2 | **done**. Shipped as AsciiImage, ink on paper. Sobel per cell, glyph lying along the edge rather than across it, stepping by a cell rather than a pixel |
 | Vellum | Infinite Liquid Glass Grid, Sep 2026 | 2 | **done**. Their glass became our translucent paper, and the multiply blend turned out to be the whole design |
 | Facet | Procedural Geometry with Three.js and WebGPU, Aug 2026 | 3 | Surface picking and live procedural geometry. WebGPU, so it waits |
 | Vitrine | Scroll-Driven 3D Gallery on a Blender Camera Path, Jul 2026 | 3 | Needs an authored camera path and a model, which is a different kind of maintenance |

@@ -9,7 +9,7 @@ Published tags are never deleted or moved.
 
 ### Added
 
-- Cipher (type): text resolving out of a run of substitute glyphs, one character
+- DecodeText (type): text resolving out of a run of substitute glyphs, one character
   at a time. The effect on the hover of every studio nav bar, and until now the
   one piece of this site's own chrome that was not in the library.
 
