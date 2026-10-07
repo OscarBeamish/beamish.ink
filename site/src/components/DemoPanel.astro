@@ -308,6 +308,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'halftone-magnifier': () => import('@items/effects/halftone-magnifier/core'),
     'relight-image': () => import('@items/effects/relight-image/core'),
     'ascii-image': () => import('@items/effects/ascii-image/core'),
+    'card-stack': () => import('@items/effects/card-stack/core'),
     'glass-search-bar': () => import('@items/effects/glass-search-bar/core')
   }
 
@@ -396,6 +397,14 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'typewriter-text': `<p class="demo-typed">Dear Sir, I write about the matter of the press.</p>`,
     'embossed-text': `<p class="demo-heading">${HEADLINE}</p>`,
     'stroke-text': `<p class="demo-heading">${HEADLINE}</p>`,
+    /* Four plates in a div. The effect positions them and puts every property
+       back on destroy, so this stays ordinary markup. */
+    'card-stack': `<div class="demo-pile">
+      <article class="demo-plate"><span class="demo-plate__mark"></span><div><h3>Letterpress</h3><p>Handset, one colour, on mould-made paper.</p></div></article>
+      <article class="demo-plate"><span class="demo-plate__mark"></span><div><h3>Lithography</h3><p>Four plates, wet on wet, off an offset press.</p></div></article>
+      <article class="demo-plate"><span class="demo-plate__mark"></span><div><h3>Screen print</h3><p>Two pulls, the second once the first is dry.</p></div></article>
+      <article class="demo-plate"><span class="demo-plate__mark"></span><div><h3>Risograph</h3><p>Soy ink, out of register on purpose.</p></div></article>
+    </div>`,
     /* On the block, not the line: one sheet comes off all of it together. */
     'masked-heading': `<div class="demo-uncover">
       <p class="demo-uncover__head">Uncovered, not wiped</p>
@@ -484,6 +493,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'magnetic-button': '.beamish-sheen-button',
     'count-up-number': '.demo-count-up-number__value',
     'odometer-number': '.demo-odometer',
+    'card-stack': '.demo-pile',
     // The lamp lights the card, not the stage around it.
     'spotlight-card': '.demo-card'
   }
