@@ -98,6 +98,11 @@
       deterministic to screenshot, and so the grid can be opened on its own
       without a build step.
 
+      The photographs load eagerly. The recorder waits for every image to
+      decode before it captures, so that a take is deterministic rather than a
+      race, and a lazy image below the fold never starts loading: decode()
+      never settles and the recording hangs with no frames and no error.
+
       This is a page using the grid rather than a diagram of it. A grid laid out
       with grey boxes tells you nothing: you cannot see whether a measure works
       until a paragraph and a photograph are competing for the same columns.
@@ -142,7 +147,6 @@
             <img
               src="../_media/plate-1043.webp"
               alt="A road running into low cloud between dark hills"
-              loading="lazy"
               width="1400"
               height="875"
             />
@@ -169,7 +173,6 @@
             <img
               src="../_media/plate-1015.webp"
               alt="A river running through a steep wooded valley"
-              loading="lazy"
               width="1400"
               height="875"
             />
@@ -179,7 +182,6 @@
             <img
               src="../_media/plate-1016.webp"
               alt="Bare trees against a pale winter sky"
-              loading="lazy"
               width="1400"
               height="875"
             />
@@ -189,7 +191,6 @@
             <img
               src="../_media/plate-1018.webp"
               alt="A close view of weathered paint and rust"
-              loading="lazy"
               width="1400"
               height="875"
             />
@@ -221,7 +222,6 @@
             <img
               src="../_media/plate-1039.webp"
               alt="A wide shoreline under an overcast sky"
-              loading="lazy"
               width="1400"
               height="875"
             />

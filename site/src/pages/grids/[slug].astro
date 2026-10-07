@@ -13,7 +13,7 @@
  * it.
  */
 import Base from '../../layouts/Base.astro'
-import { loadGrids, loadGridSource, GRID_CATEGORY_LABELS } from '../../lib/grids'
+import { loadGrids, loadGridSource } from '../../lib/grids'
 
 export function getStaticPaths() {
   return loadGrids().map(grid => ({ params: { slug: grid.slug }, props: { grid } }))
@@ -44,9 +44,6 @@ const plate = (n: string) => `/grid-demos/_media/plate-${n}.webp`
 
   <section class="g-band" style="padding-top: clamp(7rem, 12vw, 11rem)">
     <div class="g-band__grid">
-      <p class="text-l3 g-col-12 font-mono text-[0.68rem] tracking-[0.16em] uppercase">
-        {GRID_CATEGORY_LABELS[grid.category]}, a grid system
-      </p>
       <h1 class="g-col-9 text-[clamp(2.2rem,6vw,4.5rem)] leading-[0.95]">{grid.name}</h1>
       <p class="text-l2 g-col-5 g-start-8 g-measure font-mono text-[0.85rem] leading-[1.7]">
         {grid.description}. Every band on this page is laid out with it, so the

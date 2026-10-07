@@ -20,7 +20,36 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { promisify } from 'node:util'
 import { fileURLToPath } from 'node:url'
-import { metaSchema, type Meta, type InteractionStep } from '../schema/meta'
+import {
+  metaSchema,
+  gridMetaSchema,
+  type Meta,
+  type InteractionStep
+} from '../schema/meta'
+
+/*
+ * What a take actually needs from an item's meta.
+ *
+ * Effects and grids have separate schemas and neither is a subset of the other,
+ * but the recorder only ever reads the record block and the scripted inputs.
+ * Typing against that rather than against Meta lets a grid be recorded without
+ * having to pretend it is an effect.
+ */
+type Recordable = {
+  record: {
+    duration: number
+    fps: number
+    posterAt: number
+    crf?: number
+    webmCrf?: number
+    posterQuality?: number
+    /* Scripted keypresses and clicks during a take. Effects only. */
+    interactions?: InteractionStep[]
+  }
+  cursor?: Meta['cursor']
+  presses?: Meta['presses']
+  scroll?: Meta['scroll']
+}
 import { buildItem, listItems, type ItemRef } from '../build-items'
 import { serveRoot, demoUrl } from '../serve'
 
@@ -110,7 +139,17 @@ async function emptyDir(dir: string) {
   )
 }
 
-async function openDemo(browser: Browser, item: ItemRef, ratio: Ratio): Promise<Page> {
+/*
+ * `extra` carries anything the page needs in its query. A grid uses it for the
+ * span of its scroll, which has to be the take's own duration or the last
+ * frame will not match the first and the loop will jump.
+ */
+async function openDemo(
+  browser: Browser,
+  item: ItemRef,
+  ratio: Ratio,
+  extra = ''
+): Promise<Page> {
   const context = await browser.newContext({
     // Half the target in CSS pixels at 2× DPR, so a screenshot lands on the
     // target size exactly and the effect sees the DPR it will see in the wild.
@@ -134,7 +173,7 @@ async function openDemo(browser: Browser, item: ItemRef, ratio: Ratio): Promise<
    * that samples a texture cannot be recorded at all. Nothing else here needs a
    * server, which is why this went unnoticed until the first textured effect.
    */
-  const url = `${demoUrl(item.dir)}?record=1`
+  const url = `${demoUrl(item.dir)}?record=1${extra}`
   await page.goto(url, { waitUntil: 'load' })
   await page.evaluate(() => document.fonts.ready)
 
@@ -170,7 +209,7 @@ async function openDemo(browser: Browser, item: ItemRef, ratio: Ratio): Promise<
 
 // --- frame capture ---------------------------------------------------------
 
-async function captureTier1(page: Page, meta: Meta, dir: string): Promise<number> {
+async function captureTier1(page: Page, meta: Recordable, dir: string): Promise<number> {
   const total = Math.round(meta.record.duration * meta.record.fps)
 
   const ready = await page.evaluate(() => typeof window.__beamish?.renderAtTime === 'function')
@@ -306,7 +345,7 @@ const ANIMATION_SCRUBBER = `
   })()
 `
 
-async function captureTier2(page: Page, meta: Meta, dir: string, ratio: Ratio): Promise<number> {
+async function captureTier2(page: Page, meta: Recordable, dir: string, ratio: Ratio): Promise<number> {
   const total = Math.round(meta.record.duration * meta.record.fps)
   const steps = [...(meta.record.interactions ?? [])].sort((a, b) => a.at - b.at)
 
@@ -345,7 +384,7 @@ async function ffmpeg(args: string[]) {
   }
 }
 
-async function encode(framesDir: string, outDir: string, ratio: Ratio, meta: Meta) {
+async function encode(framesDir: string, outDir: string, ratio: Ratio, meta: Recordable) {
   const fps = meta.record.fps
   const pattern = path.join(framesDir, '%05d.png')
   const base = path.join(outDir, ratio.key)
@@ -385,7 +424,7 @@ async function encode(framesDir: string, outDir: string, ratio: Ratio, meta: Met
   }
 }
 
-async function poster(framesDir: string, outDir: string, meta: Meta) {
+async function poster(framesDir: string, outDir: string, meta: Recordable) {
   const frame = Math.min(
     Math.round(meta.record.posterAt * meta.record.fps),
     Math.round(meta.record.duration * meta.record.fps) - 1
@@ -401,7 +440,9 @@ async function poster(framesDir: string, outDir: string, meta: Meta) {
 // --- driver ----------------------------------------------------------------
 
 async function recordItem(browser: Browser, item: ItemRef, only: string[], keepFrames: boolean) {
-  const meta = metaSchema.parse(JSON.parse(await readFile(path.join(item.dir, 'meta.json'), 'utf8')))
+  const raw = JSON.parse(await readFile(path.join(item.dir, 'meta.json'), 'utf8'))
+  const meta: Recordable =
+    item.kind === 'grid' ? gridMetaSchema.parse(raw) : metaSchema.parse(raw)
   const outDir = path.join(item.dir, 'media')
   await mkdir(outDir, { recursive: true })
   await buildItem(item)
@@ -422,7 +463,8 @@ async function recordItem(browser: Browser, item: ItemRef, only: string[], keepF
     const started = Date.now()
     let frames = cached ? (await readdir(framesDir)).length : 0
     if (!cached) {
-      const page = await openDemo(browser, item, ratio)
+      const span = item.kind === 'grid' ? `&span=${meta.record.duration}` : ''
+      const page = await openDemo(browser, item, ratio, span)
       frames =
         item.tier === 1
           ? await captureTier1(page, meta, framesDir)

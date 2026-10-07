@@ -1538,7 +1538,88 @@
  * the line colour over transparent is under a per cent of change. It gets the
  * line itself instead, which is the same gesture the dotted hits make.
  */
+/*
+ * The site's own buttons wear the nav's hover, and are square.
+ *
+ * There were three hover treatments on one page: a dotted rule in the bar, a
+ * tinted fill on the prompt buttons, and a background swap on the demo
+ * controls. They are all the same gesture, so they are now all the dotted
+ * rule, drawn on a ::before over the whole control. It costs no layout, it
+ * reads the same over any background a shader happens to produce, and it is
+ * the one treatment that survives the nav's difference blend.
+ *
+ * Square because the pill shape was the only rounded thing in a library whose
+ * house style is a printed sheet, and a dotted rule round a pill reads as a
+ * sticker.
+ *
+ * Unlayered, because the component's own stylesheet is unlayered: a layered
+ * rule loses to it whatever its specificity, which is the trap that caught the
+ * panel backgrounds and the sheen.
+ */
+.beamish-sheen-button.beamish-sheen-button,
+.demo-control.demo-control {
+  position: relative;
+  /*
+   * The class is doubled to outweigh the component's own rule. Both are
+   * unlayered and both are a single class, so at equal specificity the later
+   * sheet wins, and the component's is imported after this one. Specificity is
+   * the only lever left, which is the third time this file has had to say so.
+   */
+  border-radius: 0;
+}
+
+/*
+ * Except in a demo panel, which is the one place the component has to look
+ * like itself. A panel showing SheenButton squared off, with the site's hover
+ * instead of its own, would be documenting something the library does not
+ * ship. Same reasoning, and same direction, as the sheen above.
+ */
+[data-demo] .beamish-sheen-button.beamish-sheen-button {
+  border-radius: 100px;
+}
+
+.beamish-sheen-button::before,
+.demo-control::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px dotted transparent;
+  pointer-events: none;
+  transition: border-color 0.2s linear;
+}
+
+[data-demo] .beamish-sheen-button::before {
+  display: none;
+}
+
+/* Only where hover is a real input, for the reason the nav gives. */
+@media (hover: hover) {
+  .beamish-sheen-button:hover:not(:disabled)::before,
+  .demo-control:hover::before {
+    border-color: currentColor;
+  }
+}
+
+/* Solid rather than dotted, so it is not read as a hover that will not go. */
+.beamish-sheen-button:focus-visible::before,
+.demo-control:focus-visible::before {
+  border-color: currentColor;
+  border-style: solid;
+}
+
+.beamish-sheen-button:focus-visible,
+.demo-control:focus-visible {
+  outline: none;
+}
+
+/*
+ * The treatments the dotted rule replaces. Left as explicit resets rather than
+ * deleted, because both live in rules that also do other work.
+ */
 .beamish-sheen-button--quiet:hover:not(:disabled) {
-  background-color: color-mix(in srgb, var(--sheen-line) 14%, transparent);
-  border-color: var(--label-1);
+  background-color: transparent;
+}
+
+body:not(#never) .demo-control:hover {
+  background: rgb(var(--background-deep));
 }

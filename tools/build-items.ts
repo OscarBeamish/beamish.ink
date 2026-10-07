@@ -16,7 +16,17 @@ import { fileURLToPath } from 'node:url'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
-export type ItemRef = { slug: string; dir: string; tier: 1 | 2 }
+export type ItemRef = {
+  slug: string
+  dir: string
+  tier: 1 | 2
+  /*
+   * A grid has no core and nothing to bundle: it is a stylesheet and a page
+   * that links it. It is listed here anyway because the recorder works off this
+   * list, and a grid still has a take to make.
+   */
+  kind: 'item' | 'grid'
+}
 
 export async function listItems(): Promise<ItemRef[]> {
   const items: ItemRef[] = []
@@ -30,9 +40,25 @@ export async function listItems(): Promise<ItemRef[]> {
       if (!entry.isDirectory()) continue
       const dir = path.join(base, entry.name)
       if (!existsSync(path.join(dir, 'meta.json'))) continue
-      items.push({ slug: entry.name, dir, tier })
+      items.push({ slug: entry.name, dir, tier, kind: 'item' })
     }
   }
+
+  /*
+   * Grids. Tier 1 because the demo exposes the same imperative handle, even
+   * though what it does with `t` is scroll the page rather than draw a frame.
+   */
+  const grids = path.join(ROOT, 'grids')
+  if (existsSync(grids)) {
+    for (const entry of await readdir(grids, { withFileTypes: true })) {
+      // _media holds the shared photographs and is not an item.
+      if (!entry.isDirectory() || entry.name.startsWith('_')) continue
+      const dir = path.join(grids, entry.name)
+      if (!existsSync(path.join(dir, 'meta.json'))) continue
+      items.push({ slug: entry.name, dir, tier: 1, kind: 'grid' })
+    }
+  }
+
   return items.sort((a, b) => a.slug.localeCompare(b.slug))
 }
 
@@ -68,6 +94,12 @@ function entryFor(item: ItemRef): string {
 }
 
 export async function buildItem(item: ItemRef): Promise<void> {
+  /*
+   * Nothing to compile. A grid is a stylesheet and a page that links it, with
+   * its handful of script inline, so there is no core to bundle and no
+   * demo.bundle.js for its demo to load.
+   */
+  if (item.kind === 'grid') return
   await build({
     stdin: {
       contents: entryFor(item),
