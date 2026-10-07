@@ -1216,7 +1216,7 @@ The text renders on the server as ordinary text, and stays readable if the
 JavaScript never arrives. Splitting only happens on the first frame. Call
 `createDecodeText` from `useEffect`, `onMounted`, or a `client:*` island.
 
-## 6. Pausing and reduced motion
+## 7. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
@@ -1227,7 +1227,7 @@ finished. The text simply appears, fully set, which is the correct outcome. Do
 not set it to 0: that leaves the headline as a line of nonsense that never
 resolves, which is the worst of the three states it could be in.
 
-## 7. The three mistakes most likely to be made here
+## 8. The three mistakes most likely to be made here
 
 1. **Writing it with `Math.random()` on a `setInterval`.** It is the natural way
    to write it and it costs you the two things that matter: the effect can no

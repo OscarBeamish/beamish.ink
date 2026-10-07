@@ -1182,7 +1182,7 @@ The text renders on the server as ordinary text and stays readable if the
 JavaScript never arrives. The cells are only built on the first frame. Call
 `createSplitFlapText` from `useEffect`, `onMounted`, or a `client:*` island.
 
-## 6. Pausing and reduced motion
+## 7. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
@@ -1192,7 +1192,7 @@ For a one-shot reveal that default is 999, which is any time after the board has
 finished, so the text appears set in its cells and still. Do not set it to 0:
 that is a board of blanks.
 
-## 7. The three mistakes most likely to be made here
+## 8. The three mistakes most likely to be made here
 
 1. **Transparent leaves.** A leaf is a tile and it hides what is behind it. The
    first version of this left the four layers transparent, and every cell at

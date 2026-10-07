@@ -336,24 +336,33 @@ ${optionTable(meta)}`)
 
   // Tier 2 is where semantics, focus and keyboard live, and an agent wiring a nav
   // into someone's app will get all three wrong unless told plainly.
+  /*
+   * The rest of the sections are numbered by a counter rather than by hand,
+   * because every one of them is conditional on the recipe having that
+   * heading. Hardcoded, they collided: an item with accessibility, cleanup
+   * and reduced motion all present got two sections numbered 6, and that
+   * shipped in the prompts for a good while before anybody counted them.
+   */
+  let next = 5
+  const numbered = (title: string, body: string) => {
+    parts.push(`## ${next}. ${title}\n\n${body}`)
+    next += 1
+  }
+
   const a11y = section(item, 'Accessibility')
-  if (a11y) parts.push(`## 5. Accessibility. Do not skip this\n\n${a11y}`)
+  if (a11y) numbered('Accessibility. Do not skip this', a11y)
 
   const cleanup = section(item, 'Cleanup and SSR')
-  if (cleanup) parts.push(`## ${a11y ? 6 : 5}. Cleanup and SSR\n\n${cleanup}`)
+  if (cleanup) numbered('Cleanup and SSR', cleanup)
 
   const pausing = section(item, 'Pausing')
   const reduced = section(item, 'Reduced motion')
   if (pausing || reduced) {
-    parts.push(
-      `## 6. Pausing and reduced motion\n\n${[pausing, reduced].filter(Boolean).join('\n\n')}`
-    )
+    numbered('Pausing and reduced motion', [pausing, reduced].filter(Boolean).join('\n\n'))
   }
 
   const mistakes = section(item, 'Common mistakes')
-  if (mistakes) {
-    parts.push(`## 7. The three mistakes most likely to be made here\n\n${mistakes}`)
-  }
+  if (mistakes) numbered('The three mistakes most likely to be made here', mistakes)
 
   const adapters = meta.files.filter(file => file.role === 'adapter')
   if (adapters.length > 0 && !inline) {

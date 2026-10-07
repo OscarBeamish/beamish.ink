@@ -192,7 +192,7 @@ The text renders on the server as ordinary text and stays readable if the
 JavaScript never arrives. The characters are only split on the first frame. Call
 `createTypewriterText` from `useEffect`, `onMounted`, or a `client:*` island.
 
-## 6. Pausing and reduced motion
+## 7. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
@@ -202,7 +202,7 @@ For a one-shot reveal that default is 999, which is after the typing has
 finished. The strikes are still in that frame, which is the nice part: the page
 looks typed rather than set, with no motion at all.
 
-## 7. The three mistakes most likely to be made here
+## 8. The three mistakes most likely to be made here
 
 1. **An even rhythm.** `rhythm: 0` is a machine, and it is the single thing that
    gives away every version of this effect. A typist does not keep time.

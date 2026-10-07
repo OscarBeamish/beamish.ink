@@ -133,7 +133,7 @@ top of the React file is there because the component takes an `onClick`, not
 because it needs the browser. If you are rendering it purely as a link, remove
 that line.
 
-## 6. Pausing and reduced motion
+## 7. Pausing and reduced motion
 
 Under `prefers-reduced-motion: reduce` the light sweep is removed entirely rather
 than shortened, and the press scale is dropped. A sweep that completes in a
@@ -142,7 +142,7 @@ millisecond is a flash, which is worse than no sweep at all.
 The colour change on hover stays. It is state, not decoration, and people who
 have asked for less motion still need to know what they are pointing at.
 
-## 7. The three mistakes most likely to be made here
+## 8. The three mistakes most likely to be made here
 
 1. **Using `solid` for everything.** The accent is for actions, and on this
    library's own site it appears once per screen. Two solid pills side by side

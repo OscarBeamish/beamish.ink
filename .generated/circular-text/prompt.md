@@ -171,14 +171,14 @@ The text renders on the server as ordinary text and stays readable if the
 JavaScript never arrives. The SVG is only built on the first frame. Call
 `createCircularText` from `useEffect`, `onMounted`, or a `client:*` island.
 
-## 6. Pausing and reduced motion
+## 7. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
 `reducedMotionTime`, which here is 0: the ring at its starting angle. The ring
 is the thing, and the turn is only how it passes the time.
 
-## 7. The three mistakes most likely to be made here
+## 8. The three mistakes most likely to be made here
 
 1. **Placing the letters yourself.** It loses kerning and it never closes the
    ring. `textPath` and `textLength` do both properly, and they are in every

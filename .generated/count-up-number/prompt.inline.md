@@ -934,7 +934,7 @@ It renders on the server as the finished number, which is the correct thing for
 it to be. Call `createCountUpNumber` from `useEffect`, `onMounted`, or a `client:*`
 island.
 
-## 6. Pausing and reduced motion
+## 7. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
@@ -944,7 +944,7 @@ That default is 999, which is any time after the count has finished, so the
 number simply appears. Do not set it to 0: that shows `0` permanently, which is
 not a stylistic choice but a wrong figure.
 
-## 7. The three mistakes most likely to be made here
+## 8. The three mistakes most likely to be made here
 
 1. **Not using tabular figures.** Most typefaces give `1` a narrower glyph than
    `8`, so the number changes width every frame and everything beside it jitters.

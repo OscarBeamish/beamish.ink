@@ -1003,7 +1003,7 @@ The text renders on the server as ordinary text, and stays readable if the
 JavaScript never arrives. Splitting only happens on the first frame. Call
 `createScrambleText` from `useEffect`, `onMounted`, or a `client:*` island.
 
-## 6. Pausing and reduced motion
+## 7. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
@@ -1013,7 +1013,7 @@ For a one-shot reveal that default is 999, which is any time after the animation
 has finished. The text simply appears, fully set, which is the correct outcome.
 Do not set it to 0: that leaves the headline invisible.
 
-## 7. The three mistakes most likely to be made here
+## 8. The three mistakes most likely to be made here
 
 1. **Building the spans in JSX or a template.** React and Vue will overwrite the
    DOM on the next render and the animation stops mid-way. Pass plain text as

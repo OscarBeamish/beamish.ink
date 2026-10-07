@@ -588,7 +588,7 @@ The React component removes its scroll listener and its filter on unmount, and
 the Vue one does the same in `onBeforeUnmount`. Both touch `window` only inside
 the mount effect, so they render on a server without complaining.
 
-## 7. The three mistakes most likely to be made here
+## 6. The three mistakes most likely to be made here
 
 1. **Putting it on a flat background.** There is nothing to blur and nothing to
    bend, so it reads as a slightly dirty panel. This is the single most common

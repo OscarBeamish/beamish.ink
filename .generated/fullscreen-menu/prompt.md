@@ -157,7 +157,7 @@ It renders on the server. `showModal()` is only ever called from an effect, and 
 `<dialog>` with no `open` attribute is invisible and inert in the initial HTML, so
 there is no flash of an open menu before hydration.
 
-## 6. Pausing and reduced motion
+## 7. Pausing and reduced motion
 
 Under `prefers-reduced-motion: reduce` both the fade and the row stagger drop to
 nothing, and the stagger's `transition-delay` is zeroed as well. A cascade with no
@@ -165,7 +165,7 @@ duration is still a cascade, just an ugly one.
 
 The overlay still appears and disappears. Only the movement goes.
 
-## 7. The three mistakes most likely to be made here
+## 8. The three mistakes most likely to be made here
 
 1. **Adding a focus-trap library.** It will fight `showModal()`. The symptom is
    focus that cannot leave the close button, or focus that escapes to the page

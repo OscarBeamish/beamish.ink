@@ -1068,14 +1068,14 @@ flash of dark text.
 
 Call `createEmbossedText` from `useEffect`, `onMounted`, or a `client:*` island.
 
-## 6. Pausing and reduced motion
+## 7. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
 `reducedMotionTime`. For this item the still frame is the finished impression,
 which costs the viewer nothing.
 
-## 7. The three mistakes most likely to be made here
+## 8. The three mistakes most likely to be made here
 
 1. **The shadows the wrong way round.** The dark edge goes on the side the light
    comes from. The other way is embossing, which stands proud of the sheet, and

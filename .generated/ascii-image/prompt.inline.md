@@ -256,7 +256,14 @@ void main() {
    * the front is a ragged edge rather than a diagonal line. A teleprinter
    * arrives a character at a time and so does this.
    */
-  float order = (id.y * cells.x + id.x) / max(cells.x * cells.y, 1.0);
+  /*
+   * Rows counted from the top, because gl_FragCoord has its origin at the
+   * bottom left and reading order does not. Without the flip the picture prints
+   * upwards from the floor, which is not what any machine has ever done and is
+   * invisible until you look at a frame from the middle of the run.
+   */
+  float row = cells.y - 1.0 - id.y;
+  float order = (row * cells.x + id.x) / max(cells.x * cells.y, 1.0);
   float jitter = (hash12(id + 3.7) - 0.5) * 0.06;
   float arrived = step(order + jitter, u_progress);
 
@@ -1319,14 +1326,14 @@ visibility back. One live context at a time is the budget, so call it.
 The photograph renders on the server as an ordinary `<img>`, which is the whole
 fallback: if the script never runs, the page shows the picture.
 
-## 6. Pausing and reduced motion
+## 7. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn, the one at `reducedMotionTime`,
 which is after the arrival has finished. The picture is simply there. The
 picture is the point; the typing is only how it gets in.
 
-## 7. The three mistakes most likely to be made here
+## 8. The three mistakes most likely to be made here
 
 1. **Using the gradient angle directly.** It points across the edge. The glyph
    has to lie along it, which is a quarter turn away, and the version without
