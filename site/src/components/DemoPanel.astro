@@ -208,7 +208,14 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     tweakable.length > 0 && (
       <div class="controls" data-controls hidden>
         <script type="application/json" data-schema set:html={JSON.stringify(options)} />
-        <div class="controls__rows" data-controls-rows />
+        <div
+          class="controls__rows"
+          data-controls-rows
+          data-1p-ignore="true"
+          data-lpignore="true"
+          data-bwignore="true"
+          data-form-type="other"
+        />
         <div class="controls__foot">
           <span class="tag controls__hint">
             Locked options are left alone by Randomise
@@ -678,6 +685,17 @@ const tweakable = tier === 1 ? Object.entries(options) : []
           input.value = String(current[key])
         }
         input.id = id
+        /*
+         * Named, and opted out of autofill. These are sliders and colour
+         * swatches, never credentials, so a password manager has no business
+         * in them: it decorates a colour input with a key icon, and at least
+         * one popular extension maps over the page's fields and lowercases a
+         * property that is not there, which throws inside the extension and
+         * lands in our console looking like our bug. A field with no name is
+         * what trips it. The search box next door has always had both.
+         */
+        input.name = id
+        input.autocomplete = 'off'
         input.className = 'controls__input controls__input--' + spec.type
         // What Reset returns to, recorded on the element so the value is
         // inspectable rather than only living in a closure.
