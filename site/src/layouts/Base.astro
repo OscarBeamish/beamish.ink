@@ -72,7 +72,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
   <body class="min-h-dvh">
     <!--
       Fixed and full bleed, with the links given half the bar and spread across
-      it. A three-item nav pushed into the right corner reads as an afterthought;
+      it. A short nav pushed into the right corner reads as an afterthought;
       given room and told to justify between, it reads as part of the grid.
 
       Hover is a dotted rule drawn on a ::before over the whole control rather
@@ -113,7 +113,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
           <span data-scramble>Beamish.ink</span>
         </a>
         <nav class="site-nav__links" aria-label="Primary">
-          <a href="/#catalogue" class="site-nav__hit" data-scramble>Index</a>
+          <a href="/#catalogue" class="site-nav__hit" data-scramble>Effects</a>
+          <a href="/grids" class="site-nav__hit" data-scramble>Grids</a>
           <a href="/how-it-works" class="site-nav__hit" data-scramble>How it works</a>
           <a
             href="https://github.com/OscarBeamish/beamish.ink"
