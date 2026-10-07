@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cipher: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        align-content: center;
+        gap: 1.6rem;
+        padding: 0 8vw;
+        box-sizing: border-box;
+      }
+      #stage h1 {
+        margin: 0;
+        max-width: 16ch;
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 7vw, 5rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 0.98;
+      }
+      #stage p {
+        margin: 0;
+        max-width: 54ch;
+        font-size: clamp(0.8rem, 1.4vw, 1rem);
+        line-height: 1.6;
+        color: var(--label-2);
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+
+      Two of them, because the two settings are different effects. The headline
+      runs left to right, which reads as decoding. The paragraph settles in a
+      random order, because a sweep across sixty words takes long enough that
+      you end up watching the front of it travel.
+    -->
+    <div id="stage">
+      <h1>A headline sits here</h1>
+      <p>
+        And a line of supporting copy under it, about the length a real one runs, so
+        there is enough text to show what the setting does over a paragraph rather
+        than over four words.
+      </p>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const heading = window.Beamish.create(document.querySelector('#stage h1'), {
+        stagger: 90,
+        hold: 200
+      })
+      const copy = window.Beamish.create(document.querySelector('#stage p'), {
+        order: 'random',
+        stagger: 11,
+        hold: 500,
+        seed: 21
+      })
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      // It drives the first handle; the second is given the same clock here so
+      // both are a function of the same time.
+      window.__beamish = {
+        ...heading,
+        renderAtTime(t) {
+          heading.renderAtTime(t)
+          copy.renderAtTime(t)
+        },
+        update(next) {
+          heading.update(next)
+        }
+      }
+
+      if (!new URLSearchParams(location.search).has('record')) {
+        heading.start()
+        copy.start()
+      }
+    </script>
+  </body>
+</html>

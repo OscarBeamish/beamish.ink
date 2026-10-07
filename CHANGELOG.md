@@ -7,6 +7,33 @@ Published tags are never deleted or moved.
 
 ## Unreleased
 
+### Added
+
+- Cipher (type): text resolving out of a run of substitute glyphs, one character
+  at a time. The effect on the hover of every studio nav bar, and until now the
+  one piece of this site's own chrome that was not in the library.
+
+  Three things in it that the usual version does not have. It is pure in `t`,
+  where the obvious implementation calls `Math.random()` on a timer and so can
+  be neither seeked nor recorded. The glyphs change on a cadence of their own
+  rather than once per display frame, so it is the same effect on a 60Hz laptop
+  and a 144Hz monitor. And each character is held in a box the width of the
+  letter it will become, with its substitutes chosen from the glyphs measured to
+  fit that box, so a decoding line neither moves the page nor collides with
+  itself. That last part is what lets it be used on a headline in a display face
+  rather than only on short monospace labels.
+
+### Fixed
+
+- The prompts for the ten effects that have no canvas told the agent reading
+  them that the canvas fills its host. They now say what those effects actually
+  take, which is an element with its content already in it.
+
+- The two card panels on the site had their tones the wrong way round: the panel
+  was the elevated grey and the card was paper, so the card read as a hole
+  rather than as a card. The item's own demo page always had it the other way,
+  which is why the recordings looked right and the site did not.
+
 ### Removed
 
 - GlassModal. Two attempts at a glass dialog and neither earned its place: the
