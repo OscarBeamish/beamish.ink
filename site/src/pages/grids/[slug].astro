@@ -14,6 +14,8 @@
  */
 import Base from '../../layouts/Base.astro'
 import { loadGrids, loadGridSource } from '../../lib/grids'
+import { loadPrompts } from '../../lib/catalogue'
+import PromptButtons from '../../components/PromptButtons.astro'
 
 export function getStaticPaths() {
   return loadGrids().map(grid => ({ params: { slug: grid.slug }, props: { grid } }))
@@ -30,6 +32,11 @@ const source = loadGridSource(grid.slug)
 const demo = `/grid-demos/${grid.slug}/demo.html`
 const css = `/grid-demos/${grid.slug}/grid.css`
 const properties = Object.entries(grid.properties)
+/*
+ * The same two prompts every other item has, generated the same way and
+ * pinned to the same tag. A grid is pasted like everything else here.
+ */
+const { linked, inlined } = loadPrompts(grid.slug)
 const plate = (n: string) => `/grid-demos/_media/plate-${n}.webp`
 ---
 
@@ -166,14 +173,10 @@ const plate = (n: string) => `/grid-demos/_media/plate-${n}.webp`
         This is the whole item. Copy it into your project, link it, and use the
         class names. Nothing to install and nothing to mount.
       </p>
+      <div class="g-col-12">
+        <PromptButtons slug={grid.slug} linked={linked} inlined={inlined} />
+      </div>
       <div class="g-col-12 flex flex-wrap gap-3">
-        <button
-          type="button"
-          class="beamish-sheen-button beamish-sheen-button--quiet"
-          data-copy-grid
-        >
-          Copy stylesheet
-        </button>
         <a
           href={demo}
           target="_blank"
@@ -215,15 +218,5 @@ const plate = (n: string) => `/grid-demos/_media/plate-${n}.webp`
     toggle.textContent = on ? 'Show grid' : 'Hide grid'
   })
 
-  const button = document.querySelector<HTMLButtonElement>('[data-copy-grid]')
-  const source = document.querySelector<HTMLElement>('[data-grid-source]')
-  button?.addEventListener('click', async () => {
-    if (!source?.textContent) return
-    await navigator.clipboard.writeText(source.textContent)
-    const was = button.textContent
-    button.textContent = 'Copied'
-    setTimeout(() => {
-      button.textContent = was
-    }, 1600)
-  })
+
 </script>

@@ -19,7 +19,14 @@ import { readdir, readFile, writeFile, mkdir, rm } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { metaSchema, CATEGORY_LABELS, type Meta, type OptionSpec } from '../schema/meta'
+import {
+  metaSchema,
+  gridMetaSchema,
+  CATEGORY_LABELS,
+  type Meta,
+  type GridMeta,
+  type OptionSpec
+} from '../schema/meta'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 const OUT = path.join(ROOT, '.generated')
@@ -202,6 +209,148 @@ function assertDefaultsMatch(item: Item, coreSource: string): void {
       `${item.meta.slug}: defaults have drifted between meta.json and core.ts\n${problems.join('\n')}`
     )
   }
+}
+
+// --- grids -----------------------------------------------------------------
+
+/*
+ * A grid's prompt is a shorter thing than an effect's, because a grid is a
+ * shorter thing: one stylesheet, the custom properties that are its interface,
+ * and the rules for using it. There is no runtime to wire, nothing to mount and
+ * no adapter to choose, so the prompt says so rather than carrying sections
+ * that would read as boilerplate.
+ */
+type GridItem = { meta: GridMeta; dir: string; sections: Map<string, string> }
+
+export async function loadGrids(): Promise<GridItem[]> {
+  const base = path.join(ROOT, 'grids')
+  if (!existsSync(base)) return []
+  const grids: GridItem[] = []
+  for (const entry of await readdir(base, { withFileTypes: true })) {
+    // _media holds the shared photographs and is not an item.
+    if (!entry.isDirectory() || entry.name.startsWith('_')) continue
+    const dir = path.join(base, entry.name)
+    const metaPath = path.join(dir, 'meta.json')
+    if (!existsSync(metaPath)) continue
+
+    const parsed = gridMetaSchema.safeParse(JSON.parse(await readFile(metaPath, 'utf8')))
+    if (!parsed.success) {
+      const detail = parsed.error.issues
+        .map(issue => `    ${issue.path.join('.') || '(root)'}: ${issue.message}`)
+        .join('\n')
+      throw new Error(`grids/${entry.name}/meta.json is invalid:\n${detail}`)
+    }
+    if (parsed.data.slug !== entry.name) {
+      throw new Error(`grids/${entry.name}: slug is "${parsed.data.slug}"`)
+    }
+
+    const recipePath = path.join(dir, 'recipe.md')
+    if (!existsSync(recipePath)) throw new Error(`grids/${entry.name}: recipe.md is missing`)
+
+    grids.push({
+      meta: parsed.data,
+      dir,
+      sections: splitSections(await readFile(recipePath, 'utf8'))
+    })
+  }
+  return grids.sort((a, b) => a.meta.slug.localeCompare(b.meta.slug))
+}
+
+/*
+ * The sections of the recipe a paste actually needs: how to use it, and where
+ * it goes wrong. Taken from the recipe rather than written twice, so the page
+ * and the prompt cannot drift.
+ */
+const GRID_SECTIONS = [
+  'Wiring',
+  'Spans are `grid-column-end`, and that matters',
+  'Measure is not span',
+  'The overlay',
+  'Narrow widths',
+  'Subgrid',
+  'Common mistakes'
+]
+
+function gridPrompt(item: GridItem, pin: string, inline: boolean, css: string): string {
+  const { meta } = item
+  const parts: string[] = []
+  const fence = '```'
+
+  parts.push(
+    `You are adding **${meta.name}** from Beamish to this project.
+
+> ${meta.description}. A grid system, CSS, MIT.
+> ${SITE}/grids/${meta.slug}
+
+Beamish is not a package and there is nothing to install from npm. This one is
+a single stylesheet: put it in the project, link it, and use the class names.
+There is no runtime, nothing to mount and nothing to destroy.
+
+Assume you have not seen this library before. Everything you need is below.`
+  )
+
+  parts.push(
+    `## What it needs
+
+- **npm dependencies:** None.
+- **Browser support:** CSS grid and custom properties. The nested-alignment
+  helper uses subgrid; without it that one rule does nothing and the rest is
+  unaffected.
+- Every class carries a \`g-\` prefix. That is deliberate: \`col-6\` and
+  \`start-8\` are Tailwind utilities, and \`.band\` and \`.measure\` are words a
+  project may already be using.
+
+${meta.notes.map(note => `- ${note}`).join('\n')}
+
+Pinned to \`${pin}\`. These URLs do not move; a future refactor gets a new tag.`
+  )
+
+  if (inline) {
+    parts.push(
+      `## 1. Save this file
+
+Save it at \`${meta.files[0]!.to}\`, or wherever this project keeps its CSS.
+
+${fence}css
+${css}
+${fence}`
+    )
+  } else {
+    const rows = meta.files
+      .map(file => `| \`${file.to}\` | ${rawUrl(pin, file.from)} |`)
+      .join('\n')
+    parts.push(
+      `## 1. Fetch this file
+
+| Save as | Fetch from |
+| --- | --- |
+${rows}`
+    )
+  }
+
+  const props = Object.entries(meta.properties)
+    .map(([name, spec]) => `| \`${name}\` | \`${spec.default}\` | ${spec.description} |`)
+    .join('\n')
+  parts.push(
+    `## 2. The custom properties are the interface
+
+Override these in the project's own stylesheet rather than editing the file, so
+a later version is a clean replacement.
+
+| Property | Default | What it is |
+| --- | --- | --- |
+${props}`
+  )
+
+  let next = 3
+  for (const heading of GRID_SECTIONS) {
+    const body = item.sections.get(heading)
+    if (!body) continue
+    parts.push(`## ${next}. ${heading}\n\n${body.trim()}`)
+    next += 1
+  }
+
+  return parts.join('\n\n')
 }
 
 // --- prompt assembly -------------------------------------------------------
@@ -476,6 +625,30 @@ async function generate(check: boolean, pin: string) {
     })
   }
 
+  /*
+   * Grids. The same two files out of a shorter contract: there is no shader to
+   * inline and no core whose defaults have to be checked, so this is a read and
+   * a format rather than the assembly above.
+   */
+  const grids = await loadGrids()
+  for (const grid of grids) {
+    const from = grid.meta.files[0]!.from
+    const cssPath = path.join(ROOT, from)
+    if (!existsSync(cssPath)) {
+      throw new Error(grid.meta.slug + ': meta.json lists ' + from + ', which does not exist')
+    }
+    const css = (await readFile(cssPath, 'utf8')).trimEnd()
+    const dir = path.join(OUT, grid.meta.slug)
+    outputs.push({
+      file: path.join(dir, 'prompt.md'),
+      contents: gridPrompt(grid, pin, false, css) + '\n'
+    })
+    outputs.push({
+      file: path.join(dir, 'prompt.inline.md'),
+      contents: gridPrompt(grid, pin, true, css) + '\n'
+    })
+  }
+
   const index = items.map(item => ({
     ...item.meta,
     group: item.group,
@@ -503,7 +676,10 @@ async function generate(check: boolean, pin: string) {
   // Drop prompt directories for items that no longer exist, so a deleted effect
   // cannot leave a live prompt behind on the site.
   if (!check && existsSync(OUT)) {
-    const slugs = new Set(items.map(item => item.meta.slug))
+    const slugs = new Set([
+      ...items.map(item => item.meta.slug),
+      ...grids.map(grid => grid.meta.slug)
+    ])
     for (const entry of await readdir(OUT, { withFileTypes: true })) {
       if (entry.isDirectory() && !slugs.has(entry.name)) {
         await rm(path.join(OUT, entry.name), { recursive: true, force: true })
@@ -520,7 +696,7 @@ async function generate(check: boolean, pin: string) {
     return
   }
 
-  console.log(`generated ${items.length} item(s), pin ${pin}`)
+  console.log(`generated ${items.length} item(s) and ${grids.length} grid(s), pin ${pin}`)
   for (const item of items) {
     console.log(`  ${item.meta.slug.padEnd(14)} ${Object.keys(item.meta.options).length} options`)
   }
