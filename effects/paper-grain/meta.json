@@ -1,0 +1,185 @@
+{
+  "name": "PaperGrain",
+  "slug": "paper-grain",
+  "tier": 1,
+  "description": "The surface of a sheet of paper with nothing on it, lit by its own roughness",
+  "category": "backdrops",
+  "ground": "paper",
+  "tags": [
+    "webgl",
+    "shader",
+    "backdrop",
+    "paper",
+    "texture",
+    "grain",
+    "ambient",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "The image is a lighting calculation rather than a pattern. One noise field becomes a height, the height is differenced into a normal, and the normal meets one low light. Drawn as tone instead, the same field is a grey cloud that could be anything",
+      "Which field goes into the height and which goes into the tone is the whole shape of this rather than a detail. Only the fibre is surface. Formation is a density, so it changes how much light comes back and not which way the sheet faces, and it belongs in the tone: put both in the height, which is the obvious way to write it, and the broad field contributes almost nothing while the fine fibre dominates the derivative. The first version of this was rough-cast plaster",
+      "The fibre is stretched along the machine direction, because stock runs in a direction on a paper machine and the fibres lie along it. Isotropic noise is the single thing that stops a paper texture reading as paper: the sheets that really are isotropic are the handmade ones, and they look like felt",
+      "The tooth is smaller than a pixel, so it is in neither the height nor the tone. It is a flicker added to the light and weighted by how much the light rakes, because roughness you cannot resolve only shows as sparkle in grazing light. Raise `light` towards overhead and it goes flat, which is what happens to real paper under a ceiling light",
+      "Nothing in the paper moves. The light swings through a few degrees and back. Grain that crawls is film grain, which is a different effect and a far noisier one: measured at 0.013 mean absolute change per frame on a 0 to 255 scale, this is the quietest thing in the library by a factor of several",
+      "The normal is differenced over exactly one CSS pixel and divided by that step, so it is a slope rather than a difference and `relief` means the same thing at every canvas size. A shorter step samples detail the screen cannot resolve, which comes back as sparkle that changes when the canvas is resized",
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.2,
+    "contexts": 1,
+    "notes": [
+      "Four evaluations of four-octave value noise per pixel: three of the fibre, for the height and the two differences, and one of the much broader formation field. That is the cost of lighting something rather than drawing it, and it is the whole reason it reads as a surface",
+      "Timed with a readPixels after each draw so the number includes the GPU. At 640 by 360 it came to 0.31ms against 0.88 for MeshGradient and 1.01 for PrismSpectrum measured the same way, which makes it the cheapest backdrop in the library",
+      "No textures, no render targets and no feedback buffer. The cost is the pixel count, so a full-screen canvas at 2x device pixel ratio is the thing to watch"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/paper-grain/core.ts",
+      "to": "src/beamish/effects/paper-grain/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/paper-grain/adapters/react.tsx",
+      "to": "src/beamish/effects/paper-grain/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/paper-grain/adapters/vue.ts",
+      "to": "src/beamish/effects/paper-grain/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "paper": {
+      "type": "color",
+      "default": "#f7f5ed",
+      "description": "The stock. A warm white, because a true white sheet is a thing almost nobody prints on: it is bleached, it is colder than the ink wants, and on a screen it leaves the lighting nowhere to go above it."
+    },
+    "fibre": {
+      "type": "color",
+      "default": "#fffdf6",
+      "description": "What the sheet is tinted towards where the fibre lies thickest. Close to the stock on purpose. The difference between the two is doing the same job as the difference between two whites in a real sheet, which is to say it should be almost nothing."
+    },
+    "scale": {
+      "type": "number",
+      "default": 340,
+      "min": 40,
+      "max": 600,
+      "step": 5,
+      "sensible": [
+        240,
+        460
+      ],
+      "description": "Fibres across the short side. Higher is a finer, harder sheet; lower is closer to a heavy rag paper, where the fibre is visible as fibre rather than as texture."
+    },
+    "direction": {
+      "type": "number",
+      "default": 12,
+      "min": -90,
+      "max": 90,
+      "step": 1,
+      "unit": "deg",
+      "description": "The machine direction: the axis the fibre lies along, and the axis a sheet tears cleanly down. Slightly off square is better than square, for the same reason a halftone screen is set at an angle."
+    },
+    "stretch": {
+      "type": "number",
+      "default": 3.4,
+      "min": 1,
+      "max": 8,
+      "step": 0.1,
+      "sensible": [
+        2.5,
+        5
+      ],
+      "description": "How far the fibre is drawn out along that axis. At 1 there is no direction at all, which is a handmade sheet, and handmade sheets read as felt rather than as paper."
+    },
+    "formation": {
+      "type": "number",
+      "default": 0.55,
+      "min": 0,
+      "max": 1.5,
+      "step": 0.01,
+      "description": "Strength of the cloud: the uneven spread of fibre you see when a sheet is held up to a window. Papermakers judge stock by it. It works on the tone rather than on the surface, because it is a density and not a shape. At 0 the sheet is perfectly even, which no sheet is."
+    },
+    "tooth": {
+      "type": "number",
+      "default": 0.5,
+      "min": 0,
+      "max": 1.5,
+      "step": 0.01,
+      "description": "The micro-roughness that takes the ink, which is what a printer means by the tooth of a paper. It is in the light rather than in the surface, so it fades as the light rises: that is not a shortcut, it is what grazing light does to a rough surface."
+    },
+    "light": {
+      "type": "number",
+      "default": 0.18,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [
+        0.08,
+        0.35
+      ],
+      "description": "Height of the light. 0 rakes along the surface and 1 is straight down on it. Low, always: this is a flat sheet, and the only thing that can make a flat sheet interesting is light arriving across it rather than onto it."
+    },
+    "relief": {
+      "type": "number",
+      "default": 0.6,
+      "min": 0.05,
+      "max": 2,
+      "step": 0.01,
+      "description": "How strongly the surface is lit by its own slope. Past about 1.5 the sheet stops being paper and becomes hammered metal, which is a real effect and not this one."
+    },
+    "sweep": {
+      "type": "number",
+      "default": 26,
+      "min": 0,
+      "max": 120,
+      "step": 1,
+      "unit": "deg",
+      "sensible": [
+        12,
+        45
+      ],
+      "description": "Degrees the light swings over one period, and the only moving thing here. At 0 it is a still image, which is a perfectly good way to use this and the quietest thing in the library."
+    },
+    "shive": {
+      "type": "number",
+      "default": 0.35,
+      "min": 0,
+      "max": 2,
+      "step": 0.01,
+      "description": "Specks of fibre the beater did not break down. Papermakers call it shive, and it is the one thing here that is a mark rather than a surface. Sparse on purpose: a sheet with visible shive all over it is a sheet nobody bought."
+    },
+    "period": {
+      "type": "number",
+      "default": 36,
+      "min": 12,
+      "max": 180,
+      "step": 1,
+      "unit": "s",
+      "description": "Seconds for one swing of the light and back. Long, because this sits behind something else and a backdrop has to survive being ignored.",
+      "good": {
+        "min": 30,
+        "max": 120
+      }
+    }
+  },
+  "instruction": "the light swings on its own",
+  "oneShot": false,
+  "record": {
+    "duration": 36,
+    "fps": 30,
+    "posterAt": 9,
+    "crf": 28
+  }
+}
