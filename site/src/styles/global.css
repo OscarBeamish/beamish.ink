@@ -488,6 +488,20 @@
 }
 
 @layer components {
+  /* The sheet ClickSpark throws into. It has a size of its own because the
+     burst is measured against the element it is mounted on, not the viewport. */
+  .demo-spark-sheet {
+    display: grid;
+    place-items: center;
+    width: min(70cqw, 78cqh);
+    aspect-ratio: 1;
+    margin: 0 auto;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+  }
+}
+
+@layer components {
   /* The seal CircularText sets. Square, and sized off the panel height, because
      the panel is 16:9 and a ring is not. */
   .demo-seal {

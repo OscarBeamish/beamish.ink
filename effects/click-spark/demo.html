@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ClickSpark: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        place-items: center;
+      }
+      /* The element keeps its own content: this is an overlay on a thing that is
+         clicked, not a replacement for it. */
+      .sheet {
+        width: min(72vw, 72vh);
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 3px;
+      }
+      .sheet button {
+        font: inherit;
+        font-size: clamp(0.8rem, 2vw, 1.1rem);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.9em 1.6em;
+        color: var(--label-1);
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: 2px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+
+      The presses below are scripted, so the recorded take has clicks in it
+      without anything having been clicked. Clicking it yourself works too, and
+      a scripted press and a real one are the same kind of event.
+    -->
+    <div id="stage">
+      <div class="sheet" id="sheet">
+        <button type="button">Press me</button>
+      </div>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const handle = window.Beamish.create(document.getElementById('sheet'), {
+        pressPath: [
+          { t: 0.45, x: 0.5, y: 0.5 },
+          { t: 1.5, x: 0.28, y: 0.34 },
+          { t: 2.35, x: 0.72, y: 0.62 },
+          { t: 3.2, x: 0.5, y: 0.5 }
+        ]
+      })
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      window.__beamish = handle
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
+    </script>
+  </body>
+</html>

@@ -1,0 +1,191 @@
+{
+  "name": "ClickSpark",
+  "slug": "click-spark",
+  "tier": 1,
+  "description": "A burst of sparks where you click, drawn as streaks that shorten as they slow",
+  "category": "pointer",
+  "ground": "either",
+  "tags": [
+    "pointer",
+    "click",
+    "feedback",
+    "sparks",
+    "dom",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "Each spark is drawn as a streak whose length is its current speed, which is what a short exposure of something hot and moving looks like. The streaks shorten on their own as the sparks slow, with nothing extra to animate, and it is the single difference between this and a particle demo",
+      "The sparks slow down. A spark meets air, so the distance is the integral of a decaying speed rather than speed times time. Linear motion outwards is the giveaway of every version of this: the burst expands like a diagram of an explosion instead of like one",
+      "A little gravity, so the burst is not symmetrical. Not enough to read as falling, just enough that it is not a snowflake",
+      "A fixed pool of elements, built once and reused. Bursts create and destroy nothing: a click takes the oldest slot, so forty clicks in a row cost exactly what four do. That matters because clicking it repeatedly is the first thing anybody does",
+      "The element keeps its own content. The streaks go in a layer over the top with pointer-events none, and the press is listened for on the element itself, so a button inside stays clickable and the feedback belongs to the thing that was pressed",
+      "Scripted presses and real ones are the same kind of event and go in the same list. The scripted ones are rebuilt from the options each frame rather than remembered, which is what keeps a scripted take pure in t: seeking backwards un-fires them",
+      "destroy() removes the layer and the listener and puts the element's position back"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.5,
+    "contexts": 0,
+    "notes": [
+      "count times bursts elements, written every frame while anything is in the air and left alone when nothing is. At the defaults that is 44 elements, each one a composited transform and an opacity",
+      "No canvas, no WebGL context and no allocation during a burst. The arithmetic is two exponentials per spark"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/click-spark/core.ts",
+      "to": "src/beamish/effects/click-spark/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/click-spark/adapters/react.tsx",
+      "to": "src/beamish/effects/click-spark/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/click-spark/adapters/vue.ts",
+      "to": "src/beamish/effects/click-spark/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "count": {
+      "type": "number",
+      "default": 11,
+      "min": 3,
+      "max": 40,
+      "step": 1,
+      "sensible": [
+        8,
+        16
+      ],
+      "description": "Streaks in one burst. An odd number is better than an even one: an even fan has a streak opposite every other streak, which the eye reads as a cross."
+    },
+    "bursts": {
+      "type": "number",
+      "default": 4,
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "description": "How many bursts can be in the air at once. The newest win, so clicking faster than this does not cost more, it just drops the oldest burst early. Raising it raises the element count by the same factor."
+    },
+    "colour": {
+      "type": "color",
+      "default": "#c44400",
+      "description": "The spark. One colour, not a gradient and not a palette: a palette of sparks is confetti. If it has to work on both grounds, pick something that is neither nearly white nor nearly black."
+    },
+    "speed": {
+      "type": "number",
+      "default": 1.15,
+      "min": 0.1,
+      "max": 5,
+      "step": 0.05,
+      "description": "How fast a spark leaves, as a share of the shorter side of the element per second. Relative rather than in pixels, so the same burst looks right on a small button and on a full-page panel."
+    },
+    "drag": {
+      "type": "number",
+      "default": 0.22,
+      "min": 0.02,
+      "max": 2,
+      "step": 0.01,
+      "unit": "s",
+      "sensible": [
+        0.12,
+        0.4
+      ],
+      "description": "Seconds for a spark to lose most of its speed to the air. Short, and it is what makes the burst read as thrown rather than as expanding: the sparks go a long way in the first fifth of a second and then barely move."
+    },
+    "gravity": {
+      "type": "number",
+      "default": 0.55,
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "description": "How far the burst droops, as a share of the shorter side per second. At 0 the burst is perfectly symmetrical, which reads as a snowflake. It should be small enough that nobody would name it as falling."
+    },
+    "life": {
+      "type": "number",
+      "default": 0.62,
+      "min": 0.1,
+      "max": 3,
+      "step": 0.02,
+      "unit": "s",
+      "sensible": [
+        0.4,
+        0.9
+      ],
+      "description": "Seconds a spark lasts. This is feedback for a click, so it has to be over before the next thing happens: much past a second it stops being an acknowledgement and starts being an animation somebody has to wait out."
+    },
+    "streak": {
+      "type": "number",
+      "default": 0.055,
+      "min": 0,
+      "max": 0.3,
+      "step": 0.005,
+      "unit": "s",
+      "description": "How long a streak is, given as the seconds of travel it represents, so it is literally a shutter speed. At 0 the sparks are dots and the effect is confetti; long, and they are comet trails."
+    },
+    "thickness": {
+      "type": "number",
+      "default": 2,
+      "min": 0.5,
+      "max": 8,
+      "step": 0.5,
+      "unit": "px",
+      "description": "Thickness of a streak, in pixels rather than relative, because a hairline is a hairline at any size and a thick spark at small sizes is a blob."
+    },
+    "scatter": {
+      "type": "number",
+      "default": 0.45,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How uneven the burst is. At 0 it is a perfect star, evenly spaced and all one length, which no two things striking each other have ever produced."
+    },
+    "seed": {
+      "type": "number",
+      "default": 7,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "description": "Seed for the scatter. Every burst already differs from the last, because the burst's own number goes into the hash; this moves the whole series, so two of these on one page are not twins."
+    }
+  },
+  "instruction": "click the sheet",
+  "oneShot": false,
+  "presses": [
+    {
+      "t": 0.45,
+      "x": 0.5,
+      "y": 0.5
+    },
+    {
+      "t": 1.5,
+      "x": 0.28,
+      "y": 0.34
+    },
+    {
+      "t": 2.35,
+      "x": 0.72,
+      "y": 0.62
+    },
+    {
+      "t": 3.2,
+      "x": 0.5,
+      "y": 0.5
+    }
+  ],
+  "record": {
+    "duration": 4,
+    "fps": 30,
+    "posterAt": 0.62
+  }
+}
