@@ -271,6 +271,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'magnetic-button': () => import('@items/effects/magnetic-button/core'),
     'click-spark': () => import('@items/effects/click-spark/core'),
     'crosshair-cursor': () => import('@items/effects/crosshair-cursor/core'),
+    'variable-weight-text': () => import('@items/effects/variable-weight-text/core'),
     'gradual-blur': () => import('@items/effects/gradual-blur/core'),
     'count-up-number': () => import('@items/effects/count-up-number/core'),
     'terrain-relief': () => import('@items/effects/terrain-relief/core'),
@@ -369,6 +370,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
      */
     'scramble-text': `<p class="demo-heading">${HEADLINE}</p>`,
     'decode-text': `<p class="demo-heading">${HEADLINE}</p>`,
+    'variable-weight-text': `<p class="demo-heading">${HEADLINE}</p>`,
     /* A board wants board words, and short ones: four layers of DOM a character. */
     'split-flap-text': `<div class="demo-board">Departures</div>`,
     /* A sentence with punctuation in it, because the breath at a full stop is

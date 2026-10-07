@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VariableWeightText: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+        color: var(--label-1);
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        align-content: center;
+        gap: 2rem;
+        padding: 0 7vw;
+        box-sizing: border-box;
+      }
+      /*
+       * Both faces here carry a weight axis from 400 to 700. A static font
+       * ignores font-variation-settings without complaining, which is the one
+       * way this fails silently.
+       */
+      #stage h1 {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 8vw, 5.5rem);
+        font-weight: 400;
+        letter-spacing: -0.02em;
+        line-height: 1;
+      }
+      #stage p {
+        margin: 0;
+        max-width: 58ch;
+        font-size: clamp(0.8rem, 1.6vw, 1.05rem);
+        line-height: 1.8;
+        color: var(--label-2);
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+
+      A heading and a paragraph, because the paragraph is the case that is
+      usually impossible: weight changes the advance width of a glyph, so a
+      weighted line reflows under the cursor unless the boxes are pinned.
+    -->
+    <div id="stage">
+      <h1>Pressure of the press</h1>
+      <p>
+        A weight axis changes the advance width of every glyph it touches, so a
+        line of individually weighted letters would reflow as the cursor crossed
+        it. Each box here is measured once at the heaviest weight it will ever
+        carry, and nothing moves again.
+      </p>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const heading = window.Beamish.create(document.querySelector('#stage h1'), {
+        reach: 0.3
+      })
+      const copy = window.Beamish.create(document.querySelector('#stage p'), {
+        reach: 0.16,
+        peak: 700,
+        shoulder: 3
+      })
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      // It drives the first handle; the second is given the same clock here so
+      // both are a function of the same time.
+      window.__beamish = {
+        ...heading,
+        renderAtTime(t) {
+          heading.renderAtTime(t)
+          copy.renderAtTime(t)
+        },
+        update(next) {
+          heading.update(next)
+          copy.update(next)
+        }
+      }
+
+      if (!new URLSearchParams(location.search).has('record')) {
+        heading.start()
+        copy.start()
+      }
+    </script>
+  </body>
+</html>

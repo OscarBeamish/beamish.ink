@@ -1,0 +1,143 @@
+{
+  "name": "VariableWeightText",
+  "slug": "variable-weight-text",
+  "tier": 1,
+  "description": "Type that puts on weight under the cursor, on a line that does not move while it does",
+  "category": "pointer",
+  "ground": "either",
+  "tags": [
+    "text",
+    "pointer",
+    "variable-font",
+    "weight",
+    "dom",
+    "accessible",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "Needs a variable font with the axis being driven. A static face ignores font-variation-settings without complaining, which is the one way this fails silently: the effect mounts, runs, and does nothing visible",
+      "The line does not move, and that is the whole item. A weight axis changes the advance width of every glyph it touches, so a line of individually weighted letters reflows continuously as the cursor crosses it: characters shuffle sideways, the line end breathes, and anything laid out after it moves too. That is why most versions of this only ever appear on a single centred word",
+      "Each character is measured once at the heaviest value the axis will reach, which is the widest it can ever be, and held in a box that wide with the letter centred in it. One measuring pass, and it is the difference between an effect you can put on a paragraph and one you can put on a word",
+      "The falloff has a shoulder rather than being linear. Pressure does not fall off in a straight line from a nib, and a linear ramp reads as a triangle of bold sliding along the line",
+      "The axis is a setting rather than a constant. Weight is the obvious one and the default, but a face with a width or a slant axis will do this just as well and only three strings change",
+      "The value is written to one decimal place. A weight axis quantised to a tenth is finer than any face resolves, and it stops the style being rewritten every frame for a change nothing can draw",
+      "Like every pointer effect here it eases against its own last frame, so it is deliberately not pure in t, and the recorder drives it from the scripted path in this file",
+      "The original string stays in the accessibility tree as one label, so a screen reader reads the sentence rather than the characters"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.8,
+    "contexts": 0,
+    "notes": [
+      "One rect read and at most one style write per character per frame. The rects are the cost: they are read live so that a wrapped paragraph knows where its characters actually are, which is also what lets this work on more than one line",
+      "Keep it to a heading or a short paragraph. Three hundred characters is three hundred rects a frame, and at that length the effect is a smudge following the cursor anyway"
+    ]
+  },
+  "files": [
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "effects/variable-weight-text/core.ts",
+      "to": "src/beamish/effects/variable-weight-text/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/variable-weight-text/adapters/react.tsx",
+      "to": "src/beamish/effects/variable-weight-text/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/variable-weight-text/adapters/vue.ts",
+      "to": "src/beamish/effects/variable-weight-text/vue.ts",
+      "role": "adapter"
+    }
+  ],
+  "options": {
+    "axis": {
+      "type": "string",
+      "default": "wght",
+      "description": "The variation axis to drive, spelled as the font declares it. Four lower-case letters for a registered axis: wght for weight, wdth for width, slnt for slant, opsz for optical size. A custom axis is upper case. Name one the face does not have and nothing happens, with no error anywhere."
+    },
+    "rest": {
+      "type": "number",
+      "default": 400,
+      "min": 1,
+      "max": 1000,
+      "step": 1,
+      "description": "Where the axis sits with the cursor far away, which is to say what the text looks like to everybody who never moves a mouse over it. It should be the weight you would have set anyway."
+    },
+    "peak": {
+      "type": "number",
+      "default": 700,
+      "min": 1,
+      "max": 1000,
+      "step": 1,
+      "description": "Where the axis goes directly under the cursor. Stay inside the range the face actually has: asking for 900 of a 400 to 700 font clamps to 700, so the effect quietly gets weaker as the cursor arrives rather than stronger."
+    },
+    "reach": {
+      "type": "number",
+      "default": 0.22,
+      "min": 0.02,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [0.12, 0.35],
+      "description": "How far the hand reaches, as a share of the element's width. Relative, so the same setting works on a heading and on a column. Wide reaches read as the whole line breathing; narrow ones as a finger pressing on one letter."
+    },
+    "shoulder": {
+      "type": "number",
+      "default": 2.4,
+      "min": 0.5,
+      "max": 8,
+      "step": 0.1,
+      "sensible": [1.6, 4],
+      "description": "Shape of the falloff. 1 is linear, which reads as a triangle of bold sliding along the line and is the giveaway of every version of this. Higher keeps the peak tight and lets it fall away quickly, which is what pressure from a nib actually does."
+    },
+    "ease": {
+      "type": "number",
+      "default": 0.22,
+      "min": 0.02,
+      "max": 1,
+      "step": 0.01,
+      "description": "How fast the letters follow the hand, per frame. At 1 they are welded to the cursor, which looks like a bug rather than like ink. Paper takes a moment to give."
+    },
+    "steady": {
+      "type": "boolean",
+      "default": true,
+      "description": "Hold each character in a box as wide as its heaviest form. On, always, unless the face has no width change across the axis: a slant axis does not need it, and a weight axis absolutely does. Turn it off once on a paragraph to see why it is here."
+    },
+    "tracking": {
+      "type": "number",
+      "default": 0.012,
+      "min": 0,
+      "max": 0.1,
+      "step": 0.002,
+      "unit": "em",
+      "description": "Extra tracking. A little room stops the heaviest letters touching their neighbours, since every box is as wide as its own character needs and not as wide as the pair does."
+    }
+  },
+  "instruction": "move the pointer across the text",
+  "oneShot": false,
+  "cursor": {
+    "duration": 10,
+    "keys": [
+      { "t": 0, "x": 0.02, "y": 0.3 },
+      { "t": 2.4, "x": 0.52, "y": 0.33 },
+      { "t": 4, "x": 0.95, "y": 0.36 },
+      { "t": 5.2, "x": 0.88, "y": 0.62 },
+      { "t": 7.6, "x": 0.3, "y": 0.66 },
+      { "t": 9, "x": 0.06, "y": 0.58 },
+      { "t": 10, "x": 0.02, "y": 0.3 }
+    ]
+  },
+  "record": {
+    "duration": 10,
+    "fps": 30,
+    "posterAt": 2.4
+  }
+}
