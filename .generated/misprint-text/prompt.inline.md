@@ -907,7 +907,90 @@ as the second argument to the create function; anything omitted takes its defaul
 | `skew` | number | `0.4` | 0 to 4 | How far a slipped plate also turns, in degrees. Small: a plate that is out by a whole degree is a plate that has fallen off. |
 | `seed` | number | `7` | 0 to 999 | Which runs slip and how far. Change it for a different sequence; the same seed always gives the same one. |
 
-## 5. Cleanup and SSR
+## 5. The text is your markup
+
+It is whatever is already in the element.
+
+```html
+<h1 id="title">Out of register</h1>
+```
+
+```ts
+import { createMisprintText } from './beamish/effects/misprint-text/core'
+
+const misprint = createMisprintText(document.querySelector('#title'))
+misprint.start()
+```
+
+The in-register plate stays in normal flow, so it is the one that sizes the
+element and the one a mouse can select. The two that move are `aria-hidden` and
+`pointer-events: none`, so a screen reader reads the text once and selecting it
+gives you one copy rather than three. `destroy()` puts the original text back.
+
+**React.**
+
+```tsx
+import { useEffect, useRef } from 'react'
+import { createMisprintText } from '@/beamish/effects/misprint-text/core'
+
+export function Title({ children }: { children: string }) {
+  const host = useRef<HTMLHeadingElement>(null)
+
+  useEffect(() => {
+    if (!host.current) return
+    const misprint = createMisprintText(host.current)
+    misprint.start()
+    return () => misprint.destroy()
+  }, [children])
+
+  return <h1 ref={host}>{children}</h1>
+}
+```
+
+The text is read once, at setup, so put it in the dependency array if it can
+change. Option values should not go there: call `update()` instead.
+
+**Vue.**
+
+```vue
+<script setup lang="ts">
+import { onMounted, onBeforeUnmount, ref } from 'vue'
+import { createMisprintText } from '@/beamish/effects/misprint-text/core'
+import type { EffectHandle } from '@/beamish/shared/runtime'
+
+const host = ref<HTMLElement | null>(null)
+let misprint: EffectHandle | null = null
+
+onMounted(() => {
+  if (!host.value) return
+  misprint = createMisprintText(host.value)
+  misprint.start()
+})
+
+onBeforeUnmount(() => misprint?.destroy())
+</script>
+
+<template>
+  <h1 ref="host">Out of register</h1>
+</template>
+```
+
+## 6. Tuning it
+
+`slip` is in em, so one setting works at every type size and you do not need a
+different number for a heading and a caption. Past about 0.12 the words separate
+far enough that you are reading three of them rather than one printed badly.
+
+`hold` and `chance` are what keep it from being a strobe. `hold` is how long a
+plate keeps its position, and `chance` is the share of runs where the plates are
+out at all. A press that is always wrong is not a press that is nearly right: at
+`chance` 1 the text never settles and there is nothing to notice, because there
+is no correct state to compare against.
+
+`skew` wants to stay small. A plate out by a whole degree is a plate that has
+fallen off the press.
+
+## 7. Cleanup and SSR
 
 `destroy()` restores the original text, cancels the RAF, disconnects both
 observers and removes every listener. There is no WebGL context to release.
@@ -915,7 +998,7 @@ observers and removes every listener. There is no WebGL context to release.
 None of this runs on the server. Put the call inside `useEffect`, `onMounted`, or
 a `client:*` island. Next.js App Router needs `'use client'`.
 
-## 6. Pausing and reduced motion
+## 8. Pausing and reduced motion
 
 WCAG 2.2.2 is Level A: content that moves for more than five seconds must be
 pausable, and this moves indefinitely. `stop()` and `start()` are on the handle
@@ -933,7 +1016,7 @@ reliably settled for those readers, mount with `chance: 0` when
 `matchMedia('(prefers-reduced-motion: reduce)')` matches: clean type is the
 correct outcome and it costs nothing.
 
-## 7. The three mistakes most likely to be made here
+## 9. The three mistakes most likely to be made here
 
 1. **Using it on a paragraph.** Three stacked copies of a block of body text is
    unreadable, and the offset is per-element rather than per-line so a wrapped

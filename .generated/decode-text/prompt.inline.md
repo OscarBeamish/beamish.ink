@@ -1212,7 +1212,24 @@ as the second argument to the create function; anything omitted takes its defaul
 | `seed` | number | `7` | 0 to 9999 | Seed for the glyphs and for the random order. The same seed always gives the same run, so a recorded video and a live page match character for character. |
 | `reducedMotionTime` | number | `999` | 0 to 9999 s | The single frame shown when the user prefers reduced motion. For a one-shot reveal this should be a time after the run has finished, so the text simply appears. |
 
-## 5. Accessibility. Do not skip this
+## 5. Choosing the settings
+
+`stagger` sets the length of the run, and it multiplies: the last character lands
+at `hold + stagger × characters`. Forty-five milliseconds is right for a few
+words and far too slow for a paragraph, where it is a run the better part of a
+minute long. Over about forty characters, drop `stagger` to around 10 and switch
+`order` to `random`, which settles the block as a whole rather than sweeping a
+front across it.
+
+`glyphs` wants to be the same case and roughly the same weight as the text it is
+standing in for. Substitutes take the case of the letter they replace, so the
+set can be written in capitals and still sit correctly in lowercase text. Katakana
+is the set everybody reaches for and the one that dates the effect hardest.
+
+`steady` is for proportional faces. In a monospace face every box is the same
+width already, and the measuring is work for nothing.
+
+## 6. Accessibility. Do not skip this
 
 The split version is marked `aria-hidden`, and a visually hidden copy of the
 original string sits alongside it. A screen reader reads the sentence. Without
@@ -1221,7 +1238,7 @@ a screen reader on a live cipher reads a stream of junk.
 
 Do not put an `aria-label` on the element as well. Two labels is worse than none.
 
-## 6. Cleanup and SSR
+## 7. Cleanup and SSR
 
 `destroy()` restores the original text, cancels the RAF, disconnects both
 observers and removes every listener. There is no GPU resource to release.
@@ -1230,7 +1247,7 @@ The text renders on the server as ordinary text, and stays readable if the
 JavaScript never arrives. Splitting only happens on the first frame. Call
 `createDecodeText` from `useEffect`, `onMounted`, or a `client:*` island.
 
-## 7. Pausing and reduced motion
+## 8. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
@@ -1241,7 +1258,7 @@ finished. The text simply appears, fully set, which is the correct outcome. Do
 not set it to 0: that leaves the headline as a line of nonsense that never
 resolves, which is the worst of the three states it could be in.
 
-## 8. The three mistakes most likely to be made here
+## 9. The three mistakes most likely to be made here
 
 1. **Writing it with `Math.random()` on a `setInterval`.** It is the natural way
    to write it and it costs you the two things that matter: the effect can no

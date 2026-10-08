@@ -1079,7 +1079,38 @@ as the second argument to the create function; anything omitted takes its defaul
 | `target` | string | `a, button, [data-target]` | any value | What the brackets will lock on to, as a CSS selector. The data attribute is there so you can nominate anything else without changing the selector: put it on the card, the image, the row. |
 | `lines` | boolean | `true` | `true` · `false` | Draw the long hairlines as well as the brackets. Off leaves the brackets alone, which is quieter and better over text: the lines cross everything on the page, and over a paragraph that is a strikethrough following the cursor. |
 
-## 5. Cleanup and SSR
+## 5. Choosing targets
+
+`target` is a selector and the default is `a, button, [data-target]`. The data
+attribute is there so you can nominate anything without rewriting the selector:
+put it on the card, the image, the table row.
+
+Be sparing. A reticle that locks on to everything is a reticle that is never
+telling you anything, and over a paragraph of links it will snap between words
+as the pointer crosses them.
+
+## 6. Hiding the real cursor
+
+This does not hide it for you. Set `cursor: none` on the element yourself if you
+want it gone, because that is a decision about the page rather than about the
+effect, and it is one with a cost: a visitor who loses the system cursor loses
+every affordance that came with it, including the text I-beam and the resize
+arrows. Over a panel of buttons it is fine. Over a form it is not.
+
+## 7. The lines are optional, and often wrong
+
+`lines: false` leaves the brackets on their own, which is quieter and much
+better over text. The long hairlines cross everything on the page, and over a
+paragraph that is a strikethrough following the cursor.
+
+## 8. Determinism
+
+Like every pointer effect in this library it eases against its own last frame,
+so it is deliberately not pure in `t`. The recorder drives it from the scripted
+cursor path in `meta.json` rather than from a mouse, which is what makes a take
+reproducible.
+
+## 9. Cleanup and SSR
 
 `destroy()` removes the layer and puts the element's `position` back. There is
 no GPU resource to release and no listener to remove, because the lock is a hit
@@ -1089,14 +1120,14 @@ Nothing renders on the server, and nothing needs to: the element's own content
 is untouched. Call `createCrosshairCursor` from `useEffect`, `onMounted`, or a
 `client:*` island.
 
-## 6. Pausing and reduced motion
+## 10. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts, so the reticle is not drawn. That is the right answer:
 this is an ornament on a pointer that already works, and a crosshair that
 follows the hand is motion by definition.
 
-## 7. The three mistakes most likely to be made here
+## 11. The three mistakes most likely to be made here
 
 1. **Sniffing for what is clickable.** It misses handlers on plain elements and
    it catches every link in a paragraph. A selector you chose is better than a

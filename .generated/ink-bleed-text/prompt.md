@@ -76,7 +76,102 @@ as the second argument to the create function; anything omitted takes its defaul
 | `period` | number | `9` | 1 to 60 | Seconds for one breath of the ink. Driven by a cosine, so it is exactly periodic and the loop closes. |
 | `seed` | number | `4` | 0 to 999 | Which sheet of paper. Any two seeds give different fibre; the same seed always gives the same sheet. |
 
-## 5. Cleanup and SSR
+## 5. The text is your markup
+
+It is whatever is already in the element.
+
+```html
+<h1 id="title">Blotting paper</h1>
+```
+
+```ts
+import { createInkBleedText } from './beamish/effects/ink-bleed-text/core'
+
+const bleed = createInkBleedText(document.querySelector('#title'))
+bleed.start()
+```
+
+The element is not rebuilt and the text is not split, so it stays selectable, it
+still wraps, and a screen reader gets exactly what you wrote. The effect adds one
+hidden SVG to the document and sets a `filter` on the element; `destroy()`
+removes both.
+
+**React.**
+
+```tsx
+import { useEffect, useRef } from 'react'
+import { createInkBleedText } from '@/beamish/effects/ink-bleed-text/core'
+
+export function Title({ children }: { children: React.ReactNode }) {
+  const host = useRef<HTMLHeadingElement>(null)
+
+  useEffect(() => {
+    if (!host.current) return
+    const bleed = createInkBleedText(host.current)
+    bleed.start()
+    return () => bleed.destroy()
+  }, [])
+
+  return <h1 ref={host}>{children}</h1>
+}
+```
+
+Do not put option values in the dependency array. Call `update()` instead.
+
+**Vue.**
+
+```vue
+<script setup lang="ts">
+import { onMounted, onBeforeUnmount, ref } from 'vue'
+import { createInkBleedText } from '@/beamish/effects/ink-bleed-text/core'
+import type { EffectHandle } from '@/beamish/shared/runtime'
+
+const host = ref<HTMLElement | null>(null)
+let bleed: EffectHandle | null = null
+
+onMounted(() => {
+  if (!host.value) return
+  bleed = createInkBleedText(host.value)
+  bleed.start()
+})
+
+onBeforeUnmount(() => bleed?.destroy())
+</script>
+
+<template>
+  <h1 ref="host">Blotting paper</h1>
+</template>
+```
+
+## 6. Tuning it
+
+`fibre` is the one to reach for first, and it is the one that decides whether
+this looks like paper or like noise. It is the turbulence base frequency, so
+lower is a longer, coarser, more absorbent fibre. If the bleed looks like static,
+`fibre` is too high.
+
+`floor` is deliberately not zero. A sheet that has taken ink does not give it
+back, so the letter never returns to a clean edge. Setting it to zero gives you
+something that dries completely twice a cycle, which paper does not do.
+
+`bleed` past about 8 closes the counters of **a** and **e** and the word stops
+being readable. Badly printed paper really does that, and it is rarely what you
+want on a page somebody has to read.
+
+## 7. Performance
+
+It holds 59.8fps at 1440 by 900 at 2× DPR, measured, which is indistinguishable
+from the same page with no filter on it.
+
+That is only true because the turbulence is cached. It is the expensive half of
+the filter, and the fibre of a sheet does not change between frames, so only the
+displacement scale is set per frame. Setting `baseFrequency` every frame instead
+costs a full filter rebuild each time and the figure above stops being true.
+
+SVG filters are rasterised on the CPU in some browsers, and the cost scales with
+the filtered area. This is for a heading.
+
+## 8. Cleanup and SSR
 
 `destroy()` removes the filter from the element, removes the SVG it lives in,
 cancels the RAF and disconnects both observers. There is no WebGL context to
@@ -88,7 +183,7 @@ do not share one and tearing one down cannot break the other.
 None of this runs on the server. Put the call inside `useEffect`, `onMounted`, or
 a `client:*` island. Next.js App Router needs `'use client'`.
 
-## 6. Pausing and reduced motion
+## 9. Pausing and reduced motion
 
 WCAG 2.2.2 is Level A: content that moves for more than five seconds must be
 pausable, and this moves indefinitely. `stop()` and `start()` are on the handle
@@ -103,7 +198,7 @@ If you would rather it were perfectly clean for those readers, mount with
 `bleed: 0, floor: 0` when `matchMedia('(prefers-reduced-motion: reduce)')`
 matches.
 
-## 7. The three mistakes most likely to be made here
+## 10. The three mistakes most likely to be made here
 
 1. **Using it on body text.** It is a filter over the whole element, rasterised
    on the CPU in some browsers, and a paragraph of bled type is both expensive

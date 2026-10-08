@@ -1022,7 +1022,38 @@ as the second argument to the create function; anything omitted takes its defaul
 | `lift` | number | `26` | 0 to 120 px | How far the moving card lifts as it goes. A hand picks a card up before moving it sideways, and the lift is most of what makes the move read as a hand rather than as a slide. |
 | `seed` | number | `7` | 0 to 9999 | Seed for the scatter. The same seed gives the same pile, so a recording and a live page match card for card. |
 
-## 5. Accessibility. Do not skip this
+## 5. The loop is the interval times the cards
+
+Four cards at an interval of 1800ms is a 7.2 second cycle, and that is what a
+recording of it has to span for the loop to close. If you change either, change
+the record duration with them.
+
+`travel` is clamped to the interval, so a card can never still be moving when
+the next one starts. Half the interval is a good rule: it leaves the pile still
+for as long as it is moving, which makes the movement read as a deliberate act
+rather than as a carousel.
+
+## 6. `aside` has to clear the pile
+
+Below about 0.4 the card is still overlapping the others when the stacking order
+flips, and you can see it happen. The default of 0.62 takes the card well clear.
+
+This is the one setting you can break the effect with, and the failure looks
+like a rendering glitch rather than like a number being too small.
+
+## 7. A pile seen straight on
+
+It is one card and a few edges, however much you offset them, because they are
+the same object at the same angle. That is honest, and it is why the scatter and
+the tilt are worth having: the corners poking out are what tell you there is
+more than one card there.
+
+If you need the pile to read as a pile while it is still, give the cards
+different content near their edges, or accept that the movement is what
+communicates it. Do not reach for a bigger `shrink`: past about 0.08 it stops
+being a stack and becomes a fan.
+
+## 8. Accessibility. Do not skip this
 
 Every card stays in the accessibility tree and in the tab order, which is
 correct: a pile of four cards is four pieces of content, not one.
@@ -1032,7 +1063,7 @@ behind the others. If the cards contain links or buttons, this is the wrong
 component: use it for content that is read rather than operated, or give the
 cards behind the front one `inert`.
 
-## 6. Cleanup and SSR
+## 9. Cleanup and SSR
 
 `destroy()` restores every property it set on the cards and on the element.
 There is no GPU resource to release and no DOM to rebuild.
@@ -1042,14 +1073,14 @@ as a column before the first frame stacks them. If that matters, give the
 element `overflow: hidden` and the height of one card in CSS, so the column is
 clipped until the effect takes over.
 
-## 7. Pausing and reduced motion
+## 10. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn, the one at `reducedMotionTime`,
 which is 0: the pile at rest with the first card on top. Nothing is lost except
 the dealing.
 
-## 8. The three mistakes most likely to be made here
+## 11. The three mistakes most likely to be made here
 
 1. **Changing the stacking order over the pile.** It flickers, and it reads as a
    dropped frame rather than as a mistake you made. Change it at the far point

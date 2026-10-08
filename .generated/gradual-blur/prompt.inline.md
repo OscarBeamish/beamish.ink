@@ -1019,7 +1019,38 @@ as the second argument to the create function; anything omitted takes its defaul
 | `wash` | number | `0.35` | 0 to 1 | How strong the wash is at the edge. At 0 there is only blur, which is right on paper. Over a dark photograph it wants some, or the blurred content stays as dark as it was and nothing reads as distance. |
 | `follow` | boolean | `false` | `true` · `false` | Bring the haze in as the element is scrolled rather than leaving it always on. For a panel with a top edge this is the honest setting: there is nothing above a list until it has been scrolled, and a haze over nothing is a smudge on the glass. |
 
-## 5. Cleanup and SSR
+## 5. Which edge, and whether it is always there
+
+The foot of a scrolling panel is the one that earns its keep: it says the text
+continues. At the top it usually competes with whatever header is already there.
+
+`follow` brings the haze in as the element is scrolled rather than leaving it on
+always, and for a top edge that is the honest setting. There is nothing above a
+list until it has been scrolled, and a haze over nothing is a smudge on the
+glass.
+
+## 6. Blur and wash are different things
+
+`strength` is the blur at the very edge, and everything between there and the
+far side of the band is a fraction of it. `wash` is a separate layer of colour
+over the top.
+
+On paper, `wash: 0` is usually right: the blur alone is the effect. Over a dark
+photograph it wants some, or the blurred content stays exactly as dark as it was
+and nothing reads as distance. Take the tint out of the image rather than
+reaching for white.
+
+## 7. Cost
+
+The stack is built once and rebuilt only when its shape changes. Per frame there
+is at most one opacity write, and none at all when `follow` is off.
+
+The cost that matters is the compositor's: every layer is a `backdrop-filter`
+over the same region of the screen. Six is a deliberate ceiling, and the
+doubling is what buys the range without raising it. If you need a longer ramp,
+raise `depth`, not `layers`.
+
+## 8. Cleanup and SSR
 
 `destroy()` removes the band and puts the element's `position` back. There is no
 GPU resource of ours to release, though the compositor will drop its layers.
@@ -1028,7 +1059,7 @@ Nothing renders on the server, and nothing needs to: the element's own content
 is untouched. Call `createGradualBlur` from `useEffect`, `onMounted`, or a
 `client:*` island.
 
-## 6. Pausing and reduced motion
+## 9. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 one frame is drawn, at `reducedMotionTime`, which here is 0.
@@ -1037,7 +1068,7 @@ The haze itself is not motion: it is a static band, and it stays. Only the
 `follow` fade would have moved, and under reduced motion it simply settles at
 its starting value.
 
-## 7. The three mistakes most likely to be made here
+## 10. The three mistakes most likely to be made here
 
 1. **One blurred element with a gradient mask.** It ramps the opacity, not the
    blur, and leaves a hard edge where the blur begins. This is the mistake the

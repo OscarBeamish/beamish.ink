@@ -1162,7 +1162,52 @@ as the second argument to the create function; anything omitted takes its defaul
 | `seed` | number | `7` | 0 to 9999 | Seed for the field. The same seed gives the same air, so a recording and a live page match mote for mote. |
 | `period` | number | `44` | 10 to 180 s | Seconds for one cycle of the drift. Long, because dust moves slowly and a backdrop has to survive being ignored. |
 
-## 5. Cleanup and SSR
+## 5. Three things that make it dust and not snow
+
+**Most of it is out of focus.** A real mote is a few micrometres across, so at
+any focal distance nearly all of them are blurred smudges and only a handful are
+sharp. Drawing them all sharp is the single clearest way to turn dust into a
+screensaver.
+
+A blurred mote here is drawn both **wider and fainter**, because a lens spreads
+the same light over more area. Those two together are what make a wide smudge
+and a tight point read as the same object at different distances, rather than as
+two different things.
+
+**It catches the light rather than emitting it.** Where a mote sits in the frame
+decides how bright it is, which is what gives the air a direction. Without it
+the field is evenly lit everywhere and reads as a texture.
+
+**It rises as often as it falls.** Dust in a lit room is moved by convection,
+not gravity: it hangs. Falling dust is snow.
+
+## 6. It needs a dark ground
+
+Everything drawn here is light caught on something. On a pale ground the motes
+have nothing to be brighter than and the effect disappears entirely, which is
+why it declares `ground: "dark"`.
+
+Set `ground` to whatever your dark section actually is, rather than leaving the
+default: the motes are added to it, so a mismatch shows as a rectangle.
+
+## 7. Pairing it with LightShafts
+
+Give both the same `light` angle and the motes are in the beam. That is the
+combination worth reaching for, and it is also the honest one: LightShafts draws
+its own motes inside the beams for exactly this reason, and turning those down
+while this one carries the air gives you dust through the whole room rather than
+only where the light is.
+
+## 8. Density is free
+
+`pitch` is the cell size and so the density, and a finer pitch costs nothing
+extra per pixel, because a pixel always looks at the same nine cells. It is the
+one density control in this library that is free to turn up.
+
+Below about 15 pixels the motes overlap into a fog, which is a different and
+quite nice effect but no longer dust.
+
+## 9. Cleanup and SSR
 
 `destroy()` releases the WebGL context, cancels the RAF, disconnects both
 observers and removes every listener. One live context at a time is the budget,
@@ -1172,14 +1217,14 @@ There is nothing to render on the server. The element is empty until the first
 frame. Call `createDustMotes` from `useEffect`, `onMounted`, or a `client:*`
 island.
 
-## 6. Pausing and reduced motion
+## 10. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
 `reducedMotionTime`. A still field of dust is a photograph of a room, which is a
 complete image: `drift: 0` gives the same thing permanently.
 
-## 7. The three mistakes most likely to be made here
+## 11. The three mistakes most likely to be made here
 
 1. **An array of particles.** It cannot be seeked, so it cannot be recorded; it
    drifts on a dropped frame; and it costs more as you add motes. A lattice has

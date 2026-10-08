@@ -145,7 +145,53 @@ as the second argument to the create function; anything omitted takes its defaul
 | `detune` | number | `0.04` | -0.3 to 0.3 | Difference in pitch between the two screens, as a share of the first. The other way to make a beat: two screens at the same angle but slightly different pitch give straight fringes rather than turned ones. A little of both is more interesting than either alone. |
 | `period` | number | `28` | 12 to 180 s | Seconds for one cycle of the drift. Long, because the fringes move much faster than the angle does and a backdrop has to survive being ignored. |
 
-## 5. Cleanup and SSR
+## 5. The anti-aliasing is the effect
+
+This is the part that would be easy to treat as a polish pass and is actually
+load-bearing.
+
+A regular screen at this frequency aliases against the pixel grid, and **that
+aliasing is itself a moire**. Draw the screens with hard edges and the fringes
+you see are partly the screens beating with the display rather than with each
+other: the effect becomes a rendering artefact wearing the costume of an optical
+one, and it changes when you change monitor.
+
+So each screen's coverage is computed analytically, and its edge is softened by
+exactly the width of one pixel's footprint in screen space, which is what
+`fwidth` gives. What is left on the canvas is the real interference.
+
+## 6. Do not put text on it
+
+This is the loudest thing in the library and it is loud on purpose: a screen at
+thirty per cent coverage is a field of hard-edged dots, and a moire is by
+definition a pattern that draws the eye. Nothing is readable over it.
+
+Use it as a full-bleed panel, a section divider, a plate between blocks of
+copy. If you need it behind something, drop `coverage` to around 0.12 and raise
+`pitch`, which leaves the fringes and takes away most of the ink.
+
+## 7. Two ways to make a beat
+
+`separation` turns the second screen, which gives fringes that run at an angle
+to both.
+
+`detune` changes its pitch instead, which gives straight fringes parallel to the
+screens. Two screens at the same angle and slightly different pitch is the other
+half of the phenomenon and it looks quite different.
+
+A little of both is more interesting than either alone, which is why the
+defaults have some of each.
+
+## 8. Cost and how busy it is
+
+Measured at 0.103 mean absolute change per frame on a 0 to 255 scale, which is
+in line with MeshGradient at 0.091, and 1.1ms at 640 by 360.
+
+The change per frame is **exactly linear in `drift`**: 0.0514, 0.1028 and 0.2055
+for 0.4, 0.8 and 1.6 degrees. If it is too busy, that is the dial, and halving
+it halves the motion precisely.
+
+## 9. Cleanup and SSR
 
 `destroy()` releases the WebGL context, cancels the RAF, disconnects both
 observers and removes every listener. One live context at a time is the budget,
@@ -155,7 +201,7 @@ There is nothing to render on the server. The element is empty until the first
 frame. Call `createMoireScreens` from `useEffect`, `onMounted`, or a `client:*`
 island.
 
-## 6. Pausing and reduced motion
+## 10. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
@@ -166,7 +212,7 @@ of high-contrast, large-scale movement that triggers discomfort, and the still
 frame loses nothing: the fringes are the subject and they are all there in one
 frame.
 
-## 7. The three mistakes most likely to be made here
+## 11. The three mistakes most likely to be made here
 
 1. **Hard-edged screens.** They alias, the aliasing is its own moire against the
    display, and the effect ends up reporting on the monitor. The edge has to be

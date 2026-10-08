@@ -1015,7 +1015,28 @@ as the second argument to the create function; anything omitted takes its defaul
 | `tilt` | number | `0` | -20 to 20 deg | Degrees the moving words tip. Zero by default because a tilted word in the middle of a sentence reads as a mistake; it earns its place in a large display line and almost nowhere else. |
 | `blur` | number | `0` | 0 to 8 px | Blur on a word in motion. Zero is crisper and cheaper, and a filter costs a compositing layer whether or not it does anything, so a value of 0 is left off rather than written as blur(0px). |
 
-## 5. Accessibility. Do not skip this
+## 5. The loop is the interval times the words
+
+Four words at 2200ms is an 8.8 second cycle, and that is what a recording of it
+has to span for the loop to close. If you change either, change the record
+duration with them.
+
+`swap` is clamped to the interval, so one word can never still be leaving when
+the next arrives.
+
+## 6. Rise, and when to set it to zero
+
+The default lifts the arriving word into place and drops the leaving one out.
+That is right for a display line.
+
+Inside running text, set `rise: 0`. The words then cross-fade without moving,
+which is much quieter, and a word that jumps vertically in the middle of a
+paragraph pulls the eye off the sentence it is part of.
+
+`tilt` is zero for the same reason, and it earns its place in a large heading
+and almost nowhere else.
+
+## 7. Accessibility. Do not skip this
 
 Only the first word is left in the accessibility tree. The rest are
 `aria-hidden`, and the element is `aria-live="off"`.
@@ -1028,7 +1049,7 @@ couple of seconds.
 The sentence still reads correctly, because the first word is a real word in a
 real sentence rather than a placeholder.
 
-## 6. Cleanup and SSR
+## 8. Cleanup and SSR
 
 `destroy()` restores every property it set on the words and on the element, and
 removes the attributes it added. There is no GPU resource to release.
@@ -1038,7 +1059,7 @@ the first frame stacks them. If that matters, give the element
 `display: inline-grid` in your own CSS so the stacking is the initial state
 rather than something the script does.
 
-## 7. Pausing and reduced motion
+## 9. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn, the one at `reducedMotionTime`,
@@ -1046,7 +1067,7 @@ which is 0: the first word, in place, with nothing moving.
 
 Nothing is lost. The sentence was always complete with one word in it.
 
-## 8. The three mistakes most likely to be made here
+## 10. The three mistakes most likely to be made here
 
 1. **Letting the box resize.** The sentence after it moves on every swap. Fix
    the width, or stack the words in one grid cell as this does.

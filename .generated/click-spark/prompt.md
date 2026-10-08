@@ -151,7 +151,48 @@ as the second argument to the create function; anything omitted takes its defaul
 | `scatter` | number | `0.45` | 0 to 1 | How uneven the burst is. At 0 it is a perfect star, evenly spaced and all one length, which no two things striking each other have ever produced. |
 | `seed` | number | `7` | 0 to 9999 | Seed for the scatter. Every burst already differs from the last, because the burst's own number goes into the hash; this moves the whole series, so two of these on one page are not twins. |
 
-## 5. Cleanup and SSR
+## 5. Where to put it
+
+On the thing that was pressed, not on the page. A spark at the cursor anywhere
+on a document is a toy; a spark on the button somebody just committed to is
+feedback, and the difference is only where you mount it.
+
+`speed` and `gravity` are shares of the element's shorter side rather than
+pixels, so the same burst looks right on a small button and on a full-page
+panel. That is the reason to mount it on the element and not on `document.body`
+and position it by hand.
+
+## 6. Scripted presses
+
+Every effect in this library has to be recordable, which for a click means the
+clicks have to come from somewhere other than a mouse. `pressPath` is a list of
+times and points, and the effect treats each one exactly as it treats a real
+press at that moment:
+
+```ts
+createClickSpark(el, {
+  pressPath: [
+    { t: 0.45, x: 0.5, y: 0.5 },
+    { t: 1.5, x: 0.28, y: 0.34 }
+  ]
+})
+```
+
+Unlike `pointerPath`, this does not replace the live input. A scripted press and
+a real one are the same kind of event and they go in the same list, so the page
+is still alive while a script is running.
+
+## 7. Cost
+
+The elements are a pool built once and reused. A burst creates and destroys
+nothing: a click takes the oldest slot, so forty clicks in a row cost exactly
+what four do. That matters, because clicking it repeatedly is the first thing
+anybody does.
+
+`count × bursts` is the element count, 44 at the defaults. Raising `bursts` is
+the expensive change, not raising `count`.
+
+## 8. Cleanup and SSR
 
 `destroy()` removes the layer and the listener and puts the element's `position`
 back. There is no GPU resource to release.
@@ -160,7 +201,7 @@ Nothing renders on the server, and nothing needs to: the element's own content
 is untouched. Call `createClickSpark` from `useEffect`, `onMounted`, or a
 `client:*` island.
 
-## 6. Pausing and reduced motion
+## 9. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts, so no sparks are drawn at all, which is the right answer
@@ -168,7 +209,7 @@ here: this is decoration on an interaction that already has its own feedback.
 
 If the click has no other visible result, give it one that is not motion.
 
-## 7. The three mistakes most likely to be made here
+## 10. The three mistakes most likely to be made here
 
 1. **Dots instead of streaks.** The whole thing then reads as confetti. The
    length of a streak is its current speed, which also means it gets shorter on

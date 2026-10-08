@@ -175,7 +175,20 @@ as the second argument to the create function; anything omitted takes its defaul
 | `drift` | number | `0.2` | 0 to 1.5 | How far each sheet travels on its circuit. Separate from how fast it travels, and the one that matters behind a heading: slowing the period alone moves the same sheets across the same gap. At 0 the pile is still and you have a static collage, which is a perfectly good backdrop. |
 | `period` | number | `36` | 2 to 60 | Seconds for one loop of the drift. Every sheet travels a closed circle, so the pile returns to exactly where it started and the loop is seamless. Slow on purpose: sheets that settle over half a minute read as paper, and sheets that cross the frame in ten seconds read as an animation. |
 
-## 5. Cleanup and SSR
+## 5. Performance
+
+One draw call whatever the sheet count, and two triangles per sheet. The geometry
+is nothing.
+
+Fill rate is the cost instead. Every sheet is deliberately larger than the frame,
+so a stack of fourteen means the fragment shader runs over the whole viewport
+something like fourteen times. That is fine on a laptop and it is the number to
+come down on if a phone struggles. Halve `sheets` before you touch anything else.
+
+The instance matrices are rebuilt on the CPU every frame, which is fourteen
+`compose` calls into pre-allocated scratch vectors. It allocates nothing.
+
+## 6. Cleanup and SSR
 
 `destroy()` releases the WebGL context, disposes the geometry and material,
 cancels the RAF, disconnects both observers and removes every listener. Call it.
@@ -189,7 +202,7 @@ None of this runs on the server. `createTranslucentSheets` touches `document` an
 `client:*` island. Next.js App Router needs `'use client'` at the top of the
 component file.
 
-## 6. Pausing and reduced motion
+## 7. Pausing and reduced motion
 
 WCAG 2.2.2 is Level A: content that moves for more than five seconds must be
 pausable. `stop()` and `start()` are on the handle for that. Surface them as a
@@ -203,7 +216,7 @@ Any frame of this is a finished picture, so the default is as good as any other
 number. If you want a particular arrangement, scrub `renderAtTime` until you find
 one you like and set `reducedMotionTime` to it.
 
-## 7. The three mistakes most likely to be made here
+## 8. The three mistakes most likely to be made here
 
 1. **Raising `density` to make it more visible.** It compounds. One sheet at 0.3
    looks reasonable and fourteen of them produce a solid brown blot in the middle

@@ -162,7 +162,39 @@ as the second argument to the create function; anything omitted takes its defaul
 | `lead` | number | `0.18` | 0 to 1 | How far ahead of the clip the rules run, as a share of the duration. At 0 the rules arrive with the edge they bound and read as a border; a little ahead and they read as the lines pulling the tile open behind them. |
 | `follow` | boolean | `true` | `true` · `false` | Follow the opened tile's href once it has finished opening. Turn it off to use the gesture as a disclosure, where the tile opens over the grid and closes back. A tile with no href stays open whatever this says. |
 
-## 5. Accessibility. Do not skip this
+## 5. Links are the point
+
+A tile with an `href` opens and then follows it, which is the whole gesture: the
+page changes behind a tile that already fills the window, so there is no moment
+where the reader is looking at a modal wondering how to get out of it.
+
+The effect calls `preventDefault()` on the press and does the navigation itself
+when the opening finishes. That is the only reason it touches the event at all.
+
+A tile with no `href` stays open until it is dismissed, with Escape or another
+press, so it is never a dead end. Set `follow: false` to use the gesture as a
+disclosure even on tiles that do have one.
+
+## 6. It needs somewhere to open into
+
+The opened tile fills the window, so whatever is inside it has to be worth a
+window. Four tiles each holding a word will open into a mostly empty page, and
+that reads as a bug rather than as a design.
+
+Give the tiles content that belongs at full size, or accept that the gesture is
+a transition into a real page and let the destination carry it.
+
+## 7. Match the rules to your grid
+
+`ruleColour` and `rule` should be whatever your grid already draws between the
+cells, because the idea is that those are the lines moving. If your grid has no
+visible lines, set `rule: 0`: the tile then simply opens, which is the quieter
+version and the right one in that case.
+
+`bleed` runs the rules past the edge of the window. A rule that stops exactly at
+the edge looks like it was measured to fit.
+
+## 8. Accessibility. Do not skip this
 
 Every tile stays in the accessibility tree and in the tab order, and because
 they are links they work without the effect at all. That is the right fallback:
@@ -176,7 +208,7 @@ interactive content, give the tiles behind the open one `inert`: they are
 pointer-blocked while one is open but still reachable by keyboard, and that is
 yours to decide rather than something a visual effect should impose.
 
-## 6. Cleanup and SSR
+## 9. Cleanup and SSR
 
 `destroy()` restores every property it set on the tiles and their children,
 removes the rules layer from the body, and drops both listeners. There is no GPU
@@ -186,7 +218,7 @@ All the tiles render on the server, laid out by your own CSS, which means the
 grid is complete and navigable before the first frame. Nothing is hidden waiting
 for JavaScript, so a page with this on it degrades to a plain grid of links.
 
-## 7. Pausing and reduced motion
+## 10. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn, the one at `reducedMotionTime`,
@@ -196,7 +228,7 @@ Because the tiles are ordinary links, that is not a loss of function. A press
 goes straight to the page without the opening, which is exactly what someone who
 asked for less motion wants.
 
-## 8. The three mistakes most likely to be made here
+## 11. The three mistakes most likely to be made here
 
 1. **Growing the tile with a transform.** The type stretches and settles, and no
    amount of easing hides it. Put the tile at its final size and clip it.

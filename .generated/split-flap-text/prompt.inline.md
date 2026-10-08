@@ -1178,7 +1178,29 @@ as the second argument to the create function; anything omitted takes its defaul
 | `shade` | number | `0.55` | 0 to 1 | How much a falling leaf darkens as it turns away from the light. At 0 the two leaves are flat shapes sliding over each other and the cell reads as a wipe rather than as something hinged. |
 | `reducedMotionTime` | number | `999` | 0 to 9999 s | The single frame shown when the user prefers reduced motion. For a one-shot reveal this should be a time after the board has finished, so the text simply appears, set in its cells and still. |
 
-## 5. Accessibility. Do not skip this
+## 5. The strip is the timing
+
+`flap` is the time for one leaf, and it multiplies by how far along the strip a
+character sits. On the default strip a cell showing Z drops twenty six leaves to
+get there, which at 52ms is well over a second, while a B arrives almost at
+once.
+
+That is not a thing to fix. It is what a board does, and it is why they are
+worth watching. But it does mean the order of the strip is a timing decision:
+putting the digits after the letters, as the default does, is what makes a time
+take longer to land than a word.
+
+If you want everything to arrive at roughly the same moment, shorten the strip
+to the characters you actually need. A board for times only wants
+`' 0123456789:'`.
+
+## 6. Size
+
+Four layers of DOM per character, two of them transformed every frame. This is
+for a board, not a paragraph: keep it under about forty characters. For a
+headline reveal use ScrambleText, and for a decode use DecodeText.
+
+## 7. Accessibility. Do not skip this
 
 The cells are marked `aria-hidden` and a visually hidden copy of the original
 string sits alongside them. A screen reader reads the sentence rather than a
@@ -1187,7 +1209,7 @@ stream of leaves.
 Do not put an `aria-label` on the element as well. Two labels is worse than
 none.
 
-## 6. Cleanup and SSR
+## 8. Cleanup and SSR
 
 `destroy()` restores the original text, cancels the RAF, disconnects both
 observers and removes every listener. There is no GPU resource to release.
@@ -1196,7 +1218,7 @@ The text renders on the server as ordinary text and stays readable if the
 JavaScript never arrives. The cells are only built on the first frame. Call
 `createSplitFlapText` from `useEffect`, `onMounted`, or a `client:*` island.
 
-## 7. Pausing and reduced motion
+## 9. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
@@ -1206,7 +1228,7 @@ For a one-shot reveal that default is 999, which is any time after the board has
 finished, so the text appears set in its cells and still. Do not set it to 0:
 that is a board of blanks.
 
-## 8. The three mistakes most likely to be made here
+## 10. The three mistakes most likely to be made here
 
 1. **Transparent leaves.** A leaf is a tile and it hides what is behind it. The
    first version of this left the four layers transparent, and every cell at

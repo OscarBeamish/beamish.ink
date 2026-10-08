@@ -173,7 +173,24 @@ as the second argument to the create function; anything omitted takes its defaul
 | `seed` | number | `7` | 0 to 9999 | Seed for the rhythm and the strikes. The same seed always gives the same hand, so a recorded video and a live page match letter for letter. Change it to give two blocks of text on the same page two different typists. |
 | `reducedMotionTime` | number | `999` | 0 to 9999 s | The single frame shown when the user prefers reduced motion. For a one-shot reveal this should be a time after the typing has finished, so the text simply appears. The strikes are still there in that frame, which is the nice part: the page looks typed rather than set. |
 
-## 5. Accessibility. Do not skip this
+## 5. Pace is a function of length
+
+`pace` is the average gap between characters, so it multiplies by how long the
+string is. A sentence at 62ms is about four seconds. A paragraph at 62ms is a
+minute, and nobody waits a minute.
+
+Rough guide: **90ms** for a line somebody is meant to watch, **25ms** for copy
+somebody is meant to read. If a block is long enough that even 25ms is too slow,
+it is too long to type at all: type the heading and let the copy arrive with
+ScrollRevealRows or ScrambleText.
+
+## 6. Two of them on one page
+
+Give the second a `hold` long enough to let the first finish, and a different
+`seed` so they are two different typists rather than the same hand twice. The
+demo does both.
+
+## 7. Accessibility. Do not skip this
 
 The characters are marked `aria-hidden` and a visually hidden copy of the
 original string sits alongside them. A screen reader reads the sentence once,
@@ -183,7 +200,7 @@ region nobody asked for and it is genuinely unusable.
 Do not put an `aria-label` on the element as well. Two labels is worse than
 none.
 
-## 6. Cleanup and SSR
+## 8. Cleanup and SSR
 
 `destroy()` restores the original text, cancels the RAF, disconnects both
 observers and removes every listener. There is no GPU resource to release.
@@ -192,7 +209,7 @@ The text renders on the server as ordinary text and stays readable if the
 JavaScript never arrives. The characters are only split on the first frame. Call
 `createTypewriterText` from `useEffect`, `onMounted`, or a `client:*` island.
 
-## 7. Pausing and reduced motion
+## 9. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
@@ -202,7 +219,7 @@ For a one-shot reveal that default is 999, which is after the typing has
 finished. The strikes are still in that frame, which is the nice part: the page
 looks typed rather than set, with no motion at all.
 
-## 8. The three mistakes most likely to be made here
+## 10. The three mistakes most likely to be made here
 
 1. **An even rhythm.** `rhythm: 0` is a machine, and it is the single thing that
    gives away every version of this effect. A typist does not keep time.

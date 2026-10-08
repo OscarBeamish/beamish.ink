@@ -161,7 +161,30 @@ as the second argument to the create function; anything omitted takes its defaul
 | `shive` | number | `0.35` | 0 to 2 | Specks of fibre the beater did not break down. Papermakers call it shive, and it is the one thing here that is a mark rather than a surface. Sparse on purpose: a sheet with visible shive all over it is a sheet nobody bought. |
 | `period` | number | `36` | 12 to 180 s | Seconds for one swing of the light and back. Long, because this sits behind something else and a backdrop has to survive being ignored. |
 
-## 5. Cleanup and SSR
+## 5. Putting things on it
+
+This is a ground for other things to sit on, and it is a quiet one: the measured
+change per frame is 0.013 on a 0 to 255 scale, which is the lowest in the
+library. Text sits on it directly. There is no need for a scrim, and a scrim
+would defeat it, because the thing you would be covering is the only thing in
+the frame.
+
+Two settings matter when something is on top. Keep `light` low, so the sheet
+reads as a surface seen at an angle rather than a flat tone. And keep `relief`
+under about 1, past which the sheet stops being paper and starts being hammered
+metal.
+
+## 6. Card and other stock
+
+Set `paper` dark and you have card. The lighting does the same job: the tooth
+catches the light the same way, and a black sheet with a raking light across it
+is the most convincing dark ground in this library, because it is a real surface
+rather than a gradient.
+
+The item declares `ground: "paper"` because that is what it is for, but nothing
+in the shader assumes a light stock.
+
+## 7. Cleanup and SSR
 
 `destroy()` releases the WebGL context, cancels the RAF, disconnects both
 observers and removes every listener. One live context at a time is the budget,
@@ -170,7 +193,7 @@ so call it.
 There is nothing to render on the server. The element is empty until the first
 frame. Call `createPaperGrain` from `useEffect`, `onMounted`, or a `client:*` island.
 
-## 6. Pausing and reduced motion
+## 8. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
@@ -180,7 +203,7 @@ For this item that frame is a complete image: the paper does not move, only the
 light does, so the still frame is the effect with its one moving part stopped.
 That is the rare case where reduced motion costs the viewer nothing.
 
-## 7. The three mistakes most likely to be made here
+## 9. The three mistakes most likely to be made here
 
 1. **Putting the cloud in the height.** It contributes almost nothing, because a
    broad field has almost no slope, and it leaves the fine fibre dominating the

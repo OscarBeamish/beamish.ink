@@ -1022,7 +1022,35 @@ as the second argument to the create function; anything omitted takes its defaul
 | `seed` | number | `7` | 0 to 9999 | Seed for the unevenness. The same seed gives the same pull, so a recording and a live page match. |
 | `reducedMotionTime` | number | `999` | 0 to 9999 s | The single frame shown when the user prefers reduced motion. For a one-shot rise this should be a time after it has finished, so the letters are inked to the level set. Setting it to 0 instead gives the hollow outline, which is also a perfectly good still. |
 
-## 5. Accessibility. Do not skip this
+## 5. `paper` has to be the real page colour
+
+This is the one thing that will catch you out, and it is the same trap
+EmbossedText has. The hollow of a letter is painted the `paper` colour, because
+that is what covers the inner half of the stroke. Get it wrong and every counter
+is wrong, and the outline looks twice as thick as you asked for.
+
+If the background behind the text is an image or a gradient, this technique
+cannot work. Use a single-layer centred stroke and accept the tighter counters,
+or pick a different effect.
+
+## 6. The ink crosses the block, not each line
+
+The gradient belongs to the element, so on a two-line heading the ink rises
+through the lower line first and then into the upper one. That is a roller
+crossing a forme rather than each line filling itself, and it is the same logic
+as SplitFountainText: the ink is a property of where you are on the sheet.
+
+If you want each line inked separately, mount one of these per line.
+
+## 7. Where to stop
+
+`level: 1` ends on solid type, which is tidy and throws the outline away.
+
+`level: 0.6` leaves the letters half inked, which is the more interesting place
+to stop: it reads as a block that has been rolled once, and it keeps the
+outline, which is the thing you went to the trouble of building.
+
+## 8. Accessibility. Do not skip this
 
 The stroked copy is the one in the flow and the one a screen reader reaches. The
 filled copy on top is marked `aria-hidden`, which is the right way round for one
@@ -1032,7 +1060,7 @@ An empty outline has very little contrast against paper. If the heading matters,
 end with the ink at or near full, or make the outline dark enough to be read on
 its own.
 
-## 6. Cleanup and SSR
+## 9. Cleanup and SSR
 
 `destroy()` restores the original text, cancels the RAF, disconnects both
 observers and removes every listener. There is no GPU resource to release.
@@ -1041,7 +1069,7 @@ The text renders on the server as ordinary text and stays readable if the
 JavaScript never arrives. The two layers are only built on the first frame. Call
 `createStrokeText` from `useEffect`, `onMounted`, or a `client:*` island.
 
-## 7. Pausing and reduced motion
+## 10. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn, the one at `reducedMotionTime`,
@@ -1051,7 +1079,7 @@ moves.
 Set it to 0 instead and you get the hollow outline, which is also a perfectly
 good still if the outline has the contrast for it.
 
-## 8. The three mistakes most likely to be made here
+## 11. The three mistakes most likely to be made here
 
 1. **One layer with a centred stroke.** Half the stroke lands inside the letter
    and closes the counters. Two layers, the back one at double width, costs

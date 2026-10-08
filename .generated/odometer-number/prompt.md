@@ -154,13 +154,54 @@ as the second argument to the create function; anything omitted takes its defaul
 | `seed` | number | `7` | 0 to 9999 | Unused by the maths, and here so that two counters on a page can be told apart in a config. Nothing about an odometer is random: that is rather the point of one. |
 | `reducedMotionTime` | number | `999` | 0 to 9999 s | The single frame shown when the user prefers reduced motion. For a one-shot count this should be a time after it has finished, so the final figure is simply there. A counter is read, not watched. |
 
-## 5. Accessibility. Do not skip this
+## 5. Two mechanisms, and they look nothing alike
+
+`carry` chooses which machine you have built.
+
+**Narrow, around 0.12.** A geneva drive. The upper wheel is still until the
+lower one is nearly round, then snaps. Every figure sits squarely in its window
+and the number is readable at any moment.
+
+**1.** A straight gear train: every wheel turning all the time. This has a
+consequence worth knowing, and it is not a bug. Such a counter **never shows
+clean figures** except at exact multiples, because the higher wheels are always
+somewhere between two numbers. It is why a gas meter is read to the last settled
+digit rather than straight off the dial.
+
+Anything between is a gear train with slack in it. The demo shows both, because
+seeing them side by side is the fastest way to understand the setting.
+
+## 6. The leading noughts are the point
+
+`digits` sets how many wheels there are, padded with leading figures. Six is a
+car.
+
+They are not decoration. A counter with a fixed number of wheels is what makes
+it a counter rather than a number, and it also stops the layout changing width
+as the value grows, which a count from 0 to 128,640 otherwise does on every
+single frame.
+
+`group` is empty by default, because a mechanical counter has no separators: the
+wheels are all the same part and nothing sits between them. Set a comma if the
+figure is money rather than mileage, and it is drawn as furniture between the
+wheels rather than as a wheel.
+
+## 7. This or CountUpNumber
+
+CountUpNumber tweens a figure and sets it as text. It is the right choice for a
+statistic, it formats properly for a locale, and it is far cheaper.
+
+This one is a machine. Use it when the mechanism is part of what you are saying:
+a mileage, a meter, a total that has been ticking up since before the page
+loaded. If the number is just a number, use the other one.
+
+## 8. Accessibility. Do not skip this
 
 A screen reader is given the value as a number, once, in a hidden label. A
 column of digits read aloud is not a number, and a label that updates sixty
 times a second is a live region nobody asked for.
 
-## 6. Cleanup and SSR
+## 9. Cleanup and SSR
 
 `destroy()` puts the original content back, cancels the RAF, disconnects both
 observers and removes every listener. There is no GPU resource to release.
@@ -169,14 +210,14 @@ Put the final value in the element in your markup. It renders on the server,
 reads correctly if the JavaScript never arrives, and is replaced by the wheels
 on the first frame.
 
-## 7. Pausing and reduced motion
+## 10. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn, the one at `reducedMotionTime`,
 which is after the count has finished. The final figure is simply there. A
 counter is read, not watched.
 
-## 8. The three mistakes most likely to be made here
+## 11. The three mistakes most likely to be made here
 
 1. **No carry.** Every wheel turning at its own steady speed is a fruit machine.
    The carry is one line, and it is the entire difference.

@@ -1058,7 +1058,31 @@ as the second argument to the create function; anything omitted takes its defaul
 | `seed` | number | `7` | 0 to 9999 | Seed for the unevenness. The same seed always gives the same forme, so a recorded video and a live page match letter for letter. |
 | `reducedMotionTime` | number | `999` | 0 to 9999 s | The single frame shown when the user prefers reduced motion. For a one-shot press this should be a time after it has finished, so the text appears already pressed. That still frame is the whole effect with its one moving part stopped, which costs the viewer nothing here. |
 
-## 5. Accessibility. Do not skip this
+## 5. `paper` has to be the real page colour
+
+This is the one thing that will catch you out. With `transfer: 0` the letter
+face is painted the `paper` colour, because that is what a blind emboss is: the
+same sheet, pushed down. If `paper` does not match the page the text is actually
+on, the heading appears as a block of slightly wrong white, and it looks like a
+bug rather than like a setting.
+
+If the page behind the text is a gradient or an image, a blind emboss cannot
+work. Put some ink on the type instead, with `transfer` somewhere above about
+0.6, and the letter stops depending on the background.
+
+## 6. Size
+
+Depth and softness are in ems, so one impression looks the same at every size.
+What does change with size is whether the impression is visible at all: at body
+size a 0.045em wall is under a pixel, and the effect vanishes. This is for a
+heading, and the larger the better.
+
+It is also why the inked setting needs more depth than the blind one. Ink is
+high contrast and it hides the impression, which is true of the real thing too:
+look at a letterpress business card and the bite is easiest to see where there
+is no ink.
+
+## 7. Accessibility. Do not skip this
 
 The characters are marked `aria-hidden` and a visually hidden copy of the
 original string sits alongside them, so a screen reader reads the sentence.
@@ -1069,7 +1093,7 @@ accessible text nearby. That is not a flaw in the implementation, it is what the
 print technique is: a blind emboss is for texture, and a reader who needs
 contrast needs ink.
 
-## 6. Cleanup and SSR
+## 8. Cleanup and SSR
 
 `destroy()` restores the original text, cancels the RAF, disconnects both
 observers and removes every listener. There is no GPU resource to release.
@@ -1082,14 +1106,14 @@ flash of dark text.
 
 Call `createEmbossedText` from `useEffect`, `onMounted`, or a `client:*` island.
 
-## 7. Pausing and reduced motion
+## 9. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
 `reducedMotionTime`. For this item the still frame is the finished impression,
 which costs the viewer nothing.
 
-## 8. The three mistakes most likely to be made here
+## 10. The three mistakes most likely to be made here
 
 1. **The shadows the wrong way round.** The dark edge goes on the side the light
    comes from. The other way is embossing, which stands proud of the sheet, and

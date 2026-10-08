@@ -1187,7 +1187,110 @@ as the second argument to the create function; anything omitted takes its defaul
 | `inset` | number | `0.1` | 0 to 0.25 | How far the sheet sits in from every edge of the frame, as a share of the frame. The margin is what the bend happens in: at 0 the bent edge runs off the canvas and is chopped square, which reads as clipping rather than as paper. Measured in the frame rather than in the picture, so a photograph of any shape is inset by the same amount on all four sides. |
 | `reference` | number | `1.6` | 0.2 to 6 | The scroll velocity that counts as full speed, in screens per second. Above it the effect stops growing. Lower makes the sheet bow more readily; too low and an ordinary wheel click maxes it out. |
 
-## 5. Cleanup and SSR
+## 5. The picture is your markup
+
+It comes from the host element's first `<img>` child, not from an option.
+
+```html
+<figure id="plate" style="position: relative; height: 80vh; margin: 0">
+  <img src="/facade.jpg" alt="What the picture shows" />
+</figure>
+```
+
+```ts
+import { createScrollWarpImage } from './beamish/effects/scroll-warp-image/core'
+
+const warp = createScrollWarpImage(document.querySelector('#plate'))
+warp.start()
+```
+
+The effect hides it from sight once it has uploaded it and puts it back on
+`destroy()`. It stays in the document throughout, so the alt text and the loading
+behaviour are whatever you wrote, and a browser that never runs the script shows
+the picture. Style it so the no-JavaScript case looks deliberate: absolutely
+positioned with `object-fit: cover` is usually right, because that is what the
+shader does too.
+
+**React.**
+
+```tsx
+import { useEffect, useRef } from 'react'
+import { createScrollWarpImage } from '@/beamish/effects/scroll-warp-image/core'
+
+export function Plate({ src, alt }: { src: string; alt: string }) {
+  const host = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (!host.current) return
+    const warp = createScrollWarpImage(host.current)
+    warp.start()
+    return () => warp.destroy()
+  }, [])
+
+  return (
+    <figure ref={host} className="plate">
+      <img src={src} alt={alt} />
+    </figure>
+  )
+}
+```
+
+The image is read once, at setup. If `src` changes, destroy and remount.
+
+**Cross-origin images.** `texImage2D` refuses to upload an image from another
+origin unless it was fetched with CORS, and it throws rather than giving you a
+blank texture. Serve the picture from your own origin, or set
+`crossorigin="anonymous"` and make sure the host sends
+`Access-Control-Allow-Origin`.
+
+## 6. Tuning it
+
+`bend` is the arc and the first thing to reach for. `slip` is the secondary: the
+whole sheet sliding against the direction of travel, flat across its width,
+which you feel rather than see.
+
+Keep the two of them together under `inset * (1 - 2 * inset)`, which is about
+0.08 at the default margin. Past that a hard flick pushes the bent edge off the
+frame and the curve ends in a straight cut, which is the one thing the inset
+exists to prevent. Measured on the default plate: at rest the sheet sits 55px
+in on a 540px frame, an ordinary flick draws it 16px with the middle 7px ahead
+of the sides, and a flick hard enough to saturate `reference` draws it 27px with
+the middle 13px ahead, which still leaves 15px of margin in front of it.
+
+`inset` is that margin, as a share of the frame and the same on all four sides
+whatever shape the picture is. Worth knowing if you are porting the earlier
+version of this: the margin used to be made by widening the sampling window,
+which only produced one on the axis the cover fit was not already cropping. A
+3:2 photograph in a 16:9 frame came out with paper down the sides and the sheet
+running edge to edge top and bottom, which is the one axis this effect needs
+room on.
+
+`reference` is the velocity that counts as full speed. Lower makes the sheet
+pull more readily; too low and an ordinary wheel click maxes it out, which loses
+you the difference between a nudge and a flick.
+
+If you cannot see it at all, the reason is almost always that the host is too
+short, so there is no room to build any speed. Give it height before you touch
+`bend`.
+
+## 7. Recording and determinism
+
+`renderAtTime(t)` cannot be pure in `t` for anything driven by a real scrollbar.
+Pass `scrollPath` and the runtime ignores the real scroll position and samples the
+path instead, exactly as `pointerPath` does for the pointer effects.
+
+```ts
+createScrollWarpImage(el, {
+  scrollPath: [
+    { t: 0, progress: 0 },
+    { t: 4, progress: 0.5 },
+    { t: 8, progress: 1 }
+  ],
+  scrollPathDuration: 8
+})
+```
+
+## 8. Cleanup and SSR
 
 `destroy()` releases the WebGL context, deletes the texture, restores the
 original image, cancels the RAF, disconnects both observers and removes every
@@ -1200,7 +1303,7 @@ runs out first.
 None of this runs on the server. Put the call inside `useEffect`, `onMounted`, or
 a `client:*` island. Next.js App Router needs `'use client'`.
 
-## 6. Pausing and reduced motion
+## 9. Pausing and reduced motion
 
 There is nothing to pause. Nothing moves unless the reader moves it, which puts
 this outside WCAG 2.2.2 rather than exempting it from it. `stop()` and `start()`
@@ -1213,7 +1316,7 @@ This effect needs no special case. Velocity is zero when nothing is scrolling, s
 the frame that gets drawn is the undistorted photograph, which is exactly what
 somebody who has asked for less motion wants to see.
 
-## 7. The three mistakes most likely to be made here
+## 10. The three mistakes most likely to be made here
 
 1. **Leaving `paper` on the default when the page is not.** The drag pulls the
    sheet away from the frame and `paper` is what shows in the gap. If it does not

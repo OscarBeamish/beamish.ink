@@ -131,6 +131,30 @@ rate. `backdrop-filter` is not free: it forces the backdrop into its own layer.
 `refraction` past about 30 stops looking like glass and starts looking like a
 heat haze.
 
+## Putting it on a dark page
+
+The pane is warm white, because the house ground is paper. Left at that over a
+near black page it is not glass, it is a pale bar: the illusion rests on the
+panel reading as the same material as the air in front of the page, and a tint
+the page uses nowhere else is what gives it away.
+
+Set `--crossbar-pane` to the page's own ground, as an unwrapped rgb triple so
+the component can still compute the alpha from the settle, and give it type to
+match:
+
+```css
+.my-dark-page .beamish-glass-nav {
+  --crossbar-pane: 11, 13, 16;
+  --crossbar-ink: #e8ebf0;
+  --crossbar-quiet: rgba(232, 235, 240, 0.72);
+}
+```
+
+The specular along the top edge stays white on both grounds. That one is not a
+tint, it is a highlight: glass catches light from the room whatever colour the
+wall behind it is, and taking it out is what makes a dark panel read as a hole
+cut in the page.
+
 ## Performance
 
 Scroll is read on a rAF rather than on the event, and the settle value is

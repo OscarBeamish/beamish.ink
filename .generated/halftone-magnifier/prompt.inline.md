@@ -1282,7 +1282,130 @@ as the second argument to the create function; anything omitted takes its defaul
 | `rim` | number | `0.8` | 0 to 1 | How strongly the barrel reads: the ring and the short fall into shade just inside it. This is what makes the glass an object sitting on the page rather than a filter applied to part of it. |
 | `grain` | number | `0.3` | 0 to 1 | Paper tooth over the whole thing, inside the glass and out. |
 
-## 5. Cleanup and SSR
+## 5. Where it goes
+
+On a photograph somebody is going to look at: a press shot, a portfolio plate,
+an archive image, anything where the picture is the point rather than the
+decoration. It rewards attention and costs nothing from anyone who gives it
+none, because with no cursor on it there is no glass and what you have is a
+photograph.
+
+Not on a background image behind text. The glass magnifies, and magnifying the
+area under a paragraph moves the paragraph's background around while somebody is
+reading it.
+
+One per page, or near enough. It is a WebGL context each.
+
+## 6. The picture is your markup
+
+The picture comes from the host element's own `<img>` child, not from an option.
+
+```html
+<figure id="plate" style="position: relative; aspect-ratio: 3 / 2">
+  <img src="/press.jpg" alt="What the picture shows" />
+</figure>
+```
+
+```ts
+import { createHalftoneMagnifier } from './beamish/effects/halftone-magnifier/core'
+
+const halftone-magnifier = createHalftoneMagnifier(document.querySelector('#plate'))
+halftone-magnifier.start()
+```
+
+The image is hidden from sight once it has been uploaded and left in the
+document, so the alt text is whatever you wrote, the loading attribute is
+whatever you set, and a browser that never runs the script shows the photograph
+rather than an empty box.
+
+Give the element a size of its own. The canvas is `width: 100%; height: 100%`,
+so a `<figure>` with no aspect ratio and no height is zero pixels tall.
+
+**React.** The picture goes in as children.
+
+```tsx
+import { useEffect, useRef } from 'react'
+import { createHalftoneMagnifier } from '@/beamish/effects/halftone-magnifier/core'
+
+export function Plate() {
+  const host = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!host.current) return
+    const halftone-magnifier = createHalftoneMagnifier(host.current)
+    halftone-magnifier.start()
+    return () => halftone-magnifier.destroy()
+  }, [])
+
+  return (
+    <figure ref={host} className="plate">
+      <img src="/press.jpg" alt="What the picture shows" />
+    </figure>
+  )
+}
+```
+
+Do not put option values in the dependency array. Call `update()` instead: every
+option is a uniform, so nothing rebuilds.
+
+**Vue.**
+
+```vue
+<script setup lang="ts">
+import { onMounted, onBeforeUnmount, ref } from 'vue'
+import { createHalftoneMagnifier } from '@/beamish/effects/halftone-magnifier/core'
+import type { EffectHandle } from '@/beamish/shared/runtime'
+
+const host = ref<HTMLElement | null>(null)
+let halftone-magnifier: EffectHandle | null = null
+
+onMounted(() => {
+  if (!host.value) return
+  halftone-magnifier = createHalftoneMagnifier(host.value)
+  halftone-magnifier.start()
+})
+
+onBeforeUnmount(() => halftone-magnifier?.destroy())
+</script>
+
+<template>
+  <figure ref="host" class="plate">
+    <img src="/press.jpg" alt="What the picture shows" />
+  </figure>
+</template>
+```
+
+**Astro.** Nothing extra is required. The core is a standard ES module with no
+framework in it.
+
+## 7. Tuning it
+
+`screen` and `zoom` work against each other and it is worth knowing which way.
+`screen` is the press: how coarse the print is. `zoom` is the glass: how much
+closer you are holding it. A fine screen under a strong glass is a magazine
+plate; a coarse screen under a weak one is newsprint at arm's length.
+
+Below about 2, `screen` produces a rosette finer than the glass can resolve, so
+you get tone under the glass as well as outside it. That is the one setting that
+defeats the whole idea.
+
+`bulge` is what stops the edge reading as a hole cut in the picture. A real lens
+magnifies most in the middle and eases off, and at 0 this does not, so the
+magnified patch sits there with a hard boundary and reads as a filter applied to
+a circle.
+
+`rim` does the same job from the other side. The ring and the short fall into
+shade just inside it are what make the glass an object resting on the page.
+
+A little `fringe` sells it and a lot ruins it. Every simple lens shows lateral
+colour at its edge; past about 0.03 it stops reading as glass and starts reading
+as a broken monitor.
+
+For a duotone press, set `cyan`, `magenta` and `yellow` all to the same ink and
+leave `black`. Two plates at 15 and 45 degrees is a perfectly ordinary way to
+print a photograph and it suits a restrained page better than full colour does.
+
+## 8. Cleanup and SSR
 
 `destroy()` releases the WebGL context, deletes the texture, cancels the RAF,
 disconnects both observers, removes every listener and puts the `<img>` back the
@@ -1295,7 +1418,7 @@ runs out first.
 None of this runs on the server. Put the call inside `useEffect`, `onMounted`,
 or a `client:*` island. Next.js App Router needs `'use client'`.
 
-## 6. Pausing and reduced motion
+## 9. Pausing and reduced motion
 
 Nothing moves unless the cursor does, which puts this outside WCAG 2.2.2 rather
 than exempting it from it. `stop()` and `start()` are still on the handle.
@@ -1305,7 +1428,7 @@ is drawn, which means the glass never appears and what you have is the
 photograph. That is the right resting state rather than a compromise: the
 picture is the content and the glass was always an extra.
 
-## 7. The three mistakes most likely to be made here
+## 10. The three mistakes most likely to be made here
 
 1. **A cross-origin image.** `texImage2D` throws a SecurityError on an image
    from another origin without CORS headers, and the catch is that it throws at

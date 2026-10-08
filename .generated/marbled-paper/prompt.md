@@ -158,7 +158,64 @@ as the second argument to the create function; anything omitted takes its defaul
 | `grain` | number | `0.5` | 0 to 1 | Paper tooth over the whole thing. |
 | `period` | number | `48` | 2 to 120 | Seconds for one pass of the comb. Both combs run whole multiples of the same angle, so the pattern returns to exactly where it started and the loop is seamless. Slow on purpose: a comb you can watch crossing the tray is the loudest thing on the page. |
 
-## 5. Cleanup and SSR
+## 5. Getting the pattern you want
+
+Three settings decide what kind of marble this is, and they are the three a
+marbler would actually choose between.
+
+**Stone.** Set `rake` and `swirl` to zero. The drops stay as plain concentric
+rings, which is where every marbled sheet starts and a perfectly good place to
+stop. Raise `drops` for a denser stone.
+
+**Nonpareil.** Leave `rake` at its default and set `swirl` to zero. One comb,
+drawn in one direction, which gives the tight repeating zigzag the name belongs
+to. Raise `comb` for a finer one.
+
+**Gel-git.** Both combs, which is the default: one pass across and one down. The
+hooked lobes come from the second pass catching the first.
+
+`size` and `drops` are not independent. The ink conserves area, so the patch it
+finally covers is the sum of the drop areas. Halving `size` and quadrupling
+`drops` gives the same coverage at four times the detail, which is almost always
+what you actually wanted when you reached for one of them.
+
+## 6. Why it costs what it does
+
+Four samples per pixel, averaged, on a grid rotated off the axes.
+
+Whether a point sits inside a drop is a yes or no question, so one sample per
+pixel can only ever produce two answers and every boundary in the pattern comes
+back as a staircase. It is worse here than for a plain circle: the edge you see
+is a drop dragged through two combs and through every drop laid after it, so it
+arrives at the screen at an arbitrary angle and stretched to an arbitrary
+length. There is no analytic width to smoothstep against either, because the
+obvious `fwidth()` of the distance would be a derivative taken inside a loop
+that breaks per pixel, and that is undefined in non-uniform control flow.
+
+So the edge is measured rather than estimated, and the cost is roughly four
+times what one sample would be: 2.25ms at the default sixty drops, at 1440 by
+900 on an RTX 3080. If you are running this behind content on a page that is
+already busy, `scale` and `drops` are the two levers worth pulling before
+anything else.
+
+## 7. Behind content
+
+Bring the inks most of the way to the paper. The default palette is a cover, not
+a background, and dark type over it is unreadable wherever a drop happens to
+land.
+
+```ts
+createMarbledPaper(host, {
+  ink: '#e8e4d8',
+  accent: '#efddd0',
+  period: 90
+})
+```
+
+Do not reach for opacity. It greys the paper along with the ink and loses the
+thing that makes the pattern look floated rather than printed.
+
+## 8. Cleanup and SSR
 
 `destroy()` releases the WebGL context, cancels the RAF, disconnects both
 observers and removes every listener. Call it.
@@ -172,7 +229,7 @@ None of this runs on the server. `createMarbledPaper` touches `document` and
 `client:*` island. Next.js App Router needs `'use client'` at the top of the
 component file.
 
-## 6. Pausing and reduced motion
+## 9. Pausing and reduced motion
 
 WCAG 2.2.2 is Level A: content that moves for more than five seconds must be
 pausable. `stop()` and `start()` are on the handle for that. Surface them as a
@@ -186,7 +243,7 @@ This effect needs no care here. Any frame of it is a finished sheet of marbled
 paper, which is a complete thing to look at, so the default is as good as any
 other number.
 
-## 7. The three mistakes most likely to be made here
+## 10. The three mistakes most likely to be made here
 
 1. **Raising `size` to cover more of the frame.** It works, and it also makes
    every shape bigger, so you end up with four enormous blobs. Coverage is the

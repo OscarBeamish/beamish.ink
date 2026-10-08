@@ -271,6 +271,20 @@ export async function loadGrids(): Promise<GridItem[]> {
  */
 const GRID_SKIP = new Set(['What it is'])
 
+/*
+ * The sections an item prompt lays out itself, by name and in its own order,
+ * so they are not carried a second time by the sweep that takes the rest.
+ */
+const ITEM_SKIP = new Set([
+  'What it is',
+  'Wiring',
+  'Accessibility',
+  'Cleanup and SSR',
+  'Pausing',
+  'Reduced motion',
+  'Common mistakes'
+])
+
 function gridPrompt(item: GridItem, pin: string, inline: boolean, css: string): string {
   const { meta } = item
   const parts: string[] = []
@@ -495,6 +509,21 @@ ${optionTable(meta)}`)
   const numbered = (title: string, body: string) => {
     parts.push(`## ${next}. ${title}\n\n${body}`)
     next += 1
+  }
+
+  /*
+   * Everything else the recipe says, in the order it says it, before the
+   * sections below that close every prompt the same way.
+   *
+   * This was a fixed list of headings, and anything an author wrote outside
+   * it was dropped without a word: 155 sections and eighteen thousand words,
+   * including every "Tuning it" in the library, written and never shipped.
+   * The prompt is the distribution, so a section that does not reach it does
+   * not exist. Grids already learned this and skip by exception instead.
+   */
+  for (const [heading, body] of item.sections) {
+    if (ITEM_SKIP.has(heading) || !body.trim()) continue
+    numbered(heading, body.trim())
   }
 
   const a11y = section(item, 'Accessibility')

@@ -1118,7 +1118,58 @@ as the second argument to the create function; anything omitted takes its defaul
 | `parallax` | number | `0.35` | 0 to 2 | How far the camera drifts against the cursor. Zero holds it still. |
 | `polish` | number | `0.42` | 0 to 1 | How polished the shell is. Low is stone, high is lacquer. |
 
-## 5. Pausing and reduced motion
+## 5. The forms are generated, not loaded
+
+There is no model file. The cast is a lathe profile and two primitives per
+bust, which is a few hundred numbers.
+
+That is deliberate. A prompt in this library hands over source you can read,
+and a decimated head scan is several megabytes of binary that cannot be
+reviewed, diffed or tuned. Generated, every part of the shape is a number in
+the file: change the jaw line without opening a 3D tool.
+
+It also means the thing cannot rot. There is no asset to go missing, no
+licence to track and nothing to re-export when a format moves on.
+
+## 6. It is for a dark ground
+
+`ground: dark` is a statement about the design, not a warning. The rim light
+has nothing to separate the forms from on paper, the specular on the visor has
+nothing to be brighter than, and the whole thing goes flat.
+
+If you need it on a light page, give the section its own dark band. That is
+what the band and grid split exists for.
+
+## 7. Tuning it
+
+The two that matter are `lamp` and `reach`.
+
+`lamp` is brightness, and the light falls off with the square of distance, so
+doubling it does far less than you expect. `reach` is how far in front of the
+busts the lamp sits: small values put it almost among them, which is dramatic
+and leaves most of the scene black; large values flatten it towards a studio
+light.
+
+`sweep` is how far the lamp travels for a full crossing of the element. Larger
+than the scene is good: the lamp should be able to leave.
+
+`polish` runs the shell from stone to lacquer. The visor is always polished,
+because that is what makes it read as glass rather than as a hole.
+
+## 8. One context
+
+The scene holds one WebGL context, which is the whole budget. If you want this
+and a backdrop elsewhere on the same page, use the stage from `shared/` to
+hand the context between them rather than mounting both.
+
+## 9. Cleanup
+
+`destroy()` disposes every geometry, every material, both lights and the
+renderer, and releases the context. The context-leak test mounts and destroys
+it fifty times and then asks the browser for a fresh context, which is the
+only way to be sure.
+
+## 10. Pausing and reduced motion
 
 Handled in the runtime. Under reduced motion the loop never starts and one
 frame is drawn, with the cursor wherever it last was or at the centre.
@@ -1126,7 +1177,7 @@ frame is drawn, with the cursor wherever it last was or at the centre.
 Nothing is lost that matters: a still of three lit busts is the composition.
 What goes is the turning, which is the part that moves.
 
-## 6. The three mistakes most likely to be made here
+## 11. The three mistakes most likely to be made here
 
 1. **Lighting in screen space.** The shading never changes, so the forms never
    turn and the scene is a photograph with a torch on it.

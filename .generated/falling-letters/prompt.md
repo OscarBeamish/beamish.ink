@@ -149,7 +149,34 @@ as the second argument to the create function; anything omitted takes its defaul
 | `floor` | number | `3.2` | 0.5 to 20 | How far below the baseline the letters come to rest, in line heights. Make sure there is room: the element keeps its original height, so anything past the bottom of its container needs the container to allow overflow. |
 | `seed` | number | `7` | 0 to 9999 | Seed for the scatter and the spin directions. The same seed gives the same fall, so a recording and a live page agree letter for letter. |
 
-## 5. Accessibility. Do not skip this
+## 5. Give it somewhere to fall
+
+The element keeps its original height while the letters drop below it, which is
+what stops the rest of the page moving. It also means the letters leave the
+element's box.
+
+So whatever contains it needs to allow that: no `overflow: hidden` on an
+ancestor unless you want the letters clipped, and enough room below for `floor`
+line heights of fall. If the letters vanish partway down, something above them
+is clipping.
+
+## 6. Units are line heights
+
+`gravity`, `drift` and `floor` are all in line heights rather than pixels, so
+the same numbers behave the same at 16px and at 96px. A value tuned on a
+heading will not need retuning for a caption.
+
+## 7. The order is the thing to tune
+
+`stagger` sets how fast the line comes apart and `scatter` sets how ordered it
+is.
+
+At `scatter: 0` the letters drop strictly left to right, which reads as
+mechanical. At 1 the order is unrelated to position, which reads as random
+noise. The default sits between, which is what something actually coming apart
+looks like: roughly left to right, but not reliably.
+
+## 8. Accessibility. Do not skip this
 
 The original text is put on the element as an `aria-label`, and every letter
 span is `aria-hidden`. Without both, a screen reader meets a word split into
@@ -157,7 +184,7 @@ single characters and reads it one letter at a time.
 
 Nothing is lost: the label is the exact text that was there before.
 
-## 6. Cleanup and SSR
+## 9. Cleanup and SSR
 
 `destroy()` restores the original text, including its spaces, and removes the
 height and the label.
@@ -166,7 +193,7 @@ The text renders on the server as ordinary text, which means it is complete and
 readable before the script runs. There is nothing to hide and no flash of
 anything.
 
-## 7. Pausing and reduced motion
+## 10. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn, the one at `reducedMotionTime`,
@@ -175,7 +202,7 @@ which is 0: the line intact, before anything has gone.
 That is the right still for this one. The text is the content, and the fall is
 the decoration.
 
-## 8. The three mistakes most likely to be made here
+## 11. The three mistakes most likely to be made here
 
 1. **Using a physics step.** It cannot be seeked, cannot be recorded cleanly,
    and drifts between runs. The closed form is less code and does more.

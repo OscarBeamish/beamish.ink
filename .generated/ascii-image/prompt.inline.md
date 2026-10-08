@@ -1321,7 +1321,49 @@ as the second argument to the create function; anything omitted takes its defaul
 | `hold` | number | `200` | 0 to 5000 ms | Milliseconds of blank paper before it starts. |
 | `reducedMotionTime` | number | `999` | 0 to 9999 s | The single frame shown when the user prefers reduced motion. For a one-shot arrival this should be a time after it has finished, so the whole picture is simply there. The picture is the point; the typing is how it gets in. |
 
-## 5. Accessibility. Do not skip this
+## 5. Setting the threshold
+
+`threshold` is the number that decides whether this is the effect or an ordinary
+ASCII renderer, and it was set by looking at the result.
+
+At **0.17**, almost every cell claims an edge. The picture becomes a weave of
+dashes with no tone in it at all.
+
+At **1.2**, only the hardest boundary in the frame still gets one. The contours
+go back to mush and you have the brightness version with extra steps.
+
+At **0.7**, the horizon, the cliff line and the edge of the fog all keep their
+character while the grass and the sea stay as tone. That is the default.
+
+The scale is whatever a Sobel over luminance produces, which tops out near 5.6
+for a black-to-white step, so these are small numbers by design. If you change
+`cell`, check it again: a larger cell averages more of the picture and the
+strengths come down with it.
+
+## 6. Choosing a picture
+
+Pick one with long readable edges in it. A coastline, a building, a face in
+profile. This effect is about contours, and a photograph of texture alone, a
+field of gravel or a close-up of fur, has no contours to find: every cell falls
+back to the ramp and you have proved nothing.
+
+`shapes: false` turns the shape-aware half off and leaves a plain brightness
+ramp. It is there so you can see the difference once, on your own photograph,
+rather than take the claim on trust.
+
+## 7. The type
+
+The glyphs are drawn into a texture atlas in the element's own monospace face,
+so the picture is set in the type the page is set in. They are rasterised at
+64px and minified on the way down, because a glyph rendered straight into a 9px
+cell is four pixels of aliasing.
+
+`glyphs` is the **tone ramp only**, lightest first. The four directional
+characters are not an option, because they are not a palette: each one is there
+because it lies along one of four angles, and a different character in the same
+slot is a character pointing the wrong way.
+
+## 8. Accessibility. Do not skip this
 
 The alt text on the `<img>` is the accessible version of the picture and it is
 left exactly as written. Write it as you would for the photograph, because that
@@ -1331,7 +1373,7 @@ A picture made of characters is not text, and no screen reader should be asked
 to read it as text. There is nothing in the canvas for assistive technology, by
 design.
 
-## 6. Cleanup and SSR
+## 9. Cleanup and SSR
 
 `destroy()` releases the WebGL context and both textures, cancels the RAF,
 disconnects both observers, removes every listener, and puts the image's
@@ -1340,14 +1382,14 @@ visibility back. One live context at a time is the budget, so call it.
 The photograph renders on the server as an ordinary `<img>`, which is the whole
 fallback: if the script never runs, the page shows the picture.
 
-## 7. Pausing and reduced motion
+## 10. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn, the one at `reducedMotionTime`,
 which is after the arrival has finished. The picture is simply there. The
 picture is the point; the typing is only how it gets in.
 
-## 8. The three mistakes most likely to be made here
+## 11. The three mistakes most likely to be made here
 
 1. **Using the gradient angle directly.** It points across the edge. The glyph
    has to lie along it, which is a quarter turn away, and the version without

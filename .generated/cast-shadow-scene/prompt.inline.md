@@ -1102,7 +1102,23 @@ as the second argument to the create function; anything omitted takes its defaul
 | `period` | number | `40` | 2 to 120 s (looks right between 5 and 30) | Seconds for one full circuit of the sun. Slow on purpose: this is meant to sit behind a heading, and the thing that pulls a reader off a headline is movement in the corner of their eye, so the shadows should creep rather than sweep. Below about 15 it reads as a time-lapse. |
 | `reducedMotionTime` | number | `1.1` | 0 to 120 s | The single frame shown when the user prefers reduced motion. Pick a sun angle that composes. For those users the still is the whole effect. |
 
-## 5. Cleanup and SSR
+## 5. Where it goes
+
+A hero, or the top of a section, with the shapes cropped by the frame.
+
+The default camera is close enough that the forms run off the edges, which is
+what makes it read as a room the page is in rather than as a product shot. A
+still life sitting whole in the middle of a panel is a picture of some objects.
+The same objects cut by the frame are a set.
+
+The long shadows are the useful part. They sweep as the sun moves, so a heading
+placed on the lit side stays readable while the frame keeps changing, and
+nothing crosses the type.
+
+Drop `shadow` to around 0.15 and raise `elevation` if you are putting body copy
+over it. A low sun is better looking and much harder to read against.
+
+## 6. Cleanup and SSR
 
 Call `destroy()`. It disposes every geometry, material and shadow map, disposes
 the three.js renderer, then releases the WebGL context itself.
@@ -1119,7 +1135,7 @@ component file.
 The runtime pauses the loop when the element scrolls offscreen and when the tab
 is hidden, so the shadow map is not being redrawn behind a modal.
 
-## 6. Pausing and reduced motion
+## 7. Pausing and reduced motion
 
 WCAG 2.2.2 is Level A and it applies here. Content that moves for more than five
 seconds must be pausable. `stop()` and `start()` are on the handle for that.
@@ -1137,7 +1153,7 @@ This effect degrades better than most. One frame of it is a photograph, which is
 a perfectly good thing for a hero to be. Choose a sun angle where the shadows
 rake across the composition rather than hiding behind the forms.
 
-## 7. The three mistakes most likely to be made here
+## 8. The three mistakes most likely to be made here
 
 1. **Not installing three.js, or installing a version older than 0.160.** This
    file imports `three` and does not bundle it. `ShadowMaterial`, `SRGBColorSpace`

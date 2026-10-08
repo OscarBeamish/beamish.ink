@@ -73,7 +73,93 @@ as the second argument to the create function; anything omitted takes its defaul
 | `reference` | number | `1.2` | 0.2 to 6 | The scroll speed that counts as full, in screens per second. 1.2 is about a brisk flick, so an ordinary scroll leans the strip a few degrees and a hard one leans it fully. Too low and a single wheel click pins it at maximum, which loses the difference between a nudge and a flick. |
 | `gap` | number | `48` | 0 to 240 px | Space between the end of one copy of the content and the start of the next. It is applied inside the copy, so it is part of the width the wrap is measured against: a gap added between the copies instead would make the loop a fraction longer than the thing it is wrapping, and the strip would stutter once per cycle. |
 
-## 5. Cleanup and SSR
+## 5. It is pure in `t`, and that takes care
+
+A marquee written the obvious way adds a few pixels to an offset every frame.
+That is the one thing an effect in this library may not do: it cannot be
+recorded, it cannot be seeked, and it drifts whenever a frame is dropped, so two
+tabs showing the same strip slowly disagree.
+
+```ts
+const travelled = (t / period) * direction + scroll.progress * drag
+const offset = -(((travelled % 1) + 1) % 1) * width
+```
+
+Position from the clock and the scroll position and nothing else. Ask for the
+frame at any time and you get the same frame.
+
+## 6. Using it
+
+```html
+<div id="strip" class="marquee">
+  <span>Available for work</span>
+  <span>Available for work</span>
+  <span>Available for work</span>
+</div>
+```
+
+```ts
+import { createScrollMarquee } from './beamish/effects/scroll-marquee/core'
+
+const marquee = createScrollMarquee(document.querySelector('#strip'))
+marquee.start()
+```
+
+Whatever is inside the element becomes the strip, so put it on a wrapper around
+the row rather than on the section the row is in.
+
+Give the items `flex: 0 0 auto` and `white-space: nowrap`, or a long phrase will
+wrap inside its own box and the measured width will be wrong.
+
+**React** takes the strip as children:
+
+```tsx
+<ScrollMarquee period={24} skew={7}>
+  <span>Available for work</span>
+  <span>Available for work</span>
+</ScrollMarquee>
+```
+
+**Vue** is the same with the default slot. **Astro** consumes either as an
+island, or calls the core from a plain `<script>`.
+
+## 7. What it does to your markup
+
+On mount the children are **moved** into a track and the track is cloned once.
+On `destroy()` the originals are put back exactly where they were found.
+
+The clone is `aria-hidden` and every focusable inside it is given `tabindex=-1`.
+A duplicate of the content is a duplicate to a screen reader too, and hearing
+the same six links twice is worse than not seeing the loop at all.
+
+That is also the reason not to put anything in here that matters on its own. A
+marquee is for a phrase, a set of client names, a row of logos. It is not for
+navigation.
+
+## 8. Tuning it
+
+`period` is a pace rather than a speed: it is the time to travel one copy of the
+content, so longer content at the same period runs faster. That is usually what
+you want, since it keeps a short strip and a long one feeling alike.
+
+`skew` is the character. Past about 15 degrees it reads as a glitch rather than
+as momentum.
+
+`drag` is how much the page pushes it, in copies per full scroll. At 0 it runs
+at a constant pace and ignores the page entirely, which is a perfectly good
+ticker and a different effect.
+
+`gap` is applied inside the copy rather than between the copies. That is
+deliberate: a gap between them would make the loop a fraction longer than the
+thing it is wrapping, and the strip would stutter once a cycle.
+
+## 9. Performance
+
+One transform write per frame on one element. `transform` is a composited
+property, so there is no layout and no paint, and the content width is measured
+on mount and on resize rather than per frame.
+
+## 10. Cleanup and SSR
 
 `destroy()` puts your markup back, removes the track, cancels the RAF and
 disconnects the observers. Call it.
@@ -82,7 +168,7 @@ Nothing runs on the server. Put the call inside `useEffect`, `onMounted`, or a
 `client:*` island. Next.js App Router needs `'use client'`, which is already on
 the React adapter.
 
-## 6. Pausing and reduced motion
+## 11. Pausing and reduced motion
 
 The handle has `stop()` and `start()`. WCAG 2.2.2 is Level A and it names moving
 text specifically, so if this is on a page it needs a visible control, which the
@@ -94,7 +180,7 @@ starts and one frame is drawn, which leaves the strip still and readable.
 Worth saying plainly: a marquee is exactly the kind of thing that setting exists
 for. Nothing here fights it.
 
-## 7. The three mistakes most likely to be made here
+## 12. The three mistakes most likely to be made here
 
 1. **Items that can wrap.** Without `white-space: nowrap` and `flex: 0 0 auto` a
    phrase breaks inside its own box, the measured width is wrong, and the strip

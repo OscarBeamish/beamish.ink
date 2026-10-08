@@ -155,7 +155,50 @@ as the second argument to the create function; anything omitted takes its defaul
 | `grain` | number | `0.35` | 0 to 1 | Paper tooth over the whole thing. |
 | `period` | number | `40` | 4 to 180 | Seconds for one slow tilt against the light. Nothing moves on the sheet; the sheet moves. A closed orbit, so it returns to exactly where it began, and slow enough that nobody catches it at it. |
 
-## 5. Cleanup and SSR
+## 5. Where it goes
+
+Under everything, at the full width of the page.
+
+A watermark is not a pattern you look at. It is the sheet the page is printed
+on, which means it belongs behind the whole document rather than inside a panel,
+and the test of it is that somebody scrolling past never consciously notices it
+and would notice at once if it were gone.
+
+So it wants to be larger than it looks like it should be. The laid lines read as
+texture at full page width and as stripes in a 600px box. Give it the viewport.
+
+The countermark is the one part that is meant to be found rather than felt. Put
+it where a watermark would actually sit: off to one side, around a third of the
+way down, well away from anything anyone has to read. `device` at zero turns it
+off entirely and leaves you the sheet, which is a perfectly good way to use
+this.
+
+## 6. Getting the paper you want
+
+`paper` wants to be a shade or two deeper than the page it sits on, because
+everything here brightens and a sheet already at the page colour has nowhere to
+go. That is the one setting people get wrong first.
+
+`chainPitch` is the quickest way to stop it looking like paper. On a real mould
+the chain wires sit about an inch apart, so a handful across the sheet is right.
+Crowding them turns it into corduroy.
+
+`formation` at 0 gives you cartridge paper: perfectly even, machine made, and
+dull. It is the cloudiness that makes a sheet look handled.
+
+Set `device` to 0 for a plain laid sheet. Not every sheet carries a watermark,
+and a backdrop behind a lot of text is usually better without one.
+
+## 7. Behind content
+
+Drop `device` to 0 and bring `laid` and `chain` down by about half. The sheet
+becomes a texture you stop noticing, which is what paper is supposed to be.
+
+Do not reach for opacity. It flattens the sheet toward the page and loses the
+difference between the thin parts and the thick parts, which is the only thing
+being drawn here.
+
+## 8. Cleanup and SSR
 
 `destroy()` releases the WebGL context, cancels the RAF, disconnects both
 observers and removes every listener. Call it.
@@ -168,7 +211,7 @@ None of this runs on the server. `createWatermarkSheet` touches `document` and
 `matchMedia` at call time. Put the call inside `useEffect`, `onMounted`, or a
 `client:*` island. Next.js App Router needs `'use client'`.
 
-## 6. Pausing and reduced motion
+## 9. Pausing and reduced motion
 
 WCAG 2.2.2 is Level A: content that moves for more than five seconds must be
 pausable. `stop()` and `start()` are on the handle for that. Surface them as a
@@ -184,7 +227,7 @@ the loop never starts and one frame is drawn at `reducedMotionTime`.
 Any frame of this is a sheet of paper, so the default is as good as any other
 number.
 
-## 7. The three mistakes most likely to be made here
+## 10. The three mistakes most likely to be made here
 
 1. **Leaving `paper` the same colour as the page.** Everything here lightens, so
    a sheet that already matches the page has nothing to brighten into and the

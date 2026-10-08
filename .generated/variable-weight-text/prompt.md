@@ -146,7 +146,39 @@ as the second argument to the create function; anything omitted takes its defaul
 | `steady` | boolean | `true` | `true` · `false` | Hold each character in a box as wide as its heaviest form. On, always, unless the face has no width change across the axis: a slant axis does not need it, and a weight axis absolutely does. Turn it off once on a paragraph to see why it is here. |
 | `tracking` | number | `0.012` | 0 to 0.1 em | Extra tracking. A little room stops the heaviest letters touching their neighbours, since every box is as wide as its own character needs and not as wide as the pair does. |
 
-## 5. Accessibility. Do not skip this
+## 5. It needs a variable font
+
+The face must carry the axis you are driving. A static font ignores
+`font-variation-settings` without complaining, so the effect mounts, runs, and
+does nothing at all. If you see no change, check the font before you check
+anything else.
+
+Stay inside the range the face actually has, too. Asking for 900 of a 400-to-700
+font clamps to 700, which means the effect gets quietly weaker as the cursor
+arrives rather than stronger.
+
+## 6. Other axes
+
+`axis` is spelled as the font declares it: four lower-case letters for a
+registered axis (`wght`, `wdth`, `slnt`, `opsz`) and upper case for a custom
+one. Name an axis the face does not have and nothing happens, with no error
+anywhere.
+
+`steady` can come off for an axis that does not change the advance width, a
+slant for instance. For weight it should stay on. Turn it off once on a
+paragraph and watch the line crawl: that is the thing this item exists to stop.
+
+## 7. Size
+
+One rect read and at most one style write per character per frame. The rects are
+read live rather than cached, which is what lets this work on a wrapped
+paragraph: the characters really are where the browser put them.
+
+That makes length the thing to watch. Three hundred characters is three hundred
+rects a frame, and at that length the effect is a smudge following the cursor
+anyway. A heading, or a short paragraph.
+
+## 8. Accessibility. Do not skip this
 
 The characters are marked `aria-hidden` and a visually hidden copy of the
 original string sits alongside them, so a screen reader reads the sentence
@@ -157,7 +189,7 @@ it, which is most people and all touch users. Set it to the weight you would
 have chosen anyway, and treat everything above it as a flourish nobody needs to
 see.
 
-## 6. Cleanup and SSR
+## 9. Cleanup and SSR
 
 `destroy()` restores the original text, cancels the RAF, disconnects both
 observers and removes every listener. There is no GPU resource to release.
@@ -166,13 +198,13 @@ The text renders on the server as ordinary text and stays readable if the
 JavaScript never arrives. The characters are only split on the first frame. Call
 `createVariableWeightText` from `useEffect`, `onMounted`, or a `client:*` island.
 
-## 7. Pausing and reduced motion
+## 10. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts, so the text simply sits at `rest`. Nothing is lost: the
 resting state is the design.
 
-## 8. The three mistakes most likely to be made here
+## 11. The three mistakes most likely to be made here
 
 1. **Not pinning the boxes.** The line reflows under the cursor. It is the only
    reason you ever see this effect on one word in the middle of a page, and it

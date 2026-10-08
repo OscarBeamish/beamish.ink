@@ -167,7 +167,24 @@ as the second argument to the create function; anything omitted takes its defaul
 | `period` | number | `36` | 4 to 120 s (looks right between 6 and 40) | Seconds for one loop of the morph. The land travels a closed orbit through noise space and returns exactly. Slow on purpose: ground that visibly moves behind a heading is the fastest way to lose a reader. |
 | `reducedMotionTime` | number | `3` | 0 to 120 s | The single frame shown when the user prefers reduced motion. Any time works here: a still relief is a map, which is a finished thing to look at. |
 
-## 5. Cleanup and SSR
+## 5. Where it goes
+
+A hero, full bleed, with the heading sitting in the flat ground at one side.
+
+The default framing is pulled in close and tilted most of the way over, so the
+relief fills the frame and runs off every edge. That is the difference between a
+backdrop and a render: a landform floating in the middle of a panel reads as an
+object you are being shown, and the moment it runs off the edges it reads as
+ground the page is standing on.
+
+Pull `zoom` back below about 0.8 and you get the object again, which is the
+right choice for a figure in an article and the wrong one behind a heading.
+
+For type over it, bring `ink` and `indexInk` towards the paper and drop
+`relief`. The contours are the busiest thing in the frame and they are what
+makes a line of body copy hard to hold.
+
+## 6. Cleanup and SSR
 
 Call `destroy()`. It disposes the geometry, both materials, the shadow map and
 the three.js renderer, then releases the WebGL context itself.
@@ -181,7 +198,7 @@ None of this runs on the server. `createTerrainRelief` touches `document` and
 `client:*` island. Next.js App Router needs `'use client'` at the top of the
 component file.
 
-## 6. Pausing and reduced motion
+## 7. Pausing and reduced motion
 
 WCAG 2.2.2 is Level A. The land moves on its own for more than five seconds, so
 it must be pausable. `stop()` and `start()` are on the handle for that. Surface
@@ -193,7 +210,7 @@ the loop never starts and one frame is drawn at `reducedMotionTime`.
 This effect needs no care here. Any frame of it is a map, which is a finished
 thing to look at, so the default of 3 is as good as any other number.
 
-## 7. The three mistakes most likely to be made here
+## 8. The three mistakes most likely to be made here
 
 1. **Raising `relief` past about 3.** The ridges become steeper than a 26-degree
    sun can light, the far sides go black, and a library built for warm paper

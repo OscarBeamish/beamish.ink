@@ -1202,7 +1202,28 @@ as the second argument to the create function; anything omitted takes its defaul
 | `drift` | number | `4` | 0 to 60 deg (looks right between 3 and 15) | Degrees the source swings over one period. Small. The sun moves through about fifteen degrees in an hour, and anything much faster reads as somebody carrying a lamp past the window. It is also the one setting that drives the cost of the animation: a band edge is the highest-contrast thing in the frame, so swinging the light moves a great many pixels. Measured, dropping this from 7 to 4 took the change per frame from 0.151 to 0.086. |
 | `period` | number | `42` | 12 to 180 s | Seconds for one swing and back. Long, because this sits behind something else and a backdrop has to survive being ignored. |
 
-## 5. Cleanup and SSR
+## 5. Setting the exposure
+
+This is the part to get right, and it is the first thing that went wrong here.
+
+The light is **added** to the ground, because light is additive and a shaft that
+darkens what it crosses is a shaft of paint. That means `ground` is the surface
+*in shadow*, and it has to sit low enough that the lit bands have somewhere to
+go. The first version used the site's paper white as the ground with
+`strength: 0.72`, and every pixel in the frame clipped to white.
+
+So: pick the shadow colour first, then raise `strength` until the gaps look
+right. On a pale ground a quarter is already a bright day.
+
+## 6. On a dark ground
+
+Set `ground` near black and the same effect is a projector beam, or a shaft
+through a doorway into an unlit room. Two things change with it. `dust` matters
+far more, because on a dark ground the motes are most of what you can see. And
+`reach` wants to be shorter, so the light falls off into the dark rather than
+flooding it.
+
+## 7. Cleanup and SSR
 
 `destroy()` releases the WebGL context, cancels the RAF, disconnects both
 observers and removes every listener. One live context at a time is the budget,
@@ -1212,14 +1233,14 @@ There is nothing to render on the server. The element is empty until the first
 frame. Call `createLightShafts` from `useEffect`, `onMounted`, or a `client:*`
 island.
 
-## 6. Pausing and reduced motion
+## 8. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
 `reducedMotionTime`. The still frame is the whole composition with the sun held
 in place, which costs the viewer nothing here.
 
-## 7. The three mistakes most likely to be made here
+## 9. The three mistakes most likely to be made here
 
 1. **A ground as pale as the light.** The light is added, so there is nothing
    above white for it to be. The frame clips and the beams vanish into it.

@@ -1206,7 +1206,94 @@ as the second argument to the create function; anything omitted takes its defaul
 | `grain` | number | `0.3` | 0 to 1 | The sensor noise of a long exposure. Static rather than crawling: film grain that moves is a different effect and a far noisier one. |
 | `period` | number | `36` | 12 to 120 s | Seconds for one full cycle, and the pace control. Long on purpose: a backdrop has to survive being ignored, and an aurora that hurries is a screensaver. |
 
-## 5. Cleanup and SSR
+## 5. The loop closes
+
+Everything that moves is a sum of sines whose time coefficients are whole
+numbers of turns over `period`:
+
+```glsl
+float phase = TAU * u_time / u_period;
+float s  = sin(x * 0.7  + phase       + seed) * 0.55;
+      s += sin(x * 1.63 - phase * 2.0 + seed * 2.1) * 0.3;
+      s += sin(x * 3.11 + phase * 3.0 + seed * 3.7) * 0.15;
+```
+
+1, 2 and 3. A fractional coefficient never comes back to where it started, so
+the loop never closes and the video jumps once a cycle. Two items in this
+library shipped that way before there was a test for it.
+
+It is also why there is no noise field here. Value noise advanced by time is the
+obvious way to build a drifting curtain and it cannot be made periodic without
+sampling it on a torus, which costs more than the sines do and buys nothing you
+can see at this scale.
+
+## 6. Using it
+
+```html
+<div id="sky" style="position: fixed; inset: 0; z-index: -1"></div>
+```
+
+```ts
+import { createAuroraCurtain } from './beamish/effects/aurora-curtain/core'
+
+const aurora = createAuroraCurtain(document.querySelector('#sky'))
+aurora.start()
+```
+
+The element needs a size. Give it width and height in CSS, not just content.
+
+**React** and **Vue** adapters ship beside the core and do nothing but wire a
+ref to it. **Astro** consumes either as an island, or calls the core from a
+plain `<script>`.
+
+## 7. Putting text on it
+
+The light is at the bottom of the frame and the top is nearly empty sky, which
+is the opposite of most backdrops and decides where your copy goes.
+
+Headline high, aurora low, and check the contrast where the curtain is
+brightest rather than where it is average. White type over the green is roughly
+4:1 on the defaults, which is not enough: either keep the type above the light,
+lower `brightness`, or put a scrim under the words. A scrim is not a cheat. A
+backdrop calm enough to need no scrim anywhere is a backdrop with nothing in it.
+
+Dark type is a non-starter. This is a night sky and the whole frame is dark, so
+the type is light and the only question is what sits behind it.
+
+## 8. Tuning it
+
+`rays` is the first thing to reach for. If it reads as a gradient rather than an
+aurora, it is low.
+
+`curtains` is how many sheets, and each is further away: lower, dimmer, folded
+on a different scale. One is a quiet backdrop. Three is a display, and a display
+behind a headline is a lot.
+
+`fold` at 0 gives flat bands, which is a real thing a quiet aurora does and the
+safest setting behind text.
+
+`period` is the pace, and the default is 36 seconds for one cycle. That is slow
+on purpose: a backdrop has to survive being ignored, and movement at the edge of
+vision pulls a reader off a headline, which is the one thing a background must
+not do. If you shorten it, measure what you get rather than judging it by eye.
+Mean absolute change per frame across the canvas, 0 to 255: the quiet items in
+this library sit between 0.01 and 0.2, and anything past about 1 reads as
+something happening.
+
+`height` is a falloff rather than a ceiling. Raising it does not move the top of
+the light, because there is no top; it makes the whole column reach further.
+
+## 9. Performance
+
+No textures, no noise lookups, no render targets. The frame is about twenty
+sines and two hashes per pixel, so the cost is the pixel count rather than the
+shader, and a full-screen canvas at 2x DPR is the thing to watch rather than
+the maths.
+
+`curtains` is the one setting that changes the cost. The loop is bounded at
+three and breaks early, so one curtain is a third of the work of three.
+
+## 10. Cleanup and SSR
 
 `destroy()` releases the context, deletes the program and the VAO, cancels the
 RAF and disconnects the observers. Call it.
@@ -1215,7 +1302,7 @@ None of this runs on the server. Put the call inside `useEffect`, `onMounted`,
 or a `client:*` island. Next.js App Router needs `'use client'`, which is
 already on the React adapter.
 
-## 6. Pausing and reduced motion
+## 11. Pausing and reduced motion
 
 Handled in the runtime, and non-negotiable: WCAG 2.2.2 is Level A and it
 describes every ambient backdrop. The handle has `stop()` and `start()`, and the
@@ -1226,7 +1313,7 @@ never starts and one frame is drawn, at `reducedMotionTime`. That frame is
 chosen rather than defaulted to zero: at 7 seconds the curtains are folded and
 crossing, which is a composition rather than three parallel bands.
 
-## 7. The three mistakes most likely to be made here
+## 12. The three mistakes most likely to be made here
 
 1. **Making it fast.** An aurora moves slowly and it is behind your content. The
    first instinct with a shader like this is to shorten the period until the

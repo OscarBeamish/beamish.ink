@@ -149,7 +149,34 @@ as the second argument to the create function; anything omitted takes its defaul
 | `tilt` | number | `0` | 0 to 360 | Angle of the bar magnet in degrees. Turns the whole pattern, the way turning the magnet on the bench would. |
 | `grain` | number | `0.4` | 0 to 1 | Paper tooth under the filings. |
 
-## 5. Cleanup and SSR
+## 5. The pointer reaches outside the element
+
+This mounts with `pointerScope: 'window'`, so the filings have already begun to
+turn as the cursor comes toward the element rather than snapping into position
+the moment it crosses the edge. That is what the scope is for, and it is the
+right default here because a magnet outside the tray still has a field inside it.
+
+If you would rather it only responded while the cursor is over it, pass
+`pointerScope: 'element'`.
+
+## 6. Tuning it
+
+`reach` is the one to understand. It sets how far the magnet carries before the
+filings stop caring, and it is applied as a saturating ratio rather than as a
+multiplier, so raising it widens the influence without making the marks near the
+centre any larger. Lower it and the pattern tightens into a knot with a calm
+field around it.
+
+`length` and `pitch` pull against each other. A filing is measured in cells, so
+raising `pitch` makes everything bigger together; raising `length` alone makes
+them overlap. Past about 0.9 they join into continuous lines, which is a field
+diagram rather than a tray of filings, and that is a different and less
+interesting picture.
+
+`tilt` turns the bar. The two poles move with it, which is the only honest way to
+rotate this: turning the whole image instead would rotate the falloff as well.
+
+## 7. Cleanup and SSR
 
 `destroy()` releases the WebGL context, cancels the RAF, disconnects both
 observers and removes every listener, including the window-scoped pointer one.
@@ -162,7 +189,7 @@ runs out first.
 None of this runs on the server. Put the call inside `useEffect`, `onMounted`, or
 a `client:*` island. Next.js App Router needs `'use client'`.
 
-## 6. Pausing and reduced motion
+## 8. Pausing and reduced motion
 
 Nothing moves unless the cursor does, which puts this outside WCAG 2.2.2 rather
 than exempting it from it. `stop()` and `start()` are still on the handle.
@@ -174,7 +201,7 @@ With no pointer the magnet sits in the middle of the element and the marks are
 drawn at reduced contrast, so what gets drawn is a settled tray rather than an
 empty rectangle. Nobody has to have moved anything for it to look finished.
 
-## 7. The three mistakes most likely to be made here
+## 9. The three mistakes most likely to be made here
 
 1. **Expecting it to point at the cursor.** It does not, and that is correct. If
    you want spokes you want a monopole, which means not using a dipole

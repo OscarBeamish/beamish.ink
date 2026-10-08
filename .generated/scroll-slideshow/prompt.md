@@ -78,7 +78,103 @@ as the second argument to the create function; anything omitted takes its defaul
 | `reference` | number | `1.6` | 0.2 to 6 | The scroll velocity that counts as full speed, in screens per second. Above it the effect stops growing. Lower makes the web bow more readily; too low and an ordinary wheel click maxes it out. |
 | `crossfade` | number | `0.55` | 0.05 to 1 | Fraction of each slide's travel spent crossing to the next. Low holds each picture still and then cuts; 1 never stops dissolving. |
 
-## 5. Cleanup and SSR
+## 5. The images are your markup
+
+The pictures come from the host element's own `<img>` children, not from an
+option.
+
+```html
+<div id="reel" style="position: relative; height: 100vh">
+  <img src="/one.jpg" alt="What the first picture shows" />
+  <img src="/two.jpg" alt="What the second picture shows" />
+  <img src="/three.jpg" alt="What the third picture shows" />
+</div>
+```
+
+```ts
+import { createScrollSlideshow } from './beamish/effects/scroll-slideshow/core'
+
+const spool = createScrollSlideshow(document.querySelector('#reel'))
+spool.start()
+```
+
+The effect hides them from sight once it has uploaded them and puts them back on
+`destroy()`. They stay in the document throughout, so the alt text, the source
+order and the loading behaviour are whatever you wrote, and a browser that never
+runs the script shows the pictures. Style them so that the no-JavaScript case
+looks deliberate: absolutely positioned and `object-fit: cover` is usually right,
+because that is what the shader does too.
+
+**React.** The images are children, so pass them as children.
+
+```tsx
+import { useEffect, useRef } from 'react'
+import { createScrollSlideshow } from '@/beamish/effects/scroll-slideshow/core'
+
+export function Reel() {
+  const host = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!host.current) return
+    const spool = createScrollSlideshow(host.current)
+    spool.start()
+    return () => spool.destroy()
+  }, [])
+
+  return (
+    <div ref={host} className="reel">
+      <img src="/one.jpg" alt="What the first picture shows" />
+      <img src="/two.jpg" alt="What the second picture shows" />
+    </div>
+  )
+}
+```
+
+The images are read once, at setup. If the list changes, destroy and remount.
+
+**Cross-origin images.** `texImage2D` refuses to upload an image from another
+origin unless it was fetched with CORS, and the failure is an exception rather
+than a blank texture. Serve the pictures from your own origin, or set
+`crossorigin="anonymous"` on the tag and make sure the host sends
+`Access-Control-Allow-Origin`.
+
+## 6. How scroll drives it
+
+Position picks the slide and velocity does the warping. Both come from the
+runtime, which measures the host's travel through the viewport: 0 when its top
+edge is level with the bottom of the viewport, 1 when its bottom edge is level
+with the top.
+
+So the element's height is your timeline. A `100vh` host crossfades the whole set
+in two screens of scrolling, which is fast. For a set of five or six, give it
+`300vh` and let it take its time.
+
+Velocity is measured on the scroll event and bled off in the frame loop rather
+than being differenced every frame. Scroll events do not fire on every frame, so
+a per-frame difference reads zero on most of them and the effect stutters.
+
+## 7. Recording and determinism
+
+`renderAtTime(t)` cannot be pure in `t` for an effect driven by a real scrollbar,
+which is a problem for anything that wants to replay it. Pass `scrollPath` and
+the runtime ignores the real scroll position and samples the path instead, exactly
+as `pointerPath` does for the pointer effects.
+
+Velocity then comes out of the path's own slope rather than from a difference
+against the last frame, so it is a function of `t` like everything else.
+
+```ts
+createScrollSlideshow(el, {
+  scrollPath: [
+    { t: 0, progress: 0 },
+    { t: 0.55, progress: 0.5 },
+    { t: 2, progress: 0.5 }
+  ],
+  scrollPathDuration: 2
+})
+```
+
+## 8. Cleanup and SSR
 
 `destroy()` releases the WebGL context, deletes every texture, restores the
 original images, cancels the RAF, disconnects both observers and removes every
@@ -91,7 +187,7 @@ out first.
 None of this runs on the server. Put the call inside `useEffect`, `onMounted`, or
 a `client:*` island. Next.js App Router needs `'use client'`.
 
-## 6. Pausing and reduced motion
+## 9. Pausing and reduced motion
 
 There is nothing to pause. Nothing moves unless the reader moves it, which is
 what takes this outside WCAG 2.2.2 rather than exempting it from it. `stop()` and
@@ -101,7 +197,7 @@ Handled in the runtime. Under reduced motion the loop never starts and one frame
 is drawn, which means the reader gets a still photograph with no warp at all.
 That is the correct outcome here and it needs no special case.
 
-## 7. The three mistakes most likely to be made here
+## 10. The three mistakes most likely to be made here
 
 1. **Turning `bend` up to see it better.** If you cannot see it, the reason is
    almost always that the host is too short, so the whole set crosses in one flick

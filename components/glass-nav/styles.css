@@ -32,6 +32,17 @@
   --crossbar-blur: 14px;
   --crossbar-tint: 0.55;
 
+  /*
+   * The glass itself, as an unwrapped rgb triple so the alpha below can be
+   * computed from the settle. Warm white, because the house ground is paper.
+   *
+   * On a dark page set it to the page's own ground. A pale pane over near
+   * black is not glass, it is a light coloured bar: the whole illusion is that
+   * the panel is the same material as the air in front of the page, and the
+   * one thing that gives it away is a tint the page never uses anywhere else.
+   */
+  --crossbar-pane: 255, 253, 247;
+
   position: relative;
   z-index: 10;
   display: flex;
@@ -59,9 +70,7 @@
    * there, which still reads as nearly clear over a picture and still passes.
    */
   background: rgba(
-    255,
-    253,
-    247,
+    var(--crossbar-pane),
     calc(0.26 + var(--crossbar-tint) * var(--crossbar-settle) * 0.7)
   );
 

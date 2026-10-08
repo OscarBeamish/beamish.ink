@@ -142,7 +142,61 @@ as the second argument to the create function; anything omitted takes its defaul
 | `life` | number | `0.45` | 0.1 to 3 | Seconds a puff lasts, which is the length of the trail. This is measured in time rather than in frames, so the same gesture leaves the same trail on a 60Hz display and a 144Hz one. Past about a second the smoke starts to read as something heavy being dragged behind the cursor. |
 | `grain` | number | `0.4` | 0 to 1 | Paper tooth under the smoke. |
 
-## 5. Cleanup and SSR
+## 5. The trail is measured in seconds
+
+`life` is how long a puff lasts, and it is the whole length of the trail.
+
+That sounds obvious and it was not true of the first version, which laid one
+puff per frame and read each one's age off its position in the list. A trail of
+eighteen puffs was then eighteen frames long, which is 300ms on a 60Hz display
+and 125ms on a 144Hz one: the same gesture, two different effects, and on the
+slower display a grey cloud that kept arriving after the cursor had stopped.
+That is what being told it felt laggy turned out to mean.
+
+Now a puff is laid on a clock and carries the time it was laid. The trail is
+`life` seconds long everywhere, it thins out and goes when the cursor stops, and
+`marks` is only how finely those seconds are divided.
+
+Keep `life` under about a second. Past that the smoke reads as something heavy
+being dragged along behind the cursor, which is the one thing a pointer effect
+cannot afford.
+
+## 6. How it stays recordable
+
+A trail needs history, and history is not a function of `t`. That is a problem,
+because `renderAtTime` is supposed to give the same answer every time it is asked
+for a frame, and the recorder relies on it.
+
+The way out is that when a scripted path is supplied the history is already
+known. With `pointerPath` set, puff `i` is simply where the cursor was at
+`t - i * life / marks`, read straight off the path and aged to match. No
+accumulation, pure in `t`, and a recorded take is identical however the frames
+are asked for.
+
+With a live pointer there is no path to read, so it keeps its own stamps. That
+is not pure, and it does not need to be: nothing is replaying a live cursor.
+
+## 7. Tuning it
+
+`spread` is the one that matters and the one most likely to be set wrong out of
+habit. It is how much **wider** an old puff gets, and turning it down to zero
+gives you a row of identical discs, which is a cursor trail rather than smoke.
+
+`smoke` wants to stay close to the paper. Smoke is the absence of a clear view
+rather than a dark shape, and a strong colour here reads as paint being pushed
+around. The same goes double for `accent`: only a little of the trail is ever
+that colour, so a saturated one shows up as a bead following the cursor, which
+is exactly what this is not.
+
+`marks` is capped at 28, because the positions are a fixed-size array uniform in
+the shader. Asking for more silently gives you 28. Raising the ceiling means
+editing the `MARKS` constant in both the shader and the core, which are kept
+equal on purpose and documented in both places.
+
+`edge` wants to stay near 1. Smoke has no edge at all, and at 0 you get plates
+of grey.
+
+## 8. Cleanup and SSR
 
 `destroy()` releases the WebGL context, cancels the RAF, disconnects both
 observers and removes every listener including the window-scoped pointer one.
@@ -155,7 +209,7 @@ runs out first.
 None of this runs on the server. Put the call inside `useEffect`, `onMounted`, or
 a `client:*` island. Next.js App Router needs `'use client'`.
 
-## 6. Pausing and reduced motion
+## 9. Pausing and reduced motion
 
 Nothing moves unless the cursor does, which puts this outside WCAG 2.2.2 rather
 than exempting it from it. `stop()` and `start()` are still on the handle.
@@ -167,7 +221,7 @@ With no pointer the smoke is not drawn at all, so what you get is a clean sheet.
 That is the right resting state: a trail with nothing having moved would be a
 picture of a gesture nobody made.
 
-## 7. The three mistakes most likely to be made here
+## 10. The three mistakes most likely to be made here
 
 1. **Setting `spread` to 0.** You get a row of identical discs. The widening is
    what makes it smoke; without it this is a cursor with a tail and there are

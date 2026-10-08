@@ -1013,13 +1013,44 @@ as the second argument to the create function; anything omitted takes its defaul
 | `seed` | number | `7` | 0 to 9999 | Seed for the tear. The same seed gives the same sheet, so a recording and a live page match. Give two blocks on one page different seeds, or they are uncovered by the same torn sheet twice. |
 | `reducedMotionTime` | number | `999` | 0 to 9999 s | The single frame shown when the user prefers reduced motion. For a one-shot reveal this should be a time after the sheet has gone, so the heading is simply there and unclipped. |
 
-## 5. Accessibility. Do not skip this
+## 5. It never touches the text
+
+It is a `clip-path` polygon and nothing else, which buys two things.
+
+The text is never taken apart: it selects, wraps, translates, searches and reads
+exactly as before. This and SplitFountainText are the only two effects in the
+library that leave the DOM alone.
+
+And the clip is composited, so a heading being uncovered costs a transform
+rather than a repaint.
+
+## 6. Shaping the tear
+
+`tear` is the slow wander and `fray` is the fibres. Keep the first around a
+tenth of the element and the second at a fiftieth: the ratio between them is
+what makes it paper rather than a wave or a blade.
+
+`points` is the resolution of the edge. Below about twenty the fray has nowhere
+to happen and the edge reads as a gentle curve. Past a hundred you are paying
+for detail smaller than a pixel.
+
+Give two blocks on one page **different seeds**, or they are uncovered by the
+same torn sheet twice, which the eye catches immediately.
+
+## 7. Direction
+
+`up` is a sheet lifted off, and it is the one that reads as paper. The sideways
+directions read as a sheet being slid, which is also a real thing and a busier
+one across a wide heading: the tear travels along the reading direction, so it
+cuts through words rather than lines.
+
+## 8. Accessibility. Do not skip this
 
 The text is untouched, so there is nothing to announce and nothing hidden from a
 screen reader. A clipped heading is still in the accessibility tree and still
 read, which is the correct behaviour for a decorative reveal.
 
-## 6. Cleanup and SSR
+## 9. Cleanup and SSR
 
 `destroy()` removes the clip, leaving the element exactly as it was found. There
 is no GPU resource to release and no DOM to rebuild.
@@ -1029,13 +1060,13 @@ a moment before the first frame covers it. If that matters, hide the block with
 CSS and let the effect's first frame take over, or accept the flash: it is one
 frame, and the alternative is content that is invisible without JavaScript.
 
-## 7. Pausing and reduced motion
+## 10. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn, the one at `reducedMotionTime`,
 which is after the sheet has gone. The heading is simply there, unclipped.
 
-## 8. The three mistakes most likely to be made here
+## 11. The three mistakes most likely to be made here
 
 1. **A straight edge.** `tear: 0` is a wipe, and a wipe is a television
    transition. The edge is the entire item.

@@ -144,7 +144,21 @@ as the second argument to the create function; anything omitted takes its defaul
 | `blur` | number | `0` | 0 to 20 (looks right between 0 and 6) | Blur each child starts at. Off by default: on a card with an image inside, a blur costs far more than the transform does. |
 | `reducedMotionTime` | number | `999` | 0 to 9999 s | The single frame shown when the user prefers reduced motion. For a one-shot reveal this should be a time after the animation has finished, so the content simply appears. |
 
-## 5. Cleanup and SSR
+## 5. The curve
+
+`cubic-bezier(0.66, 0, 0.01, 1)`, solved per frame rather than approximated.
+
+It matters more here than it would for one element. A row on this curve leaves
+at rest, so what you see is a row starting to move. On a curve that leaves at
+speed, a row is already half visible in the first frame, and six of those in
+sequence read as six separate pops with the stagger supplying all the rhythm.
+
+If you are matching this in CSS somewhere else on the page, that is the
+`--ease-66` token. Do not reach for a spring. A list arriving is a piece of
+choreography and it wants the same curve every time, which is the whole reason
+this library has two easings rather than a library of them.
+
+## 6. Cleanup and SSR
 
 `destroy()` clears opacity, transform, filter and `will-change` from every child,
 cancels the RAF, and disconnects both observers. There is no GPU resource to
@@ -154,7 +168,7 @@ The content renders on the server as ordinary markup and stays visible if the
 JavaScript never arrives, because the styles are only applied on the first frame.
 Call `createScrollRevealRows` from `useEffect`, `onMounted`, or a `client:*` island.
 
-## 6. Pausing and reduced motion
+## 7. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
@@ -165,7 +179,7 @@ has finished. The content simply appears. Do not set it to 0: that leaves the
 whole container invisible for anyone who has asked for less motion, which is the
 worst possible outcome of a motion preference.
 
-## 7. The three mistakes most likely to be made here
+## 8. The three mistakes most likely to be made here
 
 1. **Adding your own `IntersectionObserver`.** The runtime has one. Yours will
    start the loop while the element is offscreen, the animation will finish

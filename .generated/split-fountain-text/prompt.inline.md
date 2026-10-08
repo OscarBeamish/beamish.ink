@@ -998,7 +998,42 @@ as the second argument to the create function; anything omitted takes its defaul
 | `seed` | number | `7` | 0 to 9999 | Seed for the unevenness. The same seed gives the same sheet, so a recording and a live page match. |
 | `period` | number | `30` | 6 to 180 s | Seconds for one cycle of the walk. Long: this is the colour of the page, and the colour of a page should not be something you can watch changing. |
 
-## 5. Cleanup and SSR
+## 5. It never touches the text
+
+This is the only text effect in the library that does not take the text apart.
+No spans, no splitting, no hidden label. The text in the element is the text the
+browser already had, so it selects, it wraps, it translates, it searches, and a
+screen reader never knows anything happened.
+
+Nothing else here can say that. When either this or a per-character effect would
+do, this is the one to reach for.
+
+## 6. Choosing the inks
+
+Split fountains are at their best with inks that make something worth looking at
+where they meet. Two that mix to mud give a sheet with a dead band across the
+middle, which is a real risk and a real thing that happens on a press.
+
+Set `second` to the same value as one of its neighbours and you have a two-ink
+fountain, which is what most presses actually run.
+
+`blend` is how far the inks have walked into each other. Narrow is a press just
+started, with the colours still separate. Wide is one that has been running a
+while. Both are real points in a run.
+
+`wobble` is the unevenness. At 0 it is a perfectly even ramp, which is to say a
+CSS gradient: the unevenness is the tell that ink was involved.
+
+## 7. Contrast
+
+The text is now inked from a gradient, so its contrast against the paper varies
+along the sheet. That is a real accessibility problem and it is yours to manage:
+check the lightest point of the gradient against the background, not the darkest.
+
+For body copy, keep both inks dark. The effect still reads, because what carries
+it is the change in hue rather than the change in value.
+
+## 8. Cleanup and SSR
 
 `destroy()` removes the background, the clip and the two colour properties,
 leaving the element exactly as it was found. There is no GPU resource to
@@ -1009,14 +1044,14 @@ on the first frame. If the JavaScript never arrives it stays in its own colour,
 which is the best fallback any effect here has. Call `createSplitFountainText`
 from `useEffect`, `onMounted`, or a `client:*` island.
 
-## 6. Pausing and reduced motion
+## 9. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
 `reducedMotionTime`, so the sheet is inked and still. The inking is the effect;
 the walk is only what a press does over a run.
 
-## 7. The three mistakes most likely to be made here
+## 10. The three mistakes most likely to be made here
 
 1. **Mounting it on the heading.** Then the gradient belongs to the heading, and
    you have gradient text: the same colours in the same places on every element.

@@ -157,7 +157,27 @@ as the second argument to the create function; anything omitted takes its defaul
 | `period` | number | `5` | 2 to 60 s (looks right between 5 and 20) | Seconds for one orbit of the idle light, which is the motion used when no pointer is present. Exactly periodic, so the loop has no seam. |
 | `reducedMotionTime` | number | `0.9` | 0 to 60 s | The single frame shown when the user prefers reduced motion. Pick a light angle where the relief is legible. |
 
-## 5. Cleanup and SSR
+## 5. Where it goes
+
+As a mark rather than as a background. This is a stamped emblem, so it belongs
+where a stamped emblem belongs: a seal on a certificate, a device on a cover, a
+badge beside a company name, the thing in the middle of a holding page.
+
+It is not a backdrop. The emblem is one object with a defined edge, and tiling
+it or stretching it behind a paragraph gives you a large shiny shape with words
+on top.
+
+What it is for is the moment someone moves the cursor and the foil turns. Real
+foil only exists while the light is moving across it, which is why it is worth
+the WebGL context and a flat gold circle is not, and it is also why the thing
+should sit somewhere a cursor will pass: near a heading, near a link, not in a
+footer nobody tracks across.
+
+Give it room. At the default `scale` the emblem sits whole with paper around it,
+which is what a seal does. Past about 1.2 the frame crops the ring and the hub
+blows out, and what you get is a sunburst rather than a stamp.
+
+## 6. Cleanup and SSR
 
 Call `destroy()`. It releases the WebGL context, cancels the RAF, disconnects
 both observers, and removes every listener including the pointer ones.
@@ -173,7 +193,7 @@ island. Next.js App Router needs `'use client'` at the top of the component file
 The runtime pauses the loop when the element scrolls offscreen and when the tab
 is hidden.
 
-## 6. Pausing and reduced motion
+## 7. Pausing and reduced motion
 
 WCAG 2.2.2 is Level A. Content that moves for more than five seconds must be
 pausable, and the idle orbit qualifies. `stop()` and `start()` are on the handle
@@ -191,7 +211,7 @@ Foil degrades unusually well. A stamped emblem lit from one side is a finished
 thing to look at and nobody would guess it was meant to move. Pick a light angle
 where the relief is legible rather than one where the highlight is brightest.
 
-## 7. The three mistakes most likely to be made here
+## 8. The three mistakes most likely to be made here
 
 1. **Mounting it into a wide, short element.** The stamp is sized against the
    shorter side, so in a 1200×200 banner it is 200px across with a lot of paper

@@ -81,7 +81,141 @@ as the second argument to the create function; anything omitted takes its defaul
 | `reach` | number | `1.1` | 0.1 to 3 | How far the lamp throws, as a share of the frame's height. Small is a reading lamp held close with the corners falling away; large is a window on the far side of the room. |
 | `grain` | number | `0.25` | 0 to 1 | Paper tooth over the whole thing. |
 
-## 5. Cleanup and SSR
+## 5. What it is honest about
+
+Lighting that is already in the photograph becomes relief. A cast shadow across
+a wall turns into a step in the paper; a bright sky becomes a plateau. That is
+the known failure of deriving a height field from luminance and there is no
+getting round it without a real depth map.
+
+It is also the reason the modelling is laid over the picture rather than
+replacing it. At the midpoint of the light the photograph is exactly itself, and
+the lamp opens a gradient either side of that. Nothing is re-exposed, so when
+the surface guesses wrong what you get is a slightly odd highlight rather than a
+picture that has come apart.
+
+A flat-lit image is the one this flatters most: a studio shot, a document, a
+textile, a facade in overcast light. A photograph that is already a study in
+raking sunlight will fight it, because you are lighting its shadows as though
+they were trenches.
+
+## 6. Where it goes
+
+On a single picture that is the point of its section: one plate in an essay, a
+hero image, a product shot, an archive scan. With no cursor on it there is no
+lamp and what you have is the photograph, so it costs nothing from anybody who
+never moves a mouse over it.
+
+One per page, or near enough. It is a WebGL context each.
+
+## 7. The picture is your markup
+
+```html
+<figure id="plate" style="position: relative; aspect-ratio: 3 / 2">
+  <img src="/facade.jpg" alt="What the picture shows" />
+</figure>
+```
+
+```ts
+import { createRelightImage } from './beamish/effects/relight-image/core'
+
+const lamp = createRelightImage(document.querySelector('#plate'))
+lamp.start()
+```
+
+The image is hidden from sight once it has been uploaded and left in the
+document, so the alt text is whatever you wrote, the loading attribute is
+whatever you set, and a browser that never runs the script shows the photograph
+rather than an empty box.
+
+Give the element a size of its own. The canvas is `width: 100%; height: 100%`,
+so a `<figure>` with no aspect ratio and no height is zero pixels tall.
+
+**React.** The picture goes in as children.
+
+```tsx
+import { useEffect, useRef } from 'react'
+import { createRelightImage } from '@/beamish/effects/relight-image/core'
+
+export function Plate() {
+  const host = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!host.current) return
+    const lamp = createRelightImage(host.current)
+    lamp.start()
+    return () => lamp.destroy()
+  }, [])
+
+  return (
+    <figure ref={host} className="plate">
+      <img src="/facade.jpg" alt="What the picture shows" />
+    </figure>
+  )
+}
+```
+
+Do not put option values in the dependency array. Call `update()` instead: every
+option is a uniform, so nothing rebuilds.
+
+**Vue.**
+
+```vue
+<script setup lang="ts">
+import { onMounted, onBeforeUnmount, ref } from 'vue'
+import { createRelightImage } from '@/beamish/effects/relight-image/core'
+import type { EffectHandle } from '@/beamish/shared/runtime'
+
+const host = ref<HTMLElement | null>(null)
+let lamp: EffectHandle | null = null
+
+onMounted(() => {
+  if (!host.value) return
+  lamp = createRelightImage(host.value)
+  lamp.start()
+})
+
+onBeforeUnmount(() => lamp?.destroy())
+</script>
+
+<template>
+  <figure ref="host" class="plate">
+    <img src="/facade.jpg" alt="What the picture shows" />
+  </figure>
+</template>
+```
+
+**Astro.** Nothing extra is required. The core is a standard ES module with no
+framework in it.
+
+## 8. Tuning it
+
+`height` first. It is how far above the sheet the lamp is held and most of the
+character is in it: low is a raking light that finds every ridge in the
+impression, high is a lamp overhead that finds almost none. Everything else is
+an adjustment to what that decides.
+
+`smooth` is the one people skip and then wonder why the picture is fizzing. It
+is how far apart the two samples are that the gradient is taken from, which
+low-passes the height field on the way, so it is the difference between lighting
+the shape of the impression and lighting the noise in the file. Below about 1.5
+you are mostly lighting JPEG blocks. On a large, clean image you can take it up
+to 4 or 5 and get a broader, calmer surface.
+
+`relief` past about 15 stops reading as paper and starts reading as hammered
+metal. That is a real look and it is not this one.
+
+`gloss` and `shine` are a pair. Gloss is how much the ink catches; shine is how
+tight the catch is. Low shine and moderate gloss is a satin sheen across a wide
+area, which suits a matte stock. High shine and low gloss is a small hard glint
+on the ridges, which suits a varnish.
+
+On a dark photograph, raise `strength` and drop `gloss`. There is more room
+above the base tone than below it, and a specular on top of an already dark
+passage is the quickest way to make a picture look like it has been through a
+filter.
+
+## 9. Cleanup and SSR
 
 `destroy()` releases the WebGL context, deletes the texture, cancels the RAF,
 disconnects both observers, removes every listener and puts the `<img>` back the
@@ -94,7 +228,7 @@ runs out first.
 None of this runs on the server. Put the call inside `useEffect`, `onMounted`,
 or a `client:*` island. Next.js App Router needs `'use client'`.
 
-## 6. Pausing and reduced motion
+## 10. Pausing and reduced motion
 
 Nothing moves unless the cursor does, which puts this outside WCAG 2.2.2 rather
 than exempting it from it. `stop()` and `start()` are still on the handle.
@@ -104,7 +238,7 @@ is drawn, which means the lamp never comes on and what you have is the
 photograph. That is the right resting state rather than a compromise: the
 picture is the content and the lamp was always an extra.
 
-## 7. The three mistakes most likely to be made here
+## 11. The three mistakes most likely to be made here
 
 1. **A cross-origin image.** `texImage2D` throws a SecurityError on an image
    from another origin without CORS headers, and it throws at upload rather than

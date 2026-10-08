@@ -156,7 +156,51 @@ as the second argument to the create function; anything omitted takes its defaul
 | `reach` | number | `0.45` | 0.05 to 1.5 | How far the hand reaches, as a share of the short side. The falloff is a Gaussian and has no edge to find, so this is where it has mostly faded rather than where it stops. |
 | `period` | number | `36` | 2 to 120 | Seconds for one loop of the drift. The tone field travels a closed circle through noise space, so it returns to exactly where it began and the loop is seamless. Slow on purpose: the marks should seem to be settling rather than moving. |
 
-## 5. Cleanup and SSR
+## 5. The hand
+
+The cursor works the drawing up where it sits.
+
+Tone is how many marks there are, so a hand shading a passage is adding marks to
+it, and that is literally what `touch` does: it raises the tone under the
+pointer and the population thickens to match. The falloff is a Gaussian, with no
+edge to find. A circle of denser stipple with a findable boundary reads as a
+torch being shone on the drawing rather than as somebody working on it.
+
+Raising the tone is not enough on its own, and this is worth knowing before you
+turn `touch` up and conclude it is broken. Tone saturates. A passage already
+carrying a mark in every cell cannot take another one, so the hand shows up
+beautifully in the light and does nothing at all in the darks. So it changes the
+nib as well: the share of marks taking the accent rises under the pointer, which
+is something a dense passage can answer to.
+
+Set `touch` to zero for a field that is purely ambient. Everything else carries
+on as before, and nothing about the pointer is integrated, so a scripted path
+replays exactly and `renderAtTime` is still pure in `t`.
+
+## 6. Tuning it
+
+`pitch` and `weight` are the two that matter and they pull against each other.
+`pitch` is the spacing of the cells in CSS pixels, so it sets how close marks can
+get. `weight` is the radius of a mark in cells, so it sets how much of that space
+a mark fills. Past about 0.4 the marks touch at full density and the dark areas
+become a solid, which is a wash rather than a stipple.
+
+`jitter` is what makes it a drawing. At 0 the marks sit on a grid and you have
+built a bad halftone. At 1 a mark can be anywhere in its cell and the grid is
+undetectable, which is where it should usually live.
+
+`contrast` is applied about the midtone, so raising it opens the field out in
+both directions rather than dragging the whole thing dark.
+
+## 7. Behind content
+
+Raise `pitch` to about 12 and drop `contrast` to 1.2. The field becomes an even
+tooth you stop noticing, which is what a stippled background is for.
+
+Do not reach for opacity. It greys the marks and the paper together and loses the
+thing that makes it look drawn rather than printed.
+
+## 8. Cleanup and SSR
 
 `destroy()` releases the WebGL context, cancels the RAF, disconnects both
 observers and removes every listener. Call it.
@@ -170,7 +214,7 @@ None of this runs on the server. `createStippleField` touches `document` and
 `client:*` island. Next.js App Router needs `'use client'` at the top of the
 component file.
 
-## 6. Pausing and reduced motion
+## 9. Pausing and reduced motion
 
 WCAG 2.2.2 is Level A: content that moves for more than five seconds must be
 pausable. `stop()` and `start()` are on the handle for that. Surface them as a
@@ -188,7 +232,7 @@ never starts a loop, so there is nothing running to pick the pointer up. What
 you get is a finished stipple drawing, which is the right thing to be left
 with.
 
-## 7. The three mistakes most likely to be made here
+## 10. The three mistakes most likely to be made here
 
 1. **Turning `weight` up to make it darker.** It makes every mark fatter, which
    is what a halftone does and what this is deliberately not. Density is the

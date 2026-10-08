@@ -143,7 +143,34 @@ as the second argument to the create function; anything omitted takes its defaul
 | `shade` | number | `0.5` | 0 to 1 | How far the side away from the lamp falls into shade. This is what makes it read at all. A near white card lifted a few percent looks like a near white card; what you see when something is lit is the gradient across it, and half of that gradient is the dark half. |
 | `ease` | number | `0.12` | 0.01 to 1 | How fast the lamp catches up with the cursor, as a fraction of the remaining distance per frame. At 1 it is welded to the pointer and reads as a rectangle following the mouse. |
 
-## 5. Cleanup and SSR
+## 5. The pointer reaches outside the card
+
+This mounts with `pointerScope: 'window'`, so the lamp has started to move before
+the cursor reaches the card. A lamp carried across a desk lights the card on the
+way, and a card that only notices once the cursor is inside it snaps.
+
+Pass `pointerScope: 'element'` if you would rather it only responded while the
+cursor is over it.
+
+## 6. Tuning it
+
+`sheen` and `shade` are a pair and they want to stay close. Light without shade
+disappears on a pale card, which is the failure this was built around; shade
+without light reads as a drop shadow that has come loose.
+
+`spread` decides what kind of lamp it is. Large and weak is a desk lamp; small
+and strong is a torch, and a torch on a business card is a strange thing to
+imply.
+
+`ease` is how fast the lamp catches up, as a fraction of the remaining distance
+per frame. At 1 it is welded to the pointer and reads as a rectangle following
+the mouse rather than as light.
+
+On a dark card, drop `shade` most of the way and raise `sheen`. The gradient
+still has to go both ways, but on a dark surface there is much more room above
+the base tone than below it.
+
+## 7. Cleanup and SSR
 
 `destroy()` removes the added layer, restores the card's original `position`,
 cancels the RAF, disconnects both observers and removes every listener including
@@ -153,7 +180,7 @@ None of this runs on the server. `createSpotlightCard` touches `document` and
 `matchMedia` at call time. Put the call inside `useEffect`, `onMounted`, or a
 `client:*` island. Next.js App Router needs `'use client'`.
 
-## 6. Pausing and reduced motion
+## 8. Pausing and reduced motion
 
 Nothing moves unless the cursor does, which puts this outside WCAG 2.2.2 rather
 than exempting it from it. `stop()` and `start()` are still on the handle.
@@ -164,7 +191,7 @@ is drawn.
 With no pointer the card is unlit, which is the correct resting state: an
 untouched card under no particular light. Nothing looks broken or half-finished.
 
-## 7. The three mistakes most likely to be made here
+## 9. The three mistakes most likely to be made here
 
 1. **Turning `sheen` up and leaving `shade` at zero.** On a pale card you will
    see almost nothing however far you push it, and then conclude the effect is

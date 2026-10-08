@@ -157,7 +157,96 @@ as the second argument; anything omitted takes its default.
 | `playLabel` | string | `Play` | any value | Text on the autoplay control when it is stopped. |
 | `pauseLabel` | string | `Pause` | any value | Text on the autoplay control when it is running. |
 
-## 5. Cleanup and SSR
+## 5. Closing it
+
+Four ways: the close button, Escape, the browser's own back gesture, and the
+space around the plate. The last one is the one people reach for without being
+told, and Nielsen Norman's work on overlays is the reason it is an addition
+rather than a replacement. Plenty of readers never discover a click outside, so
+a visible close button stays, and others dismiss by accident, so a lightbox is
+exactly the right place for it: the worst a mistake costs here is one click to
+reopen the plate, which is not true of a form.
+
+The usual test is `event.target === dialog`, because a click on a dialog's
+backdrop is attributed to the dialog element itself. That is right for a dialog
+that is a box with a backdrop around it, and it does nothing for this one. This
+overlay fills the window, so there is no backdrop to click: every pixel is
+inside the dialog, and that test never fires once. The question that survives a
+full-bleed overlay is what the press was *not* on.
+
+```ts
+const CONTENT = '.your-plate__open, .your-plate__controls'
+const isEmptySpace = (target: EventTarget | null) =>
+  target instanceof Element && !target.closest(CONTENT)
+```
+
+Press and release, not click, and both ends are checked. Closing on the release
+alone throws the overlay away when a drag that began on the plate, or on a
+caption somebody was selecting, happens to come up beside it. Both ends have to
+be on empty space and the pointer has to have stayed roughly still.
+
+The listener is on the dialog rather than on the stage, so a gesture that starts
+beside the plate is still heard wherever it ends.
+
+### Why not `closedby="any"`
+
+HTML has a declarative version of this now, and for most dialogs it is the right
+answer: `closedby="any"` gives you light dismiss with the press-and-release rule
+already correct. It is not used here, for two reasons.
+
+It is in Chrome and Edge 134, and Firefox 141. Safari has it in preview only, so
+it would need the fallback written anyway.
+
+More to the point, it would break the swipe. Native light dismiss fires when the
+press and the release both land on the dialog, and a horizontal swipe through
+the space beside the plate does exactly that, so on a phone the gallery would
+close instead of moving on. A full-bleed overlay that owns a gesture is the case
+the attribute is not for.
+
+## 6. Sizing
+
+The sheet fits its container, not the viewport. `columns` sets the most columns
+it will use at its widest, and it steps down on its own below that, because a
+gallery is as likely to sit in a reading column as across a page. There are no
+breakpoints to keep in step with your layout.
+
+Where it steps down is `--plate-floor`, the smallest a plate is allowed to get
+before the sheet drops a column. It is 14rem, which is about the point a
+photograph stops being one, and it is a custom property rather than a prop
+because it is a layout decision rather than a content one:
+
+```css
+.my-sheet {
+  --plate-floor: 10rem;
+}
+```
+
+Worth setting deliberately if the sheet sits in a box of a fixed height. A step
+down is expensive: one column fewer is a whole extra row, so a sheet that fitted
+at four columns is half a row taller than its box at three.
+
+Cells are square whatever the file is, so the sheet is a grid rather than a
+staircase. Giving portrait plates a taller box is the obvious move and it is
+wrong: the rows go ragged and a landscape plate ends up floating above a hole. A
+contact sheet has uniform frames for the same reason. The overlay never crops: it
+fits the whole image inside the margin, at its own proportions.
+
+## 7. Autoplay
+
+Off by default, and that is deliberate. A gallery that starts moving on its own
+is rarely what the reader wanted, and it takes the one thing they were looking at
+away from them.
+
+Set `autoplay` to a number of seconds and a pause control appears next to the
+close. WCAG 2.2.2 is Level A: anything that moves for more than five seconds has
+to be pausable, and a control that is only in the docs is not one. It never
+starts on its own, it stops when the overlay closes so it does not resume the
+next time, and it skips while the tab is in the background, where it would
+otherwise run through the whole set unseen.
+
+Under reduced motion the control is not rendered and autoplay does not run.
+
+## 8. Cleanup and SSR
 
 There is nothing to destroy. The interval is cleared on unmount and when the
 overlay closes, the `matchMedia` listener is removed on unmount, and the scroll
@@ -167,7 +256,7 @@ lock is released even if the component unmounts while open.
 component server-renders. Next.js App Router still needs `'use client'` at the
 top of the file that uses it, which the React build already carries.
 
-## 6. Pausing and reduced motion
+## 9. Pausing and reduced motion
 
 Handled with a live `matchMedia` listener rather than a value read once at mount,
 so changing the setting with the page open does the right thing.
@@ -177,7 +266,7 @@ function of the control and removing it would break the component rather than
 calm it. It appears instead of sliding in, and the thumbnail stops growing under
 the cursor.
 
-## 7. The three mistakes most likely to be made here
+## 10. The three mistakes most likely to be made here
 
 1. **Leaving `width` and `height` off the plates.** The sheet then has no shape
    to reserve, so every cell is zero-height until its file arrives and the grid

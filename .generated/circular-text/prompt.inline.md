@@ -1041,7 +1041,39 @@ as the second argument to the create function; anything omitted takes its defaul
 | `distort` | boolean | `false` | `true` · `false` | Let the fit stretch the letterforms as well as the spaces. Off, and it should stay off: it is here so that the choice is visible rather than hidden. Turn it on once to see what a stretched face looks like, then turn it off. |
 | `period` | number | `24` | 6 to 240 s | Seconds for one revolution. Long: a ring is a mark, not an animation, and a seal turning fast enough to notice is a loading spinner. Twenty-four seconds is fifteen degrees a second, which is about the slowest a turn can be and still read as turning. |
 
-## 5. Accessibility. Do not skip this
+## 5. Setting it
+
+The face, weight and tracking are **inherited** from the element, so set them in
+CSS as you would for any other text. A text effect that picks its own typeface
+is a graphic.
+
+`size` is the letter height as a share of the radius, and it does not affect the
+fit: the string fills the circumference whatever size the letters are. It only
+decides how heavy the ring looks.
+
+`repeat` is really a density control. Because the string is fitted to the
+circumference, one copy of a short phrase is set very wide and four copies of it
+are set tight. Pick the one that gives the tracking you want, rather than
+reaching for `letter-spacing`.
+
+## 6. A seal with two arcs
+
+A real seal reads left to right over the top and left to right under the bottom,
+which is two rings rather than one: a top half standing on the path and a bottom
+half hanging inside it. Make it with two elements and `inside` on the second.
+
+`inside` reverses the path rather than flipping the text, so the letters keep
+their own shapes. The baseline side follows the direction of travel, which is
+all that turning the letters over requires.
+
+## 7. Two rings on one page
+
+Each instance gives its path an id of its own. If you build something like this
+by hand, that is the detail to copy: two `textPath` elements pointing at the
+same path id is a failure nothing in the markup hints at, because the second one
+silently uses the first one's circle.
+
+## 8. Accessibility. Do not skip this
 
 The SVG is marked `aria-hidden` and a visually hidden copy of the original
 string sits alongside it. A screen reader reads the sentence, once, in order.
@@ -1050,7 +1082,7 @@ A ring of text is decorative by nature: the lower half of a continuous ring is
 upside down, which no reader should be asked to work through. Keep anything that
 has to be read out of it.
 
-## 6. Cleanup and SSR
+## 9. Cleanup and SSR
 
 `destroy()` restores the original text, cancels the RAF, disconnects both
 observers and removes every listener. There is no GPU resource to release.
@@ -1059,14 +1091,14 @@ The text renders on the server as ordinary text and stays readable if the
 JavaScript never arrives. The SVG is only built on the first frame. Call
 `createCircularText` from `useEffect`, `onMounted`, or a `client:*` island.
 
-## 7. Pausing and reduced motion
+## 10. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
 `reducedMotionTime`, which here is 0: the ring at its starting angle. The ring
 is the thing, and the turn is only how it passes the time.
 
-## 8. The three mistakes most likely to be made here
+## 11. The three mistakes most likely to be made here
 
 1. **Placing the letters yourself.** It loses kerning and it never closes the
    ring. `textPath` and `textLength` do both properly, and they are in every

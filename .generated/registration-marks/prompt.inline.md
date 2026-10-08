@@ -1154,7 +1154,43 @@ as the second argument to the create function; anything omitted takes its defaul
 | `bar` | number | `18` | 0 to 60 px | Height of the colour bar along the foot, one solid patch per plate. 0 leaves only the marks, which is cleaner and loses the other half of what a printer reads off a sheet. |
 | `period` | number | `32` | 8 to 180 s | Seconds for one cycle of the drift. A press does not go out of register quickly, and this is a backdrop, so long. |
 
-## 5. Cleanup and SSR
+## 5. Two details that carry it
+
+**The inks multiply.** Where the three plates land together the mark goes nearly
+black; where they have come apart you see three coloured marks beside each
+other. That difference is exactly how misregistration announces itself, and
+adding the inks instead loses it.
+
+**Everything is anti-aliased to one pixel's footprint.** These are hairlines
+moving by fractions of a pixel, and a hairline without anti-aliasing crawls
+between whole pixels as it drifts. The sub-pixel movement is the entire subject,
+so it has to be the thing that survives.
+
+## 6. Putting things on it
+
+This is the quietest backdrop here after PaperGrain: 0.023 mean absolute change
+per frame, and nearly all of the frame is bare paper. The marks live in the
+margin, which is where they live on a real sheet, so the middle is free.
+
+Set `margin` to put them further out and the page gets more room. Set `bar: 0`
+to drop the colour bar if the foot of the frame is where your content is.
+
+What it wants is to frame something: a section, a quote, a plate. It reads as a
+page in production rather than a page that is finished, which is a tone worth
+reaching for deliberately and worth avoiding by accident.
+
+## 7. How wrong to make it
+
+`spread` is the worst misregistration, in pixels. A few is a press that needs
+attention and is the setting that reads as a real sheet. Twenty is something
+nobody would let off the floor, which is funnier but stops being a registration
+mark and starts being three rings.
+
+At 0 the plates sit on top of each other and the marks are black. That is what
+a printer is aiming for, and it makes a perfectly good static mark if you want
+the furniture without the drift.
+
+## 8. Cleanup and SSR
 
 `destroy()` releases the WebGL context, cancels the RAF, disconnects both
 observers and removes every listener. One live context at a time is the budget,
@@ -1164,14 +1200,14 @@ There is nothing to render on the server. The element is empty until the first
 frame. Call `createRegistrationMarks` from `useEffect`, `onMounted`, or a
 `client:*` island.
 
-## 6. Pausing and reduced motion
+## 9. Pausing and reduced motion
 
 Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn, the one at `reducedMotionTime`.
 The marks are the thing and they are all there in one frame, so nothing is
 lost.
 
-## 7. The three mistakes most likely to be made here
+## 10. The three mistakes most likely to be made here
 
 1. **Hard-edged rules.** A hairline that is not anti-aliased crawls between
    whole pixels as it drifts, which is the one thing this effect must not do:
