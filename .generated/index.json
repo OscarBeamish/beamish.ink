@@ -5619,6 +5619,167 @@
     "intro": "Foil is a hot-foil stamp pressed into paper, and the cursor is the light. Move it\nand the highlight rakes across the relief the way tilting a real foil-stamped\ncard does: a narrow band of brightness travelling over a brushed surface, picking\nup a little colour at the grazing edges.\n\nThere is no image and no texture. The stamp is a signed-distance rosette with a\nbrushed relief written into its height field. The light is a point source sitting\njust above the surface at the cursor. Everything you see is that height field,\nits gradient, and one specular term. WebGL2, one full-screen triangle, no npm\ndependencies.\n\nIt is pointer-driven, never pointer-dependent. With no cursor, on touch, or\nbefore anyone has moved the mouse, the light takes a slow closed orbit of its\nown. The panel is alive on arrival and the loop still has no seam."
   },
   {
+    "name": "PointerLitBusts",
+    "slug": "pointer-lit-busts",
+    "tier": 1,
+    "description": "Three helmeted busts in a dark room, lit by the cursor carrying the only lamp",
+    "category": "pointer",
+    "tags": [
+      "3d",
+      "three",
+      "pointer",
+      "light",
+      "dark",
+      "scene"
+    ],
+    "ground": "dark",
+    "peerDependencies": {
+      "three": ">=0.160.0"
+    },
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "The forms are generated rather than loaded. A prompt here hands over source, and a decimated head scan is several megabytes of binary nobody can read, review or tune. A lathe profile and three primitives is a few hundred numbers and every part of it can be changed by somebody who has never opened a 3D tool",
+        "The light moves in the world, on a plane in front of the busts, rather than in screen space. A light pinned to the cursor in two dimensions lights everything from the same angle wherever it goes, so the shading never changes and the scene reads as a flat image with a bright patch on it",
+        "There is always a little rim light. On a dark ground an unlit form is not subtle, it is absent, and a reader who moves the cursor somewhere empty concludes the page is broken",
+        "No shadow maps. A moving light and three solids is the case where real shadows look obvious and cost a second render pass every frame, and at this scale the shading says most of what a shadow would have"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 2.5,
+      "contexts": 1,
+      "notes": [
+        "One render pass, three lathes and a few primitives, no shadow map and no post"
+      ]
+    },
+    "files": [
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      },
+      {
+        "from": "effects/pointer-lit-busts/core.ts",
+        "to": "src/beamish/effects/pointer-lit-busts/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/pointer-lit-busts/adapters/react.tsx",
+        "to": "src/beamish/effects/pointer-lit-busts/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/pointer-lit-busts/adapters/vue.ts",
+        "to": "src/beamish/effects/pointer-lit-busts/vue.ts",
+        "role": "adapter"
+      }
+    ],
+    "options": {
+      "lamp": {
+        "type": "number",
+        "default": 26,
+        "description": "Brightness of the lamp the cursor carries.",
+        "min": 0,
+        "max": 120,
+        "step": 1
+      },
+      "lampColour": {
+        "type": "color",
+        "default": "#ffe9c9",
+        "description": "Colour of the lamp. Warm, so it reads as a lamp rather than as a screen."
+      },
+      "reach": {
+        "type": "number",
+        "default": 3.2,
+        "description": "How far in front of the busts the lamp sits.",
+        "min": 0.5,
+        "max": 10,
+        "step": 0.1
+      },
+      "sweep": {
+        "type": "number",
+        "default": 7,
+        "description": "How far the lamp travels across the scene.",
+        "min": 1,
+        "max": 20,
+        "step": 0.5
+      },
+      "rim": {
+        "type": "number",
+        "default": 0.5,
+        "description": "The edge that keeps a form present when the lamp is elsewhere.",
+        "min": 0,
+        "max": 3,
+        "step": 0.05
+      },
+      "rimColour": {
+        "type": "color",
+        "default": "#6f86b8",
+        "description": "Colour of the rim, which is the room rather than the lamp."
+      },
+      "room": {
+        "type": "color",
+        "default": "#0a0a0c",
+        "description": "The ground the busts stand in."
+      },
+      "parallax": {
+        "type": "number",
+        "default": 0.35,
+        "description": "How far the camera drifts against the cursor. Zero holds it still.",
+        "min": 0,
+        "max": 2,
+        "step": 0.05
+      },
+      "polish": {
+        "type": "number",
+        "default": 0.42,
+        "description": "How polished the shell is. Low is stone, high is lacquer.",
+        "min": 0,
+        "max": 1,
+        "step": 0.02
+      }
+    },
+    "instruction": "move the cursor to light them",
+    "oneShot": false,
+    "cursor": {
+      "duration": 9,
+      "keys": [
+        {
+          "t": 0,
+          "x": 0.12,
+          "y": 0.62
+        },
+        {
+          "t": 2.25,
+          "x": 0.44,
+          "y": 0.3
+        },
+        {
+          "t": 4.5,
+          "x": 0.86,
+          "y": 0.58
+        },
+        {
+          "t": 6.75,
+          "x": 0.5,
+          "y": 0.78
+        },
+        {
+          "t": 9,
+          "x": 0.12,
+          "y": 0.62
+        }
+      ]
+    },
+    "record": {
+      "duration": 9,
+      "fps": 30,
+      "posterAt": 2.4
+    },
+    "group": "effects",
+    "intro": "PointerLitBusts is three helmeted busts in a dark room where the cursor\ncarries the only lamp. Move it and the forms turn: a cheekbone catches, a\nvisor goes black, the one at the back comes out of the dark for a moment and\ngoes again.\n\nThree things carry it, and the first is what separates this from a torch\ncursor.\n\n**The lamp moves through the world**, on a plane in front of the busts, not in\nscreen space. A light pinned to the cursor in two dimensions lights everything\nfrom the same angle wherever it goes, so the shading never changes and the\nscene reads as a flat image with a bright patch travelling over it. Moving the\nlight through the scene is what makes a form turn: the same cheek is lit from\nthe left, then from below, then not at all.\n\n**There is always a little rim light.** On a dark ground an unlit form is not\nsubtle, it is absent, and a reader who moves the cursor into an empty corner\nconcludes the page is broken. A faint cool edge keeps all three present and\nmakes the lamp read as a lamp rather than as the only thing that exists.\n\n**There are no shadow maps.** A moving light and three solids is exactly the\ncase where real shadows look obvious, and they cost a second render pass every\nframe. The forms read from shading alone, which at this scale says most of\nwhat a shadow would have."
+  },
+  {
     "name": "PointerRippleGrid",
     "slug": "pointer-ripple-grid",
     "tier": 1,

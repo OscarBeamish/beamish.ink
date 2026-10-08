@@ -57,7 +57,7 @@ const periodic = (await listItems())
   // A grid has no options, so no `period` to close over. Its take loops
   // because the scroll goes out and back, which is a property of the demo
   // rather than of a number in meta.json.
-  .filter(item => item.tier === 1 && item.kind !== 'grid')
+  .filter(item => item.tier === 1 && item.kind === 'item')
   .map(item => ({ item, period: periodOf(item.dir) }))
   .filter((entry): entry is { item: (typeof entry)['item']; period: number } => entry.period !== null)
 

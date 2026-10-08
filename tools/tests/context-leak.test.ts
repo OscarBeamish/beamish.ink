@@ -37,13 +37,15 @@ afterAll(async () => {
 })
 
 /*
- * Grids are listed as tier 1 so the recorder drives them through the same
- * handle, but there is nothing here for them: a stylesheet holds no WebGL
- * context and its demo exposes no window.Beamish to mount.
+ * Only items. Grids and examples are listed as tier 1 so the recorder drives
+ * them through the same handle, and neither belongs here: a stylesheet holds
+ * no WebGL context, and an example is a whole page rather than something you
+ * mount fifty times. Neither exposes window.Beamish.create at all.
+ *
+ * An example does hold a context, through whatever it mounts, but the thing
+ * that keeps it to one is the stage, and the stage has its own test.
  */
-const effects = (await listItems()).filter(
-  item => item.tier === 1 && item.kind !== 'grid'
-)
+const effects = (await listItems()).filter(item => item.tier === 1 && item.kind === 'item')
 
 describe('effects release their WebGL context on destroy', () => {
   for (const item of effects) {
