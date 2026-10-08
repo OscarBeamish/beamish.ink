@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <title>Stage fixture</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #faf9f6;
+      }
+      /*
+       * Three sections, each a viewport tall, so scrolling moves the context
+       * from one to the next. Taller than the viewport on purpose: the
+       * interesting case is a section that fills the screen entirely, where an
+       * observer with only the 0 and 1 thresholds goes quiet exactly when the
+       * decision matters.
+       */
+      section {
+        height: 120vh;
+        position: relative;
+      }
+      .host {
+        position: absolute;
+        inset: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      A fixture for the stage test, not a demo. Three sections that each want a
+      WebGL backdrop, which between them want three contexts and must never be
+      allowed more than one.
+    -->
+    <section><div class="host" id="a"></div></section>
+    <section><div class="host" id="b"></div></section>
+    <section><div class="host" id="c"></div></section>
+
+    <script src="./stage.bundle.js"></script>
+  </body>
+</html>

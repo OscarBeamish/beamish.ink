@@ -32,6 +32,17 @@ const MIME: Record<string, string> = {
 
 let origin = ''
 
+/**
+ * URL for any repo-relative path on the running server.
+ *
+ * The origin is only known once the server has picked a port, so it cannot be
+ * a constant anyone imports. Anything that is not an item's demo goes through
+ * here: the stage fixture, and whatever comes after it.
+ */
+export function urlFor(rel: string): string {
+  return `${origin}/${rel.replace(/^\//, '')}`
+}
+
 /** URL for an item's demo.html on the running server. */
 export function demoUrl(dir: string): string {
   const rel = path.relative(ROOT, path.join(dir, 'demo.html')).split(path.sep).join('/')
