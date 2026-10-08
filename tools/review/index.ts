@@ -127,12 +127,61 @@ async function pageFacts(page: Page) {
 
 // --- driver ----------------------------------------------------------------
 
+/*
+ * Every slug in a collection directory, which is how grids and examples get
+ * reviewed: neither has an entry in .generated/index.json, because neither has
+ * a prompt composed from a core. Reading the directory means a new one is
+ * covered the moment it exists, with nothing to remember to add here.
+ */
+async function slugsIn(collection: string): Promise<string[]> {
+  const dir = path.join(ROOT, collection)
+  if (!existsSync(dir)) return []
+  const entries = await readdir(dir, { withFileTypes: true })
+  return entries
+    .filter(entry => entry.isDirectory() && !entry.name.startsWith('_'))
+    .filter(entry => existsSync(path.join(dir, entry.name, 'meta.json')))
+    .map(entry => entry.name)
+    .sort()
+}
+
 async function routes(): Promise<string[]> {
   const generated = path.join(ROOT, '.generated', 'index.json')
   const items: { slug: string; group: string }[] = existsSync(generated)
     ? JSON.parse(await readFile(generated, 'utf8'))
     : []
-  return ['/', '/how-it-works/', ...items.map(item => `/${item.group}/${item.slug}/`)]
+  const grids = await slugsIn('grids')
+  const examples = await slugsIn('examples')
+
+  const all = [
+    '/',
+    '/how-it-works/',
+    ...items.map(item => `/${item.group}/${item.slug}/`),
+    '/grids/',
+    ...grids.map(slug => `/grids/${slug}/`),
+    '/examples/',
+    /*
+     * An example is a standalone page copied into public, not an Astro route,
+     * so it is addressed by its file. Without index.html the server has
+     * nothing to answer with and the route 404s.
+     */
+    ...examples.map(slug => `/examples/${slug}/index.html`)
+  ]
+
+  /*
+   * Arguments narrow the run, matched as substrings of the route. The full
+   * sweep is three widths of seventy-odd pages and takes about ten minutes,
+   * which is too slow to be the only way to check one page you just changed.
+   */
+  const filters = process.argv.slice(2)
+  if (filters.length === 0) return all
+
+  const filter = filters.join(', ')
+  const matching = all.filter(route => filters.some(term => route.includes(term)))
+  if (matching.length === 0) {
+    throw new Error(`no route matches "${filter}". Routes:\n` + all.map(r => `  ${r}`).join('\n'))
+  }
+  console.log(`Filtered to ${matching.length} of ${all.length} routes by "${filter}".\n`)
+  return matching
 }
 
 /*
