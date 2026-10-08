@@ -1217,15 +1217,28 @@
   }
 }
 
+/*
+ * The links take a share of the width rather than their own, so they spread
+ * against the spine instead of bunching in the corner. The share is counted in
+ * columns of the same twelve the page uses: six, then five.
+ *
+ * min-width is the part that matters. A percentage is a share of the viewport
+ * and the links are a fixed number of pixels, so the two cross: at 1280 a third
+ * is 426px against the 493px five links need, and the last one drops to a
+ * second row. It fitted at 1152 and at 1728 and failed in between, which is the
+ * worst kind of bug to catch by eye. max-content is whatever one line actually
+ * needs today, so adding a sixth link cannot bring the wrap back.
+ */
 @media (min-width: 64rem) {
   .site-nav__links {
     flex-basis: 50%;
+    min-width: max-content;
   }
 }
 
 @media (min-width: 80rem) {
   .site-nav__links {
-    flex-basis: 33.333%;
+    flex-basis: 41.667%;
   }
 }
 
