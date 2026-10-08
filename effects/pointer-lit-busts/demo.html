@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PointerLitBusts: Beamish demo</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #0a0a0c; }
+      #stage { width: 100vw; height: 100vh; }
+    </style>
+  </head>
+  <body>
+    <!-- Standalone, for the recorder and for opening on its own. -->
+    <div id="stage"></div>
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const handle = window.Beamish.create(document.getElementById('stage'))
+      window.__beamish = handle
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
+    </script>
+  </body>
+</html>

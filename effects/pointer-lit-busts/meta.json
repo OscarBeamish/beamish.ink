@@ -1,0 +1,48 @@
+{
+  "name": "PointerLitBusts",
+  "slug": "pointer-lit-busts",
+  "tier": 1,
+  "description": "Three helmeted busts in a dark room, lit by the cursor carrying the only lamp",
+  "category": "pointer",
+  "ground": "dark",
+  "tags": ["3d", "three", "pointer", "light", "dark", "scene"],
+  "peerDependencies": { "three": ">=0.160.0" },
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "The forms are generated rather than loaded. A prompt here hands over source, and a decimated head scan is several megabytes of binary nobody can read, review or tune. A lathe profile and three primitives is a few hundred numbers and every part of it can be changed by somebody who has never opened a 3D tool",
+      "The light moves in the world, on a plane in front of the busts, rather than in screen space. A light pinned to the cursor in two dimensions lights everything from the same angle wherever it goes, so the shading never changes and the scene reads as a flat image with a bright patch on it",
+      "There is always a little rim light. On a dark ground an unlit form is not subtle, it is absent, and a reader who moves the cursor somewhere empty concludes the page is broken",
+      "No shadow maps. A moving light and three solids is the case where real shadows look obvious and cost a second render pass every frame, and at this scale the shading says most of what a shadow would have"
+    ]
+  },
+  "perf": { "frameBudgetMs": 2.5, "contexts": 1, "notes": ["One render pass, three lathes and a few primitives, no shadow map and no post"] },
+  "files": [
+    { "from": "shared/runtime.ts", "to": "src/beamish/shared/runtime.ts", "role": "runtime" },
+    { "from": "effects/pointer-lit-busts/core.ts", "to": "src/beamish/effects/pointer-lit-busts/core.ts", "role": "core" }
+  ],
+  "options": {
+    "lamp": { "type": "number", "default": 26, "min": 0, "max": 120, "step": 1, "description": "Brightness of the lamp the cursor carries." },
+    "lampColour": { "type": "color", "default": "#ffe9c9", "description": "Colour of the lamp. Warm, so it reads as a lamp rather than as a screen." },
+    "reach": { "type": "number", "default": 3.2, "min": 0.5, "max": 10, "step": 0.1, "description": "How far in front of the busts the lamp sits." },
+    "sweep": { "type": "number", "default": 7, "min": 1, "max": 20, "step": 0.5, "description": "How far the lamp travels across the scene." },
+    "rim": { "type": "number", "default": 0.5, "min": 0, "max": 3, "step": 0.05, "description": "The edge that keeps a form present when the lamp is elsewhere." },
+    "rimColour": { "type": "color", "default": "#6f86b8", "description": "Colour of the rim, which is the room rather than the lamp." },
+    "room": { "type": "color", "default": "#0a0a0c", "description": "The ground the busts stand in." },
+    "parallax": { "type": "number", "default": 0.35, "min": 0, "max": 2, "step": 0.05, "description": "How far the camera drifts against the cursor. Zero holds it still." },
+    "polish": { "type": "number", "default": 0.42, "min": 0, "max": 1, "step": 0.02, "description": "How polished the shell is. Low is stone, high is lacquer." }
+  },
+  "instruction": "move the cursor to light them",
+  "oneShot": false,
+  "cursor": {
+    "duration": 9,
+    "keys": [
+      { "t": 0, "x": 0.12, "y": 0.62 },
+      { "t": 2.25, "x": 0.44, "y": 0.3 },
+      { "t": 4.5, "x": 0.86, "y": 0.58 },
+      { "t": 6.75, "x": 0.5, "y": 0.78 },
+      { "t": 9, "x": 0.12, "y": 0.62 }
+    ]
+  },
+  "record": { "duration": 9, "fps": 30, "posterAt": 2.4 }
+}
