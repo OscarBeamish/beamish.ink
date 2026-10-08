@@ -116,6 +116,27 @@ if (existsSync(examplesDir)) {
   if (existsSync(gridsDir)) {
     await cp(gridsDir, path.join(PUBLIC, 'grids'), { recursive: true })
   }
+
+  /*
+   * Component stylesheets, by the same logic and for the same relative path,
+   * but one file each rather than the whole directory. A component ships
+   * adapters, a recipe, a demo bundle and its own recorded media, and none of
+   * that is what an example links: it links the stylesheet, because the glass
+   * or the panel has to look the same on a page that has no framework to
+   * mount the component with.
+   */
+  await rm(path.join(PUBLIC, 'components'), { recursive: true, force: true })
+  const componentsDir = path.join(ROOT, 'components')
+  if (existsSync(componentsDir)) {
+    for (const entry of await readdir(componentsDir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue
+      const sheet = path.join(componentsDir, entry.name, 'styles.css')
+      if (!existsSync(sheet)) continue
+      const dest = path.join(PUBLIC, 'components', entry.name)
+      await mkdir(dest, { recursive: true })
+      await cp(sheet, path.join(dest, 'styles.css'))
+    }
+  }
 }
 
 await mkdir(path.join(PUBLIC, 'fonts'), { recursive: true })
