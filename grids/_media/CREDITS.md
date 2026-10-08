@@ -4,7 +4,8 @@ These are here so the grid demos have something real to hold. A grid laid out
 with grey boxes is a diagram of a grid: you cannot tell whether a column measure
 works until there is a picture and a paragraph fighting for it.
 
-They are shared across every item in `grids/` rather than copied into each one,
+They are shared across every item in `grids/`, and by the pages in
+`examples/`, rather than copied into each one,
 because six photographs per grid would put the whole media budget into pictures
 that are not the point.
 

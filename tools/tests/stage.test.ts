@@ -103,7 +103,10 @@ describe('the stage hands one context along a page', () => {
         const w = window as never as { __peak: number[] }
         w.__peak = []
         const real = HTMLCanvasElement.prototype.getContext
-        HTMLCanvasElement.prototype.getContext = function (...args: never[]) {
+        HTMLCanvasElement.prototype.getContext = function (
+          this: HTMLCanvasElement,
+          ...args: never[]
+        ) {
           w.__peak.push(document.querySelectorAll('canvas').length)
           return (real as never as (...a: never[]) => unknown).apply(this, args)
         } as never

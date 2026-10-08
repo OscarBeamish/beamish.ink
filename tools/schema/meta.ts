@@ -366,3 +366,39 @@ export const gridMetaSchema = z
   .strict()
 
 export type GridMeta = z.infer<typeof gridMetaSchema>
+
+// --- examples --------------------------------------------------------------
+
+/*
+ * An example is a whole page, not an item, so it has the least of all three
+ * schemas: no options, no files, no prompt. Nobody pastes a brand site.
+ *
+ * Note what is deliberately absent: the list of items the page uses. That list
+ * lives in the page's own entry, which is the only place it can be true, and
+ * the page writes its colophon from it. Repeating it here would mean two lists
+ * and one of them wrong.
+ *
+ * The name is the invented brand rather than a CamelCase item name, so it is
+ * allowed spaces and an ampersand.
+ */
+export const exampleMetaSchema = z
+  .object({
+    name: z.string().min(2).max(60),
+    slug,
+    /** One sentence for the card, sentence case, no full stop. */
+    description: z.string().min(10).max(160),
+    /** What this page is for: which part of the library it puts under load. */
+    intent: z.string().min(20),
+    ground: z.enum(['paper', 'dark', 'either']).default('paper'),
+    record: z.object({
+      duration: z.number().positive(),
+      fps: z.number().int().positive().default(24),
+      posterAt: z.number().nonnegative(),
+      crf: z.number().int().min(0).max(63).optional(),
+      webmCrf: z.number().int().min(0).max(63).optional(),
+      posterQuality: z.number().int().min(2).max(31).optional()
+    })
+  })
+  .strict()
+
+export type ExampleMeta = z.infer<typeof exampleMetaSchema>

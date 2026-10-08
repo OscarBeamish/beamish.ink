@@ -25,7 +25,7 @@ export type ItemRef = {
    * that links it. It is listed here anyway because the recorder works off this
    * list, and a grid still has a take to make.
    */
-  kind: 'item' | 'grid'
+  kind: 'item' | 'grid' | 'example'
 }
 
 export async function listItems(): Promise<ItemRef[]> {
@@ -56,6 +56,20 @@ export async function listItems(): Promise<ItemRef[]> {
       const dir = path.join(grids, entry.name)
       if (!existsSync(path.join(dir, 'meta.json'))) continue
       items.push({ slug: entry.name, dir, tier: 1, kind: 'grid' })
+    }
+  }
+
+  /*
+   * Examples. Tier 1 because their page exposes the same handle, though what
+   * it does with t is scroll and drive every item on the page at once.
+   */
+  const examples = path.join(ROOT, 'examples')
+  if (existsSync(examples)) {
+    for (const entry of await readdir(examples, { withFileTypes: true })) {
+      if (!entry.isDirectory() || entry.name.startsWith('_')) continue
+      const dir = path.join(examples, entry.name)
+      if (!existsSync(path.join(dir, 'meta.json'))) continue
+      items.push({ slug: entry.name, dir, tier: 1, kind: 'example' })
     }
   }
 
@@ -100,6 +114,27 @@ export async function buildItem(item: ItemRef): Promise<void> {
    * demo.bundle.js for its demo to load.
    */
   if (item.kind === 'grid') return
+
+  /*
+   * An example writes its own entry, because what it wires up is the point:
+   * which item goes where, and which of them share the one context. There is
+   * no single core to generate an entry from.
+   */
+  if (item.kind === 'example') {
+    await build({
+      entryPoints: [path.join(item.dir, 'entry.ts')],
+      outfile: path.join(item.dir, 'page.bundle.js'),
+      bundle: true,
+      format: 'iife',
+      target: 'es2022',
+      platform: 'browser',
+      minify: false,
+      logLevel: 'silent',
+      define: { 'process.env.NODE_ENV': '"development"' }
+    })
+    return
+  }
+
   await build({
     stdin: {
       contents: entryFor(item),
@@ -134,6 +169,11 @@ async function main() {
      * anyway was an ENOENT on every run that touched one, from a step that
      * had correctly decided there was nothing to do.
      */
+    if (item.kind === 'example') {
+      const bytes = (await readFile(path.join(item.dir, 'page.bundle.js'))).byteLength
+      console.log(`  ${item.slug.padEnd(14)} ${(bytes / 1024).toFixed(1)} kB (example)`)
+      continue
+    }
     if (item.kind === 'grid') {
       console.log(`  ${item.slug.padEnd(14)} stylesheet, nothing to bundle`)
       continue
