@@ -20,7 +20,7 @@ where nothing overlaps, and it cannot be seen at all.
 
 That is why the card goes out to the side and back rather than straight through:
 the arc is what makes the far point exist. It is also why every other version of
-this fades the card out — fading hides a switch you could simply have made
+this fades the card out: fading hides a switch you could simply have made
 somewhere invisible.
 
 ## Wiring

@@ -12,7 +12,7 @@ Fixed items say so. Everything else is a decision waiting to be made.
 
 ## Findings that applied to more than one item
 
-### Shadow softness did nothing — **defect, fixed**
+### Shadow softness did nothing: **defect, fixed**
 
 Sundial shipped a `softness` option with a documented range, a sensible band and
 a paragraph in its prompt. It had no effect at all.
@@ -32,7 +32,7 @@ product, and it was confidently documenting a number that did nothing.
 faint stepping at high radius. VSM brings light bleeding, which on white forms
 against white paper may not matter. Worth a test.
 
-### Per-frame allocation — **improve**
+### Per-frame allocation: **improve**
 
 Three items allocate inside `render`:
 
@@ -47,7 +47,7 @@ Three items allocate inside `render`:
 None of these are visible at 60fps on a desktop. All of them are visible in a
 profile, and one of the promises here is that the code is worth reading.
 
-### `getBoundingClientRect` in the render loop — **defect**
+### `getBoundingClientRect` in the render loop: **defect**
 
 **Magnet** calls it every frame while the cursor is in range. That forces a
 synchronous layout on every mouse move, which is exactly the thing the rest of
@@ -57,7 +57,7 @@ already has a `ResizeObserver` that could cache it.
 Left as it is for now because it needs a small addition to the `Surface`
 contract: `resize` currently receives pixel dimensions, not the element rect.
 
-### Reduced-motion frames are guesses — **improve**
+### Reduced-motion frames are guesses: **improve**
 
 Every item has a `reducedMotionTime`, and for most of them the default was picked
 by eye rather than checked. The recorder already renders any frame on demand, so
