@@ -53,11 +53,41 @@ async function headingRag(page: Page) {
        * actually broke the line. Descending into children matters: a heading
        * built as a deliberate multi-line lockup has no direct text node at all.
        */
+      /*
+       * Text that is in the heading for a screen reader but not on the screen
+       * is skipped. Several items keep the real string in a clipped span and
+       * animate an aria-hidden copy beside it, which is the correct way to
+       * animate type, and counting both reports a rag nobody can see: a
+       * heading reading "Built to be opened" was failed for leaving a "z" on
+       * its last line, the z being a glyph out of the scramble.
+       *
+       * The check is written inline rather than as a helper because this body
+       * is serialised into the page, where the transpiler's keep-names helper
+       * does not exist and a named function throws on the first call.
+       */
       const walker = document.createTreeWalker(heading, NodeFilter.SHOW_TEXT)
       const nodes: Text[] = []
       let cursor = walker.nextNode()
       while (cursor) {
-        nodes.push(cursor as Text)
+        let shown = true
+        for (
+          let el = cursor.parentElement;
+          el && el !== heading.parentElement;
+          el = el.parentElement
+        ) {
+          const style = getComputedStyle(el)
+          const box = el.getBoundingClientRect()
+          if (
+            style.visibility === 'hidden' ||
+            style.display === 'none' ||
+            box.width <= 1 ||
+            box.height <= 1
+          ) {
+            shown = false
+            break
+          }
+        }
+        if (shown) nodes.push(cursor as Text)
         cursor = walker.nextNode()
       }
       if (nodes.length === 0) continue
