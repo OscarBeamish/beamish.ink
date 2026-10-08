@@ -200,6 +200,13 @@ Nothing is lost. The sentence was always complete with one word in it.
 5. **Using `rise` inside a paragraph.** A word jumping vertically in running
    text pulls the eye off the line.
 
+6. **Putting a comma or a full stop straight after the slot.** The box is as
+   wide as the longest word, so every shorter one leaves the rest of that space
+   empty, and a comma sitting a centimetre off the word it belongs to reads as
+   a bug rather than as a held space. Nobody notices the same gap at the end of
+   a line. Either end the sentence on the slot, or keep the alternatives close
+   enough in length that the slack is a word space.
+
 ## Ready-made wrappers
 
 If you would rather not hand-write the wiring, these are the same thing as a
