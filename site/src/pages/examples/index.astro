@@ -1,0 +1,61 @@
+---
+/*
+ * The examples wall.
+ *
+ * Each card opens a standalone page rather than a page inside this site, and
+ * that is deliberate: an example is supposed to read as somebody's own site,
+ * which it cannot do wearing this one's header. The card is the only place
+ * the library speaks about it.
+ */
+import Base from '../../layouts/Base.astro'
+import ItemCard from '../../components/ItemCard.astro'
+import { loadExamples, loadExampleMedia } from '../../lib/examples'
+
+const examples = loadExamples().map(example => ({
+  example,
+  media: loadExampleMedia(example.slug)
+}))
+---
+
+<Base
+  title="Beamish: examples"
+  description="Whole pages built from the library, to show what the items do when they have to share a page with real copy, photographs and each other."
+>
+  <section class="spine pt-32 pb-16 md:pt-44">
+    <h1 class="col-span-12 text-[clamp(2.3rem,7vw,5rem)] leading-[0.95] lg:col-span-10">
+      <span class="block">Whole pages,</span>
+      <span class="text-l3 block">built from the library.</span>
+    </h1>
+    <p class="text-l2 col-span-12 mt-8 text-[1rem] sm:col-span-9 lg:col-span-6">
+      A card proves an effect loops. An example proves it survives a header, a
+      paragraph of real copy, a photograph and three other effects on the same
+      page, which is where most of what is wrong with an effect actually shows
+      up. Every brand here is invented, and every page says what it is made of.
+    </p>
+  </section>
+
+  <section class="spine pb-32">
+    <ul class="col-span-12 grid grid-cols-1 gap-6 sm:grid-cols-2">
+      {
+        examples.map(({ example, media }) => (
+          <li class="h-full">
+            <ItemCard
+              href={`/examples/${example.slug}/index.html`}
+              name={example.name}
+              description={example.description}
+              label={example.ground === 'dark' ? 'Dark' : 'Paper'}
+              media={media}
+            />
+          </li>
+        ))
+      }
+      {
+        examples.length === 0 && (
+          <li class="text-l3 col-span-full font-mono text-[0.8rem]">
+            None yet.
+          </li>
+        )
+      }
+    </ul>
+  </section>
+</Base>

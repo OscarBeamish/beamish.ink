@@ -20,6 +20,8 @@ site/public/fonts/
 # shared stylesheets that go with them.
 site/public/grid-demos/
 site/public/shared/
+site/public/examples/
+site/public/grids/
 site/.astro/
 tools/review/.shots/
 # Built by the stage test from shared/stage.ts and three cores.

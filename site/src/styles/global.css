@@ -1106,6 +1106,25 @@
  * own. shrink-0 because a flex item with an intrinsic aspect ratio will
  * otherwise be squeezed before the text wraps.
  */
+/*
+ * On a phone the wordmark gives up its text and keeps its mark.
+ *
+ * Five links plus "Beamish.ink" wrap to two rows at 420px, which turns a
+ * one-line bar into a block and pushes the page down. The mark alone still
+ * says where home is, and the links are the thing somebody came to the bar
+ * for. Measured: five labels fit on one line once the wordmark is just the
+ * icon.
+ */
+@media (max-width: 30rem) {
+  .site-nav__mark span {
+    display: none;
+  }
+
+  .site-nav__hit {
+    padding-inline: 0.3rem;
+  }
+}
+
 .site-nav__icon {
   width: 1.15em;
   height: 1.15em;

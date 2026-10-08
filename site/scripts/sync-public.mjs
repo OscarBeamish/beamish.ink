@@ -20,7 +20,7 @@ await rm(path.join(PUBLIC, 'media'), { recursive: true, force: true })
 await mkdir(path.join(PUBLIC, 'media'), { recursive: true })
 
 let copied = 0
-for (const group of ['effects', 'components', 'grids']) {
+for (const group of ['effects', 'components', 'grids', 'examples']) {
   const base = path.join(ROOT, group)
   if (!existsSync(base)) continue
   for (const entry of await readdir(base, { withFileTypes: true })) {
@@ -85,6 +85,37 @@ if (existsSync(gridsDir)) {
   await cp(path.join(ROOT, 'shared', 'fonts'), path.join(PUBLIC, 'shared', 'fonts'), {
     recursive: true
   })
+}
+
+/*
+ * Examples, served whole, with the library files they link.
+ *
+ * An example is a standalone page: it has its own head, its own chrome and no
+ * site furniture, because the whole point is that it reads as somebody's own
+ * site. It links the library by the same relative paths it uses on disk, so
+ * the public tree has to mirror the repo for those paths to resolve:
+ * ../../shared and ../../grids from examples/<slug>/.
+ *
+ * grids/ is copied here as well as to grid-demos/. The two serve different
+ * jobs and must not be merged: grid-demos carries an index.html per grid so a
+ * directory URL works, and an index.html under /grids/<slug>/ would collide
+ * with the Astro route that already generates one.
+ */
+await rm(path.join(PUBLIC, 'examples'), { recursive: true, force: true })
+await rm(path.join(PUBLIC, 'grids'), { recursive: true, force: true })
+const examplesDir = path.join(ROOT, 'examples')
+if (existsSync(examplesDir)) {
+  for (const entry of await readdir(examplesDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue
+    await cp(
+      path.join(examplesDir, entry.name),
+      path.join(PUBLIC, 'examples', entry.name),
+      { recursive: true }
+    )
+  }
+  if (existsSync(gridsDir)) {
+    await cp(gridsDir, path.join(PUBLIC, 'grids'), { recursive: true })
+  }
 }
 
 await mkdir(path.join(PUBLIC, 'fonts'), { recursive: true })
