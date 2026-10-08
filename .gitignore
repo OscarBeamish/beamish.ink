@@ -22,6 +22,7 @@ site/public/grid-demos/
 site/public/shared/
 site/public/examples/
 site/public/grids/
+site/public/components/
 site/.astro/
 tools/review/.shots/
 # Built by the stage test from shared/stage.ts and three cores.

@@ -1,0 +1,365 @@
+/*
+ * Coil & Bias, the page's own stylesheet.
+ *
+ * Same split as the studio next door: the layout comes from TwelveColumn, the
+ * motion comes from the items, and what is left here is the part a brand would
+ * have written for itself. No class here uses the `g-` prefix, so the line
+ * between the library and the page using it stays visible.
+ *
+ * The difference is the ground. On paper you can let contrast look after
+ * itself; on near black every one of these decisions is about keeping type
+ * readable over something that is moving underneath it.
+ */
+
+:root {
+  /* The grid, on a page that wants a wide measure and air down the sides. */
+  --grid-margin: clamp(1.5rem, 6vw, 7rem);
+  --grid-measure: 104rem;
+  --grid-rule: rgba(224, 228, 236, 0.14);
+
+  --ground: #0b0d10;
+  --ground-lift: #12151a;
+  --type: #e8ebf0;
+  /*
+   * Secondary type at 0.62 on paper is comfortable. The same ratio on black is
+   * mud, because the eye reads light on dark as thinner than it is, so the
+   * quiet colour here is far closer to the loud one than its paper equivalent.
+   */
+  --type-soft: rgba(232, 235, 240, 0.72);
+  --type-faint: rgba(232, 235, 240, 0.45);
+  --live: #6fd3c7;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--type);
+  font-family: var(--font-mono);
+  font-size: clamp(0.8rem, 1.05vw, 0.92rem);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 0.94;
+}
+
+h1 {
+  font-size: clamp(2.6rem, 9vw, 8rem);
+}
+
+h2 {
+  font-size: clamp(1.5rem, 3.4vw, 3rem);
+}
+
+h3 {
+  font-size: clamp(0.95rem, 1.5vw, 1.25rem);
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+
+p {
+  margin: 0;
+}
+
+img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+figure {
+  margin: 0;
+}
+
+figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--type-faint);
+}
+
+code {
+  font-family: var(--font-mono);
+  color: var(--type-soft);
+}
+
+.eyebrow {
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--type-faint);
+}
+
+.note {
+  color: var(--type-soft);
+}
+
+.lede {
+  font-size: clamp(0.92rem, 1.4vw, 1.15rem);
+  line-height: 1.6;
+}
+
+/* --- the bar -------------------------------------------------------------- */
+
+/*
+ * GlassNav supplies the glass. What it does not supply is where the bar sits
+ * or what is in it, which is the component's own demo arrangement: the
+ * stylesheet styles the pane, the page positions it.
+ */
+.bar {
+  position: fixed;
+  inset-inline: clamp(1rem, 4vw, 3rem);
+  top: clamp(0.75rem, 2vw, 1.5rem);
+  z-index: 40;
+}
+
+.crossbar {
+  /*
+   * GlassNav is built for paper, so the pane is told what this page is made of
+   * rather than left warm white over near black. These are the component's own
+   * custom properties: configuring it, not restyling it.
+   */
+  --crossbar-pane: 11, 13, 16;
+  --crossbar-ink: var(--type);
+  --crossbar-quiet: var(--type-faint);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 0.65rem clamp(0.9rem, 2vw, 1.4rem);
+}
+
+.crossbar__mark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  color: var(--type);
+}
+
+.crossbar__links {
+  display: flex;
+  gap: clamp(0.8rem, 2vw, 1.8rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.crossbar__links a {
+  color: var(--type-faint);
+  text-decoration: none;
+  transition: color 180ms var(--ease-66, ease);
+}
+
+.crossbar__links a:hover,
+.crossbar__links a:focus-visible {
+  color: var(--type);
+}
+
+@media (max-width: 34rem) {
+  .crossbar__links {
+    gap: 0.7rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+  }
+}
+
+/* --- bands ---------------------------------------------------------------- */
+
+.g-band {
+  padding-block: clamp(3rem, 9vw, 8rem);
+}
+
+/*
+ * A band carrying a backdrop. The ground bleeds and the tracks stay inset,
+ * which is the split TwelveColumn is built around.
+ */
+.band__ground {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.band--hero,
+.band--shafts,
+.band--foot {
+  position: relative;
+  overflow: hidden;
+}
+
+/*
+ * Everything in a backdrop band needs lifting over it. On paper this is a
+ * nicety; here the backdrop is the brightest thing in the section, so type
+ * left at the same level is not merely behind it, it is gone.
+ */
+.band--hero .g-band__grid,
+.band--shafts .g-band__grid,
+.band--foot .g-band__grid {
+  position: relative;
+  z-index: 1;
+}
+
+.band--hero {
+  padding-block: clamp(6rem, 18vw, 14rem) clamp(4rem, 10vw, 9rem);
+}
+
+.hero-line {
+  margin-block: 0.4em 0.6em;
+}
+
+.band--range {
+  border-top: 1px solid var(--grid-rule);
+}
+
+.band--range h2,
+.band--measured h2,
+.band--foot h2 {
+  margin-bottom: clamp(2rem, 5vw, 3.5rem);
+}
+
+/*
+ * The cards are SpotlightCard. The item draws the light; the box, the rule and
+ * the padding are the brand's. A card with no edge of its own gives the
+ * spotlight nothing to run out to and the effect reads as a smudge.
+ */
+.card {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+  padding: clamp(1.1rem, 2.4vw, 1.8rem);
+  background: var(--ground-lift);
+  border: 1px solid var(--grid-rule);
+  border-radius: 2px;
+}
+
+.price {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+  color: var(--live);
+}
+
+.band--shafts {
+  border-block: 1px solid var(--grid-rule);
+  padding-block: clamp(4rem, 12vw, 9rem);
+}
+
+.running {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 3.4vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.band--measured {
+  background: var(--ground-lift);
+}
+
+.figure {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+}
+
+.odo,
+.counter {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 6.5vw, 5rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.figure__unit {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--type-faint);
+}
+
+.band--plate {
+  padding-top: 0;
+}
+
+.stack-note {
+  display: grid;
+  gap: 0.6rem;
+  align-content: start;
+}
+
+/* --- colophon ------------------------------------------------------------- */
+
+.band--foot {
+  border-top: 1px solid var(--grid-rule);
+}
+
+.manifest {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.35rem 1.5rem;
+  margin: 0 0 2rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.78rem;
+}
+
+.manifest li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.4rem;
+  border-bottom: 1px solid var(--grid-rule);
+}
+
+.manifest a {
+  color: var(--type);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.manifest a:hover,
+.manifest a:focus-visible {
+  border-bottom-color: var(--live);
+}
+
+.manifest .kind {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--type-faint);
+}
+
+.credit {
+  font-size: 0.7rem;
+}
+
+/*
+ * Reduced motion is handled inside every item, so there is nothing to switch
+ * off here. What does belong here is the page's own scroll behaviour, which is
+ * the one piece of motion the library has no say over.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
