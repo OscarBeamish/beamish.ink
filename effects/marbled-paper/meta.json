@@ -14,6 +14,7 @@
     "hero",
     "no-dependencies"
   ],
+  "ground": "paper",
   "peerDependencies": {},
   "browser": {
     "webgl": "webgl2",
@@ -25,7 +26,7 @@
     ]
   },
   "perf": {
-    "frameBudgetMs": 3.0,
+    "frameBudgetMs": 3,
     "contexts": 1,
     "notes": [
       "Measured 0.45ms at one drop, 2.25ms at the default sixty and 2.63ms at seventy-two, at 1440 by 900 on an RTX 3080, timed with a readPixels sync because without one you are timing the dispatch rather than the shader",

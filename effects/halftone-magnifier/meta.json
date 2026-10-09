@@ -13,6 +13,7 @@
     "print",
     "no-dependencies"
   ],
+  "ground": "paper",
   "peerDependencies": {},
   "browser": {
     "webgl": "webgl2",
@@ -26,7 +27,7 @@
     ]
   },
   "perf": {
-    "frameBudgetMs": 1.0,
+    "frameBudgetMs": 1,
     "contexts": 1,
     "notes": [
       "Outside the glass it is one texture read per pixel. Everything expensive is inside a branch that most of the frame never takes",

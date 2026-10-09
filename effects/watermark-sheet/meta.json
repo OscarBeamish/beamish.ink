@@ -13,6 +13,7 @@
     "backdrop",
     "no-dependencies"
   ],
+  "ground": "paper",
   "peerDependencies": {},
   "browser": {
     "webgl": "webgl2",
@@ -24,7 +25,7 @@
     ]
   },
   "perf": {
-    "frameBudgetMs": 1.0,
+    "frameBudgetMs": 1,
     "contexts": 1,
     "notes": [
       "Four octaves of value noise for the formation, two trigonometric terms for the wires, one distance for the device",

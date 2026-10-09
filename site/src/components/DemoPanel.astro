@@ -21,14 +21,18 @@ type Props = {
   name: string
   tier: 1 | 2
   category: string
-  /** The background the item was designed for. See AGENTS.md. */
-  ground?: 'paper' | 'dark' | 'either'
+  /**
+   * The background the item is tuned against. Required, like the field it
+   * comes from: a panel that quietly falls back to paper is how every
+   * undeclared item came to be shown on a ground nobody chose for it.
+   */
+  ground: 'paper' | 'dark' | 'either'
   instruction?: string | undefined
   oneShot: boolean
   options: Record<string, Record<string, unknown>>
 }
 
-const { slug, name, tier, category, ground = 'paper', instruction, oneShot, options } = Astro.props
+const { slug, name, tier, category, ground, instruction, oneShot, options } = Astro.props
 
 /*
  * Tier 2 is React, and the way Astro consumes React is an island. Mounting it

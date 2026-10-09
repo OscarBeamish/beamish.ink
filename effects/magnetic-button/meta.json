@@ -11,6 +11,7 @@
     "dom",
     "no-dependencies"
   ],
+  "ground": "either",
   "peerDependencies": {},
   "browser": {
     "webgl": "none",

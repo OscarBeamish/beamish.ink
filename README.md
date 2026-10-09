@@ -100,15 +100,19 @@ here, and an imperative handle is the wrong shape for any of them.
 The two tiers share tokens, motion, `meta.json`, the prompt system and the
 recorder. The runtime contract is the one thing they do not share.
 
-## Built for paper
+## Built for the ground it declares
 
 Every library in this space assumes a near-black canvas, and their effects come
-apart the moment you put them on anything else. The background here is
-`rgb(251, 250, 244)`, a warm off-white, and each effect is built to look right on
-it.
+apart the moment you put them on anything else. Assuming warm paper instead is
+the same mistake with the lights on.
 
-Light on light is the harder problem. It is also the more useful one, because
-most of the web is not black.
+So each item declares the ground it was tuned against, `paper`, `dark` or
+`either`, and `either` means somebody put it on both and looked. The field is
+required and has no default, because an item that does not say is an item
+nobody decided about.
+
+Light on light is the harder problem and worth solving. It was never the only
+one.
 
 ## Accessibility
 

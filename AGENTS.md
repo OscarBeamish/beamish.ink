@@ -66,25 +66,36 @@ the intended cost. Do not inline the runtime into each effect.
 - Give every ambient effect a pause control. WCAG 2.2.2 is Level A.
 - Keep flashing below three times per second. WCAG 2.3.1 is Level A. Check any
   strobe-like shader before shipping it.
-- Paper is the house style, not a rule about what may be built. The site is warm
-  paper and most of the library is designed for it, and for a long time that was
-  read as a prohibition: anything that only worked on a dark canvas was recast
-  or skipped, and a shelf of the most striking backdrops in the field went
-  unbuilt because of it. That reading is wrong and has been retired.
+- No ground is the house style. An item says which ground it is for, and says
+  it before anything is tuned, because that is the decision every default
+  hangs off.
 
-  What stands is the weaker version, which is the one that was ever worth
-  having: an effect has to say what it is for. A palette that reads only on
-  black is fine if the item is honest about it, says so in its description and
-  its recipe, carries defaults that look right on its own ground, and ships a
-  demo plate that is not the site's paper. A palette that was *meant* for paper
-  and does not read on it is still a bug.
+  This read the other way round for a long time. Paper was the house and dark
+  was the exception that had to argue for itself, and the cost was not
+  theoretical: a shelf of the most striking backdrops in the field went
+  unbuilt, and thirty of the fifty-nine items shipped saying nothing at all,
+  because the schema filled the silence in with `paper`. "Designed for paper"
+  and "nobody looked" were the same string.
 
-  Each item declares its ground in `meta.json` as `ground`: `paper`, `dark`, or
-  `either`. The field does not exist yet: it goes in with the first dark item,
-  along with the panel and card work to put something other than paper behind a
-  demo, and that is the first task of that piece rather than a later tidy-up.
-  Either way, say which ground you are building for before you tune anything,
-  because it is the decision the defaults hang off.
+  `ground` in `meta.json` is required: `paper`, `dark` or `either`. It has no
+  default. An item whose metadata does not say is a build error, which is the
+  point. The field exists to carry a decision, and a field that can be left
+  out carries an absence instead.
+
+  `either` is a claim that somebody put the item on both grounds and looked at
+  it. It is not the safe answer when you are unsure. The safe answer is the
+  ground you actually tuned against.
+
+  Whatever is declared, the defaults have to be right for it and the demo
+  plate has to be that ground. A palette meant for paper that does not read on
+  paper is a bug, and so is one meant for black that has only ever been seen
+  on cream.
+
+- The site is not the library. beamish.ink is one page that happens to use
+  these items, and what it is made of says nothing about what an item should
+  assume. Do not reach for the site tokens to decide an effect default, and do
+  not tune an item by how it sits on the catalogue page.
+
 - A backdrop has to survive being ignored. Movement at the edge of vision pulls a
   reader off a headline, which is the one thing a background must not do, so an
   ambient effect wants a long period and a short distance: tens of seconds rather

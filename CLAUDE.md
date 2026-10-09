@@ -9,8 +9,9 @@ The rules most often broken:
   canvases.
 - `renderAtTime(t)` must be pure in `t`. The recorder depends on it.
 - Every ambient effect needs a pause control. WCAG 2.2.2 is Level A.
-- Paper is the house style, not a limit. Dark-ground effects are welcome; say
-  which ground an item is for and tune its defaults to that.
+- No ground is the house style. `ground` is required in `meta.json` and has no
+  default; decide it before tuning anything, and `either` means somebody
+  looked at both.
 - Commit at every green state. Branch per item. Never force-push.
 - Prompts pin to tags. Never delete a published tag. Never point a prompt at
   `main`.

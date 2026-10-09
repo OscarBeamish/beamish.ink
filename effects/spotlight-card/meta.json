@@ -12,6 +12,7 @@
     "dom",
     "no-dependencies"
   ],
+  "ground": "paper",
   "peerDependencies": {},
   "browser": {
     "webgl": "none",

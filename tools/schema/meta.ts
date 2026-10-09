@@ -162,20 +162,23 @@ export const metaSchema = z
     tags: z.array(z.string()).min(1),
 
     /**
-     * The background this item is designed to sit on.
+     * The background this item is tuned against. Required, with no default.
      *
-     * Paper is the house style and the default, and for a while it was read as
-     * a rule about what could be built at all, which cost the library most of
-     * the striking backdrops in the field. It is not. What an item owes is a
-     * statement of what it is for: `dark` says the defaults are tuned for a
-     * near-black ground and will look wrong on paper, which is a fact about the
-     * design rather than a bug. `either` says it was built to work on both and
-     * has been looked at on both.
+     * There is no house ground. `dark` says the defaults are tuned for a
+     * near-black page and will look wrong on paper, which is a fact about the
+     * design rather than a bug. `paper` says the same thing the other way up.
+     * `either` says somebody put it on both and looked.
      *
-     * The site puts the declared ground behind the demo panel, so getting this
+     * It defaulted to `paper` once, and the default is what made it useless:
+     * thirty of fifty-nine items never set it, so the catalogue could not tell
+     * a decision from a silence and every one of those thirty was filed, and
+     * shown, as a paper item. Any default recreates that; the only version of
+     * this field that cannot lie is one you have to fill in.
+     *
+     * The site puts the declared ground behind the demo panel, so getting it
      * wrong is visible immediately rather than in somebody else's project.
      */
-    ground: z.enum(['paper', 'dark', 'either']).default('paper'),
+    ground: z.enum(['paper', 'dark', 'either']),
 
     /** npm packages the host project must already have, or install. */
     peerDependencies: z.record(z.string()).default({}),
@@ -330,7 +333,7 @@ export const gridMetaSchema = z
       'masonry'
     ]),
     tags: z.array(z.string()).min(1),
-    ground: z.enum(['paper', 'dark', 'either']).default('paper'),
+    ground: z.enum(['paper', 'dark', 'either']),
 
     /** The stylesheet, and anything else a paste needs. */
     files: z.array(fileSpec).min(1),
@@ -389,7 +392,7 @@ export const exampleMetaSchema = z
     description: z.string().min(10).max(160),
     /** What this page is for: which part of the library it puts under load. */
     intent: z.string().min(20),
-    ground: z.enum(['paper', 'dark', 'either']).default('paper'),
+    ground: z.enum(['paper', 'dark', 'either']),
     record: z.object({
       duration: z.number().positive(),
       fps: z.number().int().positive().default(24),

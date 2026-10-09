@@ -14,6 +14,7 @@
     "backdrop",
     "no-dependencies"
   ],
+  "ground": "paper",
   "peerDependencies": {},
   "browser": {
     "webgl": "webgl2",

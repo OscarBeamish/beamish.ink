@@ -12,6 +12,7 @@
     "backdrop-filter",
     "refraction"
   ],
+  "ground": "paper",
   "peerDependencies": {
     "react": ">=18"
   },
@@ -111,7 +112,7 @@
         "action": "wait"
       },
       {
-        "at": 1.0,
+        "at": 1,
         "action": "scroll",
         "by": 60
       },
@@ -126,7 +127,7 @@
         "by": 60
       },
       {
-        "at": 3.0,
+        "at": 3,
         "action": "hover",
         "target": ".beamish-glass-nav__link"
       },
@@ -136,7 +137,7 @@
         "by": -90
       },
       {
-        "at": 5.0,
+        "at": 5,
         "action": "scroll",
         "by": -90
       }

@@ -13,6 +13,7 @@
     "print",
     "no-dependencies"
   ],
+  "ground": "either",
   "peerDependencies": {},
   "browser": {
     "webgl": "webgl2",

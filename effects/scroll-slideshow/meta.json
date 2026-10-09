@@ -14,6 +14,7 @@
     "subtle",
     "no-dependencies"
   ],
+  "ground": "paper",
   "peerDependencies": {},
   "browser": {
     "webgl": "webgl2",
@@ -122,12 +123,12 @@
     "duration": 8,
     "keys": [
       {
-        "t": 0.0,
-        "progress": 0.0
+        "t": 0,
+        "progress": 0
       },
       {
         "t": 0.7,
-        "progress": 0.0
+        "progress": 0
       },
       {
         "t": 1.25,
@@ -147,11 +148,11 @@
       },
       {
         "t": 5.05,
-        "progress": 1.0
+        "progress": 1
       },
       {
-        "t": 8.0,
-        "progress": 1.0
+        "t": 8,
+        "progress": 1
       }
     ]
   }

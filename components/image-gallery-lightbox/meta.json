@@ -16,6 +16,7 @@
     "vue",
     "no-dependencies"
   ],
+  "ground": "paper",
   "peerDependencies": {
     "react": ">=18"
   },
@@ -125,7 +126,7 @@
         "key": "ArrowRight"
       },
       {
-        "at": 6.0,
+        "at": 6,
         "action": "key",
         "key": "ArrowLeft"
       },

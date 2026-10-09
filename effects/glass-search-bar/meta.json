@@ -15,6 +15,7 @@
     "scroll",
     "no-dependencies"
   ],
+  "ground": "paper",
   "peerDependencies": {},
   "browser": {
     "webgl": "webgl2",
@@ -234,7 +235,7 @@
   "record": {
     "duration": 8,
     "fps": 30,
-    "posterAt": 3.0,
+    "posterAt": 3,
     "crf": 30
   },
   "scroll": {

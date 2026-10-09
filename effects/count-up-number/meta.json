@@ -13,6 +13,7 @@
     "i18n",
     "no-dependencies"
   ],
+  "ground": "either",
   "peerDependencies": {},
   "browser": {
     "webgl": "none",
