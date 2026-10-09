@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en-GB" data-ground="paper">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quoin &amp; Rule: a letterpress studio</title>
+    <meta
+      name="description"
+      content="An invented studio, built entirely from Beamish items, to show what they do on a real page."
+    />
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <link rel="stylesheet" href="../../grids/twelve-column/grid.css" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <!--
+      Quoin & Rule is invented. There is no such studio, the work is not real
+      and the words are written for this page.
+
+      That is deliberate rather than a shortcut: a real brand's name, logotype,
+      colours and photography are theirs and have no business in this repo, and
+      an invented one can be chosen to exercise the library rather than
+      bringing requirements of its own.
+
+      Everything laid out here comes from Beamish. The grid is TwelveColumn,
+      the backdrops are PaperGrain and RegistrationMarks brokered by the stage
+      so only one context is ever live, and the type is doing the rest. The
+      colophon at the bottom lists all of it.
+    -->
+    <header class="masthead">
+      <a class="masthead__mark" href="#top">Quoin&nbsp;&amp;&nbsp;Rule</a>
+      <nav class="masthead__nav" aria-label="Primary">
+        <a href="#work">Work</a>
+        <a href="#press">The press</a>
+        <a href="#colophon">Colophon</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <!-- Hero. PaperGrain sits behind it; the stage decides when. -->
+      <section class="g-band band--hero" data-stage-section>
+        <div class="band__ground" data-backdrop="paper-grain"></div>
+        <div class="g-band__grid band__over">
+          <p class="eyebrow g-col-12">Letterpress since 1974 · Hoxton</p>
+          <h1 class="g-col-10" id="hero-line">Set by hand, printed by weight</h1>
+          <p class="lede g-col-5 g-start-8 g-measure">
+            We set metal type and print it on paper heavy enough to take the
+            impression. Everything here was made on a press you can hear from
+            the street.
+          </p>
+        </div>
+      </section>
+
+      <section class="g-band band--rule">
+        <div class="g-band__grid">
+          <p class="running g-col-10 g-start-2">
+            In editions small enough to count, we print
+            <span id="we-print"
+              ><span>invitations</span><span>broadsides</span><span>business cards</span><span>chapbooks</span></span
+            >
+          </p>
+        </div>
+      </section>
+
+      <section class="g-band" id="work">
+        <div class="g-band__grid">
+          <h2 class="g-col-4">Recent work</h2>
+          <p class="g-col-5 g-start-8 g-measure note">
+            Short runs, mostly two colours, mostly on mould-made paper. We keep
+            one of everything.
+          </p>
+
+          <figure class="g-col-7">
+            <img
+              src="../../grids/_media/plate-1043.webp"
+              alt="A granite cliff above a river, with conifers along both banks"
+              width="1400"
+              height="875"
+            />
+            <figcaption>Hollow Way, a broadside in two pulls</figcaption>
+          </figure>
+          <div class="g-col-4 g-start-9 stack-note">
+            <h3>Two pulls, the second once the first is dry</h3>
+            <p class="note">
+              The register is the whole job. A sheet that has been through twice
+              has to land within a hair of where it was, which is why the marks
+              outside the trim exist.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- RegistrationMarks wants a context too. The stage hands it over. -->
+      <section class="g-band band--marks" id="press" data-stage-section>
+        <div class="band__ground" data-backdrop="registration-marks"></div>
+        <div class="g-band__grid band__over">
+          <h2 class="g-col-6">The press</h2>
+          <div class="g-col-5 g-start-8 g-measure">
+            <p>
+              A Heidelberg platen from 1961, a proofing press for the long
+              sheets, and about forty cases of foundry type. None of it is
+              quick. That is mostly the point: a job that takes a day to set is
+              a job somebody has read twice before it is printed.
+            </p>
+            <p class="note">
+              The marks behind this are the ones that sit outside the trim, so
+              each plate can be lined up against the last.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="g-band">
+        <div class="g-band__grid">
+          <h2 class="g-col-12">What a short run costs you</h2>
+          <div class="g-col-4">
+            <p class="figure-big">
+              <span class="counter" data-count="120">120</span>
+            </p>
+            <p class="note">sheets in a typical edition</p>
+          </div>
+          <div class="g-col-4">
+            <p class="figure-big"><span class="counter" data-count="2">2</span></p>
+            <p class="note">colours, usually, and never more than four</p>
+          </div>
+          <div class="g-col-4">
+            <p class="figure-big"><span class="counter" data-count="14">14</span></p>
+            <p class="note">working days from proof to delivery</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="g-band band--plates">
+        <div class="g-band__grid">
+          <figure class="g-col-4">
+            <img
+              src="../../grids/_media/plate-1015.webp"
+              alt="A fjord far below, seen from a clifftop where people are standing on the rock"
+              width="1400"
+              height="875"
+            />
+            <figcaption>Thorn, a chapbook</figcaption>
+          </figure>
+          <figure class="g-col-4">
+            <img
+              src="../../grids/_media/plate-1016.webp"
+              alt="A red sandstone canyon lit low by the sun, under broken cloud"
+              width="1400"
+              height="875"
+            />
+            <figcaption>Candlemas, an invitation</figcaption>
+          </figure>
+          <figure class="g-col-4">
+            <img
+              src="../../grids/_media/plate-1018.webp"
+              alt="A single track road winding between steep green hills under low cloud"
+              width="1400"
+              height="875"
+            />
+            <figcaption>Oxide, a specimen sheet</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="g-band band--quote">
+        <div class="g-band__grid">
+          <p class="quote g-col-9 g-start-2" id="quote-line">
+            Type that has been set by hand sits on the paper differently, and
+            everybody can see it even when they cannot say why.
+          </p>
+        </div>
+      </section>
+
+      <footer class="g-band band--foot" id="colophon">
+        <div class="g-band__grid">
+          <h2 class="g-col-5">Colophon</h2>
+          <p class="g-col-5 g-start-8 g-measure note">
+            Quoin &amp; Rule is invented. This page exists to show what the
+            Beamish library does when the items have to share a page with real
+            copy, photographs and each other. Everything on it is from the
+            library and nothing else.
+          </p>
+          <ul class="manifest g-col-12" id="manifest"></ul>
+          <p class="g-col-12 note">
+            Photographs are from Unsplash under its licence and are credited in
+            the repository.
+          </p>
+        </div>
+      </footer>
+    </main>
+
+    <script src="./page.bundle.js"></script>
+  </body>
+</html>

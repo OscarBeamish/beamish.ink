@@ -1,9 +1,9 @@
-# Examples
+# Templates
 
 A plan, not a spec. Written for Oscar and for whoever builds this, and meant to
 be argued with before anything is made.
 
-## What an example is
+## What an template is
 
 A whole page that looks like a real brand site, built out of items from this
 library and nothing else. Not a gallery of effects with labels on them: a page
@@ -11,13 +11,13 @@ that would pass as a studio's own site, where the effects are doing a job
 rather than being exhibited.
 
 The point is the thing a card cannot show. A card proves an effect loops; an
-example proves it survives contact with a header, a paragraph of real copy, a
+template proves it survives contact with a header, a paragraph of real copy, a
 photograph and three other effects on the same page. Most of what is wrong with
 an effect only appears there.
 
-Examples are **not pasteable items**. There is no prompt that gives somebody a
+Templates are **not pasteable items**. There is no prompt that gives somebody a
 whole brand site. What each one carries instead is a manifest: which items it
-uses, with links. The example is the argument for the items, and the items are
+uses, with links. The template is the argument for the items, and the items are
 what gets copied.
 
 ## The brands are invented
@@ -74,7 +74,7 @@ hero, a different one behind the middle band and a third at the outro is asking
 for three, which is exactly what AGENTS.md forbids and what the browser will
 punish.
 
-So an example page needs something the library does not have yet: a broker that
+So an template page needs something the library does not have yet: a broker that
 keeps one context alive and hands it to whichever section owns the viewport,
 mounting and destroying as the page scrolls. Every item already has
 `destroy()`, and the context-leak test already proves fifty mount and destroy
@@ -87,10 +87,10 @@ probably wants its own test: mount three sections, scroll through them twice,
 assert the live context count never exceeded one.
 
 If that cannot be made to feel good, the fallback is one canvas effect per
-example and the rest DOM, which is a real constraint on what these pages can
+template and the rest DOM, which is a real constraint on what these pages can
 be, and worth knowing early.
 
-## What the examples will expose
+## What the templates will expose
 
 Things a brand page needs that the library has no item for. Some of these
 become items; some stay page furniture.
@@ -110,11 +110,11 @@ needed, then decide which deserve to be items.
 
 ## How it is built
 
-A fourth collection, `examples/`, beside `effects/`, `components/` and
-`grids/`. Each example is a directory with its own page, its own copy, and a
+A fourth collection, `templates/`, beside `effects/`, `components/` and
+`grids/`. Each template is a directory with its own page, its own copy, and a
 `meta.json` listing the items it uses.
 
-Routed at `/examples/<slug>`, with an index at `/examples`. The nav gains a
+Routed at `/templates/<slug>`, with an index at `/templates`. The nav gains a
 fourth link, which is as many as that bar will take.
 
 Recorded like a grid: a slow scroll down the page and back, so the card has a
@@ -123,22 +123,22 @@ video. The scroll recorder already exists and the demo pages already answer
 new tooling.
 
 The manifest is the valuable part. Rendered on the page as "this page is made
-of these eleven things", each linking to its item, it turns an example into a
+of these eleven things", each linking to its item, it turns an template into a
 route into the library rather than a dead end. It is also checkable: a test can
-assert every slug in a manifest exists, so an example cannot quietly reference
+assert every slug in a manifest exists, so an template cannot quietly reference
 an item that was renamed.
 
 ## Risks, in the order I would worry about them
 
-1. **The context broker is the whole job.** If it is not good, the examples are
+1. **The context broker is the whole job.** If it is not good, the templates are
    either thin or broken. Build it first and on its own.
-2. **An example is a lot of copy.** A convincing brand page needs real writing,
+2. **An template is a lot of copy.** A convincing brand page needs real writing,
    and placeholder text will make the whole thing look like a template. This is
    the part most likely to be underestimated.
-3. **Photographs.** Three examples at six pictures each is eighteen, and the
+3. **Photographs.** Three templates at six pictures each is eighteen, and the
    shared folder is already 800kB for six. They will need to be smaller and
    probably fewer.
-4. **Maintenance.** An example referencing eleven items breaks when any of them
+4. **Maintenance.** An template referencing eleven items breaks when any of them
    is renamed. The manifest test is what stops that being discovered by a
    reader.
 5. **Scope.** Each of these is a day's work done properly. Three is a week. One

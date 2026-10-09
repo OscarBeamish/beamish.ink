@@ -353,7 +353,7 @@ export const gridMetaSchema = z
     notes: z.array(z.string()).default([]),
 
     /*
-     * A grid does not move, so the take is a scroll down the example page and
+     * A grid does not move, so the take is a scroll down the template page and
      * back. `duration` is handed to the demo as `?span`, which is what makes
      * the last frame match the first.
      */
@@ -370,10 +370,10 @@ export const gridMetaSchema = z
 
 export type GridMeta = z.infer<typeof gridMetaSchema>
 
-// --- examples --------------------------------------------------------------
+// --- templates --------------------------------------------------------------
 
 /*
- * An example is a whole page, not an item, so it has the least of all three
+ * An template is a whole page, not an item, so it has the least of all three
  * schemas: no options, no files, no prompt. Nobody pastes a brand site.
  *
  * Note what is deliberately absent: the list of items the page uses. That list
@@ -384,7 +384,7 @@ export type GridMeta = z.infer<typeof gridMetaSchema>
  * The name is the invented brand rather than a CamelCase item name, so it is
  * allowed spaces and an ampersand.
  */
-export const exampleMetaSchema = z
+export const templateMetaSchema = z
   .object({
     name: z.string().min(2).max(60),
     slug,
@@ -404,4 +404,4 @@ export const exampleMetaSchema = z
   })
   .strict()
 
-export type ExampleMeta = z.infer<typeof exampleMetaSchema>
+export type TemplateMeta = z.infer<typeof templateMetaSchema>

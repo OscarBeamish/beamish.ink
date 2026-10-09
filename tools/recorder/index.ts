@@ -23,7 +23,7 @@ import { fileURLToPath } from 'node:url'
 import {
   metaSchema,
   gridMetaSchema,
-  exampleMetaSchema,
+  templateMetaSchema,
   type Meta,
   type InteractionStep
 } from '../schema/meta'
@@ -175,11 +175,11 @@ async function openDemo(
    * server, which is why this went unnoticed until the first textured effect.
    */
   /*
-   * An example is a whole page and its file is index.html, not demo.html.
+   * An template is a whole page and its file is index.html, not demo.html.
    * Everything else about the take is the same.
    */
   const pageUrl =
-    item.kind === 'example' ? demoUrl(item.dir).replace(/demo\.html$/, 'index.html') : demoUrl(item.dir)
+    item.kind === 'template' ? demoUrl(item.dir).replace(/demo\.html$/, 'index.html') : demoUrl(item.dir)
   const url = `${pageUrl}?record=1${extra}`
   await page.goto(url, { waitUntil: 'load' })
   await page.evaluate(() => document.fonts.ready)
@@ -449,15 +449,15 @@ async function poster(framesDir: string, outDir: string, meta: Recordable) {
 async function recordItem(browser: Browser, item: ItemRef, only: string[], keepFrames: boolean) {
   const raw = JSON.parse(await readFile(path.join(item.dir, 'meta.json'), 'utf8'))
   /*
-   * Three kinds, three schemas, and none is a subset of another. An example
+   * Three kinds, three schemas, and none is a subset of another. An template
    * has no tier, no options and no files, so metaSchema rejects it outright:
    * the first recording of one failed in Zod before a browser was opened.
    */
   const meta: Recordable =
     item.kind === 'grid'
       ? gridMetaSchema.parse(raw)
-      : item.kind === 'example'
-        ? exampleMetaSchema.parse(raw)
+      : item.kind === 'template'
+        ? templateMetaSchema.parse(raw)
         : metaSchema.parse(raw)
   const outDir = path.join(item.dir, 'media')
   await mkdir(outDir, { recursive: true })
@@ -491,7 +491,7 @@ async function recordItem(browser: Browser, item: ItemRef, only: string[], keepF
     let frames = cached ? (await readdir(framesDir)).length : 0
     if (!cached) {
       const span =
-        item.kind === 'grid' || item.kind === 'example'
+        item.kind === 'grid' || item.kind === 'template'
           ? `&span=${meta.record.duration}`
           : ''
       const page = await openDemo(browser, item, ratio, span)

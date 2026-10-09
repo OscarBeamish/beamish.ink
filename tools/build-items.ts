@@ -25,7 +25,7 @@ export type ItemRef = {
    * that links it. It is listed here anyway because the recorder works off this
    * list, and a grid still has a take to make.
    */
-  kind: 'item' | 'grid' | 'example'
+  kind: 'item' | 'grid' | 'template'
 }
 
 export async function listItems(): Promise<ItemRef[]> {
@@ -60,16 +60,16 @@ export async function listItems(): Promise<ItemRef[]> {
   }
 
   /*
-   * Examples. Tier 1 because their page exposes the same handle, though what
+   * Templates. Tier 1 because their page exposes the same handle, though what
    * it does with t is scroll and drive every item on the page at once.
    */
-  const examples = path.join(ROOT, 'examples')
-  if (existsSync(examples)) {
-    for (const entry of await readdir(examples, { withFileTypes: true })) {
+  const templates = path.join(ROOT, 'templates')
+  if (existsSync(templates)) {
+    for (const entry of await readdir(templates, { withFileTypes: true })) {
       if (!entry.isDirectory() || entry.name.startsWith('_')) continue
-      const dir = path.join(examples, entry.name)
+      const dir = path.join(templates, entry.name)
       if (!existsSync(path.join(dir, 'meta.json'))) continue
-      items.push({ slug: entry.name, dir, tier: 1, kind: 'example' })
+      items.push({ slug: entry.name, dir, tier: 1, kind: 'template' })
     }
   }
 
@@ -116,11 +116,11 @@ export async function buildItem(item: ItemRef): Promise<void> {
   if (item.kind === 'grid') return
 
   /*
-   * An example writes its own entry, because what it wires up is the point:
+   * An template writes its own entry, because what it wires up is the point:
    * which item goes where, and which of them share the one context. There is
    * no single core to generate an entry from.
    */
-  if (item.kind === 'example') {
+  if (item.kind === 'template') {
     await build({
       entryPoints: [path.join(item.dir, 'entry.ts')],
       outfile: path.join(item.dir, 'page.bundle.js'),
@@ -169,9 +169,9 @@ async function main() {
      * anyway was an ENOENT on every run that touched one, from a step that
      * had correctly decided there was nothing to do.
      */
-    if (item.kind === 'example') {
+    if (item.kind === 'template') {
       const bytes = (await readFile(path.join(item.dir, 'page.bundle.js'))).byteLength
-      console.log(`  ${item.slug.padEnd(14)} ${(bytes / 1024).toFixed(1)} kB (example)`)
+      console.log(`  ${item.slug.padEnd(14)} ${(bytes / 1024).toFixed(1)} kB (template)`)
       continue
     }
     if (item.kind === 'grid') {

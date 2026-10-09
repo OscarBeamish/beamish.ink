@@ -158,7 +158,7 @@ async function pageFacts(page: Page) {
 // --- driver ----------------------------------------------------------------
 
 /*
- * Every slug in a collection directory, which is how grids and examples get
+ * Every slug in a collection directory, which is how grids and templates get
  * reviewed: neither has an entry in .generated/index.json, because neither has
  * a prompt composed from a core. Reading the directory means a new one is
  * covered the moment it exists, with nothing to remember to add here.
@@ -180,7 +180,7 @@ async function routes(): Promise<string[]> {
     ? JSON.parse(await readFile(generated, 'utf8'))
     : []
   const grids = await slugsIn('grids')
-  const examples = await slugsIn('examples')
+  const templates = await slugsIn('templates')
 
   const all = [
     '/',
@@ -188,13 +188,13 @@ async function routes(): Promise<string[]> {
     ...items.map(item => `/${item.group}/${item.slug}/`),
     '/grids/',
     ...grids.map(slug => `/grids/${slug}/`),
-    '/examples/',
+    '/templates/',
     /*
-     * An example is a standalone page copied into public, not an Astro route,
+     * An template is a standalone page copied into public, not an Astro route,
      * so it is addressed by its file. Without index.html the server has
      * nothing to answer with and the route 404s.
      */
-    ...examples.map(slug => `/examples/${slug}/index.html`)
+    ...templates.map(slug => `/templates/${slug}/index.html`)
   ]
 
   /*

@@ -5,7 +5,7 @@ dist/
 *.log
 .env
 .env.*
-!.env.example
+!.env.template
 
 # recorder scratch — frames are intermediate, media/ is committed
 tools/recorder/.frames/
@@ -20,7 +20,7 @@ site/public/fonts/
 # shared stylesheets that go with them.
 site/public/grid-demos/
 site/public/shared/
-site/public/examples/
+site/public/templates/
 site/public/grids/
 site/public/components/
 site/.astro/

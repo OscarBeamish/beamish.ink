@@ -20,7 +20,7 @@ await rm(path.join(PUBLIC, 'media'), { recursive: true, force: true })
 await mkdir(path.join(PUBLIC, 'media'), { recursive: true })
 
 let copied = 0
-for (const group of ['effects', 'components', 'grids', 'examples']) {
+for (const group of ['effects', 'components', 'grids', 'templates']) {
   const base = path.join(ROOT, group)
   if (!existsSync(base)) continue
   for (const entry of await readdir(base, { withFileTypes: true })) {
@@ -88,28 +88,28 @@ if (existsSync(gridsDir)) {
 }
 
 /*
- * Examples, served whole, with the library files they link.
+ * Templates, served whole, with the library files they link.
  *
- * An example is a standalone page: it has its own head, its own chrome and no
+ * An template is a standalone page: it has its own head, its own chrome and no
  * site furniture, because the whole point is that it reads as somebody's own
  * site. It links the library by the same relative paths it uses on disk, so
  * the public tree has to mirror the repo for those paths to resolve:
- * ../../shared and ../../grids from examples/<slug>/.
+ * ../../shared and ../../grids from templates/<slug>/.
  *
  * grids/ is copied here as well as to grid-demos/. The two serve different
  * jobs and must not be merged: grid-demos carries an index.html per grid so a
  * directory URL works, and an index.html under /grids/<slug>/ would collide
  * with the Astro route that already generates one.
  */
-await rm(path.join(PUBLIC, 'examples'), { recursive: true, force: true })
+await rm(path.join(PUBLIC, 'templates'), { recursive: true, force: true })
 await rm(path.join(PUBLIC, 'grids'), { recursive: true, force: true })
-const examplesDir = path.join(ROOT, 'examples')
-if (existsSync(examplesDir)) {
-  for (const entry of await readdir(examplesDir, { withFileTypes: true })) {
+const templatesDir = path.join(ROOT, 'templates')
+if (existsSync(templatesDir)) {
+  for (const entry of await readdir(templatesDir, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue
     await cp(
-      path.join(examplesDir, entry.name),
-      path.join(PUBLIC, 'examples', entry.name),
+      path.join(templatesDir, entry.name),
+      path.join(PUBLIC, 'templates', entry.name),
       { recursive: true }
     )
   }
@@ -121,7 +121,7 @@ if (existsSync(examplesDir)) {
    * Component stylesheets, by the same logic and for the same relative path,
    * but one file each rather than the whole directory. A component ships
    * adapters, a recipe, a demo bundle and its own recorded media, and none of
-   * that is what an example links: it links the stylesheet, because the glass
+   * that is what an template links: it links the stylesheet, because the glass
    * or the panel has to look the same on a page that has no framework to
    * mount the component with.
    */
