@@ -78,22 +78,72 @@
     if (body && isPainted(body)) return body;
     return "rgb(255, 255, 255)";
   }
+  function isDarkGround(colour) {
+    return relativeLuminance(colour) < 0.5;
+  }
+  function resolveAutoGrounds(el, opts) {
+    let ground = null;
+    let next = null;
+    const page = () => ground ??= pageGround(el);
+    const write = (key, value) => {
+      next ??= { ...opts };
+      next[key] = value;
+    };
+    for (const [key, value] of Object.entries(opts)) {
+      if (typeof value !== "string") continue;
+      const text = value.trim();
+      const word = text.toLowerCase();
+      if (word === "auto") {
+        write(key, page());
+        continue;
+      }
+      if (word.startsWith("light-dark(")) {
+        const pair = splitPair(text);
+        if (pair) write(key, isDarkGround(page()) ? pair[1] : pair[0]);
+      }
+    }
+    return next ?? opts;
+  }
+  function splitPair(text) {
+    const open = text.indexOf("(");
+    const close = text.lastIndexOf(")");
+    if (open < 0 || close < open) return null;
+    const inner = text.slice(open + 1, close);
+    let depth = 0;
+    for (let i = 0; i < inner.length; i++) {
+      const ch = inner[i];
+      if (ch === "(") depth += 1;
+      else if (ch === ")") depth -= 1;
+      else if (ch === "," && depth === 0) {
+        return [inner.slice(0, i).trim(), inner.slice(i + 1).trim()];
+      }
+    }
+    return null;
+  }
   function isPainted(colour) {
     if (!colour || colour === "transparent") return false;
     const parts = colour.match(/[\d.]+/g);
     if (!parts) return false;
     return !(parts.length >= 4 && Number(parts[3]) === 0);
   }
-  function resolveAutoGrounds(el, opts) {
-    let ground = null;
-    let next = null;
-    for (const [key, value] of Object.entries(opts)) {
-      if (typeof value !== "string" || value.trim().toLowerCase() !== "auto") continue;
-      ground ??= pageGround(el);
-      next ??= { ...opts };
-      next[key] = ground;
+  function relativeLuminance(colour) {
+    const [r, g, b] = toRgb(colour);
+    const channel = (value) => {
+      const c = value / 255;
+      return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+  }
+  function toRgb(colour) {
+    const text = colour.trim();
+    if (text.startsWith("#")) {
+      const hex = text.length === 4 ? text[1] + text[1] + text[2] + text[2] + text[3] + text[3] : text.slice(1, 7);
+      const n = Number.parseInt(hex, 16);
+      return Number.isNaN(n) ? [255, 255, 255] : [n >> 16 & 255, n >> 8 & 255, n & 255];
     }
-    return next ?? opts;
+    const parts = text.match(/[\d.]+/g);
+    if (!parts || parts.length < 3) return [255, 255, 255];
+    return [Number(parts[0]), Number(parts[1]), Number(parts[2])];
   }
 
   // shared/runtime.ts

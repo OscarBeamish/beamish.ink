@@ -15,6 +15,7 @@
  */
 
 import { mount, type BaseOptions, type EffectHandle, type Surface } from '../../shared/runtime'
+import { isDarkGround } from '../../shared/ground'
 
 export type GuillocheLinesOptions = BaseOptions & {
   /** The paper the plate is printed on. */
@@ -49,8 +50,8 @@ export type GuillocheLinesOptions = BaseOptions & {
  */
 export const guillocheLinesDefaults: GuillocheLinesOptions = {
   paper: 'auto',
-  ink: '#2f2b26',
-  accent: '#c44400',
+  ink: 'light-dark(#2f2b26, #d9cdb4)',
+  accent: 'light-dark(#c44400, #ff7a3d)',
   scale: 1.9,
   pitch: 10,
   lobes: 7,
@@ -109,6 +110,7 @@ uniform float u_depth;
 uniform float u_weight;
 uniform float u_accentBand;
 uniform float u_grain;
+uniform float u_onDark;
 
 out vec4 fragColor;
 
@@ -128,6 +130,23 @@ float engrave(float field, float weight) {
   float aa = fwidth(field);
   float edge = aa * (0.5 + weight * 2.0);
   return 1.0 - smoothstep(0.0, edge, min(band, 1.0 - band));
+}
+
+/*
+ * Ink on a ground.
+ *
+ * On paper this multiplies, because that is what ink does: two lines crossing
+ * are darker than one, and the plate can only ever take light away.
+ *
+ * On a dark ground multiplying is useless. There is nothing to subtract, so a
+ * light ink multiplied into near-black stays near-black, and that, rather than
+ * the colours, is why this effect could not leave paper. Over dark the same
+ * coverage mixes toward the ink instead, so the engraving is what lights the
+ * plate, and crossings still compound because each mix moves further.
+ */
+vec3 inkOn(vec3 base, vec3 ink, float cover) {
+  if (u_onDark > 0.5) return mix(base, ink, cover);
+  return base * mix(vec3(1.0), ink, cover);
 }
 
 void main() {
@@ -187,11 +206,9 @@ void main() {
   float lineC = engrave(fieldC, u_weight) * smoothstep(0.0, 0.3, r);
 
   vec3 col = u_paper;
-  // Multiplied, not added: this is ink on paper, and two lines crossing are
-  // darker than one.
-  col *= mix(vec3(1.0), u_ink, lineA * 0.85);
-  col *= mix(vec3(1.0), u_ink, lineB * 0.7);
-  col *= mix(vec3(1.0), u_ink, lineC * 0.5);
+  col = inkOn(col, u_ink, lineA * 0.85);
+  col = inkOn(col, u_ink, lineB * 0.7);
+  col = inkOn(col, u_ink, lineC * 0.5);
 
   /*
    * A single band of the pattern printed in the second colour, the way a
@@ -200,7 +217,7 @@ void main() {
    * on top of it.
    */
   float ring = smoothstep(u_accentBand + 0.16, u_accentBand, abs(r - u_accentBand - 0.28));
-  col = mix(col, col * mix(vec3(1.0), u_accent, lineA * 0.9), ring);
+  col = mix(col, inkOn(col, u_accent, lineA * 0.9), ring);
 
   float tooth = hash12(floor(cssPx * 0.5)) - 0.5;
   col += tooth * 0.05 * u_grain;
@@ -225,7 +242,8 @@ const UNIFORMS = [
   'u_depth',
   'u_weight',
   'u_accentBand',
-  'u_grain'
+  'u_grain',
+  'u_onDark'
 ] as const
 
 type UniformName = (typeof UNIFORMS)[number]
@@ -328,6 +346,7 @@ class GuillocheLinesSurface implements Surface<GuillocheLinesOptions> {
     gl.uniform1f(at('u_dpr'), this.size.dpr)
     gl.uniform1f(at('u_time'), t)
     gl.uniform1f(at('u_period'), opts.period)
+    gl.uniform1f(at('u_onDark'), isDarkGround(opts.paper) ? 1 : 0)
     gl.uniform3fv(at('u_paper'), parseColor(opts.paper))
     gl.uniform3fv(at('u_ink'), parseColor(opts.ink))
     gl.uniform3fv(at('u_accent'), parseColor(opts.accent))

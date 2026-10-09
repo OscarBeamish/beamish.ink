@@ -2759,7 +2759,7 @@
       "ambient",
       "no-dependencies"
     ],
-    "ground": "paper",
+    "ground": "either",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -2808,13 +2808,13 @@
       },
       "ink": {
         "type": "color",
-        "default": "#2f2b26",
-        "description": "The engraving. A desaturated near-black reads as ink; pure black reads as a wireframe."
+        "default": "light-dark(#2f2b26, #d9cdb4)",
+        "description": "The engraving. A desaturated near-black reads as ink; pure black reads as a wireframe. A light-dark() pair picks by the ground it lands on."
       },
       "accent": {
         "type": "color",
-        "default": "#c44400",
-        "description": "The second colour, printed over one band of the pattern the way a share certificate prints one guilloche in red over the rest in black."
+        "default": "light-dark(#c44400, #ff7a3d)",
+        "description": "The second colour, printed over one band of the pattern the way a share certificate prints one guilloche in red over the rest in black. A light-dark() pair picks by the ground it lands on."
       },
       "scale": {
         "type": "number",
