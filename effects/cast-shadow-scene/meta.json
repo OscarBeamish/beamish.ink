@@ -14,7 +14,7 @@
     "hero",
     "ambient"
   ],
-  "ground": "paper",
+  "ground": "either",
   "peerDependencies": {
     "three": ">=0.160.0"
   },
@@ -64,13 +64,13 @@
     },
     "stone": {
       "type": "color",
-      "default": "#f5f2e9",
-      "description": "The forms. Slightly lighter than the paper is what makes them read as objects standing on it rather than holes cut in it."
+      "default": "light-dark(#f5f2e9, #272b33)",
+      "description": "The forms. Slightly lighter than the paper is what makes them read as objects standing on it rather than holes cut in it. A light-dark() pair picks by the ground it lands on."
     },
     "accent": {
       "type": "color",
-      "default": "#c44400",
-      "description": "One form carries colour. This is the obvious place to put your own brand colour."
+      "default": "light-dark(#c44400, #ff7a3d)",
+      "description": "One form carries colour. This is the obvious place to put your own brand colour. A light-dark() pair picks by the ground it lands on."
     },
     "elevation": {
       "type": "number",

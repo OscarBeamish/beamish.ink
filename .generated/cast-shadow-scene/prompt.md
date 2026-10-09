@@ -142,8 +142,8 @@ as the second argument to the create function; anything omitted takes its defaul
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
 | `paper` | color | `auto` | any CSS hex | The paper the forms stand on. Match it to your page background or the panel reads as a pasted-in rectangle. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
-| `stone` | color | `#f5f2e9` | any CSS hex | The forms. Slightly lighter than the paper is what makes them read as objects standing on it rather than holes cut in it. |
-| `accent` | color | `#c44400` | any CSS hex | One form carries colour. This is the obvious place to put your own brand colour. |
+| `stone` | color | `light-dark(#f5f2e9, #272b33)` | any CSS hex | The forms. Slightly lighter than the paper is what makes them read as objects standing on it rather than holes cut in it. A light-dark() pair picks by the ground it lands on. |
+| `accent` | color | `light-dark(#c44400, #ff7a3d)` | any CSS hex | One form carries colour. This is the obvious place to put your own brand colour. A light-dark() pair picks by the ground it lands on. |
 | `elevation` | number | `24` | 8 to 80 deg (looks right between 22 and 45) | How high the sun sits. Low is long dramatic shadows; above about 60 the shadows disappear under the objects and the whole thing goes flat. |
 | `softness` | number | `0.68` | 0 to 1 (looks right between 0.35 and 0.75) | Shadow edge softness. Zero is a hard midday edge, one is heavy overcast. |
 | `shadow` | number | `0.26` | 0 to 1 (looks right between 0.18 and 0.45) | How dark the shadows fall on the paper. The paper is never lit. It stays exactly the colour you set, so the shadow is the only thing drawn on it. |

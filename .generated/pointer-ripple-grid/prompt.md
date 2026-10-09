@@ -148,8 +148,8 @@ as the second argument to the create function; anything omitted takes its defaul
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
 | `paper` | color | `auto` | any CSS hex | The paper the field stands on. Match it to your page background or the panel reads as a pasted-in rectangle. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
-| `stone` | color | `#f2efe6` | any CSS hex | The forms at rest. Slightly lighter than the paper is what makes them read as objects standing on it. |
-| `accent` | color | `#c44400` | any CSS hex | The forms at the crest of the ripple. The colour is what makes the wave legible in a still frame, so do not set it to the same value as stone. |
+| `stone` | color | `light-dark(#f2efe6, #242831)` | any CSS hex | The forms at rest. Slightly lighter than the paper is what makes them read as objects standing on it. A light-dark() pair picks by the ground it lands on. |
+| `accent` | color | `light-dark(#c44400, #ff7a3d)` | any CSS hex | The forms at the crest of the ripple. The colour is what makes the wave legible in a still frame, so do not set it to the same value as stone. A light-dark() pair picks by the ground it lands on. |
 | `count` | number | `18` | 6 to 40 (looks right between 16 and 26) | Forms per side. 18 is 324 of them. Past 30 the forms are narrower than their own shadows and the field turns to fur. |
 | `form` | enum | `cylinder` | `cylinder` · `box` | Shape of each form. Cylinders read as softer and hide the grid; boxes keep the rows visible, which suits a lower count. |
 | `thickness` | number | `0.58` | 0.1 to 0.95 (looks right between 0.4 and 0.7) | Width of each form as a fraction of its cell. Above 0.9 neighbours touch and the field becomes a surface. |

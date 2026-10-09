@@ -62,8 +62,8 @@ export type PointerRippleGridOptions = BaseOptions & {
  */
 export const pointerRippleGridDefaults: PointerRippleGridOptions = {
   paper: 'auto',
-  stone: '#f2efe6',
-  accent: '#c44400',
+  stone: 'light-dark(#f2efe6, #242831)',
+  accent: 'light-dark(#c44400, #ff7a3d)',
   count: 18,
   form: 'cylinder',
   thickness: 0.58,
