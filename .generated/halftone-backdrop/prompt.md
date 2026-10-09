@@ -139,7 +139,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | Paper colour. Set this to your own background or the panel will not sit in the page. |
+| `paper` | color | `auto` | any CSS hex | Paper colour. Set this to your own background or the panel will not sit in the page. |
 | `inkA` | color | `#5d5a52` | any CSS hex | First plate. A desaturated near-black reads as ink; pure black reads as a hole. |
 | `inkB` | color | `#c44400` | any CSS hex | Second plate. This is where the colour lives, so change this one first. |
 | `scale` | number | `1.6` | 0.3 to 6 (looks right between 1.2 and 3) | Size of the ink shapes. Lower is broader and calmer. |

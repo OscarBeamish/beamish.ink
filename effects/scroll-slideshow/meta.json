@@ -59,8 +59,8 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "#fbfaf4",
-      "description": "Shown wherever the web has pulled the image away from the edge of the frame. Match it to the page behind, or the gap reads as a border that appears only while scrolling."
+      "default": "auto",
+      "description": "Shown wherever the web has pulled the image away from the edge of the frame. Match it to the page behind, or the gap reads as a border that appears only while scrolling. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "bend": {
       "type": "number",

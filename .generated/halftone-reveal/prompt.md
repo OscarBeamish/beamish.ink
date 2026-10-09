@@ -71,7 +71,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | Shown wherever a dot has not grown yet, which at the start is the whole frame. Match it to the page behind or the reveal begins as a visible panel. |
+| `paper` | color | `auto` | any CSS hex | Shown wherever a dot has not grown yet, which at the start is the whole frame. Match it to the page behind or the reveal begins as a visible panel. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `screen` | number | `14` | 4 to 48 | Cell size in CSS pixels. Bigger cells are a coarser screen and a more obviously printed arrival. Laid out in pixels rather than in UV so the dots stay round and keep their size when the element changes shape. |
 | `angle` | number | `45` | 0 to 90 | Screen angle in degrees. 45 is the one a printer reaches for, because a screen on the square reads as a grid and fights whatever is underneath it. |
 | `sweep` | number | `24` | 0 to 360 | Direction the reveal travels, in degrees. 0 runs left to right. Only visible when scatter is below 1. |

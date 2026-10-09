@@ -144,7 +144,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | The paper the stamp is pressed into. Match it to your page background or the panel reads as a pasted-in rectangle. |
+| `paper` | color | `auto` | any CSS hex | The paper the stamp is pressed into. Match it to your page background or the panel reads as a pasted-in rectangle. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `foilLow` | color | `#7a3410` | any CSS hex | The foil where the light does not reach. Metal takes almost all its colour from the highlight, so this wants to be genuinely dark. |
 | `foilHigh` | color | `#f0b070` | any CSS hex | The foil at the highlight. Copper by default; a pale grey here gives silver, a yellow gives gold. |
 | `spokes` | number | `28` | 3 to 40 (looks right between 8 and 18) | Points on the rosette. Above about 24 the petals are narrower than the relief and it turns into a disc. |

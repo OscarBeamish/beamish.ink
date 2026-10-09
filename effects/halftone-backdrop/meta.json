@@ -55,7 +55,7 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "#fbfaf4",
+      "default": "auto",
       "description": "Paper colour. Set this to your own background or the panel will not sit in the page."
     },
     "inkA": {

@@ -147,7 +147,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | The paper the field stands on. Match it to your page background or the panel reads as a pasted-in rectangle. |
+| `paper` | color | `auto` | any CSS hex | The paper the field stands on. Match it to your page background or the panel reads as a pasted-in rectangle. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `stone` | color | `#f2efe6` | any CSS hex | The forms at rest. Slightly lighter than the paper is what makes them read as objects standing on it. |
 | `accent` | color | `#c44400` | any CSS hex | The forms at the crest of the ripple. The colour is what makes the wave legible in a still frame, so do not set it to the same value as stone. |
 | `count` | number | `18` | 6 to 40 (looks right between 16 and 26) | Forms per side. 18 is 324 of them. Past 30 the forms are narrower than their own shadows and the field turns to fur. |

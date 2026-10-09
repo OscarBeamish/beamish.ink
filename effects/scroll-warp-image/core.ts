@@ -55,7 +55,7 @@ export type ScrollWarpImageOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const scrollWarpImageDefaults: ScrollWarpImageOptions = {
-  paper: '#fbfaf4',
+  paper: 'auto',
   bend: 0.06,
   slip: 0.015,
   fringe: 0.005,

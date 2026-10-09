@@ -60,8 +60,8 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "#fbfaf4",
-      "description": "Shown wherever the warp has pulled the sheet away from the frame. Match it to the page behind, or a border appears out of nowhere as soon as anyone scrolls."
+      "default": "auto",
+      "description": "Shown wherever the warp has pulled the sheet away from the frame. Match it to the page behind, or a border appears out of nowhere as soon as anyone scrolls. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "bend": {
       "type": "number",

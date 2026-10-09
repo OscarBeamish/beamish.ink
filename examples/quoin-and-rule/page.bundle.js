@@ -66,6 +66,36 @@
     };
   }
 
+  // shared/ground.ts
+  function pageGround(el) {
+    for (let node = el; node; node = node.parentElement) {
+      const colour = getComputedStyle(node).backgroundColor;
+      if (isPainted(colour)) return colour;
+    }
+    const root = getComputedStyle(document.documentElement).backgroundColor;
+    if (isPainted(root)) return root;
+    const body = document.body && getComputedStyle(document.body).backgroundColor;
+    if (body && isPainted(body)) return body;
+    return "rgb(255, 255, 255)";
+  }
+  function isPainted(colour) {
+    if (!colour || colour === "transparent") return false;
+    const parts = colour.match(/[\d.]+/g);
+    if (!parts) return false;
+    return !(parts.length >= 4 && Number(parts[3]) === 0);
+  }
+  function resolveAutoGrounds(el, opts) {
+    let ground = null;
+    let next = null;
+    for (const [key, value] of Object.entries(opts)) {
+      if (typeof value !== "string" || value.trim().toLowerCase() !== "auto") continue;
+      ground ??= pageGround(el);
+      next ??= { ...opts };
+      next[key] = ground;
+    }
+    return next ?? opts;
+  }
+
   // shared/runtime.ts
   var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
   var clamp01 = (n) => n < 0 ? 0 : n > 1 ? 1 : n;
@@ -119,7 +149,7 @@
     };
   };
   function mount(el, userOpts, config) {
-    let opts = { ...config.defaults, ...userOpts ?? {} };
+    let opts = resolveAutoGrounds(el, { ...config.defaults, ...userOpts ?? {} });
     const kind = config.kind ?? "canvas";
     let canvas = null;
     if (kind === "canvas") {
@@ -319,7 +349,7 @@
         stop();
       },
       update(next) {
-        opts = { ...opts, ...next };
+        opts = resolveAutoGrounds(el, { ...opts, ...next });
         applySize();
         if (!running) draw(reduced ? opts.reducedMotionTime ?? 0 : elapsed);
       },

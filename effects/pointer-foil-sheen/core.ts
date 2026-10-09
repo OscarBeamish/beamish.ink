@@ -49,7 +49,7 @@ export type PointerFoilSheenOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const pointerFoilSheenDefaults: PointerFoilSheenOptions = {
-  paper: '#fbfaf4',
+  paper: 'auto',
   foilLow: '#7a3410',
   foilHigh: '#f0b070',
   spokes: 28,

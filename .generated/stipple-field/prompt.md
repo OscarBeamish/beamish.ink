@@ -142,7 +142,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | The paper behind the marks. |
+| `paper` | color | `auto` | any CSS hex | The paper behind the marks. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `ink` | color | `#36362f` | any CSS hex | The nib. |
 | `accent` | color | `#c44400` | any CSS hex | A second nib, on a small share of the marks. |
 | `pitch` | number | `7` | 3 to 30 | Cell size in CSS pixels. There is at most one mark per cell, so this is the spacing of the stipple rather than its weight. Laid out in pixels so the marks keep their size whatever shape the element is. |

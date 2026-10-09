@@ -65,7 +65,7 @@ export type TranslucentSheetsOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const translucentSheetsDefaults: TranslucentSheetsOptions = {
-  paper: '#fbfaf4',
+  paper: 'auto',
   ink: '#9a8e79',
   accent: '#c44400',
   sheets: 14,

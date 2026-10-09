@@ -145,7 +145,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | The size in the tray, and what shows wherever no ink reached. Match it to the page behind or the margins read as a panel. |
+| `paper` | color | `auto` | any CSS hex | The size in the tray, and what shows wherever no ink reached. Match it to the page behind or the margins read as a panel. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `ink` | color | `#6b675c` | any CSS hex | The main ink. Roughly two thirds of the drops are this, or this thinned toward the paper, which is what a second pass of one colour looks like once the first has spread. |
 | `accent` | color | `#cf8458` | any CSS hex | The second ink, on roughly a third of the drops. |
 | `drops` | number | `60` | 1 to 72 | How many drops go into the tray. Each one pushes every earlier one outward, so this sets the density of the rings rather than just the amount of ink. |

@@ -61,7 +61,7 @@ export type PointerRippleGridOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const pointerRippleGridDefaults: PointerRippleGridOptions = {
-  paper: '#fbfaf4',
+  paper: 'auto',
   stone: '#f2efe6',
   accent: '#c44400',
   count: 18,

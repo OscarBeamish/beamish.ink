@@ -39,7 +39,7 @@ export type CastShadowSceneOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const castShadowSceneDefaults: CastShadowSceneOptions = {
-  paper: '#fbfaf4',
+  paper: 'auto',
   stone: '#f5f2e9',
   accent: '#c44400',
   elevation: 24,

@@ -59,8 +59,8 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "#fbfaf4",
-      "description": "The tray the filings are scattered on."
+      "default": "auto",
+      "description": "The tray the filings are scattered on. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "ink": {
       "type": "color",

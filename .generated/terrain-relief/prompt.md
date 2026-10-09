@@ -151,7 +151,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | The paper behind the land. Match it to your page background or the horizon reads as a hard edge. |
+| `paper` | color | `auto` | any CSS hex | The paper behind the land. Match it to your page background or the horizon reads as a hard edge. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `land` | color | `#f4f1e7` | any CSS hex | The land itself. Keep it close to the paper but not identical, or the horizon disappears entirely. |
 | `ink` | color | `#6f665a` | any CSS hex | The contour lines. A warm grey reads as print; pure black reads as a wireframe. |
 | `indexInk` | color | `#c44400` | any CSS hex | Every fifth line is an index contour, the one a real map would label. This is the obvious place for your own colour. |

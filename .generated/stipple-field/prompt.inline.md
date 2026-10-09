@@ -43,6 +43,8 @@ import between them is relative.
  * An effect's core.ts should contain drawing, and nothing else.
  */
 
+import { resolveAutoGrounds } from './ground'
+
 export type EffectHandle = {
   start(): void
   stop(): void
@@ -284,7 +286,12 @@ export function mount<O extends BaseOptions>(
   userOpts: Partial<O> | undefined,
   config: MountConfig<O>
 ): EffectHandle {
-  let opts: O = { ...config.defaults, ...(userOpts ?? {}) }
+  /*
+   * `auto` in a colour option means take it from the page. Resolved here, at
+   * the one point that has both the host element and the merged options, so no
+   * item has to reach into the DOM from inside its own render loop.
+   */
+  let opts: O = resolveAutoGrounds(el, { ...config.defaults, ...(userOpts ?? {}) })
 
   const kind = config.kind ?? 'canvas'
 
@@ -627,7 +634,7 @@ export function mount<O extends BaseOptions>(
       stop()
     },
     update(next) {
-      opts = { ...opts, ...(next as Partial<O>) }
+      opts = resolveAutoGrounds(el, { ...opts, ...(next as Partial<O>) })
       applySize()
       if (!running) draw(reduced ? opts.reducedMotionTime ?? 0 : elapsed)
     },
@@ -726,7 +733,7 @@ export type StippleFieldOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const stippleFieldDefaults: StippleFieldOptions = {
-  paper: '#fbfaf4',
+  paper: 'auto',
   ink: '#36362f',
   accent: '#c44400',
   pitch: 7,
@@ -1217,7 +1224,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | The paper behind the marks. |
+| `paper` | color | `auto` | any CSS hex | The paper behind the marks. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `ink` | color | `#36362f` | any CSS hex | The nib. |
 | `accent` | color | `#c44400` | any CSS hex | A second nib, on a small share of the marks. |
 | `pitch` | number | `7` | 3 to 30 | Cell size in CSS pixels. There is at most one mark per cell, so this is the spacing of the stipple rather than its weight. Laid out in pixels so the marks keep their size whatever shape the element is. |

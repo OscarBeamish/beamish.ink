@@ -44,6 +44,8 @@ import between them is relative.
  * An effect's core.ts should contain drawing, and nothing else.
  */
 
+import { resolveAutoGrounds } from './ground'
+
 export type EffectHandle = {
   start(): void
   stop(): void
@@ -285,7 +287,12 @@ export function mount<O extends BaseOptions>(
   userOpts: Partial<O> | undefined,
   config: MountConfig<O>
 ): EffectHandle {
-  let opts: O = { ...config.defaults, ...(userOpts ?? {}) }
+  /*
+   * `auto` in a colour option means take it from the page. Resolved here, at
+   * the one point that has both the host element and the merged options, so no
+   * item has to reach into the DOM from inside its own render loop.
+   */
+  let opts: O = resolveAutoGrounds(el, { ...config.defaults, ...(userOpts ?? {}) })
 
   const kind = config.kind ?? 'canvas'
 
@@ -628,7 +635,7 @@ export function mount<O extends BaseOptions>(
       stop()
     },
     update(next) {
-      opts = { ...opts, ...(next as Partial<O>) }
+      opts = resolveAutoGrounds(el, { ...opts, ...(next as Partial<O>) })
       applySize()
       if (!running) draw(reduced ? opts.reducedMotionTime ?? 0 : elapsed)
     },
@@ -729,7 +736,7 @@ export type ScrollWarpImageOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const scrollWarpImageDefaults: ScrollWarpImageOptions = {
-  paper: '#fbfaf4',
+  paper: 'auto',
   bend: 0.06,
   slip: 0.015,
   fringe: 0.005,
@@ -1179,7 +1186,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | Shown wherever the warp has pulled the sheet away from the frame. Match it to the page behind, or a border appears out of nowhere as soon as anyone scrolls. |
+| `paper` | color | `auto` | any CSS hex | Shown wherever the warp has pulled the sheet away from the frame. Match it to the page behind, or a border appears out of nowhere as soon as anyone scrolls. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `bend` | number | `0.06` | 0 to 0.3 | How far the middle of the sheet runs ahead of its sides. This is the arc, and it is the option you came for: half a period of a sine across the width, nothing at the edges and everything in the span between them. Keep it and slip together under about inset x (1 - 2 x inset), or a hard flick pushes the bent edge off the frame. |
 | `slip` | number | `0.015` | 0 to 0.15 | How far the whole sheet slides against the direction of travel, flat across its width, the way anything with mass does when it is pulled. Small: this is the part you feel rather than see, and it is kept apart from the bend so either can be turned off. |
 | `fringe` | number | `0.005` | 0 to 0.03 | Separation between the colour channels while the sheet is moving. A press strikes one plate per ink and a moving web lands them a fraction apart. Keep it under about 0.01 or it reads as a broken monitor. |

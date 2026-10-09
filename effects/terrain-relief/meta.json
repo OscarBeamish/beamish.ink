@@ -59,8 +59,8 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "#fbfaf4",
-      "description": "The paper behind the land. Match it to your page background or the horizon reads as a hard edge."
+      "default": "auto",
+      "description": "The paper behind the land. Match it to your page background or the horizon reads as a hard edge. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "land": {
       "type": "color",

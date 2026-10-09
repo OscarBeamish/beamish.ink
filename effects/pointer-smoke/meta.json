@@ -58,8 +58,8 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "#fbfaf4",
-      "description": "The paper the smoke drifts over."
+      "default": "auto",
+      "description": "The paper the smoke drifts over. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "smoke": {
       "type": "color",

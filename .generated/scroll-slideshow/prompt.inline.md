@@ -43,6 +43,8 @@ import between them is relative.
  * An effect's core.ts should contain drawing, and nothing else.
  */
 
+import { resolveAutoGrounds } from './ground'
+
 export type EffectHandle = {
   start(): void
   stop(): void
@@ -284,7 +286,12 @@ export function mount<O extends BaseOptions>(
   userOpts: Partial<O> | undefined,
   config: MountConfig<O>
 ): EffectHandle {
-  let opts: O = { ...config.defaults, ...(userOpts ?? {}) }
+  /*
+   * `auto` in a colour option means take it from the page. Resolved here, at
+   * the one point that has both the host element and the merged options, so no
+   * item has to reach into the DOM from inside its own render loop.
+   */
+  let opts: O = resolveAutoGrounds(el, { ...config.defaults, ...(userOpts ?? {}) })
 
   const kind = config.kind ?? 'canvas'
 
@@ -627,7 +634,7 @@ export function mount<O extends BaseOptions>(
       stop()
     },
     update(next) {
-      opts = { ...opts, ...(next as Partial<O>) }
+      opts = resolveAutoGrounds(el, { ...opts, ...(next as Partial<O>) })
       applySize()
       if (!running) draw(reduced ? opts.reducedMotionTime ?? 0 : elapsed)
     },
@@ -720,7 +727,7 @@ export type ScrollSlideshowOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const scrollSlideshowDefaults: ScrollSlideshowOptions = {
-  paper: '#fbfaf4',
+  paper: 'auto',
   bend: 0,
   slip: 0.018,
   fringe: 0.004,
@@ -1164,7 +1171,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | Shown wherever the web has pulled the image away from the edge of the frame. Match it to the page behind, or the gap reads as a border that appears only while scrolling. |
+| `paper` | color | `auto` | any CSS hex | Shown wherever the web has pulled the image away from the edge of the frame. Match it to the page behind, or the gap reads as a border that appears only while scrolling. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `bend` | number | `0` | 0 to 0.3 | How hard the sides lag behind the middle. Off by default: the bow is the loudest thing the press does and it competes with the picture, which is the thing you are actually showing. Turn it up to around 0.09 for the full press. Past about 0.12 it stops being a press and starts being a fisheye. |
 | `slip` | number | `0.018` | 0 to 0.15 | How far the whole web slides against the direction of travel, the way anything with mass does when it is pulled. Small: this is the part you feel rather than see. |
 | `fringe` | number | `0.004` | 0 to 0.03 | Separation between the colour channels at the edges while moving. A press running colour work strikes one plate per ink, and a moving web lands them a fraction apart. Keep it under about 0.01 or it reads as a broken monitor. |

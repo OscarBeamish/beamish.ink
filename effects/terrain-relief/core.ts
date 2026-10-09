@@ -57,7 +57,7 @@ export type TerrainReliefOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const terrainReliefDefaults: TerrainReliefOptions = {
-  paper: '#fbfaf4',
+  paper: 'auto',
   land: '#f4f1e7',
   ink: '#6f665a',
   indexInk: '#c44400',

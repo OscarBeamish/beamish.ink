@@ -44,6 +44,8 @@ import between them is relative.
  * An effect's core.ts should contain drawing, and nothing else.
  */
 
+import { resolveAutoGrounds } from './ground'
+
 export type EffectHandle = {
   start(): void
   stop(): void
@@ -285,7 +287,12 @@ export function mount<O extends BaseOptions>(
   userOpts: Partial<O> | undefined,
   config: MountConfig<O>
 ): EffectHandle {
-  let opts: O = { ...config.defaults, ...(userOpts ?? {}) }
+  /*
+   * `auto` in a colour option means take it from the page. Resolved here, at
+   * the one point that has both the host element and the merged options, so no
+   * item has to reach into the DOM from inside its own render loop.
+   */
+  let opts: O = resolveAutoGrounds(el, { ...config.defaults, ...(userOpts ?? {}) })
 
   const kind = config.kind ?? 'canvas'
 
@@ -628,7 +635,7 @@ export function mount<O extends BaseOptions>(
       stop()
     },
     update(next) {
-      opts = { ...opts, ...(next as Partial<O>) }
+      opts = resolveAutoGrounds(el, { ...opts, ...(next as Partial<O>) })
       applySize()
       if (!running) draw(reduced ? opts.reducedMotionTime ?? 0 : elapsed)
     },
@@ -739,7 +746,7 @@ export type TranslucentSheetsOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const translucentSheetsDefaults: TranslucentSheetsOptions = {
-  paper: '#fbfaf4',
+  paper: 'auto',
   ink: '#9a8e79',
   accent: '#c44400',
   sheets: 14,
@@ -1245,7 +1252,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | The paper behind the stack. Everything else multiplies down from here, so this is the lightest value in the scene. |
+| `paper` | color | `auto` | any CSS hex | The paper behind the stack. Everything else multiplies down from here, so this is the lightest value in the scene. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `ink` | color | `#9a8e79` | any CSS hex | What each sheet multiplies the paper by. Most of the stack is this. A warm grey reads as tracing paper; push it green and it becomes drafting film. |
 | `accent` | color | `#c44400` | any CSS hex | Roughly one sheet in five is printed in this instead. Never the first, so the accent always has something crossing it. |
 | `sheets` | number | `14` | 3 to 30 | How many sheets. Changing it rebuilds the pile, which is the one option here that is not free. Depth is by index, so a new sheet lands on top rather than shuffling the stack. |

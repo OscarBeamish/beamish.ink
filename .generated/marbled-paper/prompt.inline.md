@@ -43,6 +43,8 @@ import between them is relative.
  * An effect's core.ts should contain drawing, and nothing else.
  */
 
+import { resolveAutoGrounds } from './ground'
+
 export type EffectHandle = {
   start(): void
   stop(): void
@@ -284,7 +286,12 @@ export function mount<O extends BaseOptions>(
   userOpts: Partial<O> | undefined,
   config: MountConfig<O>
 ): EffectHandle {
-  let opts: O = { ...config.defaults, ...(userOpts ?? {}) }
+  /*
+   * `auto` in a colour option means take it from the page. Resolved here, at
+   * the one point that has both the host element and the merged options, so no
+   * item has to reach into the DOM from inside its own render loop.
+   */
+  let opts: O = resolveAutoGrounds(el, { ...config.defaults, ...(userOpts ?? {}) })
 
   const kind = config.kind ?? 'canvas'
 
@@ -627,7 +634,7 @@ export function mount<O extends BaseOptions>(
       stop()
     },
     update(next) {
-      opts = { ...opts, ...(next as Partial<O>) }
+      opts = resolveAutoGrounds(el, { ...opts, ...(next as Partial<O>) })
       applySize()
       if (!running) draw(reduced ? opts.reducedMotionTime ?? 0 : elapsed)
     },
@@ -732,7 +739,7 @@ export type MarbledPaperOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const marbledPaperDefaults: MarbledPaperOptions = {
-  paper: '#fbfaf4',
+  paper: 'auto',
   ink: '#6b675c',
   accent: '#cf8458',
   drops: 60,
@@ -1230,7 +1237,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | The size in the tray, and what shows wherever no ink reached. Match it to the page behind or the margins read as a panel. |
+| `paper` | color | `auto` | any CSS hex | The size in the tray, and what shows wherever no ink reached. Match it to the page behind or the margins read as a panel. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `ink` | color | `#6b675c` | any CSS hex | The main ink. Roughly two thirds of the drops are this, or this thinned toward the paper, which is what a second pass of one colour looks like once the first has spread. |
 | `accent` | color | `#cf8458` | any CSS hex | The second ink, on roughly a third of the drops. |
 | `drops` | number | `60` | 1 to 72 | How many drops go into the tray. Each one pushes every earlier one outward, so this sets the density of the rings rather than just the amount of ink. |

@@ -131,7 +131,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | The paper the smoke drifts over. |
+| `paper` | color | `auto` | any CSS hex | The paper the smoke drifts over. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `smoke` | color | `#b4afa4` | any CSS hex | The body of it, once it has spread. Keep it close to the paper: smoke is the absence of a clear view, not a dark shape, and a strong colour here reads as paint. |
 | `accent` | color | `#bfae9e` | any CSS hex | What warmth the freshest smoke carries, at the head of the trail. Only a little of the trail is ever this, so a saturated colour shows up as a bead following the cursor. |
 | `marks` | number | `28` | 2 to 28 | How many puffs the trail holds. The shader has room for 28; asking for more silently gives you 28, because the array is a fixed size and growing it means editing the shader as well. |

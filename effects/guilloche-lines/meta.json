@@ -58,8 +58,8 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "#fbfaf4",
-      "description": "The paper the plate is printed on. Match it to your page background."
+      "default": "auto",
+      "description": "The paper the plate is printed on. Match it to your page background. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "ink": {
       "type": "color",

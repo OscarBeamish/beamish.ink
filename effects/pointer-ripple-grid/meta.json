@@ -58,8 +58,8 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "#fbfaf4",
-      "description": "The paper the field stands on. Match it to your page background or the panel reads as a pasted-in rectangle."
+      "default": "auto",
+      "description": "The paper the field stands on. Match it to your page background or the panel reads as a pasted-in rectangle. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "stone": {
       "type": "color",

@@ -138,7 +138,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | The tray the filings are scattered on. |
+| `paper` | color | `auto` | any CSS hex | The tray the filings are scattered on. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `ink` | color | `#8d8577` | any CSS hex | A filing lying flat, out where the field is weak. |
 | `accent` | color | `#36362f` | any CSS hex | A filing standing up in a strong field. The pattern reads as much from this change in tone as from the alignment. |
 | `pitch` | number | `13` | 5 to 40 | Cell size in CSS pixels. There is one filing per cell, so this is how thickly they are scattered. |

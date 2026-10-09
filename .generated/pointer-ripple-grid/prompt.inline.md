@@ -42,6 +42,8 @@ import between them is relative.
  * An effect's core.ts should contain drawing, and nothing else.
  */
 
+import { resolveAutoGrounds } from './ground'
+
 export type EffectHandle = {
   start(): void
   stop(): void
@@ -283,7 +285,12 @@ export function mount<O extends BaseOptions>(
   userOpts: Partial<O> | undefined,
   config: MountConfig<O>
 ): EffectHandle {
-  let opts: O = { ...config.defaults, ...(userOpts ?? {}) }
+  /*
+   * `auto` in a colour option means take it from the page. Resolved here, at
+   * the one point that has both the host element and the merged options, so no
+   * item has to reach into the DOM from inside its own render loop.
+   */
+  let opts: O = resolveAutoGrounds(el, { ...config.defaults, ...(userOpts ?? {}) })
 
   const kind = config.kind ?? 'canvas'
 
@@ -626,7 +633,7 @@ export function mount<O extends BaseOptions>(
       stop()
     },
     update(next) {
-      opts = { ...opts, ...(next as Partial<O>) }
+      opts = resolveAutoGrounds(el, { ...opts, ...(next as Partial<O>) })
       applySize()
       if (!running) draw(reduced ? opts.reducedMotionTime ?? 0 : elapsed)
     },
@@ -733,7 +740,7 @@ export type PointerRippleGridOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const pointerRippleGridDefaults: PointerRippleGridOptions = {
-  paper: '#fbfaf4',
+  paper: 'auto',
   stone: '#f2efe6',
   accent: '#c44400',
   count: 18,
@@ -1142,7 +1149,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `#fbfaf4` | any CSS hex | The paper the field stands on. Match it to your page background or the panel reads as a pasted-in rectangle. |
+| `paper` | color | `auto` | any CSS hex | The paper the field stands on. Match it to your page background or the panel reads as a pasted-in rectangle. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `stone` | color | `#f2efe6` | any CSS hex | The forms at rest. Slightly lighter than the paper is what makes them read as objects standing on it. |
 | `accent` | color | `#c44400` | any CSS hex | The forms at the crest of the ripple. The colour is what makes the wave legible in a still frame, so do not set it to the same value as stone. |
 | `count` | number | `18` | 6 to 40 (looks right between 16 and 26) | Forms per side. 18 is 324 of them. Past 30 the forms are narrower than their own shadows and the field turns to fur. |

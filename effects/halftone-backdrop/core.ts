@@ -17,7 +17,13 @@
 import { mount, type BaseOptions, type EffectHandle, type Surface } from '../../shared/runtime'
 
 export type HalftoneBackdropOptions = BaseOptions & {
-  /** Paper colour. The whole effect is designed against a warm off-white. */
+  /**
+   * The ground the ink is printed on.
+   *
+   * `auto` takes it from the page, which is what you almost always want:
+   * the effect adopts whatever it has been dropped onto instead of painting
+   * a colour of its own over it. Pass a colour to override.
+   */
   paper: string
   /** First plate. A desaturated near-black reads as ink; pure black does not. */
   inkA: string
@@ -46,7 +52,7 @@ export type HalftoneBackdropOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const halftoneBackdropDefaults: HalftoneBackdropOptions = {
-  paper: '#fbfaf4',
+  paper: 'auto',
   inkA: '#5d5a52',
   inkB: '#c44400',
   scale: 1.6,

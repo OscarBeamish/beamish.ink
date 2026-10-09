@@ -58,8 +58,8 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "#fbfaf4",
-      "description": "Shown wherever a dot has not grown yet, which at the start is the whole frame. Match it to the page behind or the reveal begins as a visible panel."
+      "default": "auto",
+      "description": "Shown wherever a dot has not grown yet, which at the start is the whole frame. Match it to the page behind or the reveal begins as a visible panel. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "screen": {
       "type": "number",
