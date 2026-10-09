@@ -22,9 +22,11 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import {
   metaSchema,
   gridMetaSchema,
+  templateMetaSchema,
   CATEGORY_LABELS,
   type Meta,
   type GridMeta,
+  type TemplateMeta,
   type OptionSpec
 } from '../schema/meta'
 
@@ -284,6 +286,210 @@ const ITEM_SKIP = new Set([
   'Reduced motion',
   'Common mistakes'
 ])
+
+// --- templates -------------------------------------------------------------
+
+/*
+ * A template is a whole page rather than an item, so its prompt is a different
+ * shape: there is nothing to configure and no adapter to choose. What somebody
+ * taking one needs is the page's three files, every library item it is built
+ * from, and permission to throw the words away.
+ */
+type TemplateItem = { meta: TemplateMeta; dir: string }
+
+export async function loadTemplates(): Promise<TemplateItem[]> {
+  const base = path.join(ROOT, 'templates')
+  if (!existsSync(base)) return []
+  const templates: TemplateItem[] = []
+  for (const entry of await readdir(base, { withFileTypes: true })) {
+    if (!entry.isDirectory() || entry.name.startsWith('_')) continue
+    const dir = path.join(base, entry.name)
+    const metaPath = path.join(dir, 'meta.json')
+    if (!existsSync(metaPath)) continue
+    const meta = templateMetaSchema.parse(JSON.parse(await readFile(metaPath, 'utf8')))
+    if (meta.slug !== entry.name) {
+      throw new Error(`templates/${entry.name}: slug is "${meta.slug}"`)
+    }
+    templates.push({ meta, dir })
+  }
+  return templates.sort((a, b) => a.meta.slug.localeCompare(b.meta.slug))
+}
+
+/*
+ * Every repo file one use needs.
+ *
+ * An effect is its core and nothing else; a grid is its stylesheet; a
+ * component is whatever its own meta calls the core and the style, because
+ * the two tiers do not have the same shape and guessing at it here would be
+ * the sort of drift meta.json exists to prevent.
+ */
+function filesForUse(
+  use: TemplateMeta['uses'][number],
+  byItemSlug: Map<string, Meta>
+): string[] {
+  if (use.kind === 'effect') return [`effects/${use.slug}/core.ts`]
+  if (use.kind === 'grid') return [`grids/${use.slug}/grid.css`]
+  if (use.kind === 'shared') return use.name === 'Stage' ? ['shared/stage.ts'] : []
+
+  const meta = byItemSlug.get(use.slug)
+  if (!meta) throw new Error(`no component called ${use.slug}`)
+  return meta.files
+    .filter(f => f.role === 'core' || f.role === 'style')
+    .map(f => f.from)
+}
+
+function templatePrompt(
+  template: TemplateItem,
+  pin: string,
+  byItemSlug: Map<string, Meta>
+): string {
+  const { meta } = template
+  const parts: string[] = []
+
+  parts.push(
+    `You are building **${meta.name}** from Beamish into this project.
+
+> ${meta.description}. A whole page, MIT.
+> ${SITE}/templates/${meta.slug}
+
+This is a page, not a component. It is one HTML file, one stylesheet and one
+entry script, built out of ${meta.uses.length} pieces of the library, and the
+brand on it is invented so that you can throw it away. Take the layout and the
+wiring; replace the words, the colours and the pictures with the real ones.
+
+Beamish is not a package and there is nothing to install from npm.
+
+Assume you have not seen this library before. Everything you need is below.`
+  )
+
+  /*
+   * What the page actually imports, which is not what its items list. A
+   * component declares react and vue because it ships adapters for them; a
+   * template uses the framework-free core underneath and mounts nothing, so
+   * naming a framework here sends somebody to install one the page never
+   * calls.
+   */
+  const FRAMEWORKS = new Set(['react', 'react-dom', 'vue'])
+  const deps = new Set<string>()
+  for (const use of meta.uses) {
+    const item = byItemSlug.get(use.slug)
+    for (const dep of Object.keys(item?.peerDependencies ?? {})) {
+      if (!FRAMEWORKS.has(dep)) deps.add(dep)
+    }
+  }
+
+  parts.push(
+    `## What it needs
+
+- **npm dependencies:** ${deps.size === 0 ? 'None.' : [...deps].map(d => `\`${d}\``).join(', ') + '.'}
+- **Ground:** this page is built for a ${meta.ground} background. ${
+      meta.ground === 'dark'
+        ? 'Its items are tuned for a near-black page; on paper it will look wrong.'
+        : meta.ground === 'paper'
+          ? 'Its items are tuned for a light page; on black it will look wrong.'
+          : 'It has been looked at on both.'
+    }
+- **One WebGL context.** Several of these items each want one, and the budget
+  is one for the whole page, so the stage hands it between them as you scroll.
+  That is already wired; do not mount two backdrops without it.
+
+Pinned to \`${pin}\`. These URLs do not move; a future refactor gets a new tag.`
+  )
+
+  const pageFiles = ['index.html', 'styles.css', 'entry.ts', 'meta.json']
+    .map(
+      name =>
+        `| \`${name}\` | ${rawUrl(pin, `templates/${meta.slug}/${name}`)} |`
+    )
+    .join('\n')
+
+  parts.push(
+    `## 1. Fetch the page
+
+| Save as | Fetch from |
+| --- | --- |
+${pageFiles}
+
+\`entry.ts\` imports the library by relative path and imports \`meta.json\` for the
+colophon, which is why that file is in the list: without it the page does not
+build. Keep that shape, or fix the imports when you move things.`
+  )
+
+  const seen = new Set<string>()
+  const libRows: string[] = []
+  for (const use of meta.uses) {
+    for (const from of filesForUse(use, byItemSlug)) {
+      if (seen.has(from)) continue
+      seen.add(from)
+      libRows.push(`| \`${use.name}\` | \`${from}\` | ${rawUrl(pin, from)} |`)
+    }
+  }
+  // Every effect core imports the runtime, and the runtime imports the ground
+  // resolver. Tokens and fonts are what the page is drawn with.
+  for (const from of [
+    'shared/runtime.ts',
+    'shared/ground.ts',
+    'shared/tokens.css',
+    'shared/fonts.css'
+  ]) {
+    if (!seen.has(from)) libRows.push(`| shared | \`${from}\` | ${rawUrl(pin, from)} |`)
+  }
+
+  parts.push(
+    `## 2. Fetch what it is built from
+
+| Item | Save as | Fetch from |
+| --- | --- | --- |
+${libRows.join('\n')}
+
+Keep the paths. \`entry.ts\` imports \`../../effects/<name>/core\` and the page
+links \`../../shared/tokens.css\`, so the tree has to mirror the repo or every
+import has to be rewritten.`
+  )
+
+  parts.push(
+    `## 3. The ground is declared, not assumed
+
+The page sets \`<html data-ground="${meta.ground === 'either' ? 'paper' : meta.ground}">\`
+and \`tokens.css\` has no fallback palette. Drop that attribute and the page
+loses every colour it has, which is deliberate: a ground is a decision, and a
+value you have to fill in cannot quietly be wrong.`
+  )
+
+  const colophon = meta.uses
+    .map(use =>
+      use.slug
+        ? `- [${use.name}](${SITE}/${use.kind === 'grid' ? 'grids' : use.kind === 'component' ? 'components' : 'effects'}/${use.slug})`
+        : `- ${use.name}`
+    )
+    .join('\n')
+
+  parts.push(
+    `## 4. What is on the page
+
+${colophon}
+
+The page writes that list into its own footer from \`meta.json\`, so if you drop
+an item, drop it from \`uses\` too and the colophon follows.`
+  )
+
+  parts.push(
+    `## 5. Make it yours
+
+The brand is invented. There is no such company, the copy is written for this
+page and every figure on it is made up, so none of it is precious.
+
+- Replace the words first. The layout was built around real sentences rather
+  than lorem, which is why it holds, and it will hold around yours.
+- The page's own stylesheet carries the brand: its type scale, its colours and
+  its chrome. No class in it uses the \`g-\` prefix, so the line between the
+  library and the page using it stays visible while you edit.
+- The photographs are from Unsplash and credited in the repo. Swap them.
+- Keep the pause control on anything ambient. WCAG 2.2.2 is Level A.`
+  )
+
+  return parts.join('\n\n')
+}
 
 function gridPrompt(item: GridItem, pin: string, inline: boolean, css: string): string {
   const { meta } = item
@@ -677,6 +883,20 @@ async function generate(check: boolean, pin: string) {
     })
   }
 
+  /*
+   * Templates. One prompt each, and no inline variant: the page is three files
+   * and a dozen library ones, which is far past the size where inlining the
+   * source into the prompt is kinder than fetching it.
+   */
+  const byItemSlug = new Map(items.map(item => [item.meta.slug, item.meta]))
+  const templates = await loadTemplates()
+  for (const template of templates) {
+    outputs.push({
+      file: path.join(OUT, template.meta.slug, 'prompt.md'),
+      contents: templatePrompt(template, pin, byItemSlug) + '\n'
+    })
+  }
+
   const index = items.map(item => ({
     ...item.meta,
     group: item.group,
@@ -704,9 +924,15 @@ async function generate(check: boolean, pin: string) {
   // Drop prompt directories for items that no longer exist, so a deleted effect
   // cannot leave a live prompt behind on the site.
   if (!check && existsSync(OUT)) {
+    /*
+     * Templates belong in this set too. They were left out when the collection
+     * was added, so their prompts were written and then deleted again on the
+     * same run, and `generate` reported success having produced nothing.
+     */
     const slugs = new Set([
       ...items.map(item => item.meta.slug),
-      ...grids.map(grid => grid.meta.slug)
+      ...grids.map(grid => grid.meta.slug),
+      ...templates.map(template => template.meta.slug)
     ])
     for (const entry of await readdir(OUT, { withFileTypes: true })) {
       if (entry.isDirectory() && !slugs.has(entry.name)) {
