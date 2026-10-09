@@ -19,19 +19,19 @@ import rotatingWords from '../../effects/rotating-words/core'
 import countUpNumber from '../../effects/count-up-number/core'
 import splitFountainText from '../../effects/split-fountain-text/core'
 import type { EffectHandle } from '../../shared/runtime'
+/*
+ * The manifest comes from meta.json rather than being typed here.
+ *
+ * It used to be a list in this file, on the grounds that the page is the only
+ * place that knows what it mounted. That was true while nobody pasted these.
+ * A template ships a prompt, the prompt has to say what to fetch, and it
+ * reads meta.json, so the list moved there and this file reads it back. Still
+ * one list: the colophon at the foot of the page and the prompt that builds
+ * the page are composed from the same array.
+ */
+import meta from './meta.json'
 
-type Used = { name: string; slug: string; kind: 'effect' | 'grid' | 'shared' }
-
-const used: Used[] = [
-  { name: 'TwelveColumn', slug: 'twelve-column', kind: 'grid' },
-  { name: 'PaperGrain', slug: 'paper-grain', kind: 'effect' },
-  { name: 'RegistrationMarks', slug: 'registration-marks', kind: 'effect' },
-  { name: 'MaskedHeading', slug: 'masked-heading', kind: 'effect' },
-  { name: 'RotatingWords', slug: 'rotating-words', kind: 'effect' },
-  { name: 'CountUpNumber', slug: 'count-up-number', kind: 'effect' },
-  { name: 'SplitFountainText', slug: 'split-fountain-text', kind: 'effect' },
-  { name: 'Stage', slug: '', kind: 'shared' }
-]
+const used = meta.uses
 
 const at = <T extends HTMLElement>(sel: string) => document.querySelector<T>(sel)
 
@@ -61,7 +61,7 @@ const stage = createStage(
       create: () =>
         which === 'paper-grain'
           ? paperGrain(host)
-          : registrationMarks(host, { drift: 0.5 })
+          : registrationMarks(host)
     }
   })
 )

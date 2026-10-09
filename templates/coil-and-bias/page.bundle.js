@@ -1978,19 +1978,76 @@ ${log ?? ""}`);
     };
   }
 
+  // templates/coil-and-bias/meta.json
+  var meta_default = {
+    name: "Coil & Bias",
+    slug: "coil-and-bias",
+    description: "An invented audio hardware brand, on a dark ground, where three backdrops share one context",
+    intent: "The dark end of the library under load, and the real test of the stage: three WebGL backdrops on one page, handed the single context as the page scrolls, with the DOM items that claim to work on either ground made to prove it.",
+    ground: "dark",
+    uses: [
+      {
+        name: "TwelveColumn",
+        slug: "twelve-column",
+        kind: "grid"
+      },
+      {
+        name: "GlassNav",
+        slug: "glass-nav",
+        kind: "component"
+      },
+      {
+        name: "AuroraCurtain",
+        slug: "aurora-curtain",
+        kind: "effect"
+      },
+      {
+        name: "LightShafts",
+        slug: "light-shafts",
+        kind: "effect"
+      },
+      {
+        name: "DustMotes",
+        slug: "dust-motes",
+        kind: "effect"
+      },
+      {
+        name: "SpotlightCard",
+        slug: "spotlight-card",
+        kind: "effect"
+      },
+      {
+        name: "DecodeText",
+        slug: "decode-text",
+        kind: "effect"
+      },
+      {
+        name: "CountUpNumber",
+        slug: "count-up-number",
+        kind: "effect"
+      },
+      {
+        name: "OdometerNumber",
+        slug: "odometer-number",
+        kind: "effect"
+      },
+      {
+        name: "Stage",
+        slug: "",
+        kind: "shared"
+      }
+    ],
+    record: {
+      duration: 14,
+      fps: 24,
+      posterAt: 1.6,
+      crf: 38,
+      webmCrf: 48
+    }
+  };
+
   // templates/coil-and-bias/entry.ts
-  var used = [
-    { name: "TwelveColumn", slug: "twelve-column", kind: "grid" },
-    { name: "GlassNav", slug: "glass-nav", kind: "component" },
-    { name: "AuroraCurtain", slug: "aurora-curtain", kind: "effect" },
-    { name: "LightShafts", slug: "light-shafts", kind: "effect" },
-    { name: "DustMotes", slug: "dust-motes", kind: "effect" },
-    { name: "SpotlightCard", slug: "spotlight-card", kind: "effect" },
-    { name: "DecodeText", slug: "decode-text", kind: "effect" },
-    { name: "CountUpNumber", slug: "count-up-number", kind: "effect" },
-    { name: "OdometerNumber", slug: "odometer-number", kind: "effect" },
-    { name: "Stage", slug: "", kind: "shared" }
-  ];
+  var used = meta_default.uses;
   var at = (sel) => document.querySelector(sel);
   var handles = [];
   var keep = (handle) => {

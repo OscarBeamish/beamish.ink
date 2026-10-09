@@ -3,7 +3,7 @@
 A plan, not a spec. Written for Oscar and for whoever builds this, and meant to
 be argued with before anything is made.
 
-## What an template is
+## What a template is
 
 A whole page that looks like a real brand site, built out of items from this
 library and nothing else. Not a gallery of effects with labels on them: a page
@@ -74,7 +74,7 @@ hero, a different one behind the middle band and a third at the outro is asking
 for three, which is exactly what AGENTS.md forbids and what the browser will
 punish.
 
-So an template page needs something the library does not have yet: a broker that
+So a template page needs something the library does not have yet: a broker that
 keeps one context alive and hands it to whichever section owns the viewport,
 mounting and destroying as the page scrolls. Every item already has
 `destroy()`, and the context-leak test already proves fifty mount and destroy
@@ -123,22 +123,22 @@ video. The scroll recorder already exists and the demo pages already answer
 new tooling.
 
 The manifest is the valuable part. Rendered on the page as "this page is made
-of these eleven things", each linking to its item, it turns an template into a
+of these eleven things", each linking to its item, it turns a template into a
 route into the library rather than a dead end. It is also checkable: a test can
-assert every slug in a manifest exists, so an template cannot quietly reference
+assert every slug in a manifest exists, so a template cannot quietly reference
 an item that was renamed.
 
 ## Risks, in the order I would worry about them
 
 1. **The context broker is the whole job.** If it is not good, the templates are
    either thin or broken. Build it first and on its own.
-2. **An template is a lot of copy.** A convincing brand page needs real writing,
+2. **A template is a lot of copy.** A convincing brand page needs real writing,
    and placeholder text will make the whole thing look like a template. This is
    the part most likely to be underestimated.
 3. **Photographs.** Three templates at six pictures each is eighteen, and the
    shared folder is already 800kB for six. They will need to be smaller and
    probably fewer.
-4. **Maintenance.** An template referencing eleven items breaks when any of them
+4. **Maintenance.** A template referencing eleven items breaks when any of them
    is renamed. The manifest test is what stops that being discovered by a
    reader.
 5. **Scope.** Each of these is a day's work done properly. Three is a week. One

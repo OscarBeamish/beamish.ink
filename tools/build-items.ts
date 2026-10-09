@@ -116,7 +116,7 @@ export async function buildItem(item: ItemRef): Promise<void> {
   if (item.kind === 'grid') return
 
   /*
-   * An template writes its own entry, because what it wires up is the point:
+   * A template writes its own entry, because what it wires up is the point:
    * which item goes where, and which of them share the one context. There is
    * no single core to generate an entry from.
    */

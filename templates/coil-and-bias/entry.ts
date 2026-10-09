@@ -25,21 +25,19 @@ import countUpNumber from '../../effects/count-up-number/core'
 import odometerNumber from '../../effects/odometer-number/core'
 import { attachRefraction, watchSettle } from '../../components/glass-nav/glass'
 import type { EffectHandle } from '../../shared/runtime'
+/*
+ * The manifest comes from meta.json rather than being typed here.
+ *
+ * It used to be a list in this file, on the grounds that the page is the only
+ * place that knows what it mounted. That was true while nobody pasted these.
+ * A template ships a prompt, the prompt has to say what to fetch, and it
+ * reads meta.json, so the list moved there and this file reads it back. Still
+ * one list: the colophon at the foot of the page and the prompt that builds
+ * the page are composed from the same array.
+ */
+import meta from './meta.json'
 
-type Used = { name: string; slug: string; kind: 'effect' | 'component' | 'grid' | 'shared' }
-
-const used: Used[] = [
-  { name: 'TwelveColumn', slug: 'twelve-column', kind: 'grid' },
-  { name: 'GlassNav', slug: 'glass-nav', kind: 'component' },
-  { name: 'AuroraCurtain', slug: 'aurora-curtain', kind: 'effect' },
-  { name: 'LightShafts', slug: 'light-shafts', kind: 'effect' },
-  { name: 'DustMotes', slug: 'dust-motes', kind: 'effect' },
-  { name: 'SpotlightCard', slug: 'spotlight-card', kind: 'effect' },
-  { name: 'DecodeText', slug: 'decode-text', kind: 'effect' },
-  { name: 'CountUpNumber', slug: 'count-up-number', kind: 'effect' },
-  { name: 'OdometerNumber', slug: 'odometer-number', kind: 'effect' },
-  { name: 'Stage', slug: '', kind: 'shared' }
-]
+const used = meta.uses
 
 const at = <T extends HTMLElement>(sel: string) => document.querySelector<T>(sel)
 
@@ -129,7 +127,7 @@ if (counters[1]) keep(countUpNumber(counters[1], { duration: 1500 }))
 /* The colophon, written from what was actually mounted. */
 const manifest = at('#manifest')
 if (manifest) {
-  const group = (kind: Used['kind']) =>
+  const group = (kind: string) =>
     kind === 'grid' ? 'grids' : kind === 'component' ? 'components' : 'effects'
   for (const item of used) {
     const li = document.createElement('li')

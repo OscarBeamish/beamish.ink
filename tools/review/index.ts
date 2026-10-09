@@ -190,7 +190,7 @@ async function routes(): Promise<string[]> {
     ...grids.map(slug => `/grids/${slug}/`),
     '/templates/',
     /*
-     * An template is a standalone page copied into public, not an Astro route,
+     * A template is a standalone page copied into public, not an Astro route,
      * so it is addressed by its file. Without index.html the server has
      * nothing to answer with and the route 404s.
      */

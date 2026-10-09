@@ -226,12 +226,33 @@ async function poke(browser: Browser, route: string, selectors: string[]) {
 
 async function main() {
   /*
-   * Git Bash rewrites an argument that looks like an absolute POSIX path, so
-   * a bare `/` arrives here as C:/Program Files/Git/. Anything carrying a
-   * drive letter was never a route, so it is read as the home page.
+   * Git Bash rewrites an argument that looks like an absolute POSIX path
+   * before this process ever sees it, so `/` arrives as C:/Program Files/Git/
+   * and `/templates/x` as C:/Program Files/Git/templates/x.
+   *
+   * The first version of this quietly read anything with a drive letter as the
+   * home page, which is worse than useless: asked for a template it measured
+   * the home page instead and reported every selector missing, which looks
+   * exactly like a broken template. Recover the route where the shell left it
+   * recoverable, and refuse rather than guess where it did not.
    */
   const [given = '/', ...selectors] = process.argv.slice(2)
-  const route = /^[A-Za-z]:/.test(given) ? '/' : given
+
+  let route = given
+  if (/^[A-Za-z]:/.test(given)) {
+    const tail = given.replace(/\\/g, '/').match(/\/Git\/(.*)$/)
+    if (tail) {
+      route = '/' + tail[1]
+      console.log(`the shell rewrote the route; reading it as ${route || '/'}`)
+    } else {
+      console.error(
+        `"${given}" is a filesystem path, not a route.\n` +
+          'Git Bash rewrites a leading slash. Pass the route without one:\n' +
+          '  pnpm poke templates/coil-and-bias/index.html'
+      )
+      process.exit(1)
+    }
+  }
   const state = await ensureServer()
   console.log(`dev server ${state} on ${PORT}`)
 

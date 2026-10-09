@@ -39,10 +39,10 @@ afterAll(async () => {
 /*
  * Only items. Grids and templates are listed as tier 1 so the recorder drives
  * them through the same handle, and neither belongs here: a stylesheet holds
- * no WebGL context, and an template is a whole page rather than something you
+ * no WebGL context, and a template is a whole page rather than something you
  * mount fifty times. Neither exposes window.Beamish.create at all.
  *
- * An template does hold a context, through whatever it mounts, but the thing
+ * A template does hold a context, through whatever it mounts, but the thing
  * that keeps it to one is the stage, and the stage has its own test.
  */
 const effects = (await listItems()).filter(item => item.tier === 1 && item.kind === 'item')

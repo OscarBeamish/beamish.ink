@@ -2,7 +2,7 @@
  * The templates catalogue.
  *
  * Read straight from templates/*\/meta.json, like grids and for the same
- * reason: there is nothing to derive. An template has no prompt to compose and
+ * reason: there is nothing to derive. A template has no prompt to compose and
  * no defaults to check against a core, because nobody pastes a brand site.
  */
 

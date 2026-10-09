@@ -1426,17 +1426,66 @@ ${log ?? ""}`);
   }
   var core_default6 = createSplitFountainText;
 
+  // templates/quoin-and-rule/meta.json
+  var meta_default = {
+    name: "Quoin & Rule",
+    slug: "quoin-and-rule",
+    description: "An invented letterpress studio, built entirely from library items, on paper",
+    intent: "The paper end of the library under load: a twelve column grid carrying real copy and photographs, with two WebGL backdrops brokered by the stage so only one context is ever live.",
+    ground: "paper",
+    uses: [
+      {
+        name: "TwelveColumn",
+        slug: "twelve-column",
+        kind: "grid"
+      },
+      {
+        name: "PaperGrain",
+        slug: "paper-grain",
+        kind: "effect"
+      },
+      {
+        name: "RegistrationMarks",
+        slug: "registration-marks",
+        kind: "effect"
+      },
+      {
+        name: "MaskedHeading",
+        slug: "masked-heading",
+        kind: "effect"
+      },
+      {
+        name: "RotatingWords",
+        slug: "rotating-words",
+        kind: "effect"
+      },
+      {
+        name: "CountUpNumber",
+        slug: "count-up-number",
+        kind: "effect"
+      },
+      {
+        name: "SplitFountainText",
+        slug: "split-fountain-text",
+        kind: "effect"
+      },
+      {
+        name: "Stage",
+        slug: "",
+        kind: "shared"
+      }
+    ],
+    record: {
+      duration: 14,
+      fps: 24,
+      posterAt: 1.6,
+      crf: 38,
+      webmCrf: 48
+    }
+  };
+
   // templates/quoin-and-rule/entry.ts
-  var used = [
-    { name: "TwelveColumn", slug: "twelve-column", kind: "grid" },
-    { name: "PaperGrain", slug: "paper-grain", kind: "effect" },
-    { name: "RegistrationMarks", slug: "registration-marks", kind: "effect" },
-    { name: "MaskedHeading", slug: "masked-heading", kind: "effect" },
-    { name: "RotatingWords", slug: "rotating-words", kind: "effect" },
-    { name: "CountUpNumber", slug: "count-up-number", kind: "effect" },
-    { name: "SplitFountainText", slug: "split-fountain-text", kind: "effect" },
-    { name: "Stage", slug: "", kind: "shared" }
-  ];
+  var used = meta_default.uses;
   var at = (sel) => document.querySelector(sel);
   var handles = [];
   var keep = (handle) => {
@@ -1453,7 +1502,7 @@ ${log ?? ""}`);
       const which = host.dataset["backdrop"];
       return {
         el: section,
-        create: () => which === "paper-grain" ? core_default(host) : core_default2(host, { drift: 0.5 })
+        create: () => which === "paper-grain" ? core_default(host) : core_default2(host)
       };
     })
   );

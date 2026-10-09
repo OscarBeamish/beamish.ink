@@ -175,7 +175,7 @@ async function openDemo(
    * server, which is why this went unnoticed until the first textured effect.
    */
   /*
-   * An template is a whole page and its file is index.html, not demo.html.
+   * A template is a whole page and its file is index.html, not demo.html.
    * Everything else about the take is the same.
    */
   const pageUrl =
@@ -449,7 +449,7 @@ async function poster(framesDir: string, outDir: string, meta: Recordable) {
 async function recordItem(browser: Browser, item: ItemRef, only: string[], keepFrames: boolean) {
   const raw = JSON.parse(await readFile(path.join(item.dir, 'meta.json'), 'utf8'))
   /*
-   * Three kinds, three schemas, and none is a subset of another. An template
+   * Three kinds, three schemas, and none is a subset of another. A template
    * has no tier, no options and no files, so metaSchema rejects it outright:
    * the first recording of one failed in Zod before a browser was opened.
    */

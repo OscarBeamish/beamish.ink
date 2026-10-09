@@ -4,6 +4,48 @@
   "description": "An invented letterpress studio, built entirely from library items, on paper",
   "intent": "The paper end of the library under load: a twelve column grid carrying real copy and photographs, with two WebGL backdrops brokered by the stage so only one context is ever live.",
   "ground": "paper",
+  "uses": [
+    {
+      "name": "TwelveColumn",
+      "slug": "twelve-column",
+      "kind": "grid"
+    },
+    {
+      "name": "PaperGrain",
+      "slug": "paper-grain",
+      "kind": "effect"
+    },
+    {
+      "name": "RegistrationMarks",
+      "slug": "registration-marks",
+      "kind": "effect"
+    },
+    {
+      "name": "MaskedHeading",
+      "slug": "masked-heading",
+      "kind": "effect"
+    },
+    {
+      "name": "RotatingWords",
+      "slug": "rotating-words",
+      "kind": "effect"
+    },
+    {
+      "name": "CountUpNumber",
+      "slug": "count-up-number",
+      "kind": "effect"
+    },
+    {
+      "name": "SplitFountainText",
+      "slug": "split-fountain-text",
+      "kind": "effect"
+    },
+    {
+      "name": "Stage",
+      "slug": "",
+      "kind": "shared"
+    }
+  ],
   "record": {
     "duration": 14,
     "fps": 24,

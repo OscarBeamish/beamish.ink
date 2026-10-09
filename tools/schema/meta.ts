@@ -373,13 +373,20 @@ export type GridMeta = z.infer<typeof gridMetaSchema>
 // --- templates --------------------------------------------------------------
 
 /*
- * An template is a whole page, not an item, so it has the least of all three
+ * A template is a whole page, not an item, so it has the least of all three
  * schemas: no options, no files, no prompt. Nobody pastes a brand site.
  *
- * Note what is deliberately absent: the list of items the page uses. That list
- * lives in the page's own entry, which is the only place it can be true, and
- * the page writes its colophon from it. Repeating it here would mean two lists
- * and one of them wrong.
+ * `uses` is the list of library items the page is built from, and it moved
+ * here when examples became templates. It used to live in the page's entry on
+ * the grounds that duplicating it would mean two lists and one of them wrong,
+ * which was right: nobody pasted a brand site, so the only reader was the
+ * colophon the page writes from it.
+ *
+ * A template is pasted, so the prompt has to say what to fetch, and a prompt
+ * that cannot see the list cannot say. It is still one list rather than two:
+ * meta.json holds it and the page imports this file to write its colophon, so
+ * the thing the reader sees at the foot of the page is the same array the
+ * prompt was composed from.
  *
  * The name is the invented brand rather than a CamelCase item name, so it is
  * allowed spaces and an ampersand.
@@ -393,6 +400,24 @@ export const templateMetaSchema = z
     /** What this page is for: which part of the library it puts under load. */
     intent: z.string().min(20),
     ground: z.enum(['paper', 'dark', 'either']),
+    /**
+     * Every library item this page is built from, in the order the page uses
+     * them. The prompt fetches them and the colophon lists them.
+     *
+     * `shared` is for the parts of the library that are not items, such as the
+     * stage, and carries no slug because there is no page to link to.
+     */
+    uses: z
+      .array(
+        z
+          .object({
+            name: z.string().min(2),
+            slug: z.string(),
+            kind: z.enum(['effect', 'component', 'grid', 'shared'])
+          })
+          .strict()
+      )
+      .min(1),
     record: z.object({
       duration: z.number().positive(),
       fps: z.number().int().positive().default(24),

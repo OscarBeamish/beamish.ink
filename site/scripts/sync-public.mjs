@@ -90,7 +90,7 @@ if (existsSync(gridsDir)) {
 /*
  * Templates, served whole, with the library files they link.
  *
- * An template is a standalone page: it has its own head, its own chrome and no
+ * A template is a standalone page: it has its own head, its own chrome and no
  * site furniture, because the whole point is that it reads as somebody's own
  * site. It links the library by the same relative paths it uses on disk, so
  * the public tree has to mirror the repo for those paths to resolve:
@@ -121,7 +121,7 @@ if (existsSync(templatesDir)) {
    * Component stylesheets, by the same logic and for the same relative path,
    * but one file each rather than the whole directory. A component ships
    * adapters, a recipe, a demo bundle and its own recorded media, and none of
-   * that is what an template links: it links the stylesheet, because the glass
+   * that is what a template links: it links the stylesheet, because the glass
    * or the panel has to look the same on a page that has no framework to
    * mount the component with.
    */
