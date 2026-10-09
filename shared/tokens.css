@@ -1,31 +1,84 @@
 /*
  * Beamish design tokens.
  *
- * Lifted from oscarbeamish.dev. Single source of truth: imported by the site and
- * linked directly by every item's demo.html, so recorded video and the live site
- * are the same pixels.
+ * Single source of truth: imported by the site and linked directly by every
+ * item's demo.html, so recorded video and the live site are the same pixels.
  *
- * Two ink channels, deliberately kept apart. --label is pure black and is used
- * only for the strongest text. --label-d is desaturated and carries every alpha
- * step below it; that separation is what stops mid-tone text going muddy on warm
- * paper. Contrast ratios in the comments are against --background-deep.
+ * There is no house ground. This file used to open one palette with
+ * --background-deep set to warm paper and the contrast ratios measured against
+ * it, which meant every page that linked it was a paper page whether anybody
+ * had decided that or not. Both grounds are now written out in full and a page
+ * says which it is:
+ *
+ *   <html data-ground="paper">   or   <html data-ground="dark">
+ *
+ * Nothing supplies a fallback on purpose. A page that declares no ground gets
+ * no ground colours and looks obviously broken, which is the same bargain the
+ * `ground` field in meta.json makes: a value you have to fill in cannot quietly
+ * be wrong.
+ *
+ * Two ink channels, deliberately kept apart. --label is the strongest text and
+ * nothing else. --label-d is desaturated and carries every alpha step below it,
+ * and that separation is what stops mid-tone text going muddy.
+ *
+ * The alpha steps are not shared between the grounds, and that is the part
+ * worth reading twice. Light type on black reads thinner than dark type on
+ * white at the same ratio, so the quiet greys on the dark palette sit much
+ * closer to the loud one than their paper equivalents. Copying the paper alphas
+ * across is how a dark page ends up with a tier of text nobody can read.
+ *
+ * Every ratio in the comments is against that palette's own --background-deep,
+ * and they are checked by tools/tests rather than trusted.
  */
 
-:root {
-  --label: 0, 0, 0;                          /* pure, strongest text only */
-  --label-d: 54, 54, 48;                     /* desaturated, every alpha step below */
-  --background-deep: 251, 250, 244;          /* warm paper */
-  --background-elevated: #efede7;            /* panels, demo surrounds */
-  --line: rgba(var(--label-d), 0.1);         /* 1.19:1, dividers only */
+:root[data-ground='paper'] {
+  --label: 0, 0, 0; /* pure, strongest text only */
+  --label-d: 54, 54, 48; /* desaturated, every alpha step below */
+  --background-deep: 251, 250, 244; /* warm paper */
+  --background-elevated: #efede7; /* panels, demo surrounds */
+  --line: rgba(var(--label-d), 0.1); /* 1.19:1, dividers only */
   --control-line: rgba(var(--label-d), 0.7); /* 4.71:1, pressable edges */
-  --accent: #c44400;                         /* white on it = 5.03:1 */
+  --accent: #c44400; /* 4.81:1 as text */
+  --accent-ink: #fff; /* on the accent: 5.03:1 */
   --selection-bg: #c44400;
+  --selection-ink: rgb(var(--background-deep));
 
-  --label-1: rgba(var(--label), 1);          /* 20.08:1 */
-  --label-2: rgba(var(--label-d), 0.78);     /* 5.95:1 */
-  --label-3: rgba(var(--label-d), 0.7);      /* 4.71:1 */
-  --label-4: rgba(var(--label-d), 0.16);     /* 1.33:1, NEVER text */
+  --label-1: rgba(var(--label), 1); /* 20.08:1 */
+  --label-2: rgba(var(--label-d), 0.78); /* 5.95:1 */
+  --label-3: rgba(var(--label-d), 0.7); /* 4.71:1 */
+  --label-4: rgba(var(--label-d), 0.16); /* 1.33:1, NEVER text */
+}
 
+:root[data-ground='dark'] {
+  --label: 255, 255, 255; /* pure, strongest text only */
+  --label-d: 226, 231, 240; /* desaturated, every alpha step below */
+  --background-deep: 13, 14, 17; /* near black, never #000 */
+  --background-elevated: #16181d; /* panels, demo surrounds */
+  --line: rgba(var(--label-d), 0.14); /* 1.39:1, dividers only */
+  --control-line: rgba(var(--label-d), 0.62); /* 6.39:1, pressable edges */
+  /*
+   * A brighter accent than paper's. The paper orange is chosen to carry white
+   * text on top of it; on near black it is the text, and at that job it is too
+   * dark to pass.
+   */
+  --accent: #ff7a3d; /* 7.45:1 as text */
+  /*
+   * The ground, not white. White on this orange is 2.59:1 and fails, which is
+   * the trap in carrying a paper accent across: there the accent is a surface
+   * that holds white text, here it is the text.
+   */
+  --accent-ink: rgb(var(--background-deep)); /* on the accent: 7.45:1 */
+  --selection-bg: #ff7a3d;
+  --selection-ink: rgb(var(--background-deep));
+
+  --label-1: rgba(var(--label), 1); /* 19.30:1 */
+  --label-2: rgba(var(--label-d), 0.86); /* 11.57:1 */
+  --label-3: rgba(var(--label-d), 0.72); /* 8.31:1 */
+  --label-4: rgba(var(--label-d), 0.22); /* 1.80:1, NEVER text */
+}
+
+/* Ground-independent. Nothing here has a colour. */
+:root {
   --ease-66: cubic-bezier(0.66, 0, 0.01, 1);
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -37,7 +90,7 @@
 
 ::selection {
   background: var(--selection-bg);
-  color: rgb(var(--background-deep));
+  color: var(--selection-ink);
 }
 
 /*
