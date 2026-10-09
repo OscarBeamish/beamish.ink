@@ -14,7 +14,7 @@
     "backdrop",
     "no-dependencies"
   ],
-  "ground": "paper",
+  "ground": "either",
   "peerDependencies": {},
   "browser": {
     "webgl": "webgl2",
@@ -64,13 +64,13 @@
     },
     "ink": {
       "type": "color",
-      "default": "#36362f",
-      "description": "The nib."
+      "default": "light-dark(#36362f, #ded8cc)",
+      "description": "The nib. A light-dark() pair picks by the ground it lands on."
     },
     "accent": {
       "type": "color",
-      "default": "#c44400",
-      "description": "A second nib, on a small share of the marks."
+      "default": "light-dark(#c44400, #ff7a3d)",
+      "description": "A second nib, on a small share of the marks. A light-dark() pair picks by the ground it lands on."
     },
     "pitch": {
       "type": "number",

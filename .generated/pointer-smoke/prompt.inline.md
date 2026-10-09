@@ -753,8 +753,8 @@ export type PointerSmokeOptions = BaseOptions & {
  */
 export const pointerSmokeDefaults: PointerSmokeOptions = {
   paper: 'auto',
-  smoke: '#b4afa4',
-  accent: '#bfae9e',
+  smoke: 'light-dark(#b4afa4, #3b4049)',
+  accent: 'light-dark(#bfae9e, #7d6f61)',
   marks: 28,
   size: 0.026,
   spread: 2.4,
@@ -1210,8 +1210,8 @@ as the second argument to the create function; anything omitted takes its defaul
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
 | `paper` | color | `auto` | any CSS hex | The paper the smoke drifts over. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
-| `smoke` | color | `#b4afa4` | any CSS hex | The body of it, once it has spread. Keep it close to the paper: smoke is the absence of a clear view, not a dark shape, and a strong colour here reads as paint. |
-| `accent` | color | `#bfae9e` | any CSS hex | What warmth the freshest smoke carries, at the head of the trail. Only a little of the trail is ever this, so a saturated colour shows up as a bead following the cursor. |
+| `smoke` | color | `light-dark(#b4afa4, #3b4049)` | any CSS hex | The body of it, once it has spread. Keep it close to the paper: smoke is the absence of a clear view, not a dark shape, and a strong colour here reads as paint. A light-dark() pair picks by the ground it lands on. |
+| `accent` | color | `light-dark(#bfae9e, #7d6f61)` | any CSS hex | What warmth the freshest smoke carries, at the head of the trail. Only a little of the trail is ever this, so a saturated colour shows up as a bead following the cursor. A light-dark() pair picks by the ground it lands on. |
 | `marks` | number | `28` | 2 to 28 | How many puffs the trail holds. The shader has room for 28; asking for more silently gives you 28, because the array is a fixed size and growing it means editing the shader as well. |
 | `size` | number | `0.026` | 0.005 to 0.2 | Radius of a fresh puff, as a share of the short side, so it keeps its proportion when the element changes shape. |
 | `spread` | number | `2.4` | 0 to 4 | How much wider a puff gets by the end of its life. Nothing holds smoke together, so this is the main thing that makes it read as smoke rather than as a cursor with a tail. At 0 you get a row of identical discs. |

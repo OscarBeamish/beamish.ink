@@ -44,8 +44,8 @@ export type PointerFilingsOptions = BaseOptions & {
  */
 export const pointerFilingsDefaults: PointerFilingsOptions = {
   paper: 'auto',
-  ink: '#8d8577',
-  accent: '#36362f',
+  ink: 'light-dark(#8d8577, #585e66)',
+  accent: 'light-dark(#36362f, #e8ebf0)',
   pitch: 13,
   length: 0.42,
   weight: 0.055,

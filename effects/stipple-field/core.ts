@@ -54,8 +54,8 @@ export type StippleFieldOptions = BaseOptions & {
  */
 export const stippleFieldDefaults: StippleFieldOptions = {
   paper: 'auto',
-  ink: '#36362f',
-  accent: '#c44400',
+  ink: 'light-dark(#36362f, #ded8cc)',
+  accent: 'light-dark(#c44400, #ff7a3d)',
   pitch: 7,
   jitter: 0.75,
   scale: 1.6,

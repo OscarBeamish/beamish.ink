@@ -72,8 +72,8 @@ export type PointerSmokeOptions = BaseOptions & {
  */
 export const pointerSmokeDefaults: PointerSmokeOptions = {
   paper: 'auto',
-  smoke: '#b4afa4',
-  accent: '#bfae9e',
+  smoke: 'light-dark(#b4afa4, #3b4049)',
+  accent: 'light-dark(#bfae9e, #7d6f61)',
   marks: 28,
   size: 0.026,
   spread: 2.4,

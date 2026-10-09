@@ -14,7 +14,7 @@
     "paper",
     "hero"
   ],
-  "ground": "paper",
+  "ground": "either",
   "peerDependencies": {
     "three": ">=0.160.0"
   },
@@ -64,18 +64,18 @@
     },
     "land": {
       "type": "color",
-      "default": "#f4f1e7",
-      "description": "The land itself. Keep it close to the paper but not identical, or the horizon disappears entirely."
+      "default": "light-dark(#f4f1e7, #15171c)",
+      "description": "The land itself. Keep it close to the paper but not identical, or the horizon disappears entirely. A light-dark() pair picks by the ground it lands on."
     },
     "ink": {
       "type": "color",
-      "default": "#6f665a",
-      "description": "The contour lines. A warm grey reads as print; pure black reads as a wireframe."
+      "default": "light-dark(#6f665a, #93a0ae)",
+      "description": "The contour lines. A warm grey reads as print; pure black reads as a wireframe. A light-dark() pair picks by the ground it lands on."
     },
     "indexInk": {
       "type": "color",
-      "default": "#c44400",
-      "description": "Every fifth line is an index contour, the one a real map would label. This is the obvious place for your own colour."
+      "default": "light-dark(#c44400, #ff7a3d)",
+      "description": "Every fifth line is an index contour, the one a real map would label. This is the obvious place for your own colour. A light-dark() pair picks by the ground it lands on."
     },
     "relief": {
       "type": "number",

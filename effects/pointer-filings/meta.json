@@ -13,7 +13,7 @@
     "physics",
     "no-dependencies"
   ],
-  "ground": "paper",
+  "ground": "either",
   "peerDependencies": {},
   "browser": {
     "webgl": "webgl2",
@@ -64,13 +64,13 @@
     },
     "ink": {
       "type": "color",
-      "default": "#8d8577",
-      "description": "A filing lying flat, out where the field is weak."
+      "default": "light-dark(#8d8577, #585e66)",
+      "description": "A filing lying flat, out where the field is weak. A light-dark() pair picks by the ground it lands on."
     },
     "accent": {
       "type": "color",
-      "default": "#36362f",
-      "description": "A filing standing up in a strong field. The pattern reads as much from this change in tone as from the alignment."
+      "default": "light-dark(#36362f, #e8ebf0)",
+      "description": "A filing standing up in a strong field. The pattern reads as much from this change in tone as from the alignment. A light-dark() pair picks by the ground it lands on."
     },
     "pitch": {
       "type": "number",

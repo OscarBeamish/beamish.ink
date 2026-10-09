@@ -58,9 +58,9 @@ export type TerrainReliefOptions = BaseOptions & {
  */
 export const terrainReliefDefaults: TerrainReliefOptions = {
   paper: 'auto',
-  land: '#f4f1e7',
-  ink: '#6f665a',
-  indexInk: '#c44400',
+  land: 'light-dark(#f4f1e7, #15171c)',
+  ink: 'light-dark(#6f665a, #93a0ae)',
+  indexInk: 'light-dark(#c44400, #ff7a3d)',
   relief: 1.9,
   scale: 0.3,
   density: 1.7,
@@ -177,9 +177,15 @@ class TerrainReliefSurface implements Surface<TerrainReliefOptions> {
       u_relief: { value: terrainReliefDefaults.relief },
       u_scale: { value: terrainReliefDefaults.scale },
       u_orbit: { value: new THREE.Vector2() },
-      u_land: { value: new THREE.Color(terrainReliefDefaults.land) },
-      u_ink: { value: new THREE.Color(terrainReliefDefaults.ink) },
-      u_indexInk: { value: new THREE.Color(terrainReliefDefaults.indexInk) },
+      /*
+       * Seeded black rather than from the defaults, because those are
+       * light-dark() pairs now and THREE.Color cannot read one. Every render
+       * sets all three from the resolved options before the first draw, so
+       * the seed is never seen.
+       */
+      u_land: { value: new THREE.Color('#000') },
+      u_ink: { value: new THREE.Color('#000') },
+      u_indexInk: { value: new THREE.Color('#000') },
       u_density: { value: terrainReliefDefaults.density },
       u_weight: { value: terrainReliefDefaults.weight }
     }

@@ -5222,7 +5222,7 @@
       "physics",
       "no-dependencies"
     ],
-    "ground": "paper",
+    "ground": "either",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -5273,13 +5273,13 @@
       },
       "ink": {
         "type": "color",
-        "default": "#8d8577",
-        "description": "A filing lying flat, out where the field is weak."
+        "default": "light-dark(#8d8577, #585e66)",
+        "description": "A filing lying flat, out where the field is weak. A light-dark() pair picks by the ground it lands on."
       },
       "accent": {
         "type": "color",
-        "default": "#36362f",
-        "description": "A filing standing up in a strong field. The pattern reads as much from this change in tone as from the alignment."
+        "default": "light-dark(#36362f, #e8ebf0)",
+        "description": "A filing standing up in a strong field. The pattern reads as much from this change in tone as from the alignment. A light-dark() pair picks by the ground it lands on."
       },
       "pitch": {
         "type": "number",
@@ -6086,7 +6086,7 @@
       "trail",
       "no-dependencies"
     ],
-    "ground": "paper",
+    "ground": "either",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -6137,13 +6137,13 @@
       },
       "smoke": {
         "type": "color",
-        "default": "#b4afa4",
-        "description": "The body of it, once it has spread. Keep it close to the paper: smoke is the absence of a clear view, not a dark shape, and a strong colour here reads as paint."
+        "default": "light-dark(#b4afa4, #3b4049)",
+        "description": "The body of it, once it has spread. Keep it close to the paper: smoke is the absence of a clear view, not a dark shape, and a strong colour here reads as paint. A light-dark() pair picks by the ground it lands on."
       },
       "accent": {
         "type": "color",
-        "default": "#bfae9e",
-        "description": "What warmth the freshest smoke carries, at the head of the trail. Only a little of the trail is ever this, so a saturated colour shows up as a bead following the cursor."
+        "default": "light-dark(#bfae9e, #7d6f61)",
+        "description": "What warmth the freshest smoke carries, at the head of the trail. Only a little of the trail is ever this, so a saturated colour shows up as a bead following the cursor. A light-dark() pair picks by the ground it lands on."
       },
       "marks": {
         "type": "number",
@@ -8269,7 +8269,7 @@
       "backdrop",
       "no-dependencies"
     ],
-    "ground": "paper",
+    "ground": "either",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -8319,13 +8319,13 @@
       },
       "ink": {
         "type": "color",
-        "default": "#36362f",
-        "description": "The nib."
+        "default": "light-dark(#36362f, #ded8cc)",
+        "description": "The nib. A light-dark() pair picks by the ground it lands on."
       },
       "accent": {
         "type": "color",
-        "default": "#c44400",
-        "description": "A second nib, on a small share of the marks."
+        "default": "light-dark(#c44400, #ff7a3d)",
+        "description": "A second nib, on a small share of the marks. A light-dark() pair picks by the ground it lands on."
       },
       "pitch": {
         "type": "number",
@@ -8625,7 +8625,7 @@
       "paper",
       "hero"
     ],
-    "ground": "paper",
+    "ground": "either",
     "peerDependencies": {
       "three": ">=0.160.0"
     },
@@ -8675,18 +8675,18 @@
       },
       "land": {
         "type": "color",
-        "default": "#f4f1e7",
-        "description": "The land itself. Keep it close to the paper but not identical, or the horizon disappears entirely."
+        "default": "light-dark(#f4f1e7, #15171c)",
+        "description": "The land itself. Keep it close to the paper but not identical, or the horizon disappears entirely. A light-dark() pair picks by the ground it lands on."
       },
       "ink": {
         "type": "color",
-        "default": "#6f665a",
-        "description": "The contour lines. A warm grey reads as print; pure black reads as a wireframe."
+        "default": "light-dark(#6f665a, #93a0ae)",
+        "description": "The contour lines. A warm grey reads as print; pure black reads as a wireframe. A light-dark() pair picks by the ground it lands on."
       },
       "indexInk": {
         "type": "color",
-        "default": "#c44400",
-        "description": "Every fifth line is an index contour, the one a real map would label. This is the obvious place for your own colour."
+        "default": "light-dark(#c44400, #ff7a3d)",
+        "description": "Every fifth line is an index contour, the one a real map would label. This is the obvious place for your own colour. A light-dark() pair picks by the ground it lands on."
       },
       "relief": {
         "type": "number",

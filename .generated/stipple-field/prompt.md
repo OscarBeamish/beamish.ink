@@ -143,8 +143,8 @@ as the second argument to the create function; anything omitted takes its defaul
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
 | `paper` | color | `auto` | any CSS hex | The paper behind the marks. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
-| `ink` | color | `#36362f` | any CSS hex | The nib. |
-| `accent` | color | `#c44400` | any CSS hex | A second nib, on a small share of the marks. |
+| `ink` | color | `light-dark(#36362f, #ded8cc)` | any CSS hex | The nib. A light-dark() pair picks by the ground it lands on. |
+| `accent` | color | `light-dark(#c44400, #ff7a3d)` | any CSS hex | A second nib, on a small share of the marks. A light-dark() pair picks by the ground it lands on. |
 | `pitch` | number | `7` | 3 to 30 | Cell size in CSS pixels. There is at most one mark per cell, so this is the spacing of the stipple rather than its weight. Laid out in pixels so the marks keep their size whatever shape the element is. |
 | `jitter` | number | `0.75` | 0 to 1 | How far each mark is thrown off the centre of its cell. At 0 the marks sit on a grid and it stops being a stipple; at 1 they are anywhere in their cell and the grid is undetectable. |
 | `scale` | number | `1.6` | 0.2 to 8 | Size of the tone field the marks follow. Lower is broader country with slower changes in density. |
