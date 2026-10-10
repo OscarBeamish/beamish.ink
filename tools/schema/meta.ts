@@ -417,7 +417,31 @@ export const templateMetaSchema = z
           })
           .strict()
       )
-      .min(1),
+      .default([]),
+    /**
+     * Where the page came from, when it did not come from here.
+     *
+     * A template adapted from somebody else's work carries this and usually
+     * carries no `uses`, because it is not built from library items at all.
+     * The two are checked against each other below.
+     *
+     * The licence text itself lives in templates/THIRD-PARTY.md and in the
+     * page's own header comment, where anybody opening the file will see it.
+     * This is the short form, for the card and the colophon.
+     */
+    source: z
+      .object({
+        /** The work's own title, as its author gave it. */
+        title: z.string().min(2),
+        author: z.string().min(2),
+        /** An SPDX identifier where there is one, so it can be checked. */
+        licence: z.string().min(2),
+        url: z.string().url(),
+        /** What was changed in adapting it, in one sentence. */
+        changed: z.string().min(10)
+      })
+      .strict()
+      .optional(),
     record: z.object({
       duration: z.number().positive(),
       fps: z.number().int().positive().default(24),
@@ -428,5 +452,16 @@ export const templateMetaSchema = z
     })
   })
   .strict()
+  /*
+   * Built here, or adapted from elsewhere, and the metadata has to say which.
+   *
+   * Without this a page could quietly claim neither. The case that matters is
+   * an adapted page with no `source`: it would sit on the index looking like
+   * ours, with somebody else's name nowhere on it.
+   */
+  .refine(meta => meta.uses.length > 0 || meta.source !== undefined, {
+    message:
+      'a template needs either `uses` (the library items it is built from) or `source` (the work it is adapted from)'
+  })
 
 export type TemplateMeta = z.infer<typeof templateMetaSchema>

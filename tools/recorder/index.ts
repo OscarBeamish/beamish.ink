@@ -1,5 +1,5 @@
 /*
- * pnpm record <slug> | pnpm record --all
+ * pnpm record <slug> | pnpm record --all | pnpm record <slug> --poster-only
  *
  * The video is the only promise we make to someone before they paste a prompt, so
  * it has to be exact. Nothing here screen-records: the page clock is stubbed, the
@@ -162,14 +162,28 @@ async function openDemo(
   item: ItemRef,
   ratio: Ratio,
   extra = '',
-  ground?: RecordGround
+  ground?: RecordGround,
+  posterOnly = false
 ): Promise<Page> {
   const context = await browser.newContext({
     // Half the target in CSS pixels at 2× DPR, so a screenshot lands on the
     // target size exactly and the effect sees the DPR it will see in the wild.
     viewport: { width: ratio.width / 2, height: ratio.height / 2 },
     deviceScaleFactor: 2,
-    reducedMotion: 'no-preference'
+    /*
+     * A poster asks for no motion, and that is not a workaround.
+     *
+     * A still should show the page settled, and a page's reduced-motion branch
+     * is precisely its settled state: every reveal finished, nothing mid
+     * flight. It also fixes something the stubbed clock cannot. The stub
+     * freezes performance.now and Date.now but not setTimeout, so a type-on
+     * driven by setTimeout advances in real wall time whatever t the frame is
+     * rendered at. Posters of this page came back with a half-typed headline
+     * at every posterAt tried, because the character count depended on how
+     * long the browser had been open rather than on anything the recorder
+     * controls.
+     */
+    reducedMotion: posterOnly ? 'reduce' : 'no-preference'
   })
   await context.addInitScript(CLOCK_STUB)
   await context.addInitScript(ANIMATION_SCRUBBER)
@@ -255,7 +269,12 @@ async function openDemo(
 
 // --- frame capture ---------------------------------------------------------
 
-async function captureTier1(page: Page, meta: Recordable, dir: string): Promise<number> {
+async function captureTier1(
+  page: Page,
+  meta: Recordable,
+  dir: string,
+  posterOnly = false
+): Promise<number> {
   const total = Math.round(meta.record.duration * meta.record.fps)
 
   const ready = await page.evaluate(() => typeof window.__beamish?.renderAtTime === 'function')
@@ -315,10 +334,27 @@ async function captureTier1(page: Page, meta: Recordable, dir: string): Promise<
     )
   }
 
-  for (let frame = 0; frame < total; frame++) {
-    // The last frame is deliberately excluded: at t = duration the effect is back
-    // where it started, so including it would repeat frame zero and the loop
-    // would stutter once per cycle.
+  /*
+   * Which frames to take. Normally all of them; for a poster, the single one
+   * the poster is cut from.
+   *
+   * It keeps that frame's real index in the filename, because poster() picks
+   * its frame by index rather than by position in the directory. Renumbering it
+   * to zero here would mean teaching poster() about a second numbering scheme,
+   * and the first thing to get out of step would be the one they disagree on.
+   */
+  const posterFrame = Math.min(
+    Math.round(meta.record.posterAt * meta.record.fps),
+    total - 1
+  )
+  const wanted = posterOnly
+    ? [posterFrame]
+    : // The last frame is deliberately excluded: at t = duration the effect is
+      // back where it started, so including it would repeat frame zero and the
+      // loop would stutter once per cycle.
+      Array.from({ length: total }, (_, frame) => frame)
+
+  for (const frame of wanted) {
     const t = frame / meta.record.fps
     await page.evaluate(
       ([time, ms]) => {
@@ -329,7 +365,7 @@ async function captureTier1(page: Page, meta: Recordable, dir: string): Promise<
     )
     await page.screenshot({ path: path.join(dir, `${String(frame).padStart(5, '0')}.png`) })
   }
-  return total
+  return wanted.length
 }
 
 async function applyStep(page: Page, step: InteractionStep, ratio: Ratio) {
@@ -497,7 +533,8 @@ async function recordItem(
   only: string[],
   keepFrames: boolean,
   ground?: RecordGround,
-  crfOverride?: { crf?: number; webmCrf?: number }
+  crfOverride?: { crf?: number; webmCrf?: number },
+  posterOnly = false
 ) {
   const raw = JSON.parse(await readFile(path.join(item.dir, 'meta.json'), 'utf8'))
   /*
@@ -521,7 +558,14 @@ async function recordItem(
   await mkdir(outDir, { recursive: true })
   await buildItem(item)
 
-  const ratios = RATIOS.filter(ratio => only.length === 0 || only.includes(ratio.key))
+  /*
+   * A poster is cut from the 16x9 take, so that is the only ratio worth
+   * capturing for one. Asking for --poster-only --ratio 9x16 would otherwise
+   * capture a take nothing reads and write no poster at all.
+   */
+  const ratios = RATIOS.filter(ratio =>
+    posterOnly ? ratio.key === '16x9' : only.length === 0 || only.includes(ratio.key)
+  )
 
   for (const ratio of ratios) {
     const framesDir = path.join(FRAMES, item.slug, ratio.key)
@@ -534,7 +578,7 @@ async function recordItem(
      * what the take should contain turns that into a recapture instead of an
      * error about a missing file.
      */
-    const wanted = Math.round(meta.record.duration * meta.record.fps)
+    const wanted = posterOnly ? 1 : Math.round(meta.record.duration * meta.record.fps)
     const onDiskBefore = existsSync(framesDir) ? (await readdir(framesDir)).length : 0
     const cached = keepFrames && onDiskBefore === wanted
     if (!cached) {
@@ -548,14 +592,26 @@ async function recordItem(
     const started = Date.now()
     let frames = cached ? (await readdir(framesDir)).length : 0
     if (!cached) {
+      /*
+       * The span the page scrolls over.
+       *
+       * For a take it is the take's own duration, so the last frame lands back
+       * at the top and the loop closes. For a poster there is no loop and no
+       * second frame: what is wanted is the page as somebody first sees it,
+       * with its intro finished. A span far longer than posterAt holds the
+       * scroll at the top while the page clock still advances, so the type-on
+       * and the boot have both played and nothing has scrolled away. Without
+       * it the poster was a choice between a half-typed headline and a
+       * nameplate already off the top of the frame.
+       */
       const span =
         item.kind === 'grid' || item.kind === 'template'
-          ? `&span=${meta.record.duration}`
+          ? `&span=${posterOnly ? 100000 : meta.record.duration}`
           : ''
-      const page = await openDemo(browser, item, ratio, span, ground)
+      const page = await openDemo(browser, item, ratio, span, ground, posterOnly)
       frames =
         item.tier === 1
-          ? await captureTier1(page, meta, framesDir)
+          ? await captureTier1(page, meta, framesDir, posterOnly)
           : await captureTier2(page, meta, framesDir, ratio)
       await page.context().close()
     }
@@ -579,11 +635,12 @@ async function recordItem(
       )
     }
 
-    await encode(framesDir, outDir, ratio, meta, crfOverride)
+    if (!posterOnly) await encode(framesDir, outDir, ratio, meta, crfOverride)
     if (ratio.key === '16x9') await poster(framesDir, outDir, meta)
 
     const seconds = ((Date.now() - started) / 1000).toFixed(0)
-    console.log(`  ${item.slug} ${ratio.key.padEnd(5)} ${frames} frames in ${seconds}s${cached ? ' (cached)' : ''}`)
+    const what = posterOnly ? 'poster' : `${frames} frames`
+    console.log(`  ${item.slug} ${ratio.key.padEnd(5)} ${what} in ${seconds}s${cached ? ' (cached)' : ''}`)
     if (!keepFrames) await emptyDir(framesDir)
   }
 
@@ -682,9 +739,20 @@ async function main() {
   // tuned without recapturing, which is the slow half.
   const keepFrames = args.includes('--keep-frames')
 
+  /*
+   * --poster-only writes media/poster.jpg and nothing else.
+   *
+   * A full take is three ratios, 336 frames each and three encodes, for about
+   * three minutes and five megabytes an item. A card on an index only shows the
+   * poster until somebody hovers it, so for a page that is being looked at
+   * rather than promoted, the other 99.7% of that work is not wanted yet. This
+   * captures the single frame the poster is cut from and skips every encode.
+   */
+  const posterOnly = args.includes('--poster-only')
+
   try {
     for (const item of items)
-      await recordItem(browser, item, only, keepFrames, ground, crfOverride)
+      await recordItem(browser, item, only, keepFrames, ground, crfOverride, posterOnly)
   } finally {
     await browser.close()
     await new Promise<void>(resolve => server.close(() => resolve()))

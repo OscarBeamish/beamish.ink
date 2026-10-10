@@ -344,6 +344,13 @@ function templatePrompt(
   byItemSlug: Map<string, Meta>
 ): string {
   const { meta } = template
+  /*
+   * Two kinds of template, and almost every section below differs between
+   * them. One is composed from library items and is ours. The other is
+   * adapted from somebody else's work under its licence, is a single file,
+   * and mounts nothing from the library at all.
+   */
+  const adapted = meta.source !== undefined
   const parts: string[] = []
 
   parts.push(
@@ -396,7 +403,16 @@ Assume you have not seen this library before. Everything you need is below.`
 Pinned to \`${pin}\`. These URLs do not move; a future refactor gets a new tag.`
   )
 
+  /*
+   * Only the files the page actually has.
+   *
+   * An adapted page is one self-contained index.html with its CSS inline, so
+   * naming styles.css in its prompt sends whoever pasted it to a 404. Read
+   * off disk rather than assumed, which also means a template that gains or
+   * loses a file does not need this function edited.
+   */
   const pageFiles = ['index.html', 'styles.css', 'entry.ts', 'meta.json']
+    .filter(name => existsSync(path.join(template.dir, name)))
     .map(
       name =>
         `| \`${name}\` | ${rawUrl(pin, `templates/${meta.slug}/${name}`)} |`
@@ -410,9 +426,15 @@ Pinned to \`${pin}\`. These URLs do not move; a future refactor gets a new tag.`
 | --- | --- |
 ${pageFiles}
 
-\`entry.ts\` imports the library by relative path and imports \`meta.json\` for the
-colophon, which is why that file is in the list: without it the page does not
-build. Keep that shape, or fix the imports when you move things.`
+${
+  adapted
+    ? `Everything this page draws with is inside \`index.html\`: its CSS, its SVG
+and its script are all in the one file. \`entry.ts\` adds nothing you will see;
+it exposes the handle a recording is driven with, and you can drop it.`
+    : `\`entry.ts\` imports the library by relative path and imports \`meta.json\`
+for the colophon, which is why that file is in the list: without it the page
+does not build. Keep that shape, or fix the imports when you move things.`
+}`
   )
 
   const seen = new Set<string>()
@@ -424,19 +446,47 @@ build. Keep that shape, or fix the imports when you move things.`
       libRows.push(`| \`${use.name}\` | \`${from}\` | ${rawUrl(pin, from)} |`)
     }
   }
-  // Every effect core imports the runtime, and the runtime imports the ground
-  // resolver. Tokens and fonts are what the page is drawn with.
-  for (const from of [
-    'shared/runtime.ts',
-    'shared/ground.ts',
-    'shared/tokens.css',
-    'shared/fonts.css'
-  ]) {
-    if (!seen.has(from)) libRows.push(`| shared | \`${from}\` | ${rawUrl(pin, from)} |`)
+  if (adapted) {
+    /*
+     * An adapted page imports one thing, and only so it can be recorded.
+     * Listing the runtime, the ground resolver and the tokens here would tell
+     * somebody to fetch four files the page never loads.
+     */
+    libRows.push(
+      `| shared | \`templates/_shared/scroll-driver.ts\` | ${rawUrl(pin, 'templates/_shared/scroll-driver.ts')} |`
+    )
+  } else {
+    // Every effect core imports the runtime, and the runtime imports the ground
+    // resolver. Tokens and fonts are what the page is drawn with.
+    for (const from of [
+      'shared/runtime.ts',
+      'shared/ground.ts',
+      'shared/tokens.css',
+      'shared/fonts.css'
+    ]) {
+      if (!seen.has(from)) libRows.push(`| shared | \`${from}\` | ${rawUrl(pin, from)} |`)
+    }
   }
 
   parts.push(
-    `## 2. Fetch what it is built from
+    adapted
+      ? `## 2. Where this page came from
+
+This one is not ours. It is adapted from **${meta.source!.title}** by
+${meta.source!.author}, used under the ${meta.source!.licence} licence:
+
+${meta.source!.url}
+
+${meta.source!.changed}.
+
+The licence notice is in the comment at the top of \`index.html\` and it has to
+travel with the file. Keep it there when you edit the page, and keep it there
+if you ship it.
+
+| Item | Save as | Fetch from |
+| --- | --- | --- |
+${libRows.join('\n')}`
+      : `## 2. Fetch what it is built from
 
 | Item | Save as | Fetch from |
 | --- | --- | --- |
@@ -447,34 +497,55 @@ links \`../../shared/tokens.css\`, so the tree has to mirror the repo or every
 import has to be rewritten.`
   )
 
-  parts.push(
-    `## 3. The ground is declared, not assumed
+  if (!adapted) {
+    parts.push(
+      `## 3. The ground is declared, not assumed
 
 The page sets \`<html data-ground="${meta.ground === 'either' ? 'paper' : meta.ground}">\`
 and \`tokens.css\` has no fallback palette. Drop that attribute and the page
 loses every colour it has, which is deliberate: a ground is a decision, and a
 value you have to fill in cannot quietly be wrong.`
-  )
-
-  const colophon = meta.uses
-    .map(use =>
-      use.slug
-        ? `- [${use.name}](${SITE}/${use.kind === 'grid' ? 'grids' : use.kind === 'component' ? 'components' : 'effects'}/${use.slug})`
-        : `- ${use.name}`
     )
-    .join('\n')
 
-  parts.push(
-    `## 4. What is on the page
+    const colophon = meta.uses
+      .map(use =>
+        use.slug
+          ? `- [${use.name}](${SITE}/${use.kind === 'grid' ? 'grids' : use.kind === 'component' ? 'components' : 'effects'}/${use.slug})`
+          : `- ${use.name}`
+      )
+      .join('\n')
+
+    parts.push(
+      `## 4. What is on the page
 
 ${colophon}
 
 The page writes that list into its own footer from \`meta.json\`, so if you drop
 an item, drop it from \`uses\` too and the colophon follows.`
-  )
+    )
+  }
 
   parts.push(
-    `## 5. Make it yours
+    adapted
+      ? `## 3. Make it yours
+
+The brand is invented. There is no such company, the copy is written for this
+page and every figure on it is made up, so none of it is precious. The licence
+is the one thing on the page that is not yours to change.
+
+- Replace the words first. The layout was built around real sentences rather
+  than lorem, which is why it holds, and it will hold around yours.
+- Every tone on the page derives from a handful of custom properties at the top
+  of the \`<style>\` block. Retune those rather than hunting hex values, and
+  check the result: small labels on a dark panel fail a contrast threshold long
+  before they look wrong.
+- Nothing here is a photograph. Every mark on the page is CSS or inline SVG, so
+  there are no assets to swap and nothing to license but the page itself.
+- Keep the licence comment at the top of the file, and keep the line that says
+  the brand is fictional.
+- Keep the reduced-motion handling. WCAG 2.2.2 is Level A, and this page
+  already does the work.`
+      : `## 5. Make it yours
 
 The brand is invented. There is no such company, the copy is written for this
 page and every figure on it is made up, so none of it is precious.
