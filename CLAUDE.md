@@ -16,7 +16,9 @@ The rules most often broken:
 - Prompts pin to tags. Never delete a published tag. Never point a prompt at
   `main`.
 - `meta.json` is the source of truth. Run `pnpm generate` after touching it.
-- New item: core, meta, recipe, demo, record, generate, paste-test.
+- New item: core, meta, recipe, demo, the DemoPanel registry, record,
+  generate, paste-test. An item missing from the registry mounts nothing and
+  reports no error.
 - React and Vue only. Astro consumes those as islands.
 - Measure in the page and return a number. Shipping a framebuffer out of the
   browser costs a gigabyte. One server at a time, stopped when done.

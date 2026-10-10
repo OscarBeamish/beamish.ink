@@ -201,11 +201,20 @@ Never delete or move a published tag. It breaks every prompt already pasted. Kee
 
 ## Adding an item
 
-Work in this order: `core.ts`, `meta.json`, `recipe.md`, `demo.html`, record,
-generate, then paste-test the prompt in a scratch app.
+Work in this order: `core.ts`, `meta.json`, `recipe.md`, `demo.html`, the
+registry in `DemoPanel.astro`, record, generate, then paste-test the prompt in
+a scratch app.
 
 Do not skip the paste-test. A vague prompt is as serious a defect as a broken
 shader.
+
+**The registry is the step that gets forgotten.** `DemoPanel.astro` holds an
+explicit map of slug to dynamic import, deliberately not a glob, so that each
+page is honest about what it pulls in. An item missing from it builds, passes
+the typecheck, generates a prompt, renders its page and mounts nothing at all,
+with no error anywhere. The only sign is a demo panel that is empty, and the
+way to catch it is to count canvases against an item you know works rather
+than to look at the page and assume it has not loaded yet.
 
 ### The demo page
 
