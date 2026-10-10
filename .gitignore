@@ -34,3 +34,9 @@ tools/tests/fixtures/*.bundle.js
 .paste/
 .*.mjs
 .*.py
+
+# Scratch from a long unattended run: the batch work directory and any
+# tools/.tmp-* script written to drive it. Both are run artefacts, and both
+# got committed by a careless `git add -A` before this existed.
+tools/.dark-run/
+tools/.tmp-*
