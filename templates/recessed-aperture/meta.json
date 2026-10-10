@@ -1,0 +1,22 @@
+{
+  "name": "RecessedAperture",
+  "slug": "recessed-aperture",
+  "description": "An invented context layer for agents, where the hero is an aperture cut into the page",
+  "intent": "A hole rather than a panel. The hero is an aperture cut through the surface with the content behind it, which inverts the usual arrangement where a hero sits on top of the page.",
+  "ground": "dark",
+  "uses": [],
+  "source": {
+    "title": "Recessed Aperture Hero Page",
+    "author": "Ray Velez",
+    "licence": "MIT",
+    "url": "https://github.com/RayVelez27/instalanding.ai",
+    "changed": "New brand, copy and figures, and a retuned palette"
+  },
+  "record": {
+    "duration": 14,
+    "fps": 24,
+    "posterAt": 4,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

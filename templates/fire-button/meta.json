@@ -1,0 +1,22 @@
+{
+  "name": "FireButton",
+  "slug": "fire-button",
+  "description": "An invented interface kit built around one canvas-drawn toggle, with the showcase page that sells it",
+  "intent": "Ten canvases on one page, all of them the same control at different sizes and states. It is the only page here that is a component showcase rather than a product pitch, which makes it the one that shows what a single well-drawn control can carry.",
+  "ground": "dark",
+  "uses": [],
+  "source": {
+    "title": "Canvas Fire Button",
+    "author": "Ray Velez",
+    "licence": "MIT",
+    "url": "https://github.com/RayVelez27/instalanding.ai",
+    "changed": "New brand, copy and figures, and a retuned palette"
+  },
+  "record": {
+    "duration": 14,
+    "fps": 24,
+    "posterAt": 4,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

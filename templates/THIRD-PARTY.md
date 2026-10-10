@@ -51,15 +51,24 @@ Source: <https://github.com/RayVelez27/instalanding.ai>
 
 | Directory | Shown as | Adapted from | Changed |
 | --- | --- | --- | --- |
+| [`clay-constellation`](./clay-constellation/) | ClayConstellation | Clay Constellation SaaS Hero | New brand, copy and figures, and a retuned palette |
 | [`clay-surfaces`](./clay-surfaces/) | ClaySurfaces | Clay SaaS Platform Page | New brand, copy and figures, and a retuned palette |
 | [`editorial-portfolio`](./editorial-portfolio/) | EditorialPortfolio | Generative Editorial Product Page | New brand, copy and figures, and a retuned palette |
+| [`fire-button`](./fire-button/) | FireButton | Canvas Fire Button | New brand, copy and figures, and a retuned palette |
+| [`glossy-orbs`](./glossy-orbs/) | GlossyOrbs | Monax Analytics Landing Page | New brand, copy and figures, and a retuned palette |
 | [`grain-motion`](./grain-motion/) | GrainMotion | Grain Motion System Page | New brand, copy and figures, and a retuned palette |
+| [`highlighter-markup`](./highlighter-markup/) | HighlighterMarkup | Highlighter Markup Page | New brand, copy and figures, and a retuned palette |
+| [`holographic-ticket`](./holographic-ticket/) | HolographicTicket | Holographic Ticket Landing Page | New brand, copy and figures, and a retuned palette |
 | [`icon-cut-cards`](./icon-cut-cards/) | IconCutCards | Icon-Cut Card Stack Page | New brand, copy and figures, and a retuned palette |
 | [`machine-panel`](./machine-panel/) | MachinePanel | Machine Front Panel Page | New brand, copy and model numbers, and a palette moved from amber and cyan to sodium and ice |
 | [`notched-panels`](./notched-panels/) | NotchedPanels | Notched Panel Catalog Page | New brand, copy and figures, and a retuned palette |
 | [`radiating-rings`](./radiating-rings/) | RadiatingRings | Radiating Rings Hero Page | New brand, copy and figures, and a retuned palette |
+| [`recessed-aperture`](./recessed-aperture/) | RecessedAperture | Recessed Aperture Hero Page | New brand, copy and figures, and a retuned palette |
+| [`refracted-glass`](./refracted-glass/) | RefractedGlass | CRAFT Studio WebGL Landing Page | New brand, copy and figures, and a retuned palette |
 | [`round-controls`](./round-controls/) | RoundControls | SmartCare Clinical AI Landing Page | New brand, copy and figures, and a retuned palette |
+| [`skewed-marquee`](./skewed-marquee/) | SkewedMarquee | Skewed Marquee Wall | New brand, copy and figures, and a retuned palette |
 | [`squircle-keycaps`](./squircle-keycaps/) | SquircleKeycaps | Squircle Keycap Product Page | New brand, copy and figures, and a retuned palette |
+| [`stage-lights`](./stage-lights/) | StageLights | Stage Light Launch Page | New brand, copy and figures, and a retuned palette |
 | [`wind-field-routing`](./wind-field-routing/) | WindFieldRouting | Wind Field Routing Page | New brand, copy and figures, and a retuned palette |
 
 Every one of them also had its contrast retuned until it passes WCAG AA
@@ -87,9 +96,11 @@ exists so nobody has to guess which part.
 
 A template is named after what its page is, not after the brand on it. The
 brand is invented and stays in the page; the card has to say what you are
-getting, and `MachinePanel` does that where `Ingot` did not. The invented
-brands, for reference: Ingot, Switchyard, Deadman, Tooth, Relay, Leeward,
-Bedside, Facet, Loam and Perigee, in the order of the table above.
+getting, and `MachinePanel` does that where `Ingot` did not.
+
+The invented brands, in the order of the table above: Vantage, Loam, Facet,
+Flint, Tally, Tooth, Margin, Chorus, Relay, Ingot, Switchyard, Perigee,
+Recall, Lustre, Bedside, Slantshop, Deadman, Eclipse and Leeward.
 
 ## The brief
 
@@ -109,7 +120,18 @@ and most of the library uses those, but the self-hosted subsets cover weights
 them at the local file would silently clamp those weights and flatten every
 heading, which is a worse trade than one request.
 
-Three of them pull GSAP 3.12.5 and ScrollTrigger from cdnjs: `facet`, `leeward`
-and `relay`. Their scroll animation is built on it and replacing that would not
-be a small change. It means those three need the network, and GSAP's own
-licence is worth checking before anything built on them is shipped publicly.
+Five pull GSAP 3.12.5 and ScrollTrigger from cdnjs: `editorial-portfolio`,
+`wind-field-routing`, `icon-cut-cards`, `clay-constellation` and `glossy-orbs`.
+`holographic-ticket` pulls from jsdelivr as well. Their scroll animation is
+built on it and replacing that would not be a small change. It means those
+pages need the network, and GSAP's own licence is worth checking before
+anything built on them is shipped publicly.
+
+## The twentieth
+
+There were twenty pages in the set. The nineteenth and twentieth of them are
+here; `Neon Glass App Landing Page` is not. It is a React application rather
+than a page, served as a minified bundle inside `<div id="root">`, and the
+copy in the source set is damaged: the bundle throws `Unexpected token '**'`
+and the body renders empty. Nothing can be adapted from it without the
+original build.

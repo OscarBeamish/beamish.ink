@@ -1,0 +1,22 @@
+{
+  "name": "HolographicTicket",
+  "slug": "holographic-ticket",
+  "description": "An invented AI research lab whose product sits on a holographic ticket that tilts as you move",
+  "intent": "One object carrying the page: a ticket with a holographic foil that shifts with the pointer, perforated and stamped, used as the hero, the pricing card and the sign-up at once.",
+  "ground": "dark",
+  "uses": [],
+  "source": {
+    "title": "Holographic Ticket Landing Page",
+    "author": "Ray Velez",
+    "licence": "MIT",
+    "url": "https://github.com/RayVelez27/instalanding.ai",
+    "changed": "New brand, copy and figures, and a retuned palette"
+  },
+  "record": {
+    "duration": 14,
+    "fps": 24,
+    "posterAt": 4,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

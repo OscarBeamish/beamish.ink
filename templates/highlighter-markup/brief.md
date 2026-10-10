@@ -1,0 +1,38 @@
+<!--
+  The brief this page was built from, kept verbatim.
+
+  Named brief.md, because prompt.md means something else here: that is
+  the generated Beamish prompt, written into .generated/<slug>/.
+
+  Written by Ray Velez for instalanding.ai and distributed with the page
+  under the MIT licence.
+-->
+
+Build a single-file HTML landing page for "Footnote", a fictional grounding checker that marks up model output against the sources it was given. Source Serif 4 and JetBrains Mono from Google Fonts, everything else inline. No images - the paper grain and the highlighter texture are inline SVG data URIs. Say in a legal line that the product and every figure are invented, and label the figures on the page as invented too.
+
+THE HIGHLIGHTER
+Restyle <mark> as a real highlighter rather than the browser's flat yellow block.
+Put the colour on a ::before behind the text, not on the element: an feTurbulence plus feDisplacementMap filter roughens the edge, and run that on the element itself and the glyphs come out wobbling too. Make it wider than the word (100% + 1ch, pulled a quarter-ch left), a little taller than the line, with one elliptical corner on the bottom right, a noise texture over the colour at 75% opacity, and two inset shadows in the same hue darkened twenty points. Then a ::after: a small rotated radial blob just past the last letter, where the pen rested a beat too long.
+Drive it all from one --color custom property so a class or an inline style can recolour any mark.
+Use relative colour syntax for the shading - hsl(from var(--color) h s calc(l - 20)) - so one property is the only thing a new colour needs.
+
+THE WRAP
+A mark has to be display:inline-block for the filter to have a box to act on, and that means a marked phrase cannot break across a line. This is the source's own open problem.
+The fix is to stop marking phrases. Script splits a marked phrase into one mark per word, so the line breaks between them, each word keeps its own rough edge, and only the last word keeps the pen blob. Verify it by narrowing the viewport until the phrase has to break and checking the words report two distinct top offsets.
+
+THE PAPER
+Flexoki: #fffcf0 paper, #100f0f ink, and the 400 ramp for the highlighter tray.
+Two grains, not one. The marks want the noise strong; the same value multiplied over the whole sheet turns warm paper grey - sample a pixel rather than trusting the computed background-color, which ignores the blended image entirely.
+Flexoki red 400 and orange 400 sit a hair apart, and at 75% over warm paper two different verdicts came out the same colour. Deepen the red until a pixel sample puts real distance between them; on a page where the colour IS the verdict, that is a correctness bug rather than a taste one.
+
+THE PAGE
+A hero whose lede demonstrates the three verdicts it names, a tray of four colours each meaning something, a marked-up answer where every claim is a button that opens the span it was checked against, a strip of figures, three steps, and a close. Serif for the prose so it reads as a document, mono for every label and piece of chrome.
+Make the claims buttons rather than hover targets, with aria-expanded and aria-controls, so the whole thing works from a keyboard.
+
+THE RIDGELINE
+Under the hero copy, seven silhouettes receding. Spread their crests across the WHOLE band, furthest one near the top: crowd them into its foot and there is barely any vertical range for the parallax to work with, so the layers separate by a few pixels each and the effect reads as a wobble. With the range filling the band the trees hold station while everything behind them sinks and a wide seam of sky opens above — which is the entire point of the ladder. the page's own highlighter hues run warm to cool and pale to deep from the furthest ridge to the conifers in front, so the recession is the palette rather than a second colour scheme. Give the hero the height to hold it - copy at the top, ridgeline filling the rest. The sun belongs up with the headline, not on the horizon, which is the order those two things come in anyway; a disc at z-index -1 needs a stacking context on its parent or it drops straight through to the page background, and with one there the copy paints over it without a single heading needing a z-index of its own.
+The parallax is the old perspective trick: a scroll container at perspective 100px with each layer pushed back translateZ(-100x) and scaled (x+1) to undo the shrink, x running 3 to 0. Read what that actually does before you copy it. The scale exactly cancels the perspective division, so every layer's net scale is 1 and the only thing depth changes is that each one travels at 1/(1+x). The catch is that it needs the element carrying the perspective to BE the scroller, which on a real page means a second scrollbar nested inside the hero. Keep the ladder, drop the nesting: drive (1 - 1/(1+x)) of the scroll distance onto each layer and you get the same picture with the page's own scrollbar.
+Proportional to the DISTANCE SCROLLED, and monotonic. The tempting shortcut is a 0-to-1 progress across the block's crossing scaled by a fixed travel, and it is wrong in a way that is easy to miss: the layers are already half spread before the block has been seen and they re-converge on the way out, where the original starts composed and comes apart the whole way past. Anchor the distance to the moment the block's top reaches the foot of the viewport so it begins at rest.
+The original can afford the full lag because its layers are scaled boxes with bottom-anchored art and several viewport-heights of headroom. A band on a page has none of that, so scale the gain to the band — the RATIOS between the layers are what read as depth, not their absolute travel — and keep it to about half the band's height, or the far ridges sink clean out of frame and the section ends as silhouettes on an empty sky.
+Draw the ridges rather than fetching them. Seven silhouette PNGs is how this is usually done and it ties the page to somebody else's server; a sum-of-sines ridge and a run of two-tier conifer spikes are a few lines each and can be cut from the palette you already have.
+Every layer but the nearest moves, and a layer that has drifted up shows its own bottom edge - a sliver of sky under the hill in front of it. Run each fill on past the foot of its box so there is always more colour below than any layer can uncover.

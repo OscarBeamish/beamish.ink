@@ -1,0 +1,22 @@
+{
+  "name": "RefractedGlass",
+  "slug": "refracted-glass",
+  "description": "An invented design studio behind a sheet of refracting glass, drawn in WebGL",
+  "intent": "The only page here that puts a real shader between you and the content: a WebGL pane that refracts the type behind it as you move, on a studio page that is otherwise plain and white.",
+  "ground": "paper",
+  "uses": [],
+  "source": {
+    "title": "CRAFT Studio WebGL Landing Page",
+    "author": "Ray Velez",
+    "licence": "MIT",
+    "url": "https://github.com/RayVelez27/instalanding.ai",
+    "changed": "New brand, copy and figures, and a retuned palette"
+  },
+  "record": {
+    "duration": 14,
+    "fps": 24,
+    "posterAt": 4,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

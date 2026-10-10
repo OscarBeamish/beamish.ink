@@ -1,0 +1,22 @@
+{
+  "name": "StageLights",
+  "slug": "stage-lights",
+  "description": "An invented inference runtime staged like a product reveal under theatre lights",
+  "intent": "The quietest page here by element count and the most theatrical by effect: a product revealed under stage lighting, where almost everything is done with light rather than with chrome.",
+  "ground": "dark",
+  "uses": [],
+  "source": {
+    "title": "Stage Light Launch Page",
+    "author": "Ray Velez",
+    "licence": "MIT",
+    "url": "https://github.com/RayVelez27/instalanding.ai",
+    "changed": "New brand, copy and figures, and a retuned palette"
+  },
+  "record": {
+    "duration": 14,
+    "fps": 24,
+    "posterAt": 4,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

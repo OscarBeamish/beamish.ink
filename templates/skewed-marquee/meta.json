@@ -1,0 +1,22 @@
+{
+  "name": "SkewedMarquee",
+  "slug": "skewed-marquee",
+  "description": "An invented agent shop built from skewed marquee bands that run without any JavaScript",
+  "intent": "Infinite marquee bands thrown across the page at an angle, with no JavaScript in the animation at all. The whole motion system is CSS, which is the thing worth taking from it.",
+  "ground": "dark",
+  "uses": [],
+  "source": {
+    "title": "Skewed Marquee Wall",
+    "author": "Ray Velez",
+    "licence": "MIT",
+    "url": "https://github.com/RayVelez27/instalanding.ai",
+    "changed": "New brand, copy and figures, and a retuned palette"
+  },
+  "record": {
+    "duration": 14,
+    "fps": 24,
+    "posterAt": 4,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "ClayConstellation",
+  "slug": "clay-constellation",
+  "description": "An invented product analytics platform whose hero is a constellation of soft clay nodes",
+  "intent": "Thirty-three inline SVGs holding a node graph together, in the soft clay idiom. The constellation is the product diagram and the hero image at once, which is the trick the whole page is built on.",
+  "ground": "paper",
+  "uses": [],
+  "source": {
+    "title": "Clay Constellation SaaS Hero",
+    "author": "Ray Velez",
+    "licence": "MIT",
+    "url": "https://github.com/RayVelez27/instalanding.ai",
+    "changed": "New brand, copy and figures, and a retuned palette"
+  },
+  "record": {
+    "duration": 14,
+    "fps": 24,
+    "posterAt": 4,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

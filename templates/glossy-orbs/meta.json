@@ -1,0 +1,22 @@
+{
+  "name": "GlossyOrbs",
+  "slug": "glossy-orbs",
+  "description": "An invented analytics platform whose whole illustration language is glossy gradient spheres",
+  "intent": "One illustration language and nothing else: every picture on the page is a radial-gradient sphere with a highlight, so a page that would normally be carried by stock photography is carried by six CSS gradients instead.",
+  "ground": "dark",
+  "uses": [],
+  "source": {
+    "title": "Monax Analytics Landing Page",
+    "author": "Ray Velez",
+    "licence": "MIT",
+    "url": "https://github.com/RayVelez27/instalanding.ai",
+    "changed": "New brand, copy and figures, and a retuned palette"
+  },
+  "record": {
+    "duration": 14,
+    "fps": 24,
+    "posterAt": 4,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

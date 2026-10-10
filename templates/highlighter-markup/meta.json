@@ -1,0 +1,22 @@
+{
+  "name": "HighlighterMarkup",
+  "slug": "highlighter-markup",
+  "description": "An invented grounding checker that marks up model output the way a person would, in highlighter",
+  "intent": "A page whose whole visual argument is annotation: text marked up in highlighter, struck through, underlined and pulled out into the margin, which is the product demonstrated rather than described.",
+  "ground": "paper",
+  "uses": [],
+  "source": {
+    "title": "Highlighter Markup Page",
+    "author": "Ray Velez",
+    "licence": "MIT",
+    "url": "https://github.com/RayVelez27/instalanding.ai",
+    "changed": "New brand, copy and figures, and a retuned palette"
+  },
+  "record": {
+    "duration": 14,
+    "fps": 24,
+    "posterAt": 4,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

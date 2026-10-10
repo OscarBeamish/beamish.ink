@@ -49,6 +49,25 @@
  * house rule about not shipping a framebuffer across the protocol. One
  * screenshot, one transfer, every element sampled from it.
  *
+ * WHERE IT IS STILL WRONG
+ *
+ * The ground is sampled from the element's own box, and a box is not always
+ * what the text sits on. Two cases on these pages, both reported as failures
+ * and both verified by hand to be fine:
+ *
+ *   - a button carrying a bright glow as a ::before. The glow is inside the
+ *     box, so the upper quartile of the sample is the glow rather than the
+ *     dark pill, and a pale label on a dark button came back at 1.42:1 where
+ *     the arithmetic says twelve.
+ *   - a readout whose box overlaps the pale bar beside it. The sample mixes
+ *     the bar with the dark page the text is actually on.
+ *
+ * Both would need the sample restricted to the glyph runs rather than the box,
+ * which means laying out the text to find them. Until then: check a surprising
+ * failure against the computed colour and the real background before changing
+ * anything, because changing a page to satisfy a wrong number makes it worse.
+ * Both of these were briefly "fixed" into genuinely failing states.
+ *
  * WHAT IT STILL DOES NOT CHECK
  *
  * Text the page marks `data-decoration`. WCAG 1.4.3 exempts pure decoration,
@@ -297,7 +316,20 @@ async function collect(page: Page): Promise<Raw[]> {
         !clipped
 
       if (ownText && !decoration && visible) {
-        el.setAttribute('data-contrast-id', String(id))
+        /*
+         * Accumulate ids, never overwrite.
+         *
+         * An element with its own text and a ::before produces two rows, and
+         * setting the attribute twice left the first row pointing at an id no
+         * element carried. The re-measure then looked up the wrong element, or
+         * none, and reported a ratio belonging to something else: a badge that
+         * is plainly 15:1 came back at 4.00:1. Queried with ~= to match one id
+         * in the list.
+         */
+        el.setAttribute(
+          'data-contrast-id',
+          [el.getAttribute('data-contrast-id'), String(id)].filter(Boolean).join(' ')
+        )
         out.push({
           id: id++,
           sel,
@@ -319,7 +351,10 @@ async function collect(page: Page): Promise<Raw[]> {
         if (decoration || !visible) continue
         // A pseudo-element cannot carry its own attribute, so it is sampled
         // against its host's box, which is where it is painted anyway.
-        el.setAttribute('data-contrast-id', String(id))
+        el.setAttribute(
+          'data-contrast-id',
+          [el.getAttribute('data-contrast-id'), String(id)].filter(Boolean).join(' ')
+        )
         out.push({
           id: id++,
           sel: sel + which,
@@ -405,7 +440,7 @@ async function sampleGrounds(page: Page, ids: number[]): Promise<Map<number, num
       const out: Sampled[] = []
 
       for (const id of wanted) {
-        const el = document.querySelector<HTMLElement>(`[data-contrast-id="${id}"]`)
+        const el = document.querySelector<HTMLElement>(`[data-contrast-id~="${id}"]`)
         if (!el) {
           out.push({ id, light: null })
           continue
@@ -517,41 +552,51 @@ async function resample(
   if (ids.length === 0) return out
 
   /*
-   * Colours first, while the text is still painted, and all in one pass so
-   * they belong to one instant.
+   * Colours first, one element at a time, each scrolled into view.
    *
-   * Not carried over from the bulk pass: this page's install log changes state
-   * on a timer, so a colour read at load and a ground read seconds later can
-   * belong to two different states. A step number came back as the grey it is
-   * while pending, scored against the green it turns when done, and neither of
-   * the two real states fails.
+   * Two passes rather than one batch, and the scrolling is the reason. These
+   * pages reveal text as you reach it, so an element still above the fold is
+   * sitting at its pre-reveal colour: a footer link read in a batch from the
+   * top of the page came back part-faded, and the ratio moved between 1.91
+   * and 2.16 across runs while the settled colour measures 4.62. Scroll to it,
+   * let the reveal finish, then read.
    *
-   * And not read after the hide style goes on, which was the first attempt:
-   * the computed colour is then transparent and every element scores 1.00:1
-   * against itself.
+   * And before the hide style goes on, not after: the computed colour is
+   * transparent once the text is hidden, which scores every element against
+   * itself at 1.00:1.
    */
-  const colours = new Map<number, string>(
-    await page.evaluate(wanted => {
-      const probe = document.createElement('canvas').getContext('2d', {
-        willReadFrequently: true
-      })!
-      const rows: [number, string][] = []
-      for (const id of wanted) {
-        const el = document.querySelector<HTMLElement>(`[data-contrast-id="${id}"]`)
-        if (!el) continue
-        probe.clearRect(0, 0, 1, 1)
-        probe.fillStyle = getComputedStyle(el).color
-        probe.fillRect(0, 0, 1, 1)
-        const d = probe.getImageData(0, 0, 1, 1).data
-        let opacity = 1
-        for (let n: HTMLElement | null = el; n && n !== document.body; n = n.parentElement) {
-          opacity *= Number(getComputedStyle(n).opacity)
-        }
-        rows.push([id, `rgba(${d[0]}, ${d[1]}, ${d[2]}, ${((d[3]! / 255) * opacity).toFixed(4)})`])
-      }
-      return rows
-    }, ids)
-  )
+  const colours = new Map<number, string>()
+  for (const id of ids) {
+    const handle = await page.$(`[data-contrast-id~="${id}"]`)
+    if (!handle) continue
+    try {
+      await handle.scrollIntoViewIfNeeded({ timeout: 2000 })
+      await page.waitForTimeout(260)
+      colours.set(
+        id,
+        await handle.evaluate(el => {
+          const probe = document.createElement('canvas').getContext('2d', {
+            willReadFrequently: true
+          })!
+          probe.clearRect(0, 0, 1, 1)
+          probe.fillStyle = getComputedStyle(el as HTMLElement).color
+          probe.fillRect(0, 0, 1, 1)
+          const d = probe.getImageData(0, 0, 1, 1).data
+          let opacity = 1
+          for (
+            let n: HTMLElement | null = el as HTMLElement;
+            n && n !== document.body;
+            n = n.parentElement
+          ) {
+            opacity *= Number(getComputedStyle(n).opacity)
+          }
+          return `rgba(${d[0]}, ${d[1]}, ${d[2]}, ${((d[3]! / 255) * opacity).toFixed(4)})`
+        })
+      )
+    } catch {
+      // Left out; the bulk pass's colour stands.
+    }
+  }
 
   const hide = await page.addStyleTag({
     content:
@@ -560,13 +605,48 @@ async function resample(
   })
 
   for (const id of ids) {
-    const handle = await page.$(`[data-contrast-id="${id}"]`)
+    const handle = await page.$(`[data-contrast-id~="${id}"]`)
     if (!handle) continue
     const nowColour = colours.get(id)
     if (!nowColour) continue
     try {
       await handle.scrollIntoViewIfNeeded({ timeout: 2000 })
+
+      /*
+       * Hide the element's own children while capturing its ground.
+       *
+       * What is wanted is what sits behind the glyphs, and a child element is
+       * not that: a status badge with a bright dot in it had the dot sampled
+       * as part of its background, and light text on a near-black pill came
+       * back at 3.97:1 where the arithmetic says fifteen. Visibility rather
+       * than display, so the box does not collapse and the capture still
+       * covers the same pixels.
+       */
+      await handle.evaluate(el => {
+        for (const kid of el.children) {
+          ;(kid as HTMLElement).dataset['contrastHidden'] = (kid as HTMLElement).style.visibility
+          ;(kid as HTMLElement).style.visibility = 'hidden'
+        }
+      })
+      const radius = await handle.evaluate(el => {
+        const r = getComputedStyle(el as HTMLElement).borderTopLeftRadius
+        const box = (el as HTMLElement).getBoundingClientRect()
+        const n = parseFloat(r) || 0
+        // A "fully rounded" radius is written as something huge; cap it at
+        // half the height, which is what the browser actually paints.
+        return Math.min(n, box.height / 2)
+      })
+      await page.evaluate(r => {
+        ;(window as never as { __contrastRadius: number }).__contrastRadius = r
+      }, radius)
       const shot = await handle.screenshot({ type: 'png', timeout: 5000 })
+      await handle.evaluate(el => {
+        for (const kid of el.children) {
+          const was = (kid as HTMLElement).dataset['contrastHidden'] ?? ''
+          ;(kid as HTMLElement).style.visibility = was
+          delete (kid as HTMLElement).dataset['contrastHidden']
+        }
+      })
       const pair: number[][] | null = await page.evaluate(
         async data => {
           const image = new Image()
@@ -577,10 +657,25 @@ async function resample(
           canvas.height = image.naturalHeight
           const ctx = canvas.getContext('2d', { willReadFrequently: true })!
           ctx.drawImage(image, 0, 0)
-          const inset = Math.max(1, Math.round(Math.min(canvas.width, canvas.height) * 0.16))
-          const w = Math.max(1, canvas.width - inset * 2)
-          const h = Math.max(1, canvas.height - inset * 2)
-          const px = ctx.getImageData(inset, inset, w, h).data
+          /*
+           * Inset by the corner radius as well as by a share of the box.
+           *
+           * A pill does not paint its own corners, so the box corners hold
+           * whatever is behind it. On a badge 104 by 34 with a fully rounded
+           * end, enough of the orange panel behind showed inside the sample
+           * for the upper quartile to be that orange rather than the badge:
+           * light text on a near-black pill was scored against the panel it
+           * sits on and came back at 4.00:1 where the arithmetic says fifteen.
+           */
+          const radius = Number(
+            (window as never as { __contrastRadius?: number }).__contrastRadius || 0
+          )
+          const base = Math.max(1, Math.round(Math.min(canvas.width, canvas.height) * 0.16))
+          const insetX = Math.max(base, Math.round(radius * 0.8))
+          const insetY = base
+          const w = Math.max(1, canvas.width - insetX * 2)
+          const h = Math.max(1, canvas.height - insetY * 2)
+          const px = ctx.getImageData(insetX, insetY, w, h).data
           const lums: number[] = []
           const seenPx: number[][] = []
           for (let i = 0; i < px.length; i += 4 * 4) {
@@ -629,6 +724,35 @@ async function check(
   })
   try {
     await page.goto(ORIGIN + route, { waitUntil: 'networkidle', timeout: 30_000 })
+
+    /*
+     * Freeze every animation into one defined state before measuring.
+     *
+     * A page with a running marquee gives a different answer every run,
+     * because the ground sampled under a word depends on where the band had
+     * got to: the same page came back with 15 failures and then 19, and
+     * neither number was wrong. Finite animations are run to their end, which
+     * is the settled state a reveal is meant to arrive at. Endless ones cannot
+     * end, so they are held at their first frame, which is at least the same
+     * frame every time.
+     */
+    await page.evaluate(() => {
+      for (const a of document.getAnimations()) {
+        const iterations = a.effect?.getTiming?.().iterations
+        if (iterations === Infinity) {
+          a.pause()
+          a.currentTime = 0
+        } else {
+          try {
+            a.finish()
+          } catch {
+            a.pause()
+          }
+        }
+      }
+    })
+    await page.waitForTimeout(120)
+
     const rows = await collect(page)
     const sampled = await sampleGrounds(
       page,
@@ -699,7 +823,17 @@ async function check(
     const suspects = [...seen.values()].filter(
       v => v.ratio < v.need && !(v.row.painted && !v.sampledGround)
     )
-    const exact = await resample(page, suspects.filter(v => v.sampledGround).map(v => v.row.id))
+    /*
+     * Every failure, not only the pixel-sampled ones.
+     *
+     * Scroll-triggered reveals have not fired while the page sits at the top,
+     * so their text is still at its pre-reveal colour: six styles on one page
+     * came back at exactly 1.00:1 because the text was the same light grey as
+     * the ground it was about to animate out of. Resampling scrolls the
+     * element into view, which fires the reveal, and reads the colour and the
+     * ground together afterwards.
+     */
+    const exact = await resample(page, suspects.map(v => v.row.id))
     for (const v of suspects) {
       const fresh = exact.get(v.row.id)
       if (!fresh) continue
@@ -719,7 +853,7 @@ async function check(
       await page.evaluate(
         ids =>
           ids.filter(id => {
-            const el = document.querySelector<HTMLElement>(`[data-contrast-id="${id}"]`)
+            const el = document.querySelector<HTMLElement>(`[data-contrast-id~="${id}"]`)
             if (!el) return false
             el.scrollIntoView({ block: 'center', behavior: 'instant' as ScrollBehavior })
             const r = el.getBoundingClientRect()
