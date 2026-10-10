@@ -221,7 +221,47 @@ async function collect(page: Page): Promise<Finding[]> {
           (cs.webkitBackgroundClip === 'text' || cs.backgroundClip === 'text') &&
           cs.backgroundImage.includes('gradient')
         if (!clipped) continue
+        /*
+         * Count the decision, not the characters.
+         *
+         * A headline animated one letter at a time wraps every character in its
+         * own span, and each of those inherits the clip from the heading above
+         * it. One page measured 438 here, which is one headline: the gradient
+         * was applied once and counted once per letter. An element whose parent
+         * is clipped the same way is part of the same decision, so only the
+         * outermost one is a finding.
+         */
+        const parent = el.parentElement
+        if (parent) {
+          const ps = getComputedStyle(parent)
+          const parentClipped =
+            (ps.webkitBackgroundClip === 'text' || ps.backgroundClip === 'text') &&
+            ps.backgroundImage.includes('gradient')
+          if (parentClipped) continue
+          /*
+           * The letters may carry the clip themselves rather than inherit it,
+           * in which case no ancestor is clipped and the check above sees
+           * nothing. Three or more clipped children of one parent is a line
+           * that was split, not three decisions: it is counted once, against
+           * the parent, by letting only the first through.
+           */
+          let siblings = 0
+          for (const kid of parent.children) {
+            const ks = getComputedStyle(kid as HTMLElement)
+            if (
+              (ks.webkitBackgroundClip === 'text' || ks.backgroundClip === 'text') &&
+              ks.backgroundImage.includes('gradient')
+            ) {
+              siblings++
+            }
+          }
+          if (siblings >= 3 && el !== parent.firstElementChild) continue
+        }
         const t = (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 26)
+        // One letter is not a design decision. Same floor as the caps and
+        // accent rules, and for the same reason: a headline animated character
+        // by character wraps each one separately, sometimes twice.
+        if (t.length < 2) continue
         if (claimed[i]) {
           if (clipEarned.length < 3) clipEarned.push(`"${t}" — ${claims[i]}`)
           continue

@@ -124,6 +124,23 @@ ul, ol { list-style: none; }
   letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2);
 }
 
+/*
+ * p.label only. The same class does two jobs on this page: a section label
+ * above a panel, and a run line inside one — "run 4c1f · gpt-class model · 6
+ * retrieved spans", "POST /v1/check → 200". The second is machine output and
+ * is monospaced for the reason anything is, so only the first comes out of the
+ * device. Scoping to the element rather than moving the shared rule is the
+ * same rule the contrast work arrived at: never move a value used in more than
+ * a couple of places.
+ */
+p.label {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 /* ============================================================
    THE HIGHLIGHTER
    The colour, the noise and the rough edge all sit on ::before so
@@ -892,7 +909,7 @@ footer { background: #2f2b33; padding: 2.25rem 0 3rem; }
       </div>
 
       <div class="sheet paper">
-        <div class="sheet-head">
+        <div class="sheet-head" data-earned="the run line the checker printed, monospaced because that is how it came out">
           <span class="label">run 4c1f · gpt-class model · 6 retrieved spans</span>
           <span class="label">3 grounded · 1 stretched · 1 unsupported</span>
         </div>
@@ -967,7 +984,7 @@ footer { background: #2f2b33; padding: 2.25rem 0 3rem; }
         <p>The run as a whole gets a <code>gate</code>: <code>pass</code> if nothing is unsupported, <code>fail</code> if anything is. Wire that to CI and stop reading.</p>
       </div>
       <div class="listing paper">
-        <div class="listing-head">
+        <div class="listing-head" data-earned="a request and its status, which is machine output">
           <span class="label">POST /v1/check → 200</span>
           <span class="label">142 ms</span>
         </div>

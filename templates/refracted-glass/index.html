@@ -649,7 +649,7 @@ body::after {
 .app-bar-pad { width: 45px; flex-shrink: 0; }
 .app-body { display: grid; grid-template-columns: 220px minmax(0, 1fr) 280px; min-height: 540px; }
 .app-side { display: flex; flex-direction: column; gap: 22px; padding: 20px 14px; border-right: 1px solid var(--line); }
-.app-group h5 { padding: 0 10px 8px; font: 500 10.5px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); }
+.app-group h5 { padding: 0 10px 8px; font: 500 10.5px var(--mono); color: var(--mute); }
 .app-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 9px; font-size: 13.5px; font-weight: 500; }
 .app-item.is-active { background: #fff; box-shadow: var(--lift); }
 .app-item .dot { width: 7px; height: 7px; border-radius: 50%; background: #2fd27a; }
@@ -673,7 +673,7 @@ body::after {
 .composer { display: flex; align-items: center; gap: 10px; margin-top: auto; padding: 8px 8px 8px 16px; border-radius: 14px; background: #fff; border: 1px solid var(--line); color: var(--mute); font-size: 14px; }
 .composer i { display: grid; place-items: center; width: 32px; height: 32px; margin-left: auto; border-radius: 9px; background: var(--ink); color: #fff; font-style: normal; font-size: 15px; }
 .app-trace { display: flex; flex-direction: column; gap: 18px; padding: 22px 20px; border-left: 1px solid var(--line); background: rgba(255, 255, 255, 0.4); }
-.app-trace h5 { font: 500 10.5px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); }
+.app-trace h5 { font: 500 10.5px var(--mono); color: var(--mute); }
 .trace-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .metric { padding: 12px; border-radius: 12px; background: #fff; box-shadow: var(--lift); }
 .metric span { display: block; color: var(--mute); font: 500 10px var(--mono); letter-spacing: 0.04em; text-transform: uppercase; }
@@ -700,7 +700,7 @@ body::after {
 .plan--featured { border: 1.5px solid transparent; background: linear-gradient(#fff, #fff) padding-box, var(--prism) border-box; box-shadow: 0 50px 90px -45px rgba(13, 15, 20, 0.5); }
 .plan-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .plan h3 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
-.plan-tag { padding: 4px 10px; border-radius: 999px; background: var(--ink); color: #fff; font: 500 10.5px var(--mono); letter-spacing: 0.05em; text-transform: uppercase; }
+.plan-tag { padding: 4px 10px; border-radius: 999px; background: var(--ink); color: #fff; font: 500 10.5px var(--mono); }
 .price { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .price b { font-size: clamp(48px, 4.8vw, 68px); font-weight: 900; line-height: 1; letter-spacing: -0.045em; font-variant-numeric: tabular-nums; }
 .price span { color: var(--mute); font: 500 12px var(--mono); }
@@ -796,7 +796,7 @@ body::after {
   font-size: clamp(11px, 3cqi, 14px); line-height: 1.4;
 }
 .scene > * { position: relative; z-index: 1; }
-.scene-tag { display: flex; align-items: center; gap: 8px; font: 500 clamp(9.5px, 2.3cqi, 11.5px) var(--mono); letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.7; }
+.scene-tag { display: flex; align-items: center; gap: 8px; font: 500 clamp(9.5px, 2.3cqi, 11.5px) var(--mono); opacity: 0.7; }
 .scene-tag .live { width: 7px; height: 7px; border-radius: 50%; background: #2fd27a; box-shadow: 0 0 0 3px rgba(47, 210, 122, 0.22); animation: pulse 2s ease-in-out infinite; }
 @keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(47, 210, 122, 0); } }
 .scene-big { position: absolute; z-index: 0; pointer-events: none; font-weight: 900; line-height: 0.8; letter-spacing: -0.06em; white-space: nowrap; }
@@ -1016,10 +1016,10 @@ reply = agent.run(<span class="s">"Why was order #4821 refunded?"</span>)
   <section class="section" id="platform" aria-label="Platform" data-section="features">
     <div class="label"><span>(02)</span><span>Platform</span></div>
     <ol class="svc">
-      <li class="svc-row reveal"><span class="svc-num">01</span><h3>Retrieval</h3><p>Hybrid vector and keyword search over 40+ sources, re-ranked and kept in sync with permissions.</p><span class="svc-arrow" aria-hidden="true">↗</span></li>
-      <li class="svc-row reveal"><span class="svc-num">02</span><h3>Agents</h3><p>Multi-step agents that call your tools and APIs, with human approval wherever money or data moves.</p><span class="svc-arrow" aria-hidden="true">↗</span></li>
-      <li class="svc-row reveal"><span class="svc-num">03</span><h3>Evals</h3><p>Regression suites, LLM-as-judge scoring and side-by-side model comparisons on every deploy.</p><span class="svc-arrow" aria-hidden="true">↗</span></li>
-      <li class="svc-row reveal"><span class="svc-num">04</span><h3>Guardrails</h3><p>PII redaction, prompt-injection filters and policy checks that run before anything reaches a user.</p><span class="svc-arrow" aria-hidden="true">↗</span></li>
+      <li class="svc-row reveal"><h3>Retrieval</h3><p>Hybrid vector and keyword search over 40+ sources, re-ranked and kept in sync with permissions.</p><span class="svc-arrow" aria-hidden="true">↗</span></li>
+      <li class="svc-row reveal"><h3>Agents</h3><p>Multi-step agents that call your tools and APIs, with human approval wherever money or data moves.</p><span class="svc-arrow" aria-hidden="true">↗</span></li>
+      <li class="svc-row reveal"><h3>Evals</h3><p>Regression suites, LLM-as-judge scoring and side-by-side model comparisons on every deploy.</p><span class="svc-arrow" aria-hidden="true">↗</span></li>
+      <li class="svc-row reveal"><h3>Guardrails</h3><p>PII redaction, prompt-injection filters and policy checks that run before anything reaches a user.</p><span class="svc-arrow" aria-hidden="true">↗</span></li>
     </ol>
   </section>
 

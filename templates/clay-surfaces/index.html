@@ -74,8 +74,8 @@
   --white: #ffffff;
 
   --primary-light: #8abdff;
-  --primary: #5b49e8;
-  --primary-dark: #5b0eeb;
+  --primary: #995113;
+  --primary-dark: #824108;
 
   /* the page is one flat colour — soft UI cannot sit on a gradient or on
      alternating section bands, because the surfaces would stop matching */
@@ -1167,10 +1167,8 @@ h1 span, h2 span, h3 span, .section-title span, .plan-title span {
   opacity: 0.9;
 }
 .mod-name {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
   color: #8fa6c4;
 }
 .mod-face {
@@ -1773,10 +1771,8 @@ h1 span, h2 span, h3 span, .section-title span, .plan-title span {
   background: #0f141c;
 }
 .out-k {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 10.5px;
   color: #6d829e;
 }
 .out-v { font-size: 17px; font-weight: 600; margin-top: 3px; }
@@ -1926,7 +1922,7 @@ body {
   --c-light: #ffffff;
   --c-dark: #1b2138;
   --c-content: #2c3557;
-  --c-action: #5b49e8;
+  --c-action: #995113;
   --c-on-action: #ffffff;
   --c-bg: #e4ebf5;
   --glass-reflex-dark: 1;
@@ -1934,7 +1930,7 @@ body {
   --saturation: 150%;
   --action-hue: 249deg;
   --orb-1: #8abdff;
-  --orb-2: #a99ffd;
+  --orb-2: #fb8e30;
   --orb-3: #c8d0e7;
   --orb-4: #9baacf;
   --smoke: color-mix(in srgb, #1b2138 82%, transparent);
@@ -2034,8 +2030,8 @@ body:has(input[value="dark"]:checked) {
   --glass-reflex-dark: 2;
   --glass-reflex-light: 0.3;
   --action-hue: 213deg;
-  --orb-1: #5b0eeb;
-  --orb-2: #5b49e8;
+  --orb-1: #824108;
+  --orb-2: #995113;
   --orb-3: #232a45;
   --orb-4: #3d6fb8;
   --smoke: color-mix(in srgb, #0b0e1a 60%, transparent);
@@ -2046,15 +2042,15 @@ body:has(input[value="dim"]:checked) {
   --c-dark: #0b0e1a;
   --c-glass: #9baacf;
   --c-content: #c8d0e7;
-  --c-action: #8f83ff;
+  --c-action: #ed6e00;
   --c-on-action: #ffffff;
   --c-bg: #171c2e;
   --glass-reflex-dark: 2;
   --glass-reflex-light: 0.7;
   --saturation: 150%;
   --action-hue: 249deg;
-  --orb-1: #5b49e8;
-  --orb-2: #5b0eeb;
+  --orb-1: #995113;
+  --orb-2: #824108;
   --orb-3: #3b3f8f;
   --orb-4: #232a45;
   --smoke: color-mix(in srgb, #0b0e1a 62%, transparent);
@@ -2625,7 +2621,7 @@ html.menu-lock { overflow: hidden; }
 
 .menu-aside { display: grid; gap: 16px; align-content: center; }
 .menu-card { display: grid; gap: 12px; justify-items: start; padding: 24px; border-radius: 28px; }
-.menu-kicker { font: 500 11px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+.menu-kicker { font: 500 11px var(--mono); color: var(--text-muted); }
 .menu-lead { font-size: 18px; line-height: 1.45; letter-spacing: -0.01em; }
 .menu-status { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 500; }
 .live-dot { width: 9px; height: 9px; border-radius: 50%; background: #2fd47a; box-shadow: 0 0 0 4px color-mix(in srgb, #2fd47a 22%, transparent); }
@@ -2710,7 +2706,7 @@ html.menu-lock { overflow: hidden; }
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.flow-num { font: 500 11px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+.flow-num { font: 500 11px var(--mono); color: var(--text-muted); }
 .flow-step h3 { margin: 0; font-size: 28px; line-height: 1.1; letter-spacing: -0.035em; }
 .flow-step p { font-size: 15px; line-height: 1.6; color: var(--text-muted); }
 .flow-call {
@@ -2825,7 +2821,7 @@ html.menu-lock { overflow: hidden; }
 .mcard--new { background: color-mix(in srgb, var(--c-action) 7%, var(--glass-fill)); }
 
 .mcard-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 2px 4px 0; }
-.mcard-kicker { font: 500 11px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+.mcard-kicker { font: 500 11px var(--mono); color: var(--text-muted); }
 .mcard-chip {
   padding: 5px 10px;
   border-radius: 99em;
@@ -3029,8 +3025,6 @@ body:has(input[value="dark"]:checked) .chart-head em, body:has(input[value="dim"
   padding: 8px 14px;
   border-radius: 99em;
   font: 500 11px var(--mono);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
   color: #fff;
   background: var(--smoke);
   box-shadow: var(--glass-shadow-sm);
@@ -3149,8 +3143,6 @@ h1, h2, .plan-title, .menu-links .label,
   gap: 18px;
   margin: 0 0 22px;
   font: 500 12px var(--mono);
-  letter-spacing: 0.42em;
-  text-transform: uppercase;
   color: var(--text-muted);
 }
 .hx-eyebrow span { width: 56px; height: 1.5px; background: var(--c-action); }
@@ -3305,8 +3297,6 @@ h1, h2, .plan-title, .menu-links .label,
   bottom: 1cqw;
   font: 500 clamp(8px, 1.1cqw, 11px) var(--mono);
   font-style: normal;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   color: color-mix(in srgb, var(--c-content) 60%, transparent);
 }
 .mo .hx-sheet { animation: hx-fan 0.9s var(--m-ease) both; animation-delay: calc(1.5s + var(--k) * 0.12s); }
@@ -3414,7 +3404,7 @@ h1, h2, .plan-title, .menu-links .label,
   background: color-mix(in srgb, #05070d 45%, transparent);
   border: 1px solid color-mix(in srgb, #fff 7%, transparent);
 }
-.hx-tile .k { font: 500 clamp(7.5px, 1.15cqw, 11px) var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: #8d99b8; }
+.hx-tile .k { font: 500 clamp(7.5px, 1.15cqw, 11px) var(--mono); color: #8d99b8; }
 .hx-tile .v { font-size: clamp(13px, 2.3cqw, 21px); font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
 .hx-tile .meter { display: block; height: 0.45cqw; min-height: 3px; border-radius: 99em; background: color-mix(in srgb, #fff 12%, transparent); overflow: hidden; }
 .hx-tile .meter i { display: block; height: 100%; width: var(--w); border-radius: inherit; background: linear-gradient(90deg, var(--c-action), color-mix(in srgb, var(--c-action) 40%, #fff)); }
@@ -3467,8 +3457,6 @@ h1, h2, .plan-title, .menu-links .label,
   gap: 0.9cqw;
   margin-right: 0.6cqw;
   font: 500 clamp(9px, 1.3cqw, 12px) var(--mono);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
   color: var(--c-content);
 }
 .hx-view-title i {
@@ -3626,9 +3614,9 @@ html:not(.mo) .hx-stage > .dcard:hover { box-shadow: var(--card-shadow-hover); }
 .hx-stage .card-glow { width: 18cqw; height: 18cqw; top: -6cqw; right: -6cqw; }
 .hx-stage .card-grid { background-size: 3.6cqw 3.6cqw; }
 .hx-view-head .hx-badge { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: none; }
-.hx-view-head .hx-badge--soft { color: #a99ffd; background: color-mix(in srgb, var(--c-action) 12%, transparent); border-color: color-mix(in srgb, var(--c-action) 28%, transparent); }
+.hx-view-head .hx-badge--soft { color: #fb8e30; background: color-mix(in srgb, var(--c-action) 12%, transparent); border-color: color-mix(in srgb, var(--c-action) 28%, transparent); }
 .hx-check { border-radius: 6px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: none; }
-.hx-check--site { color: #a99ffd; background: color-mix(in srgb, var(--c-action) 12%, transparent); border-color: color-mix(in srgb, var(--c-action) 28%, transparent); }
+.hx-check--site { color: #fb8e30; background: color-mix(in srgb, var(--c-action) 12%, transparent); border-color: color-mix(in srgb, var(--c-action) 28%, transparent); }
 .hx-lens { box-shadow: 0 2cqw 4cqw -1.4cqw rgba(0, 0, 0, 0.6), 0 0 0 0.5cqw rgba(255, 255, 255, 0.06); }
 .hx-crop { padding: 2cqw; }
 .hx-crop-inner svg { border-radius: 1cqw; }
@@ -3641,7 +3629,7 @@ html:not(.mo) .hx-stage > .dcard:hover { box-shadow: var(--card-shadow-hover); }
   border: 1px solid color-mix(in srgb, var(--c-action) calc(34% - var(--k) * 7%), transparent);
   box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.35);
 }
-.hx-sheet em { color: #a99ffd; }
+.hx-sheet em { color: #fb8e30; }
 
 /* ── module cards ─────────────────────────────────────────── */
 .mcard.dcard,
@@ -3668,7 +3656,7 @@ html:not(.mo) .hx-stage > .dcard:hover { box-shadow: var(--card-shadow-hover); }
   box-shadow: none;
   color: var(--card-text);
 }
-.mcard .mcard-chip--new { color: #a99ffd; background: color-mix(in srgb, var(--c-action) 12%, transparent); border-color: color-mix(in srgb, var(--c-action) 30%, transparent); }
+.mcard .mcard-chip--new { color: #fb8e30; background: color-mix(in srgb, var(--c-action) 12%, transparent); border-color: color-mix(in srgb, var(--c-action) 30%, transparent); }
 .mcard .mcard-stage {
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.025);
@@ -3699,7 +3687,7 @@ html:not(.mo) .hx-stage > .dcard:hover { box-shadow: var(--card-shadow-hover); }
   padding: 4px 10px;
   border-radius: 6px;
   font: 600 12px var(--mono);
-  color: #a99ffd;
+  color: #fb8e30;
   background: color-mix(in srgb, var(--c-action) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--c-action) 22%, transparent);
   box-shadow: none;
@@ -3950,8 +3938,6 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
   list-style: none;
   border-radius: 22px;
   background: color-mix(in srgb, #0e1324 96%, transparent);
-  -webkit-backdrop-filter: blur(22px) saturate(160%);
-  backdrop-filter: blur(22px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 30px 60px -20px rgba(0, 0, 0, 0.65), 0 0 0 1px color-mix(in srgb, var(--c-action) 18%, transparent);
   transform-origin: top center;
@@ -3984,14 +3970,14 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
   padding: 3px 8px;
   border-radius: 6px;
   font: 500 11px var(--mono);
-  color: #a99ffd;
+  color: #fb8e30;
   background: color-mix(in srgb, var(--c-action) 12%, transparent);
   border: 1px solid color-mix(in srgb, var(--c-action) 26%, transparent);
   white-space: nowrap;
 }
 .rpick-check { color: #fff; opacity: 0; transform: scale(0.6); transition: opacity 0.2s, transform 0.3s var(--m-ease); }
 .rpick-check svg { width: 18px; height: 18px; stroke-width: 2.2; }
-.rpick-list li[aria-selected="true"] .rpick-check { opacity: 1; transform: none; color: #a99ffd; }
+.rpick-list li[aria-selected="true"] .rpick-check { opacity: 1; transform: none; color: #fb8e30; }
 .rpick-error { margin: 8px 0 0 4px; font-size: 12.5px; color: #ff9ea2; }
 @media (max-width: 520px) { .rpick-meta { display: none; } .rpick-list li { grid-template-columns: auto minmax(0, 1fr) 20px; } }
 @media (prefers-reduced-motion: reduce) { .rpick.open .rpick-list, .rpick.closing .rpick-list { animation: none; } .rpick-chev { transition: none; } }
@@ -4025,7 +4011,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
 .hx-chip-svg .yellow { stroke: #ffea00; color: #ffea00; }
 .hx-chip-svg .blue { stroke: #00ccff; color: #00ccff; }
 .hx-chip-svg .green { stroke: #00ff15; color: #00ff15; }
-.hx-chip-svg .purple { stroke: #9900ff; color: #9900ff; }
+.hx-chip-svg .purple { stroke: #a94f00; color: #a94f00; }
 .hx-chip-svg .red { stroke: #ff3300; color: #ff3300; }
 @keyframes hx-flow { to { stroke-dashoffset: 0; } }
 .hx-chip-svg text { font-weight: bold; letter-spacing: 1px; }
@@ -4104,7 +4090,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
 .ft-status-meta { font: 11px var(--mono); color: var(--card-muted); }
 .ft-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
 .ft-col { display: grid; gap: 12px; align-content: start; }
-.ft-col h4 { margin: 0 0 6px; font: 500 11px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--card-muted); }
+.ft-col h4 { margin: 0 0 6px; font: 500 11px var(--mono); color: var(--card-muted); }
 .ft-col a {
   width: fit-content;
   font-size: 15px;
@@ -4147,7 +4133,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
   font: normal 11px var(--mono);
   padding: 3px 8px;
   border-radius: 6px;
-  color: #a99ffd;
+  color: #fb8e30;
   background: color-mix(in srgb, var(--c-action) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--c-action) 22%, transparent);
 }
@@ -4257,13 +4243,13 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
   <div class="menu-inner">
     <nav aria-label="Primary">
       <ul class="menu-links">
-        <li style="--i: 0"><a href="#platform" data-close><span class="idx">01</span><span class="label">Platform</span><span class="hint">Cleanse, treat, protect</span></a></li>
-        <li style="--i: 1"><a href="#products" data-close><span class="idx">02</span><span class="label">Modules</span><span class="hint">Four, one control plane</span></a></li>
-        <li style="--i: 2"><a href="#science" data-close><span class="idx">03</span><span class="label">How it works</span><span class="hint">Brief to finished task</span></a></li>
-        <li style="--i: 3"><a href="#plans" data-close><span class="idx">04</span><span class="label">Routines</span><span class="hint">Templates you can fork</span></a></li>
-        <li style="--i: 4"><a href="#reviews" data-close><span class="idx">05</span><span class="label">Customers</span><span class="hint">4.2M runs a month</span></a></li>
-        <li style="--i: 5"><a href="#faq" data-close><span class="idx">06</span><span class="label">Docs</span><span class="hint">Auth, limits, data, SLA</span></a></li>
-        <li style="--i: 6"><a href="#consult" data-close><span class="idx">07</span><span class="label">Pricing</span><span class="hint">Start on a sandbox key</span></a></li>
+        <li style="--i: 0"><a href="#platform" data-close><span class="label">Platform</span><span class="hint">Cleanse, treat, protect</span></a></li>
+        <li style="--i: 1"><a href="#products" data-close><span class="label">Modules</span><span class="hint">Four, one control plane</span></a></li>
+        <li style="--i: 2"><a href="#science" data-close><span class="label">How it works</span><span class="hint">Brief to finished task</span></a></li>
+        <li style="--i: 3"><a href="#plans" data-close><span class="label">Routines</span><span class="hint">Templates you can fork</span></a></li>
+        <li style="--i: 4"><a href="#reviews" data-close><span class="label">Customers</span><span class="hint">4.2M runs a month</span></a></li>
+        <li style="--i: 5"><a href="#faq" data-close><span class="label">Docs</span><span class="hint">Auth, limits, data, SLA</span></a></li>
+        <li style="--i: 6"><a href="#consult" data-close><span class="label">Pricing</span><span class="hint">Start on a sandbox key</span></a></li>
       </ul>
     </nav>
 
@@ -4638,7 +4624,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
         <span class="card-fx" aria-hidden="true"><span class="card-grid"></span><span class="card-glow"></span></span>
         <div class="mcard-head"><span class="mcard-kicker">Runtime</span><span class="mcard-chip">v2.4 · 168 ms</span></div>
         <div class="mcard-stage">
-          <svg class="mc-svg" viewBox="0 0 300 160" aria-hidden="true"><defs><linearGradient id="mc-chip" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d2d2d"></stop><stop offset="1" stop-color="#0f0f0f"></stop></linearGradient><linearGradient id="mc-pin" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#bbbbbb"></stop><stop offset="0.5" stop-color="#888888"></stop><stop offset="1" stop-color="#555555"></stop></linearGradient><linearGradient id="mc-pin-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bbbbbb"></stop><stop offset="0.5" stop-color="#888888"></stop><stop offset="1" stop-color="#555555"></stop></linearGradient></defs><path d="M82 22 H218 A22 22 0 0 1 240 44 V116 A22 22 0 0 1 218 138 H82 A22 22 0 0 1 60 116 V44 A22 22 0 0 1 82 22 Z" class="mc-bg"></path><path d="M82 22 H218 A22 22 0 0 1 240 44 V116 A22 22 0 0 1 218 138 H82 A22 22 0 0 1 60 116 V44 A22 22 0 0 1 82 22 Z" class="mc-loop" pathLength="100" style="stroke:#9900ff;color:#9900ff;animation-delay:0s"></path><path d="M82 22 H218 A22 22 0 0 1 240 44 V116 A22 22 0 0 1 218 138 H82 A22 22 0 0 1 60 116 V44 A22 22 0 0 1 82 22 Z" class="mc-loop" pathLength="100" style="stroke:#00ccff;color:#00ccff;animation-delay:1.6s"></path><path d="M150 55 V22" class="mc-bg"></path><path d="M150 55 V22" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:0.2s"></path><path d="M188 80 H240" class="mc-bg"></path><path d="M188 80 H240" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:0.7s"></path><path d="M150 105 V138" class="mc-bg"></path><path d="M150 105 V138" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:1.2s"></path><path d="M112 80 H60" class="mc-bg"></path><path d="M112 80 H60" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:1.7s"></path><circle cx="150" cy="22" r="4.5" class="mc-pad lit" style="stroke:#9900ff;color:#9900ff"></circle><circle cx="240" cy="80" r="4.5" class="mc-pad"></circle><circle cx="150" cy="138" r="4.5" class="mc-pad"></circle><circle cx="60" cy="80" r="4.5" class="mc-pad"></circle><text x="150" y="12" class="mc-label" text-anchor="middle">plan</text><text x="248" y="84" class="mc-label" text-anchor="start">act</text><text x="150" y="157" class="mc-label" text-anchor="middle">check</text><text x="52" y="84" class="mc-label" text-anchor="end">learn</text><rect x="117" y="60" width="66" height="40" rx="12" fill="url(#mc-chip)" stroke="#222" stroke-width="2"></rect><rect x="112" y="66.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="183" y="66.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="112" y="76.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="183" y="76.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="112" y="86.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="183" y="86.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="130.0" y="55" width="7" height="5" rx="1.5" fill="url(#mc-pin-v)"></rect><rect x="130.0" y="100" width="7" height="5" rx="1.5" fill="url(#mc-pin-v)"></rect><rect x="146.5" y="55" width="7" height="5" rx="1.5" fill="url(#mc-pin-v)"></rect><rect x="146.5" y="100" width="7" height="5" rx="1.5" fill="url(#mc-pin-v)"></rect><rect x="163.0" y="55" width="7" height="5" rx="1.5" fill="url(#mc-pin-v)"></rect><rect x="163.0" y="100" width="7" height="5" rx="1.5" fill="url(#mc-pin-v)"></rect><text x="150.0" y="84.0" class="mc-chip-text" text-anchor="middle">AGENT</text><text x="282" y="18" class="mc-label dim" text-anchor="end">loop ×4</text></svg>
+          <svg class="mc-svg" viewBox="0 0 300 160" aria-hidden="true"><defs><linearGradient id="mc-chip" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d2d2d"></stop><stop offset="1" stop-color="#0f0f0f"></stop></linearGradient><linearGradient id="mc-pin" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#bbbbbb"></stop><stop offset="0.5" stop-color="#888888"></stop><stop offset="1" stop-color="#555555"></stop></linearGradient><linearGradient id="mc-pin-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bbbbbb"></stop><stop offset="0.5" stop-color="#888888"></stop><stop offset="1" stop-color="#555555"></stop></linearGradient></defs><path d="M82 22 H218 A22 22 0 0 1 240 44 V116 A22 22 0 0 1 218 138 H82 A22 22 0 0 1 60 116 V44 A22 22 0 0 1 82 22 Z" class="mc-bg"></path><path d="M82 22 H218 A22 22 0 0 1 240 44 V116 A22 22 0 0 1 218 138 H82 A22 22 0 0 1 60 116 V44 A22 22 0 0 1 82 22 Z" class="mc-loop" pathLength="100" style="stroke:#a94f00;color:#a94f00;animation-delay:0s"></path><path d="M82 22 H218 A22 22 0 0 1 240 44 V116 A22 22 0 0 1 218 138 H82 A22 22 0 0 1 60 116 V44 A22 22 0 0 1 82 22 Z" class="mc-loop" pathLength="100" style="stroke:#00ccff;color:#00ccff;animation-delay:1.6s"></path><path d="M150 55 V22" class="mc-bg"></path><path d="M150 55 V22" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:0.2s"></path><path d="M188 80 H240" class="mc-bg"></path><path d="M188 80 H240" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:0.7s"></path><path d="M150 105 V138" class="mc-bg"></path><path d="M150 105 V138" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:1.2s"></path><path d="M112 80 H60" class="mc-bg"></path><path d="M112 80 H60" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:1.7s"></path><circle cx="150" cy="22" r="4.5" class="mc-pad lit" style="stroke:#a94f00;color:#a94f00"></circle><circle cx="240" cy="80" r="4.5" class="mc-pad"></circle><circle cx="150" cy="138" r="4.5" class="mc-pad"></circle><circle cx="60" cy="80" r="4.5" class="mc-pad"></circle><text x="150" y="12" class="mc-label" text-anchor="middle">plan</text><text x="248" y="84" class="mc-label" text-anchor="start">act</text><text x="150" y="157" class="mc-label" text-anchor="middle">check</text><text x="52" y="84" class="mc-label" text-anchor="end">learn</text><rect x="117" y="60" width="66" height="40" rx="12" fill="url(#mc-chip)" stroke="#222" stroke-width="2"></rect><rect x="112" y="66.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="183" y="66.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="112" y="76.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="183" y="76.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="112" y="86.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="183" y="86.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="130.0" y="55" width="7" height="5" rx="1.5" fill="url(#mc-pin-v)"></rect><rect x="130.0" y="100" width="7" height="5" rx="1.5" fill="url(#mc-pin-v)"></rect><rect x="146.5" y="55" width="7" height="5" rx="1.5" fill="url(#mc-pin-v)"></rect><rect x="146.5" y="100" width="7" height="5" rx="1.5" fill="url(#mc-pin-v)"></rect><rect x="163.0" y="55" width="7" height="5" rx="1.5" fill="url(#mc-pin-v)"></rect><rect x="163.0" y="100" width="7" height="5" rx="1.5" fill="url(#mc-pin-v)"></rect><text x="150.0" y="84.0" class="mc-chip-text" text-anchor="middle">AGENT</text><text x="282" y="18" class="mc-label dim" text-anchor="end">loop ×4</text></svg>
         </div>
         <div class="mcard-body">
           <h3>Agent Runtime</h3>
@@ -4655,7 +4641,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
         <span class="card-fx" aria-hidden="true"><span class="card-grid"></span><span class="card-glow"></span></span>
         <div class="mcard-head"><span class="mcard-kicker">Routing</span><span class="mcard-chip">v2.4 · 40 ms</span></div>
         <div class="mcard-stage">
-          <svg class="mc-svg" viewBox="0 0 300 160" aria-hidden="true"><defs><linearGradient id="mc-chip" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d2d2d"></stop><stop offset="1" stop-color="#0f0f0f"></stop></linearGradient><linearGradient id="mc-pin" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#bbbbbb"></stop><stop offset="0.5" stop-color="#888888"></stop><stop offset="1" stop-color="#555555"></stop></linearGradient><linearGradient id="mc-pin-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bbbbbb"></stop><stop offset="0.5" stop-color="#888888"></stop><stop offset="1" stop-color="#555555"></stop></linearGradient></defs><path d="M48 81 H65" class="mc-bg"></path><path d="M48 81 H65" class="mc-flow" pathLength="100" style="stroke:#ffea00;color:#ffea00;animation-delay:0s"></path><path d="M145 81 H180" class="mc-bg"></path><path d="M180 81 V43 H215" class="mc-bg"></path><path d="M180 81 V119 H215" class="mc-bg"></path><path d="M215 43 V24 H250" class="mc-bg"></path><path d="M215 43 V62 H250" class="mc-bg"></path><path d="M215 119 V100 H250" class="mc-bg"></path><path d="M215 119 V138 H250" class="mc-bg"></path><path d="M145 81 H180 V43 H215 V62 H250" class="mc-lit" style="stroke:#00ccff;color:#00ccff"></path><path d="M145 81 H180 V43 H215 V62 H250" class="mc-flow fast" pathLength="100" style="stroke:#00ccff;color:#00ccff;animation-delay:0.4s"></path><path d="M215 119 V100 H250" class="mc-flow" pathLength="100" style="stroke:#ff3300;color:#ff3300;animation-delay:1.4s"></path><path d="M215 43 V24 H250" class="mc-flow" pathLength="100" style="stroke:#9900ff;color:#9900ff;animation-delay:2.0s"></path><path d="M215 119 V138 H250" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:2.6s"></path><circle cx="180" cy="81" r="3.2" class="mc-node on"></circle><circle cx="215" cy="43" r="3.2" class="mc-node on"></circle><circle cx="215" cy="119" r="3.2" class="mc-node"></circle><circle cx="44" cy="81" r="4.5" class="mc-pad"></circle><circle cx="254" cy="24" r="4.5" class="mc-pad"></circle><circle cx="254" cy="62" r="4.5" class="mc-pad lit" style="stroke:#00ccff;color:#00ccff"></circle><circle cx="254" cy="100" r="4.5" class="mc-pad"></circle><circle cx="254" cy="138" r="4.5" class="mc-pad"></circle><text x="36" y="85" class="mc-label" text-anchor="end">task</text><text x="262" y="28" class="mc-label" text-anchor="start">agent</text><text x="262" y="66" class="mc-label on" text-anchor="start">model</text><text x="262" y="104" class="mc-label" text-anchor="start">human</text><text x="262" y="142" class="mc-label" text-anchor="start">queue</text><rect x="70" y="61" width="70" height="40" rx="12" fill="url(#mc-chip)" stroke="#222" stroke-width="2"></rect><rect x="65" y="67.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="140" y="67.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="65" y="77.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="140" y="77.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="65" y="87.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="140" y="87.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><text x="105.0" y="85.0" class="mc-chip-text" text-anchor="middle">ROUTER</text><text x="20" y="18" class="mc-label dim">conf 0.94 → model</text></svg>
+          <svg class="mc-svg" viewBox="0 0 300 160" aria-hidden="true"><defs><linearGradient id="mc-chip" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d2d2d"></stop><stop offset="1" stop-color="#0f0f0f"></stop></linearGradient><linearGradient id="mc-pin" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#bbbbbb"></stop><stop offset="0.5" stop-color="#888888"></stop><stop offset="1" stop-color="#555555"></stop></linearGradient><linearGradient id="mc-pin-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bbbbbb"></stop><stop offset="0.5" stop-color="#888888"></stop><stop offset="1" stop-color="#555555"></stop></linearGradient></defs><path d="M48 81 H65" class="mc-bg"></path><path d="M48 81 H65" class="mc-flow" pathLength="100" style="stroke:#ffea00;color:#ffea00;animation-delay:0s"></path><path d="M145 81 H180" class="mc-bg"></path><path d="M180 81 V43 H215" class="mc-bg"></path><path d="M180 81 V119 H215" class="mc-bg"></path><path d="M215 43 V24 H250" class="mc-bg"></path><path d="M215 43 V62 H250" class="mc-bg"></path><path d="M215 119 V100 H250" class="mc-bg"></path><path d="M215 119 V138 H250" class="mc-bg"></path><path d="M145 81 H180 V43 H215 V62 H250" class="mc-lit" style="stroke:#00ccff;color:#00ccff"></path><path d="M145 81 H180 V43 H215 V62 H250" class="mc-flow fast" pathLength="100" style="stroke:#00ccff;color:#00ccff;animation-delay:0.4s"></path><path d="M215 119 V100 H250" class="mc-flow" pathLength="100" style="stroke:#ff3300;color:#ff3300;animation-delay:1.4s"></path><path d="M215 43 V24 H250" class="mc-flow" pathLength="100" style="stroke:#a94f00;color:#a94f00;animation-delay:2.0s"></path><path d="M215 119 V138 H250" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:2.6s"></path><circle cx="180" cy="81" r="3.2" class="mc-node on"></circle><circle cx="215" cy="43" r="3.2" class="mc-node on"></circle><circle cx="215" cy="119" r="3.2" class="mc-node"></circle><circle cx="44" cy="81" r="4.5" class="mc-pad"></circle><circle cx="254" cy="24" r="4.5" class="mc-pad"></circle><circle cx="254" cy="62" r="4.5" class="mc-pad lit" style="stroke:#00ccff;color:#00ccff"></circle><circle cx="254" cy="100" r="4.5" class="mc-pad"></circle><circle cx="254" cy="138" r="4.5" class="mc-pad"></circle><text x="36" y="85" class="mc-label" text-anchor="end">task</text><text x="262" y="28" class="mc-label" text-anchor="start">agent</text><text x="262" y="66" class="mc-label on" text-anchor="start">model</text><text x="262" y="104" class="mc-label" text-anchor="start">human</text><text x="262" y="142" class="mc-label" text-anchor="start">queue</text><rect x="70" y="61" width="70" height="40" rx="12" fill="url(#mc-chip)" stroke="#222" stroke-width="2"></rect><rect x="65" y="67.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="140" y="67.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="65" y="77.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="140" y="77.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="65" y="87.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="140" y="87.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><text x="105.0" y="85.0" class="mc-chip-text" text-anchor="middle">ROUTER</text><text x="20" y="18" class="mc-label dim">conf 0.94 → model</text></svg>
         </div>
         <div class="mcard-body">
           <h3>Router</h3>
@@ -4672,7 +4658,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
         <span class="card-fx" aria-hidden="true"><span class="card-grid"></span><span class="card-glow"></span></span>
         <div class="mcard-head"><span class="mcard-kicker">Memory</span><span class="mcard-chip">at-least-once</span></div>
         <div class="mcard-stage">
-          <svg class="mc-svg" viewBox="0 0 300 160" aria-hidden="true"><defs><linearGradient id="mc-chip" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d2d2d"></stop><stop offset="1" stop-color="#0f0f0f"></stop></linearGradient><linearGradient id="mc-pin" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#bbbbbb"></stop><stop offset="0.5" stop-color="#888888"></stop><stop offset="1" stop-color="#555555"></stop></linearGradient><linearGradient id="mc-pin-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bbbbbb"></stop><stop offset="0.5" stop-color="#888888"></stop><stop offset="1" stop-color="#555555"></stop></linearGradient></defs><path d="M88 72 H150" class="mc-bg"></path><path d="M88 72 H150" class="mc-flow" pathLength="100" style="stroke:#9900ff;color:#9900ff;animation-delay:0s"></path><path d="M150 88 H88" class="mc-bg"></path><path d="M150 88 H88" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:0.8s"></path><path d="M150 24 V136" class="mc-bg"></path><path d="M150 72 V24" class="mc-flow" pathLength="100" style="stroke:#00ccff;color:#00ccff;animation-delay:0.3s"></path><path d="M150 88 V136" class="mc-flow" pathLength="100" style="stroke:#ffea00;color:#ffea00;animation-delay:0.9s"></path><path d="M150 32 H187" class="mc-bg"></path><path d="M150 32 H187" class="mc-flow" pathLength="100" style="stroke:#00ccff;color:#00ccff;animation-delay:1.1s"></path><path d="M150 80 H187" class="mc-bg"></path><path d="M150 80 H187" class="mc-flow" pathLength="100" style="stroke:#9900ff;color:#9900ff;animation-delay:1.6s"></path><path d="M187 128 H150" class="mc-bg"></path><path d="M187 128 H150" class="mc-flow" pathLength="100" style="stroke:#ffea00;color:#ffea00;animation-delay:2.1s"></path><circle cx="150" cy="32" r="3" class="mc-node on"></circle><circle cx="150" cy="80" r="3" class="mc-node on"></circle><circle cx="150" cy="128" r="3" class="mc-node on"></circle><rect x="26" y="56" width="56" height="48" rx="12" fill="url(#mc-chip)" stroke="#222" stroke-width="2"></rect><rect x="82" y="64.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="82" y="76.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="82" y="88.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><text x="54.0" y="84.0" class="mc-chip-text" text-anchor="middle" style="font-size:10.5px">AGENT</text><rect x="192" y="18" width="74" height="28" rx="6" fill="url(#mc-chip)" stroke="#222" stroke-width="2"></rect><rect x="187" y="24" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="187" y="30" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="187" y="36" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="242" y="27" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="247" y="27" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="252" y="27" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="257" y="27" width="3" height="10" rx="1" class="mc-cell"></rect><text x="216" y="36" class="mc-chip-text" text-anchor="middle" style="font-size:10px">CRM</text><rect x="192" y="66" width="74" height="28" rx="6" fill="url(#mc-chip)" stroke="#222" stroke-width="2"></rect><rect x="187" y="72" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="187" y="78" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="187" y="84" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="242" y="75" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="247" y="75" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="252" y="75" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="257" y="75" width="3" height="10" rx="1" class="mc-cell"></rect><text x="216" y="84" class="mc-chip-text" text-anchor="middle" style="font-size:10px">DESK</text><rect x="192" y="114" width="74" height="28" rx="6" fill="url(#mc-chip)" stroke="#222" stroke-width="2"></rect><rect x="187" y="120" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="187" y="126" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="187" y="132" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="242" y="123" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="247" y="123" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="252" y="123" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="257" y="123" width="3" height="10" rx="1" class="mc-cell"></rect><text x="216" y="132" class="mc-chip-text" text-anchor="middle" style="font-size:10px">DWH</text><text x="119" y="64" class="mc-label dim" text-anchor="middle">write</text><text x="119" y="102" class="mc-label dim" text-anchor="middle">read</text></svg>
+          <svg class="mc-svg" viewBox="0 0 300 160" aria-hidden="true"><defs><linearGradient id="mc-chip" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d2d2d"></stop><stop offset="1" stop-color="#0f0f0f"></stop></linearGradient><linearGradient id="mc-pin" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#bbbbbb"></stop><stop offset="0.5" stop-color="#888888"></stop><stop offset="1" stop-color="#555555"></stop></linearGradient><linearGradient id="mc-pin-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bbbbbb"></stop><stop offset="0.5" stop-color="#888888"></stop><stop offset="1" stop-color="#555555"></stop></linearGradient></defs><path d="M88 72 H150" class="mc-bg"></path><path d="M88 72 H150" class="mc-flow" pathLength="100" style="stroke:#a94f00;color:#a94f00;animation-delay:0s"></path><path d="M150 88 H88" class="mc-bg"></path><path d="M150 88 H88" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:0.8s"></path><path d="M150 24 V136" class="mc-bg"></path><path d="M150 72 V24" class="mc-flow" pathLength="100" style="stroke:#00ccff;color:#00ccff;animation-delay:0.3s"></path><path d="M150 88 V136" class="mc-flow" pathLength="100" style="stroke:#ffea00;color:#ffea00;animation-delay:0.9s"></path><path d="M150 32 H187" class="mc-bg"></path><path d="M150 32 H187" class="mc-flow" pathLength="100" style="stroke:#00ccff;color:#00ccff;animation-delay:1.1s"></path><path d="M150 80 H187" class="mc-bg"></path><path d="M150 80 H187" class="mc-flow" pathLength="100" style="stroke:#a94f00;color:#a94f00;animation-delay:1.6s"></path><path d="M187 128 H150" class="mc-bg"></path><path d="M187 128 H150" class="mc-flow" pathLength="100" style="stroke:#ffea00;color:#ffea00;animation-delay:2.1s"></path><circle cx="150" cy="32" r="3" class="mc-node on"></circle><circle cx="150" cy="80" r="3" class="mc-node on"></circle><circle cx="150" cy="128" r="3" class="mc-node on"></circle><rect x="26" y="56" width="56" height="48" rx="12" fill="url(#mc-chip)" stroke="#222" stroke-width="2"></rect><rect x="82" y="64.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="82" y="76.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="82" y="88.5" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><text x="54.0" y="84.0" class="mc-chip-text" text-anchor="middle" style="font-size:10.5px">AGENT</text><rect x="192" y="18" width="74" height="28" rx="6" fill="url(#mc-chip)" stroke="#222" stroke-width="2"></rect><rect x="187" y="24" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="187" y="30" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="187" y="36" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="242" y="27" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="247" y="27" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="252" y="27" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="257" y="27" width="3" height="10" rx="1" class="mc-cell"></rect><text x="216" y="36" class="mc-chip-text" text-anchor="middle" style="font-size:10px">CRM</text><rect x="192" y="66" width="74" height="28" rx="6" fill="url(#mc-chip)" stroke="#222" stroke-width="2"></rect><rect x="187" y="72" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="187" y="78" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="187" y="84" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="242" y="75" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="247" y="75" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="252" y="75" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="257" y="75" width="3" height="10" rx="1" class="mc-cell"></rect><text x="216" y="84" class="mc-chip-text" text-anchor="middle" style="font-size:10px">DESK</text><rect x="192" y="114" width="74" height="28" rx="6" fill="url(#mc-chip)" stroke="#222" stroke-width="2"></rect><rect x="187" y="120" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="187" y="126" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="187" y="132" width="5" height="4" rx="1" fill="url(#mc-pin)"></rect><rect x="242" y="123" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="247" y="123" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="252" y="123" width="3" height="10" rx="1" class="mc-cell"></rect><rect x="257" y="123" width="3" height="10" rx="1" class="mc-cell"></rect><text x="216" y="132" class="mc-chip-text" text-anchor="middle" style="font-size:10px">DWH</text><text x="119" y="64" class="mc-label dim" text-anchor="middle">write</text><text x="119" y="102" class="mc-label dim" text-anchor="middle">read</text></svg>
         </div>
         <div class="mcard-body">
           <h3>Memory Sync</h3>
@@ -4689,7 +4675,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
         <span class="card-fx" aria-hidden="true"><span class="card-grid"></span><span class="card-glow"></span></span>
         <div class="mcard-head"><span class="mcard-kicker">Analytics</span><span class="mcard-chip mcard-chip--new">New · beta</span></div>
         <div class="mcard-stage">
-          <svg class="mc-svg" viewBox="0 0 300 160" aria-hidden="true"><defs><linearGradient id="mc-chip" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d2d2d"></stop><stop offset="1" stop-color="#0f0f0f"></stop></linearGradient><linearGradient id="mc-pin" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#bbbbbb"></stop><stop offset="0.5" stop-color="#888888"></stop><stop offset="1" stop-color="#555555"></stop></linearGradient><linearGradient id="mc-pin-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bbbbbb"></stop><stop offset="0.5" stop-color="#888888"></stop><stop offset="1" stop-color="#555555"></stop></linearGradient></defs><path d="M58 138 H262" class="mc-bg"></path><path d="M58 138 H262" class="mc-flow slow" pathLength="100" style="stroke:#9900ff;color:#9900ff;animation-delay:0s"></path><path d="M80 138 V106" class="mc-bg"></path><path d="M80 138 V106" class="mc-flow" pathLength="100" style="stroke:#00ccff;color:#00ccff;animation-delay:0.0s"></path><circle cx="80" cy="106" r="4.5" class="mc-pad"></circle><path d="M102 138 V98" class="mc-bg"></path><path d="M102 138 V98" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:0.25s"></path><circle cx="102" cy="98" r="4.5" class="mc-pad"></circle><path d="M124 138 V102" class="mc-bg"></path><path d="M124 138 V102" class="mc-flow" pathLength="100" style="stroke:#ffea00;color:#ffea00;animation-delay:0.5s"></path><circle cx="124" cy="102" r="4.5" class="mc-pad"></circle><path d="M146 138 V90" class="mc-bg"></path><path d="M146 138 V90" class="mc-flow" pathLength="100" style="stroke:#00ccff;color:#00ccff;animation-delay:0.75s"></path><circle cx="146" cy="90" r="4.5" class="mc-pad"></circle><path d="M168 138 V82" class="mc-bg"></path><path d="M168 138 V82" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:1.0s"></path><circle cx="168" cy="82" r="4.5" class="mc-pad"></circle><path d="M190 138 V86" class="mc-bg"></path><path d="M190 138 V86" class="mc-flow" pathLength="100" style="stroke:#ffea00;color:#ffea00;animation-delay:1.25s"></path><circle cx="190" cy="86" r="4.5" class="mc-pad"></circle><path d="M212 138 V70" class="mc-bg"></path><path d="M212 138 V70" class="mc-flow" pathLength="100" style="stroke:#00ccff;color:#00ccff;animation-delay:1.5s"></path><circle cx="212" cy="70" r="4.5" class="mc-pad"></circle><path d="M234 138 V60" class="mc-bg"></path><path d="M234 138 V60" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:1.75s"></path><circle cx="234" cy="60" r="4.5" class="mc-pad"></circle><path d="M256 138 V38" class="mc-lit" style="stroke:#9900ff;color:#9900ff"></path><path d="M256 138 V38" class="mc-flow fast" pathLength="100" style="stroke:#9900ff;color:#9900ff;animation-delay:0.2s"></path><circle cx="256" cy="38" r="4.5" class="mc-pad lit" style="stroke:#9900ff;color:#9900ff"></circle><rect x="16" y="124" width="40" height="28" rx="9" fill="url(#mc-chip)" stroke="#222" stroke-width="2"></rect><rect x="56" y="129.8" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="56" y="139.2" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><text x="36.0" y="142.0" class="mc-chip-text" text-anchor="middle" style="font-size:9.5px">SQL</text><text x="16" y="34" class="mc-big">98.4k</text><text x="16" y="52" class="mc-label">runs / week <tspan class="mc-up">▲ 5%</tspan></text></svg>
+          <svg class="mc-svg" viewBox="0 0 300 160" aria-hidden="true"><defs><linearGradient id="mc-chip" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d2d2d"></stop><stop offset="1" stop-color="#0f0f0f"></stop></linearGradient><linearGradient id="mc-pin" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#bbbbbb"></stop><stop offset="0.5" stop-color="#888888"></stop><stop offset="1" stop-color="#555555"></stop></linearGradient><linearGradient id="mc-pin-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bbbbbb"></stop><stop offset="0.5" stop-color="#888888"></stop><stop offset="1" stop-color="#555555"></stop></linearGradient></defs><path d="M58 138 H262" class="mc-bg"></path><path d="M58 138 H262" class="mc-flow slow" pathLength="100" style="stroke:#a94f00;color:#a94f00;animation-delay:0s"></path><path d="M80 138 V106" class="mc-bg"></path><path d="M80 138 V106" class="mc-flow" pathLength="100" style="stroke:#00ccff;color:#00ccff;animation-delay:0.0s"></path><circle cx="80" cy="106" r="4.5" class="mc-pad"></circle><path d="M102 138 V98" class="mc-bg"></path><path d="M102 138 V98" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:0.25s"></path><circle cx="102" cy="98" r="4.5" class="mc-pad"></circle><path d="M124 138 V102" class="mc-bg"></path><path d="M124 138 V102" class="mc-flow" pathLength="100" style="stroke:#ffea00;color:#ffea00;animation-delay:0.5s"></path><circle cx="124" cy="102" r="4.5" class="mc-pad"></circle><path d="M146 138 V90" class="mc-bg"></path><path d="M146 138 V90" class="mc-flow" pathLength="100" style="stroke:#00ccff;color:#00ccff;animation-delay:0.75s"></path><circle cx="146" cy="90" r="4.5" class="mc-pad"></circle><path d="M168 138 V82" class="mc-bg"></path><path d="M168 138 V82" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:1.0s"></path><circle cx="168" cy="82" r="4.5" class="mc-pad"></circle><path d="M190 138 V86" class="mc-bg"></path><path d="M190 138 V86" class="mc-flow" pathLength="100" style="stroke:#ffea00;color:#ffea00;animation-delay:1.25s"></path><circle cx="190" cy="86" r="4.5" class="mc-pad"></circle><path d="M212 138 V70" class="mc-bg"></path><path d="M212 138 V70" class="mc-flow" pathLength="100" style="stroke:#00ccff;color:#00ccff;animation-delay:1.5s"></path><circle cx="212" cy="70" r="4.5" class="mc-pad"></circle><path d="M234 138 V60" class="mc-bg"></path><path d="M234 138 V60" class="mc-flow" pathLength="100" style="stroke:#00ff15;color:#00ff15;animation-delay:1.75s"></path><circle cx="234" cy="60" r="4.5" class="mc-pad"></circle><path d="M256 138 V38" class="mc-lit" style="stroke:#a94f00;color:#a94f00"></path><path d="M256 138 V38" class="mc-flow fast" pathLength="100" style="stroke:#a94f00;color:#a94f00;animation-delay:0.2s"></path><circle cx="256" cy="38" r="4.5" class="mc-pad lit" style="stroke:#a94f00;color:#a94f00"></circle><rect x="16" y="124" width="40" height="28" rx="9" fill="url(#mc-chip)" stroke="#222" stroke-width="2"></rect><rect x="56" y="129.8" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><rect x="56" y="139.2" width="5" height="7" rx="1.5" fill="url(#mc-pin)"></rect><text x="36.0" y="142.0" class="mc-chip-text" text-anchor="middle" style="font-size:9.5px">SQL</text><text x="16" y="34" class="mc-big">98.4k</text><text x="16" y="52" class="mc-label">runs / week <tspan class="mc-up">▲ 5%</tspan></text></svg>
         </div>
         <div class="mcard-body">
           <h3>Insights</h3>
@@ -4726,7 +4712,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
       <div class="step-track"><div class="step-track-fill"></div></div>
       <div class="step-grid">
         <div class="step-card pane">
-          <span class="step-num">01</span>
+          
           <div class="step-icon">
             <svg viewBox="0 0 24 24"><path d="M12 16V4"></path><polyline points="7 9 12 4 17 9"></polyline><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path></svg>
           </div>
@@ -4734,7 +4720,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
           <p>Describe the task and hand over the tools it may use. Inputs are cleaned and personal data redacted on arrival.</p>
         </div>
         <div class="step-card pane">
-          <span class="step-num">02</span>
+          
           <div class="step-icon">
             <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"></rect><path d="M8 13l3-3 2 2 3-4"></path></svg>
           </div>
@@ -4742,7 +4728,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
           <p>The agent plans, calls tools and checks its own work, with every step traced and scored as it goes.</p>
         </div>
         <div class="step-card pane">
-          <span class="step-num">03</span>
+          
           <div class="step-icon">
             <svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"></circle><circle cx="18" cy="18" r="3"></circle><path d="M6 9v4a2 2 0 0 0 2 2h7"></path></svg>
           </div>
@@ -4750,7 +4736,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
           <p>Guardrails check each result. Anything below your confidence threshold goes to a person, not a customer.</p>
         </div>
         <div class="step-card pane">
-          <span class="step-num">04</span>
+          
           <div class="step-icon step-icon--orange">
             <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"></path><polyline points="21 4 21 9 16 9"></polyline></svg>
           </div>

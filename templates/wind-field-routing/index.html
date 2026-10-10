@@ -186,11 +186,9 @@ body {
   .route-card-head,
   .route-card dt,
   .route-card-foot {
-    font-family: var(--font-mono);
+    font-family: var(--font-display);
     font-size: var(--label);
     font-weight: 400;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
   }
 }
 
@@ -318,10 +316,8 @@ body {
     inset-block-end: 1.1rem;
     inset-inline-start: 50%;
     transform: translateX(-50%);
-    font-family: var(--font-mono);
+    font-family: var(--font-display);
     font-size: var(--label);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
     color: var(--muted);
     pointer-events: none;
     white-space: nowrap;
@@ -536,11 +532,9 @@ body {
   }
 
   .wordmark small {
-    font-family: var(--font-mono);
+    font-family: var(--font-display);
     font-weight: 400;
     font-size: var(--label);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
     color: var(--muted);
   }
 
@@ -680,10 +674,8 @@ body {
   .menu-aside .hero-actions { inline-size: min(20rem, 100%); }
   .menu-aside address { font-style: normal; display: grid; gap: 0.2rem; font-size: 0.9375rem; user-select: all; }
   .menu-aside .menu-meta {
-    font-family: var(--font-mono);
+    font-family: var(--font-display);
     font-size: var(--label);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
     color: var(--muted);
   }
 
@@ -1078,10 +1070,8 @@ body {
   .stats.is-in .stat:nth-child(4)::before { transition-delay: 0.3s; }
 
   .stat-label {
-    font-family: var(--font-mono);
+    font-family: var(--font-display);
     font-size: var(--label);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
     color: var(--muted);
   }
 
@@ -1700,10 +1690,8 @@ body {
   }
 
   .bridge-points li span {
-    font-family: var(--font-mono);
+    font-family: var(--font-display);
     font-size: var(--label);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
     color: var(--muted);
     padding-block-start: 0.2rem;
   }
@@ -1942,11 +1930,9 @@ body {
   .dl--sm .dl-icon { inline-size: 0.95rem; block-size: 0.95rem; }
 
   .footer-col h4 {
-    font-family: var(--font-mono);
+    font-family: var(--font-display);
     font-size: var(--label);
     font-weight: 400;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
     color: var(--muted);
     margin-block-end: 1rem;
   }
@@ -2142,7 +2128,7 @@ body {
           <div class="caption-hint">Field v3 · 0.25° · isobars 4 hPa · <span id="mode_label">Mistral</span></div>
         </div>
 
-        <aside class="route-card" aria-label="Solved route readout">
+        <aside class="route-card" aria-label="Solved route readout" data-earned="a bridge readout: ETA, fuel and course, which is an instrument rather than a label">
           <div class="route-card-head"><span>Kerkyra Spirit</span><span>ESALG → GRPIR</span></div>
           <dl>
             <div><dt>ETA</dt><dd id="rc_eta">−7.2 h</dd></div>

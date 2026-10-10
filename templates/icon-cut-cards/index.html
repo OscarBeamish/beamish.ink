@@ -78,11 +78,11 @@
   --fg:         #ffffff;
   --fg-dim:     rgba(255,255,255,.64);
   --fg-faint:   rgba(255,255,255,.72);
-  --violet:     #b169db;
+  --violet:     #2a93ae;
   --amber:      #f7d152;
   --green:      #46cf71;
   --cyan:       #0fbffa;
-  --spectrum:   linear-gradient(-45deg, #912acd 20%, #e6b71d, #16a242, #03b0ea 70%);
+  --spectrum:   linear-gradient(-45deg, #1a6a7f 20%, #e6b71d, #16a242, #03b0ea 70%);
   --f-mono:     "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, monospace;
   --nav-h:      58px;
   /* the poster hero's own palette */
@@ -153,14 +153,14 @@ a{ color:inherit; }
 .brand b{ font-size:15px; font-weight:600; letter-spacing:.16em; }
 .nav-links{ display:flex; gap:24px; }
 .nav-links a{
-  font-size:12px; letter-spacing:.12em; text-transform:uppercase;
+  font-size:14px; font-weight:500;
   color:var(--fg-dim); text-decoration:none; padding:4px 0;
   border-bottom:1px solid transparent;
 }
 .nav-links a:hover{ color:var(--fg); border-bottom-color:var(--cyan); }
 .btn{
   display:inline-flex; align-items:center; gap:8px;
-  font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+  font-size:14px; font-weight:600;
   padding:10px 16px; border-radius:10px; cursor:pointer;
   border:1px solid var(--line-2); background:rgba(255,255,255,.04); color:var(--fg);
   transition:border-color .2s ease, background .2s ease, transform .12s ease;
@@ -192,10 +192,9 @@ a{ color:inherit; }
 }
 .nav .btn:hover{ background:none; color:var(--fg); }
 .nav .btn--hot{
-  color:transparent; font-weight:600;
-  background-image:var(--spectrum); background-size:100% 100%;
-  -webkit-background-clip:text; background-clip:text;
-  filter:brightness(1.9);
+  /* Flat. The spectrum belongs to the display type, where it means the many
+     routes this thing is about; on a nav button it is just the device. */
+  color:var(--fg); font-weight:600;
 }
 .nav .btn--hot:hover{ background-image:none; color:#fff; filter:none; }
 
@@ -246,8 +245,8 @@ a{ color:inherit; }
    line-width lands on an identical frame and the loop has no seam. */
 .poster h1 i.spec{
   background-image:linear-gradient(90deg,
-    #912acd 0%, #e6b71d 12.5%, #16a242 25%, #03b0ea 37.5%,
-    #912acd 50%, #e6b71d 62.5%, #16a242 75%, #03b0ea 87.5%, #912acd 100%);
+    #1a6a7f 0%, #e6b71d 12.5%, #16a242 25%, #03b0ea 37.5%,
+    #1a6a7f 50%, #e6b71d 62.5%, #16a242 75%, #03b0ea 87.5%, #1a6a7f 100%);
   background-size:200% 100%;
   -webkit-background-clip:text; background-clip:text;
   color:transparent; filter:brightness(1.9);
@@ -338,7 +337,7 @@ a{ color:inherit; }
 .ex-bars{ display:flex; flex-direction:column; gap:10px; padding-top:6px; }
 .ex-bars i{
   display:block; height:10px; border-radius:3px;
-  background:linear-gradient(90deg, #b169db, rgba(14,15,18,.2), #0fbffa);
+  background:linear-gradient(90deg, #2a93ae, rgba(14,15,18,.2), #0fbffa);
   background-size:800px 100%; animation:exLoad 2.6s linear infinite; opacity:.75;
 }
 .ex-bars i:last-child{ width:70%; }
@@ -768,7 +767,7 @@ a{ color:inherit; }
      separate it from the page now, and they are enough. */
   background:
     radial-gradient(closest-corner, rgba(0,0,0,.18) 10%, rgba(0,0,0,.82) 90%),
-    linear-gradient(50deg, rgba(70,207,113,.13) 0%, transparent 25%, transparent 75%, rgba(177,105,219,.13) 100%);
+    linear-gradient(50deg, rgba(70,207,113,.13) 0%, transparent 25%, transparent 75%, rgba(42, 147, 174,.13) 100%);
   /* The card is the plate MINUS its icon: the mask image is a white
      card-sized rect with the glyph knocked out of it, so the icon
      reads as a hole cut clean through to the slab behind. Doing the
@@ -859,12 +858,12 @@ a{ color:inherit; }
   background-image:var(--spectrum); -webkit-background-clip:text; background-clip:text;
   color:transparent; filter:brightness(2);
 }
-.info-name{ font-size:12px; letter-spacing:.28em; text-transform:uppercase; color:var(--fg); font-weight:600; }
+.info-name{ font-size:15px; color:var(--fg); font-weight:600; }
 @media (max-width:860px){ .info-num{ font-size:56px; } }
 .info p{ margin:0; font-size:15px; line-height:1.65; color:var(--fg-dim); text-wrap:pretty; }
 .info-kv{
   margin-top:4px; padding-top:12px; border-top:1px solid var(--line);
-  font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--fg-faint);
+  font-size:13.5px; color:var(--fg-faint);
   align-self:stretch;
 }
 @media (max-width:639px){
@@ -1206,7 +1205,7 @@ a{ color:inherit; }
 
 /* 00: the line runs round the ring through every colour; a copy of the
    ring breathes out and fades */
-.cx-brand .cx-orbit{ stroke:url(#cxSpec); stroke-width:6.5; stroke-dasharray:22 78; filter:drop-shadow(0 0 6px #b98cff);
+.cx-brand .cx-orbit{ stroke:url(#cxSpec); stroke-width:6.5; stroke-dasharray:22 78; filter:drop-shadow(0 0 6px #00b1dd);
   transform-origin:80px 60px; animation:cxOrbit 3.6s linear infinite; }
 .cx-brand .cx-ghost{ transform-origin:80px 60px; animation:cxBreathe 3.6s ease-out infinite; }
 .cx-brand .cx-core{ fill:url(#cxSpec); stroke:none; animation:cxCore 1.8s ease-in-out infinite; transform-origin:80px 60px; }
@@ -1379,7 +1378,7 @@ a{ color:inherit; }
         <div class="type lede"><span class="tp">One line from the prompt you wrote to the release you can defend.</span></div>
       </div></div>
         <div class="info">
-          <span class="info-num">00</span>
+          
           <span class="info-name">Relay</span>
           <p>Route, ground, gate and ship share one config and one trace, so every release carries its own evidence.</p>
           <span class="info-kv">one line · four stages</span>
@@ -1409,7 +1408,7 @@ a{ color:inherit; }
         </dl></div>
       </div></div>
         <div class="info">
-          <span class="info-num">01</span>
+          
           <span class="info-name">Route</span>
           <p>One endpoint in front of every model you use, with per-route budgets and automatic failover when a provider returns 429.</p>
           <span class="info-kv">p95 overhead 41ms</span>
@@ -1437,7 +1436,7 @@ a{ color:inherit; }
         </dl></div>
       </div></div>
         <div class="info">
-          <span class="info-num">02</span>
+          
           <span class="info-name">Ground</span>
           <p>Answers come from your own corpus with citations that resolve, or they do not leave the run.</p>
           <span class="info-kv">re-embed on write</span>
@@ -1468,7 +1467,7 @@ a{ color:inherit; }
         </dl></div>
       </div></div>
         <div class="info">
-          <span class="info-num">03</span>
+          
           <span class="info-name">Gate</span>
           <p>Evals run on the diff, not on a schedule, and block the deploy when any threshold is missed.</p>
           <span class="info-kv">240 cases · 3m 40s</span>
@@ -1494,7 +1493,7 @@ a{ color:inherit; }
         </dl></div>
       </div></div>
         <div class="info">
-          <span class="info-num">04</span>
+          
           <span class="info-name">Ship</span>
           <p>Canary a percentage, watch the same numbers in production, and roll back with one command.</p>
           <span class="info-kv">rollback 1.2s median</span>
@@ -1524,7 +1523,7 @@ a{ color:inherit; }
           <circle class="wx-end wx-ea" cx="52" cy="17" r="3.5"/>
           <circle class="wx-end wx-eb" cx="52" cy="47" r="3.5"/>
         </svg>
-        <div class="n">01</div>
+        
         <h3>Route</h3>
         <p>One endpoint in front of every model you use. Per-route budgets, automatic failover on 429 and 529, and a blended cost that updates as you change the mix.</p>
         <div class="kv">p95 overhead — 41ms</div>
@@ -1538,7 +1537,7 @@ a{ color:inherit; }
           <path class="wx-ln wx-l2" d="M20 36 h18"/>
           <path class="wx-ln wx-l3" d="M20 43 h11"/>
         </svg>
-        <div class="n">02</div>
+        
         <h3>Ground</h3>
         <p>Your corpus, chunked and embedded on ingest, queried with a floor you set. Every answer carries citations that resolve, or the answer does not leave the run.</p>
         <div class="kv">Re-embed on write — no nightly job</div>
@@ -1551,7 +1550,7 @@ a{ color:inherit; }
           <circle class="wx-w" cx="32" cy="32" r="13"/>
           <path class="wx-hot wx-check" pathLength="100" d="M25.5 32.5 l4.5 4.5 l8.5 -9"/>
         </svg>
-        <div class="n">03</div>
+        
         <h3>Gate</h3>
         <p>An eval suite that runs on the diff, not on a schedule. Faithfulness, refusal rate, latency and cost, each with a threshold that blocks the deploy when it is missed.</p>
         <div class="kv">240 cases — 3m 40s to green</div>
@@ -1565,7 +1564,7 @@ a{ color:inherit; }
           <path class="wx-w" d="M17 26.5 l15 7.5 l15 -7.5 M32 34 v16"/>
           <path class="wx-hot wx-lid" d="M24.5 22.75 l15 7.5"/>
         </svg>
-        <div class="n">04</div>
+        
         <h3>Ship</h3>
         <p>Canary a percentage, watch the same four numbers in production, promote or roll back in one command. The rollback is a config change, so it takes seconds.</p>
         <div class="kv">Rollback — 1.2s median</div>
@@ -1578,10 +1577,10 @@ a{ color:inherit; }
 <section class="band band--tight" data-section="stats" aria-label="Numbers">
   <div class="wrap">
     <div class="stats">
-      <div class="stat"><b class="grad">41ms</b><span>p95 routing overhead</span></div>
-      <div class="stat"><b class="grad">0.82</b><span>default gate threshold</span></div>
-      <div class="stat"><b class="grad">100%</b><span>runs traced, not sampled</span></div>
-      <div class="stat"><b class="grad">1.2s</b><span>median rollback</span></div>
+      <div class="stat"><b class="grad" data-earned="the spectrum through the display type is the many routes this page is about, carried consistently and animated as one idea">41ms</b><span>p95 routing overhead</span></div>
+      <div class="stat"><b class="grad" data-earned="the spectrum through the display type is the many routes this page is about, carried consistently and animated as one idea">0.82</b><span>default gate threshold</span></div>
+      <div class="stat"><b class="grad" data-earned="the spectrum through the display type is the many routes this page is about, carried consistently and animated as one idea">100%</b><span>runs traced, not sampled</span></div>
+      <div class="stat"><b class="grad" data-earned="the spectrum through the display type is the many routes this page is about, carried consistently and animated as one idea">1.2s</b><span>median rollback</span></div>
     </div>
   </div>
 </section>
@@ -1645,19 +1644,19 @@ a{ color:inherit; }
     </div>
     <div class="faq">
       <details open>
-        <summary><span class="qn">01</span> Do I have to move my prompts into your format?</summary>
+        <summary> Do I have to move my prompts into your format?</summary>
         <p>No. The router takes the request you already send and returns what the provider returns; the only thing that changes is the base URL. Prompts, tools and streaming all pass through untouched, which is also what makes failover to a second model a config line rather than a rewrite.</p>
       </details>
       <details>
-        <summary><span class="qn">02</span> What happens when a gate fails at 2am?</summary>
+        <summary> What happens when a gate fails at 2am?</summary>
         <p>The deploy stops and the previous config keeps serving. Nothing pages until a human asks it to — the failing cases, their scores and the diff that caused them are waiting in the run when someone looks.</p>
       </details>
       <details>
-        <summary><span class="qn">03</span> Where does my corpus live?</summary>
+        <summary> Where does my corpus live?</summary>
         <p>On Bench and Line, in an encrypted store in the region you pick, and you can export the chunks and their embeddings at any time. On Foundry it never leaves your network — the collector and the index run inside your VPC and we never see the text.</p>
       </details>
       <details>
-        <summary><span class="qn">04</span> Is any of this real?</summary>
+        <summary> Is any of this real?</summary>
         <p>No. Relay is a fictional product built as a design demo: the platform, the models, the numbers, the prices and the terminal output were all invented for it. Nothing is routed, nothing is stored, and no request leaves this page.</p>
       </details>
     </div>
@@ -1668,7 +1667,7 @@ a{ color:inherit; }
 <section class="band closer" data-section="cta">
   <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
   <div class="wrap">
-    <h2>Stop holding the <span class="grad">pipeline together</span> by hand</h2>
+    <h2>Stop holding the <span class="grad" data-earned="the spectrum through the display type is the many routes this page is about, carried consistently and animated as one idea">pipeline together</span> by hand</h2>
     <p>Put the four stages on one line and get your evenings back. Two minutes to the first routed call.</p>
     <div class="hero-cta">
       <button class="btn btn--hot" data-goto="#pricing">Start free</button>
@@ -1693,7 +1692,7 @@ a{ color:inherit; }
 <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
   <defs>
     <linearGradient id="spectrum" gradientUnits="objectBoundingBox" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="20%" stop-color="#b169db"/>
+      <stop offset="20%" stop-color="#2a93ae"/>
       <stop offset="45%" stop-color="#f7d152"/>
       <stop offset="65%" stop-color="#46cf71"/>
       <stop offset="85%" stop-color="#0fbffa"/>
@@ -2064,7 +2063,7 @@ a{ color:inherit; }
      block and offset by the character's position in it. The slices line up
      into one continuous spectrum, and now opacity does what it looks like it
      should. The parent's background is switched off once this has run. */
-  var GRAD = "linear-gradient(-45deg, #912acd 20%, #e6b71d, #16a242, #03b0ea 70%)";
+  var GRAD = "linear-gradient(-45deg, #1a6a7f 20%, #e6b71d, #16a242, #03b0ea 70%)";
   function paintChars(block) {
     var r = block.getBoundingClientRect();
     if (!r.width) return;

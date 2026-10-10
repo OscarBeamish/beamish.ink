@@ -544,7 +544,37 @@ is the one thing on the page that is not yours to change.
 - Keep the licence comment at the top of the file, and keep the line that says
   the brand is fictional.
 - Keep the reduced-motion handling. WCAG 2.2.2 is Level A, and this page
-  already does the work.`
+  already does the work.
+
+## 4. Devices that are spent
+
+These pages have been through a pass that took these out, and putting them back
+is the fastest way to make the result look machine-made. None of them is wrong
+in itself. The test is whether the subject earns it, and the answer is usually
+no:
+
+- **Tracked all-caps mono labels** on navigation, eyebrows, buttons and badges.
+  A machine's front panel really is stencilled and a terminal really is
+  monospaced. A pricing table is neither.
+- **01 / 02 / 03 as ornament.** Keep a number where it is a real index: a rack
+  unit, a frame, a step the copy refers to by number. A three-item list of
+  reasons is not an index.
+- **One accented word in the headline**, unless the accented words are what the
+  sentence is about.
+- **A highlighter bar behind two words of your own headline.** Annotation is a
+  device for a page with something to annotate.
+- **Gradient-clipped headline text**, unless the gradient is the subject.
+- **Indigo and violet between 245 and 290 degrees**, which is where the whole
+  genre lives. Take the hue from the subject instead.
+- **Glass on everything.** Keep it on the one surface meant to read as glass. A
+  backdrop blur under a 92% opaque panel is a compositing layer you are paying
+  for and cannot see, and two of those were measured on one page here.
+- **Three dots in a row at the top of a panel**, on a page that has no window.
+- **"Trusted by 4,000+ teams"** and the logo strip under it.
+
+If the page does earn one, say so in the markup with
+\`data-earned="why"\`. Writing the reason is the point: it makes you say out
+loud what gives the page the right to the device.`
       : `## 5. Make it yours
 
 The brand is invented. There is no such company, the copy is written for this

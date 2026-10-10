@@ -211,10 +211,8 @@ body.stopped .marquee__group { animation-play-state: paused !important; }
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: var(--f-mono);
+  font-family: var(--f-display);
   font-size: 0.937rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
   color: var(--mute);
 }
 .tile-top time { margin-left: auto; font-variant-numeric: tabular-nums; }
@@ -310,11 +308,9 @@ body.stopped .dome {
   background: var(--well);
   border: 1px solid var(--line-2);
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.7);
-  font-family: var(--f-mono);
+  font-family: var(--f-display);
   font-weight: 400;
   font-size: 0.994rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--ink-2);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
@@ -445,10 +441,8 @@ body.stopped .hero-reels { opacity: 0.82; filter: saturate(0.2) brightness(0.85)
   align-items: center;
   gap: 0.55rem;
   margin-right: auto;
-  font-family: var(--f-mono);
+  font-family: var(--f-display);
   font-size: 1.02rem;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
   color: var(--ink-2);
 }
 .c-bar-title .dome { width: 1rem; height: 1rem; border-width: 1.5px; }
@@ -518,11 +512,9 @@ body.stopped .hero-reels { opacity: 0.82; filter: saturate(0.2) brightness(0.85)
   border: 1px solid var(--line-2);
   background: linear-gradient(180deg, #3a4044, #2b3034);
   box-shadow: var(--bevel);
-  font-family: var(--f-mono);
+  font-family: var(--f-display);
   font-size: 0.994rem;
   font-weight: 400;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
   color: var(--chrome-hi);
   white-space: nowrap;
 }
@@ -641,10 +633,8 @@ body.stopped .switch .dot { background: var(--stop); box-shadow: 0 0 8px 1px var
 .presets-label {
   align-self: center;
   margin-right: 0.2rem;
-  font-family: var(--f-mono);
+  font-family: var(--f-display);
   font-size: 0.937rem;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
   color: var(--mute);
 }
 .preset {
@@ -679,7 +669,7 @@ body.stopped .switch .dot { background: var(--stop); box-shadow: 0 0 8px 1px var
   letter-spacing: 0.01em;
   line-height: 1.25;
 }
-.run-agent { display: block; margin-bottom: 0.15rem; font-family: var(--f-mono); font-size: 0.937rem; font-weight: 400; letter-spacing: 0.07em; text-transform: uppercase; color: var(--mute); }
+.run-agent { display: block; margin-bottom: 0.15rem; font-family: var(--f-display); font-size: 0.937rem; font-weight: 400; color: var(--mute); }
 .pill {
   display: inline-flex;
   align-items: center;
@@ -689,11 +679,9 @@ body.stopped .switch .dot { background: var(--stop); box-shadow: 0 0 8px 1px var
   border-radius: 999px;
   border: 1px solid var(--line-2);
   background: var(--well);
-  font-family: var(--f-mono);
+  font-family: var(--f-display);
   font-size: 0.966rem;
   font-weight: 400;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
   white-space: nowrap;
 }
 .pill .dot { width: 0.4rem; height: 0.4rem; }
@@ -716,11 +704,9 @@ body.stopped .switch .dot { background: var(--stop); box-shadow: 0 0 8px 1px var
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.5rem;
-  font-family: var(--f-mono);
+  font-family: var(--f-display);
   font-size: 0.909rem;
   font-weight: 400;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
   color: var(--mute);
 }
 
@@ -816,7 +802,7 @@ body.stopped .switch .dot { background: var(--stop); box-shadow: 0 0 8px 1px var
   border: 1px solid var(--line-2);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
 }
-.result-label { font-family: var(--f-mono); font-size: 0.909rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--mute); }
+.result-label { font-family: var(--f-display); font-size: 0.909rem; color: var(--mute); }
 .result p { margin: 0.35rem 0 0; max-width: 72ch; font-size: 0.95rem; color: var(--ink); }
 
 .stats {
@@ -881,10 +867,8 @@ body.stopped .switch .dot { background: var(--stop); box-shadow: 0 0 8px 1px var
 .stack-band-label {
   margin-bottom: 1rem;
   text-align: center;
-  font-family: var(--f-mono);
+  font-family: var(--f-display);
   font-size: 0.966rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--mute);
 }
 .tool-name {
@@ -974,7 +958,7 @@ body.stopped .switch .dot { background: var(--stop); box-shadow: 0 0 8px 1px var
 .agent:hover .agent-dome::before { background: radial-gradient(circle at 50% 32%, #c4ffb3, var(--ok) 48%, #2d6a21 100%); }
 .agent-dome svg { position: relative; z-index: 1; width: 1.1rem; height: 1.1rem; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6)); }
 .agent h3 { margin: 0; font-family: var(--f-display); font-size: 1.54rem; font-weight: 400; letter-spacing: 0.01em; }
-.agent-role { display: block; font-family: var(--f-mono); font-size: 0.937rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); }
+.agent-role { display: block; font-family: var(--f-display); font-size: 0.937rem; color: var(--mute); }
 .agent p { margin: 0; font-size: 0.92rem; color: var(--ink-2); }
 .agent-meta {
   display: grid;
@@ -1137,7 +1121,7 @@ body.stopped .shift-dome {
   box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.35), inset 0 2px 3px rgba(255, 255, 255, 0.5), 0 0 26px -4px var(--stop-glow);
 }
 .shift-name { display: grid; margin-right: auto; min-width: 0; }
-.shift-name span { font-family: var(--f-mono); font-size: 0.909rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--mute); }
+.shift-name span { font-family: var(--f-display); font-size: 0.909rem; color: var(--mute); }
 .shift-name strong { font-family: var(--f-display); font-size: 1.47rem; font-weight: 400; letter-spacing: 0.01em; }
 .shift .pill { color: var(--warn); }
 
@@ -1177,10 +1161,8 @@ body.stopped .shift-dome {
   padding: 0.85rem 1.1rem;
   border-top: 1px solid var(--line);
   background: rgba(0, 0, 0, 0.2);
-  font-family: var(--f-mono);
+  font-family: var(--f-display);
   font-size: 0.966rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
   color: var(--ink-2);
   font-variant-numeric: tabular-nums;
 }
@@ -1417,11 +1399,11 @@ html.reveal-ready [data-reveal]:not(.is-in) { opacity: 0; }
       <p>The order is the product. An agent can't act before it has a plan you can read, and it can't touch money or customers without passing a gate.</p>
     </div>
     <div class="moves">
-      <div class="move"><span class="move-n">01</span><h3>Brief</h3><p>One sentence in plain language. Attach a file or a thread if it helps.</p></div>
-      <div class="move"><span class="move-n">02</span><h3>Plan</h3><p>The agent writes the steps and names the tool for each one before it starts.</p></div>
-      <div class="move"><span class="move-n">03</span><h3>Act</h3><p>Every call is logged as it happens: <code>stripe.payouts.list</code>, inputs, result.</p></div>
-      <div class="move move--gate"><span class="move-n">04</span><h3>Gate</h3><p>Refunds, ledger writes and customer emails wait for your approval, or for a policy you set.</p></div>
-      <div class="move"><span class="move-n">05</span><h3>Report</h3><p>A short outcome, and the full replay, posted where your team already reads.</p></div>
+      <div class="move"><h3>Brief</h3><p>One sentence in plain language. Attach a file or a thread if it helps.</p></div>
+      <div class="move"><h3>Plan</h3><p>The agent writes the steps and names the tool for each one before it starts.</p></div>
+      <div class="move"><h3>Act</h3><p>Every call is logged as it happens: <code>stripe.payouts.list</code>, inputs, result.</p></div>
+      <div class="move move--gate"><h3>Gate</h3><p>Refunds, ledger writes and customer emails wait for your approval, or for a policy you set.</p></div>
+      <div class="move"><h3>Report</h3><p>A short outcome, and the full replay, posted where your team already reads.</p></div>
     </div>
   </section>
 
@@ -1478,7 +1460,7 @@ html.reveal-ready [data-reveal]:not(.is-in) { opacity: 0; }
             </ul>
           </div>
 
-          <div class="shift" aria-label="A first week with the support desk agent">
+          <div class="shift" aria-label="A first week with the support desk agent" data-earned="a rota: the times and the day columns are monospaced because a column of figures that does not line up is one you cannot read">
             <div class="shift-head">
               <span class="shift-dome" aria-hidden="true"></span>
               <div class="shift-name">

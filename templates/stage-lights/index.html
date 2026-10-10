@@ -255,7 +255,7 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
   animation: fade 2s ease-out 2.4s forwards, rise 1.4s var(--ease) 2.4s forwards;
 }
 .hero-cta .ghost {
-  font-family: var(--mono); font-size: max(0.78em, 12px); letter-spacing: 0.14em; text-transform: uppercase;
+  font-family: var(--display); font-size: max(0.78em, 12px);
   color: var(--steel); opacity: 0.75; transition: opacity 0.2s ease;
 }
 .hero-cta .ghost:hover { opacity: 1; }
@@ -281,7 +281,7 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
 @keyframes fade-soft { to { opacity: 1; } }
 .intro p {
   position: relative; width: fit-content; margin: auto;
-  font-family: var(--mono); font-size: 0.95em; letter-spacing: 0.24em; text-transform: uppercase;
+  font-family: var(--display); font-size: 0.95em;
   background: linear-gradient(0deg, var(--ice), var(--flare-2));
   background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
@@ -543,7 +543,7 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
 }
 .kicker {
   position: relative; width: fit-content; margin: auto;
-  font-family: var(--mono); font-size: 0.8em; letter-spacing: 0.22em; text-transform: uppercase;
+  font-family: var(--display); font-size: 0.8em;
   color: color-mix(in srgb, var(--ice) 75%, transparent);
 }
 .kicker::before, .kicker::after { content: ""; position: absolute; top: 50%; display: block; width: 5em; height: 1px; opacity: 0.45; }
@@ -636,12 +636,11 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
 }
 .gcard-panel h3 { font-size: 1.1em; font-weight: 700; line-height: 1.25; letter-spacing: -0.01em; text-wrap: balance; margin-bottom: 0.5em; }
 .gcard-panel p { font-size: 0.9em; line-height: 1.6; color: rgba(233, 240, 252, 0.86); }
-.gcard-tag { margin-top: auto; padding-top: 1.2em; font-family: var(--mono); font-size: max(0.66em, 10px); letter-spacing: 0.18em; text-transform: uppercase; color: rgba(233, 240, 252, 0.86); }
+.gcard-tag { margin-top: auto; padding-top: 1.2em; font-family: var(--display); font-size: max(0.66em, 10px); color: rgba(233, 240, 252, 0.86); }
 
 .gcard-rail {
   display: flex; flex-direction: column; align-items: flex-end; padding: 0.5em 0.3em 0 0;
-  font-family: var(--mono); font-size: max(0.62em, 10px); letter-spacing: 0.14em;
-  text-transform: uppercase; line-height: 1.5; color: rgba(233, 240, 252, 0.86);
+  font-family: var(--display); font-size: max(0.62em, 10px); line-height: 1.5; color: rgba(233, 240, 252, 0.86);
   text-shadow: 0 1px 3px rgba(5, 7, 16, 0.8);
 }
 .gcard-go {
@@ -667,7 +666,7 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
 .chips { display: flex; flex-wrap: wrap; gap: 0.4em; margin-top: auto; padding-top: 1.4em; }
 .chip {
   padding: 0.5em 0.9em; border-radius: 10em;
-  font-family: var(--mono); font-size: max(0.62em, 10px); letter-spacing: 0.12em; text-transform: uppercase;
+  font-family: var(--display); font-size: max(0.62em, 10px);
   background: rgba(248, 250, 252, 0.1); border: 1px solid rgba(255, 255, 255, 0.1);
   color: rgba(233, 240, 252, 0.86);
 }
@@ -687,8 +686,7 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
 }
 .stat-lab {
   margin-top: auto; padding-top: 0.9em;
-  font-family: var(--mono); font-size: max(0.64em, 10px); line-height: 1.55; letter-spacing: 0.1em;
-  text-transform: uppercase; color: rgba(233, 240, 252, 0.86);
+  font-family: var(--display); font-size: max(0.64em, 10px); line-height: 1.55; color: rgba(233, 240, 252, 0.86);
 }
 .figures .note {
   margin-top: 1.6em; text-align: center;
@@ -714,7 +712,7 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
   color: rgba(233, 240, 252, 0.86); letter-spacing: 0.08em;
 }
 .code-run {
-  font-family: var(--mono); font-size: 1em; letter-spacing: 0.1em; text-transform: uppercase;
+  font-family: var(--display); font-size: 1em;
   color: var(--steel); padding: 0.2em 0.7em; border-radius: 10em;
   border: 1px solid color-mix(in srgb, var(--steel) 35%, transparent);
   transition: background 0.2s ease;
@@ -745,8 +743,7 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
 /* ---------- figures: two stats and a comparison ---------- */
 .stats { grid-template-columns: 1fr 1fr 2fr; }
 .gcard--compare .gcard-panel h3 {
-  font-family: var(--mono); font-size: max(0.66em, 10px); font-weight: 500; letter-spacing: 0.1em;
-  text-transform: uppercase; color: rgba(233, 240, 252, 0.86); margin-bottom: 1.1em;
+  font-family: var(--display); font-size: max(0.66em, 10px); font-weight: 500; color: rgba(233, 240, 252, 0.86); margin-bottom: 1.1em;
 }
 .bars { display: grid; gap: 0.75em; margin-top: auto; }
 .bar {
@@ -999,7 +996,7 @@ p.note,
               <span class="gcard-tag">resident</span>
             </div>
             <div class="gcard-rail" aria-hidden="true">
-              <span>01</span>
+              
               <span>spec</span>
             </div>
           </div>
@@ -1014,7 +1011,7 @@ p.note,
               <span class="gcard-tag">portable</span>
             </div>
             <div class="gcard-rail" aria-hidden="true">
-              <span>02</span>
+              
               <span>spec</span>
             </div>
           </div>
@@ -1029,7 +1026,7 @@ p.note,
               <span class="gcard-tag">idle</span>
             </div>
             <div class="gcard-rail" aria-hidden="true">
-              <span>03</span>
+              
               <span>spec</span>
             </div>
           </div>
@@ -1067,7 +1064,7 @@ model = eclipse.load(<span class="s">"./weights/7b-instruct"</span>)
             <div class="code-meta" id="streamMeta">first token 8 ms · 8 tokens · released when idle</div>
           </div>
           <div class="gcard-rail" aria-hidden="true">
-            <span>04</span>
+            
             <span>how</span>
             <span class="gcard-go"><svg viewBox="0 0 12 12" aria-hidden="true"><path fill="currentColor" d="M4.646 2.146a.5.5 0 0 0 0 .708L7.793 6L4.646 9.146a.5.5 0 1 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z"/></svg></span>
           </div>

@@ -70,20 +70,20 @@
 }
 
 :root {
-  --ink-0: #070410;
-  --ink-1: #0e0b18;
-  --ink-2: #151126;
-  --ink-3: #1d1630;
+  --ink-0: #090502;
+  --ink-1: #120b08;
+  --ink-2: #1c120c;
+  --ink-3: #241810;
   --line: rgba(255, 255, 255, 0.08);
   --line-2: rgba(255, 255, 255, 0.14);
-  --text: #f3eefc;
-  --text-soft: #c9c1de;
-  --mute: #8f87aa;
+  --text: #fbede6;
+  --text-soft: #d7c1b4;
+  --mute: #a08778;
   --flame-1: #ffd36b;
   --flame-2: #ff9a2e;
   --flame-3: #ff5a1f;
   --flame-4: #c2260f;
-  --violet: #9b8cff;
+  --violet: #ff701e;
   --heat: 1;
 
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -167,7 +167,7 @@ a { color: inherit; text-decoration: none; }
   height: var(--h);
   padding: 0 calc(var(--h) * 0.42) 0 calc(var(--h) * 0.12);
   border-radius: inherit;
-  background: linear-gradient(180deg, #1f1934 0%, #100d1e 100%);
+  background: linear-gradient(180deg, #271b13 0%, #150d09 100%);
   box-shadow: var(--fb-shadow);
   transition: translate 0.55s var(--ease-out), box-shadow 0.4s ease, background 0.4s ease;
 }
@@ -175,7 +175,7 @@ a { color: inherit; text-decoration: none; }
   --fb-shadow: inset 0 1px 0 rgba(255, 210, 160, 0.22), inset 0 -2px 6px rgba(40, 0, 0, 0.6),
     inset 0 0 26px rgba(255, 120, 40, 0.16), 0 18px 44px -14px rgba(255, 80, 20, 0.45),
     0 0 0 1px rgba(255, 150, 80, 0.18);
-  background: linear-gradient(180deg, #2b1c33 0%, #170f22 100%);
+  background: linear-gradient(180deg, #2c1f18 0%, #1a100b 100%);
 }
 .fb.is-shaking .fb-body { animation: shake 0.42s ease; }
 @keyframes shake {
@@ -273,11 +273,11 @@ a { color: inherit; text-decoration: none; }
 }
 .fb[data-variant="icon"] .fb-body { padding: calc(var(--h) * 0.12); }
 .fb[data-variant="icon"] .fb-label { display: none; }
-.fb[data-surface="light"] { color: #1a1426; }
+.fb[data-surface="light"] { color: #1e1510; }
 .fb[data-surface="light"] .fb-body {
-  --fb-shadow: inset 0 1px 0 #fff, inset 0 -2px 5px rgba(60, 40, 90, 0.12),
-    0 14px 30px -12px rgba(40, 20, 60, 0.35), 0 0 0 1px rgba(40, 20, 60, 0.08);
-  background: linear-gradient(180deg, #ffffff 0%, #f1ecf7 100%);
+  --fb-shadow: inset 0 1px 0 #fff, inset 0 -2px 5px rgba(69, 45, 31, 0.12),
+    0 14px 30px -12px rgba(44, 25, 15, 0.35), 0 0 0 1px rgba(44, 25, 15, 0.08);
+  background: linear-gradient(180deg, #ffffff 0%, #f5ede8 100%);
 }
 .fb[data-surface="light"][aria-pressed="true"] .fb-body {
   --fb-shadow: inset 0 1px 0 #fff, inset 0 -2px 5px rgba(160, 60, 10, 0.14),
@@ -297,7 +297,7 @@ a { color: inherit; text-decoration: none; }
   position: sticky;
   top: 0;
   z-index: 40;
-  background: rgba(7, 4, 16, 0.72);
+  background: rgba(9, 5, 2, 0.72);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--line);
@@ -329,10 +329,8 @@ a { color: inherit; text-decoration: none; }
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 14px;
   color: var(--mute);
 }
 .eyebrow::before {
@@ -394,7 +392,7 @@ h1 em, h2 em {
 }
 .stats { display: grid; grid-template-columns: auto auto 1fr; gap: 28px; align-items: end; max-width: 460px; }
 .stat-num { display: block; font-size: 40px; font-weight: 700; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
-.stat-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); }
+.stat-label { font-family: var(--sans); font-size: 13px; color: var(--mute); }
 .heat-meter { display: flex; flex-direction: column; gap: 10px; padding-bottom: 6px; }
 .heat-track { height: 8px; border-radius: 99px; background: var(--ink-2); box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6); overflow: hidden; }
 .heat-fill {
@@ -458,7 +456,7 @@ h1 em, h2 em {
 
 .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 22px; padding: 22px 24px 24px; }
 .control { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-.control-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); }
+.control-label { font-family: var(--sans); font-size: 13px; color: var(--mute); }
 .seg { display: flex; padding: 4px; gap: 4px; border-radius: 12px; background: var(--ink-0); border: 1px solid var(--line); }
 .seg button {
   flex: 1;
@@ -565,7 +563,7 @@ h1 em, h2 em {
   padding: 36px 24px;
   background: radial-gradient(70% 80% at 50% 50%, var(--ink-2), var(--ink-1));
 }
-.card-stage--light { background: radial-gradient(70% 80% at 50% 45%, #ffffff, #efe8f6); }
+.card-stage--light { background: radial-gradient(70% 80% at 50% 45%, #ffffff, #f4e8e2); }
 .card-meta { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 20px 24px 22px; border-top: 1px solid var(--line); margin-top: auto; }
 .card-meta h3 { font-size: 18px; font-weight: 650; letter-spacing: -0.02em; }
 .card-meta p { margin-top: 4px; font-size: 14px; color: var(--mute); }
@@ -631,7 +629,7 @@ h1 em, h2 em {
 }
 
 .usage { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px; align-items: start; }
-.code-card { border-radius: 24px; background: #0a0714; border: 1px solid var(--line); overflow: hidden; min-width: 0; }
+.code-card { border-radius: 24px; background: #0d0704; border: 1px solid var(--line); overflow: hidden; min-width: 0; }
 .code-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px 12px 20px; border-bottom: 1px solid var(--line); }
 .code-head span { font-family: var(--font-mono); font-size: 12px; color: var(--mute); }
 .copy-btn {
@@ -659,7 +657,7 @@ h1 em, h2 em {
 .tok-tag { color: #ff9a5c; }
 .tok-attr { color: var(--violet); }
 .tok-str { color: #ffd36b; }
-.tok-com { color: #9e96bd; }
+.tok-com { color: #b29685; }
 .tok-key { color: #ff7aa8; }
 /* the code types itself in, one line at a time, when the card scrolls into view */
 .code-card .ln { display: inline-block; min-width: 1px; clip-path: inset(-2px 100% -2px 0); border-radius: 4px; transition: clip-path 0.16s linear, background 0.5s ease; }
@@ -681,7 +679,7 @@ h1 em, h2 em {
 @keyframes blink { 50% { visibility: hidden; } }
 .api { display: flex; flex-direction: column; gap: 12px; }
 .api-group { padding: 20px 22px; border-radius: 20px; background: var(--ink-1); border: 1px solid var(--line); }
-.api-group h3 { margin-bottom: 12px; font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+.api-group h3 { margin-bottom: 12px; font-family: var(--sans); font-size: 13px; font-weight: 600; color: var(--mute); }
 .api-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; opacity: 0.18; translate: 10px 0; transition: opacity 0.4s var(--ease-out), translate 0.4s var(--ease-out); }
 .api-row:first-of-type { border-top: 0; }
 .api-row span { color: var(--text-soft); text-align: right; }
@@ -787,7 +785,7 @@ h1 em[data-m], h2 em[data-m] { filter: grayscale(1) brightness(0.55); }
     <div class="wrap hero-grid">
       <div class="hero-copy">
         <span class="eyebrow intro" style="--i: 0">Interactive component</span>
-        <h1 class="intro live-head" style="--i: 1">Buttons that <em>feel</em> alive.</h1>
+        <h1 class="intro live-head" style="--i: 1">Buttons that <em data-earned="fire is a gradient, and these are the words that name the flame this page is about">feel</em> alive.</h1>
         <p class="intro" style="--i: 2">A toggle with a real flame inside. It is drawn live on canvas from its own state and dressed in embers, heat and a little bit of chaos.</p>
         <div class="hints intro" style="--i: 3">
           <span class="hint">Tap to ignite</span>
@@ -861,7 +859,7 @@ h1 em[data-m], h2 em[data-m] { filter: grayscale(1) brightness(0.55); }
       <div class="section-head reveal">
         <div>
           <span class="eyebrow">Variants</span>
-          <h2 class="live-head">One flame, <em>many</em> moods.</h2>
+          <h2 class="live-head">One flame, <em data-earned="fire is a gradient, and these are the words that name the flame this page is about">many</em> moods.</h2>
         </div>
         <p>Every variant is the same element configured with data attributes, from a primary call to action to a habit tracker that earns its fire.</p>
       </div>
@@ -934,23 +932,23 @@ h1 em[data-m], h2 em[data-m] { filter: grayscale(1) brightness(0.55); }
       <div class="section-head reveal">
         <div>
           <span class="eyebrow">Anatomy</span>
-          <h2 class="live-head">What's <em>burning</em> inside.</h2>
+          <h2 class="live-head">What's <em data-earned="fire is a gradient, and these are the words that name the flame this page is about">burning</em> inside.</h2>
         </div>
         <p>Three layers work together: the canvas flame, the interaction model and a shared ember engine.</p>
       </div>
       <div class="anatomy">
         <article class="anat reveal">
-          <div class="anat-num">01</div>
+          
           <h3>Living flame</h3>
           <p>Layered teardrops, licking tongues and additive particles, redrawn every frame from four inputs. <code>ON</code> mirrors <code>aria-pressed</code>; <code>Hover</code> follows the pointer and keyboard focus.</p>
         </article>
         <article class="anat reveal">
-          <div class="anat-num">02</div>
+          
           <h3>Tap vs. hold</h3>
           <p>A quick press toggles. Hold past <code>250ms</code> and a ring charges around the socket; complete it in <code>900ms</code> to supercharge.</p>
         </article>
         <article class="anat reveal">
-          <div class="anat-num">03</div>
+          
           <h3>Ember engine</h3>
           <p>One fixed canvas serves every button: additive-blended embers, smoke on extinguish, and an ambient trickle while lit.</p>
         </article>
@@ -964,7 +962,7 @@ h1 em[data-m], h2 em[data-m] { filter: grayscale(1) brightness(0.55); }
       <div class="section-head reveal">
         <div>
           <span class="eyebrow">Usage</span>
-          <h2 class="live-head">Drop it in. <em>Light</em> it up.</h2>
+          <h2 class="live-head">Drop it in. <em data-earned="fire is a gradient, and these are the words that name the flame this page is about">Light</em> it up.</h2>
         </div>
         <p>Write a plain button with data attributes. <code class="kbd">FireButton.upgradeAll()</code> builds the socket, label and flame canvas for you.</p>
       </div>
@@ -1010,7 +1008,7 @@ h1 em[data-m], h2 em[data-m] { filter: grayscale(1) brightness(0.55); }
 
       <div class="cta reveal" data-section="cta">
         <span class="eyebrow">Your turn</span>
-        <h2 class="live-head">Go on, <em>set it off</em>.</h2>
+        <h2 class="live-head">Go on, <em data-earned="fire is a gradient, and these are the words that name the flame this page is about">set it off</em>.</h2>
         <p>Hold the button until the ring closes. We promise nothing actually catches fire.</p>
         <button class="fb" type="button" data-size="lg" data-off="Hold me" data-on="Blazing"></button>
       </div>
@@ -1188,11 +1186,11 @@ function drawFlame(b, t, a, hv, boost, hs) {
 
   // SlateBlue root (all that shows when it is just a pilot light)
   ctx.globalCompositeOperation = "lighter";
-  ctx.shadowColor = "rgba(106,90,205,0.95)";
+  ctx.shadowColor = "rgba(160, 89, 48,0.95)";
   ctx.shadowBlur = s * 0.3;
   ctx.globalAlpha = 0.6 + 0.35 * (1 - a);
   flamePath(ctx, cx, by, lerp(pilotW, Ww * 0.6, a), lerp(pilotH, Hh * 0.2, a), lean * 0.3);
-  ctx.fillStyle = vgrad(ctx, by + pilotW, by - pilotH, [[0, "#3b4dff"], [0.5, "#6a5acd"], [1, "rgba(185,168,255,0.2)"]]);
+  ctx.fillStyle = vgrad(ctx, by + pilotW, by - pilotH, [[0, "#3b4dff"], [0.5, "#a05930"], [1, "rgba(255, 154, 96,0.2)"]]);
   ctx.fill();
   ctx.globalCompositeOperation = "source-over";
 
@@ -1342,7 +1340,7 @@ function stepEmbers(dt) {
     if (p.smoke) {
       emCtx.globalCompositeOperation = "source-over";
       emCtx.globalAlpha = fade * 0.18;
-      emCtx.fillStyle = "#8f87aa";
+      emCtx.fillStyle = "#a08778";
       emCtx.beginPath();
       emCtx.arc(p.x, p.y, p.r * (1 + u * 2.5), 0, 6.283);
       emCtx.fill();

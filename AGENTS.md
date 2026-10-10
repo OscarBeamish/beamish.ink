@@ -296,6 +296,66 @@ The name is how somebody finds the item and how an agent is told what to paste.
 A metaphor is a puzzle in both jobs. Put it in the prose instead, where being
 vivid is worth something.
 
+## Earned, or chrome
+
+Every design decision here has to be derivable from the subject. That is the
+whole rule, and the rest of this section is what it looks like when it is not
+followed.
+
+The nineteen templates were measured against the tells the design community has
+catalogued, and the result was the opposite of the worry. The set already
+avoided the obvious signals: four of nineteen centred a hero, none used an emoji
+as an icon, and the words "Get Started" and "Seamless" appeared zero times. What
+it was full of was the second order of the problem, the moves that became tells
+by being the fashionable fix for the first order. Tracked all-caps mono labels
+on seventeen of nineteen pages, decorative 01 / 02 / 03 on fourteen, one
+accented word in the headline on twelve, gradient-clipped headline text on ten.
+
+Those are not mistakes anybody makes by accident. They are what a model reaches
+for when it is asked to make something look designed.
+
+**These are spent.** Not wrong, spent, which is a different and more awkward
+thing:
+
+- tracked all-caps mono labels on navigation, eyebrows, buttons and badges
+- 01 / 02 / 03 as ornament rather than as an index
+- one accented word in the headline
+- a highlighter bar behind two words of your own headline
+- gradient-clipped headline text
+- indigo and violet between 245 and 290 degrees, where the whole genre lives
+- glass on every surface rather than on the one meant to read as glass
+- three dots in a row on a panel that is not a window
+- "Trusted by 4,000+ teams" and the logo strip under it
+
+**The test is whether the subject earns it**, and that is a judgement per use
+rather than per device. MachinePanel stencils POWER and THERMAL on an
+instrument, numbers the hops in a wiring diagram and engraves a legend beside a
+key switch: a front panel really is stencilled, and all of that survived the
+pass. ClayConstellation set "Sign in", "Demo" and "Trusted by 4,000+ growth
+teams" in the same tracked caps mono, and an analytics product has no claim on
+any of it. Eighty uses on the first page, twenty-eight on the second; after the
+pass, three earned and none.
+
+A page states an exception in its own markup with `data-earned="why"`, and the
+reason is the point: writing one makes you say out loud what gives the page the
+right to the device. `pnpm tells` lists those separately rather than counting
+them, so the argument stays visible instead of being settled by a flag nobody
+reads. Do not reach for the attribute to make a number go away. It is the same
+bargain as `data-decoration` in the contrast checker and it fails the same way.
+
+**Measure before you remove, as well.** Two of ClayConstellation's six glass
+surfaces turned out to sit under panels that were 92% and 55% opaque white,
+where a backdrop blur cannot show: screenshots before and after differed only
+by a clock reading 20:02 against 20:03. Those were compositing layers being
+paid for and not seen. The third is real glass and stayed.
+
+**And check what the tool is actually counting.** Three of the flags on the
+first two pages were the detector's fault rather than the pages': a chat's
+typing indicator counted as fake window chrome, a word in the page's own pixel
+face counted as a colour accent, and a headline typed one letter at a time
+counted every character as a label. A count you have not chased back to the
+element is not a finding.
+
 ## Frameworks
 
 Write the core as vanilla TypeScript. Include thin React and Vue adapters.
