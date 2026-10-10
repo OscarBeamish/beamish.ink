@@ -51,16 +51,16 @@ Source: <https://github.com/RayVelez27/instalanding.ai>
 
 | Directory | Shown as | Adapted from | Changed |
 | --- | --- | --- | --- |
-| [`bedside`](./bedside/) | Bedside | SmartCare Clinical AI Landing Page | New brand, copy and figures, and a retuned palette |
-| [`deadman`](./deadman/) | Deadman | Squircle Keycap Product Page | New brand, copy and figures, and a retuned palette |
-| [`facet`](./facet/) | Facet | Generative Editorial Product Page | New brand, copy and figures, and a retuned palette |
-| [`ingot`](./ingot/) | Ingot | Machine Front Panel Page | New brand, copy and model numbers, and a palette moved from amber and cyan to sodium and ice |
-| [`leeward`](./leeward/) | Leeward | Wind Field Routing Page | New brand, copy and figures, and a retuned palette |
-| [`loam`](./loam/) | Loam | Clay SaaS Platform Page | New brand, copy and figures, and a retuned palette |
-| [`perigee`](./perigee/) | Perigee | Radiating Rings Hero Page | New brand, copy and figures, and a retuned palette |
-| [`relay`](./relay/) | Relay | Icon-Cut Card Stack Page | New brand, copy and figures, and a retuned palette |
-| [`switchyard`](./switchyard/) | Switchyard | Notched Panel Catalog Page | New brand, copy and figures, and a retuned palette |
-| [`tooth`](./tooth/) | Tooth | Grain Motion System Page | New brand, copy and figures, and a retuned palette |
+| [`clay-surfaces`](./clay-surfaces/) | ClaySurfaces | Clay SaaS Platform Page | New brand, copy and figures, and a retuned palette |
+| [`editorial-portfolio`](./editorial-portfolio/) | EditorialPortfolio | Generative Editorial Product Page | New brand, copy and figures, and a retuned palette |
+| [`grain-motion`](./grain-motion/) | GrainMotion | Grain Motion System Page | New brand, copy and figures, and a retuned palette |
+| [`icon-cut-cards`](./icon-cut-cards/) | IconCutCards | Icon-Cut Card Stack Page | New brand, copy and figures, and a retuned palette |
+| [`machine-panel`](./machine-panel/) | MachinePanel | Machine Front Panel Page | New brand, copy and model numbers, and a palette moved from amber and cyan to sodium and ice |
+| [`notched-panels`](./notched-panels/) | NotchedPanels | Notched Panel Catalog Page | New brand, copy and figures, and a retuned palette |
+| [`radiating-rings`](./radiating-rings/) | RadiatingRings | Radiating Rings Hero Page | New brand, copy and figures, and a retuned palette |
+| [`round-controls`](./round-controls/) | RoundControls | SmartCare Clinical AI Landing Page | New brand, copy and figures, and a retuned palette |
+| [`squircle-keycaps`](./squircle-keycaps/) | SquircleKeycaps | Squircle Keycap Product Page | New brand, copy and figures, and a retuned palette |
+| [`wind-field-routing`](./wind-field-routing/) | WindFieldRouting | Wind Field Routing Page | New brand, copy and figures, and a retuned palette |
 
 Every one of them also had its contrast retuned until it passes WCAG AA
 at both widths, which is recorded per page rather than per template
@@ -82,6 +82,14 @@ file says so.
 What is ours is the brand, the words, the figures and the palette, plus the
 accessibility work. That is a real but small part of each page and this file
 exists so nobody has to guess which part.
+
+## The names
+
+A template is named after what its page is, not after the brand on it. The
+brand is invented and stays in the page; the card has to say what you are
+getting, and `MachinePanel` does that where `Ingot` did not. The invented
+brands, for reference: Ingot, Switchyard, Deadman, Tooth, Relay, Leeward,
+Bedside, Facet, Loam and Perigee, in the order of the table above.
 
 ## The brief
 

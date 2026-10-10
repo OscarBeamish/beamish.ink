@@ -1,0 +1,22 @@
+{
+  "name": "ClaySurfaces",
+  "slug": "clay-surfaces",
+  "description": "An invented agent platform in the soft clay idiom, with a product interface drawn on the page",
+  "intent": "The mainstream SaaS idiom done properly: every screenshot on the page is drawn rather than photographed, so the product interface in the hero is markup you can read and not a picture of a screen.",
+  "ground": "paper",
+  "uses": [],
+  "source": {
+    "title": "Clay SaaS Platform Page",
+    "author": "Ray Velez",
+    "licence": "MIT",
+    "url": "https://github.com/RayVelez27/instalanding.ai",
+    "changed": "New brand, copy and figures, and a retuned palette"
+  },
+  "record": {
+    "duration": 14,
+    "fps": 24,
+    "posterAt": 4,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

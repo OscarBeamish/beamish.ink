@@ -1,0 +1,22 @@
+{
+  "name": "RoundControls",
+  "slug": "round-controls",
+  "description": "An invented clinical AI platform on a dark ground, whose whole design system is one round control",
+  "intent": "Thirty-six inline SVGs and a design system that is a single CSS control repeated at every size, which is the same discipline as the keycap page reached by a different route and in a different sector.",
+  "ground": "dark",
+  "uses": [],
+  "source": {
+    "title": "SmartCare Clinical AI Landing Page",
+    "author": "Ray Velez",
+    "licence": "MIT",
+    "url": "https://github.com/RayVelez27/instalanding.ai",
+    "changed": "New brand, copy and figures, and a retuned palette"
+  },
+  "record": {
+    "duration": 14,
+    "fps": 24,
+    "posterAt": 4,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

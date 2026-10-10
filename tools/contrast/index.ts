@@ -410,10 +410,18 @@ async function sampleGrounds(page: Page, ids: number[]): Promise<Map<number, num
           out.push({ id, light: null })
           continue
         }
-        // Inset by two pixels, so the element's own border is not sampled as
-        // the thing behind its text.
+        /*
+         * Inset proportionally, not by a fixed two pixels.
+         *
+         * A small rounded chip shows the page through its corners, and on a
+         * pill the corners are a large share of the box: a near-black label on
+         * a green chip scored 1.92:1 because a quarter of what was sampled was
+         * the dark page outside the curve, not the chip under the glyphs. A
+         * share of the smaller side follows the radius closely enough, and two
+         * pixels stays the floor for anything large.
+         */
         const r = el.getBoundingClientRect()
-        const inset = 2
+        const inset = Math.max(2, Math.min(r.width, r.height) * 0.16)
         const x = Math.max(0, Math.round((r.left + scrollX + inset) * scale))
         const y = Math.max(0, Math.round((r.top + scrollY + inset) * scale))
         const w = Math.min(Math.round((r.width - inset * 2) * scale), canvas.width - x)
@@ -485,6 +493,120 @@ async function sampleGrounds(page: Page, ids: number[]): Promise<Map<number, num
     ])
   }
   return sampled
+}
+
+/**
+ * Re-measure a handful of elements one at a time, from their own screenshots.
+ *
+ * The bulk pass samples every painted ground out of one full-page capture,
+ * which is fast and is right almost always. It is wrong when the picture and
+ * the element's box stop agreeing: a page with scroll-driven reveals moves
+ * things while a full-page capture scrolls through it, and then a chip that is
+ * plainly near-black on green is scored against whatever the dark page had at
+ * those coordinates. That reported 1.92:1 for a label measuring 11.4:1.
+ *
+ * So anything about to be reported as a failure is checked again properly:
+ * scrolled into view, captured on its own, and sampled from that. It runs over
+ * a few elements rather than hundreds, which is what makes the cost bearable.
+ */
+async function resample(
+  page: Page,
+  ids: number[]
+): Promise<Map<number, { grounds: number[][]; colour: string }>> {
+  const out = new Map<number, { grounds: number[][]; colour: string }>()
+  if (ids.length === 0) return out
+
+  /*
+   * Colours first, while the text is still painted, and all in one pass so
+   * they belong to one instant.
+   *
+   * Not carried over from the bulk pass: this page's install log changes state
+   * on a timer, so a colour read at load and a ground read seconds later can
+   * belong to two different states. A step number came back as the grey it is
+   * while pending, scored against the green it turns when done, and neither of
+   * the two real states fails.
+   *
+   * And not read after the hide style goes on, which was the first attempt:
+   * the computed colour is then transparent and every element scores 1.00:1
+   * against itself.
+   */
+  const colours = new Map<number, string>(
+    await page.evaluate(wanted => {
+      const probe = document.createElement('canvas').getContext('2d', {
+        willReadFrequently: true
+      })!
+      const rows: [number, string][] = []
+      for (const id of wanted) {
+        const el = document.querySelector<HTMLElement>(`[data-contrast-id="${id}"]`)
+        if (!el) continue
+        probe.clearRect(0, 0, 1, 1)
+        probe.fillStyle = getComputedStyle(el).color
+        probe.fillRect(0, 0, 1, 1)
+        const d = probe.getImageData(0, 0, 1, 1).data
+        let opacity = 1
+        for (let n: HTMLElement | null = el; n && n !== document.body; n = n.parentElement) {
+          opacity *= Number(getComputedStyle(n).opacity)
+        }
+        rows.push([id, `rgba(${d[0]}, ${d[1]}, ${d[2]}, ${((d[3]! / 255) * opacity).toFixed(4)})`])
+      }
+      return rows
+    }, ids)
+  )
+
+  const hide = await page.addStyleTag({
+    content:
+      '*, *::before, *::after { color: transparent !important; text-shadow: none !important; }' +
+      'text, tspan, textPath { fill: transparent !important; stroke: none !important; }'
+  })
+
+  for (const id of ids) {
+    const handle = await page.$(`[data-contrast-id="${id}"]`)
+    if (!handle) continue
+    const nowColour = colours.get(id)
+    if (!nowColour) continue
+    try {
+      await handle.scrollIntoViewIfNeeded({ timeout: 2000 })
+      const shot = await handle.screenshot({ type: 'png', timeout: 5000 })
+      const pair: number[][] | null = await page.evaluate(
+        async data => {
+          const image = new Image()
+          image.src = 'data:image/png;base64,' + data
+          await image.decode()
+          const canvas = document.createElement('canvas')
+          canvas.width = image.naturalWidth
+          canvas.height = image.naturalHeight
+          const ctx = canvas.getContext('2d', { willReadFrequently: true })!
+          ctx.drawImage(image, 0, 0)
+          const inset = Math.max(1, Math.round(Math.min(canvas.width, canvas.height) * 0.16))
+          const w = Math.max(1, canvas.width - inset * 2)
+          const h = Math.max(1, canvas.height - inset * 2)
+          const px = ctx.getImageData(inset, inset, w, h).data
+          const lums: number[] = []
+          const seenPx: number[][] = []
+          for (let i = 0; i < px.length; i += 4 * 4) {
+            const r8 = px[i]!
+            const g8 = px[i + 1]!
+            const b8 = px[i + 2]!
+            lums.push(0.2126 * r8 + 0.7152 * g8 + 0.0722 * b8)
+            seenPx.push([r8 / 255, g8 / 255, b8 / 255])
+          }
+          if (lums.length === 0) return null
+          const order = lums.map((l, i) => [l, i]).sort((a, b2) => a[0]! - b2[0]!)
+          const lo = Math.min(order.length - 1, Math.floor(0.25 * order.length))
+          const hi = Math.min(order.length - 1, Math.floor(0.75 * order.length))
+          return [seenPx[order[hi]![1]!]!, seenPx[order[lo]![1]!]!]
+        },
+        shot.toString('base64')
+      )
+      if (pair) out.set(id, { grounds: pair, colour: nowColour })
+    } catch {
+      // An element that cannot be scrolled to or captured keeps the ratio the
+      // bulk pass gave it, which is the conservative answer.
+    }
+  }
+
+  await hide.evaluate(node => (node as HTMLStyleElement).remove())
+  return out
 }
 
 async function check(
@@ -570,6 +692,29 @@ async function check(
      * page. Everything that passes is left alone: a covered element that
      * passes costs nothing.
      */
+    /*
+     * Anything about to be reported is measured again from its own capture,
+     * because the bulk pass can disagree with the page on a layout that moves.
+     */
+    const suspects = [...seen.values()].filter(
+      v => v.ratio < v.need && !(v.row.painted && !v.sampledGround)
+    )
+    const exact = await resample(page, suspects.filter(v => v.sampledGround).map(v => v.row.id))
+    for (const v of suspects) {
+      const fresh = exact.get(v.row.id)
+      if (!fresh) continue
+      const grounds = fresh.grounds
+      const colour = parse(fresh.colour)
+      if (!colour) continue
+      v.row.colour = fresh.colour
+      let worst = Infinity
+      for (const g of grounds) worst = Math.min(worst, ratio(over(colour, g), g))
+      v.ratio = worst
+      let darkest = grounds[0]!
+      for (const g of grounds) if (luminance(g) < luminance(darkest)) darkest = g
+      v.ground = darkest
+    }
+
     const coveredIds = new Set<number>(
       await page.evaluate(
         ids =>
@@ -601,12 +746,18 @@ async function check(
           continue
         }
         const how = sampledGround ? ' (sampled)' : ''
-        // Which way to move it. Text darker than its ground has to go darker
-        // still, and lighter text has to go lighter; the other direction is
-        // the one that looks reasonable and makes the number worse.
-        const colour = parse(row.colour)!
-        const lit = luminance(over(colour, ground)) > luminance(ground)
-        const way = lit ? 'lighter' : 'darker'
+        /*
+         * Which way has more room, not which way it already leans.
+         *
+         * The first version of this said "move it the way it already is",
+         * which is right for text well clear of its ground and wrong at the
+         * middle: a near-white label on a mid green is nominally the lighter
+         * of the two and can only reach 1.74:1 by going whiter, where going
+         * dark reaches 11.4:1. Comparing the two ends says so.
+         */
+        const toWhite = ratio([1, 1, 1], ground)
+        const toBlack = ratio([0, 0, 0], ground)
+        const way = toWhite > toBlack ? 'lighter' : 'darker'
         fails.push(
           `  ${value.toFixed(2)}:1  needs ${need}  ${row.px}px  ${row.sel}${how}  "${row.text}"` +
             `  [${way}; on rgb(${ground.map(c => Math.round(c * 255)).join(',')})]`
