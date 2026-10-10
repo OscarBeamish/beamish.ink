@@ -1,18 +1,21 @@
 /*
  * Coil & Bias, the page's own stylesheet.
  *
- * Same split as the studio next door: the layout comes from TwelveColumn, the
- * motion comes from the items, and what is left here is the part a brand would
- * have written for itself. No class here uses the `g-` prefix, so the line
- * between the library and the page using it stays visible.
+ * The grid places the bands and the items supply the motion. What is here is
+ * the panel: brushed aluminium, legends cut into it, vents where the heat
+ * gets out, screws where a panel is actually fixed, and meters that read.
  *
- * The difference is the ground. On paper you can let contrast look after
- * itself; on near black every one of these decisions is about keeping type
- * readable over something that is moving underneath it.
+ * The engraving is the detail the whole thing rests on. A legend cut into
+ * metal is dark in the groove and catches the light on its lower lip, so it
+ * is one shadow above and one highlight below and nothing else. Reverse the
+ * two and the panel reads as embossed plastic, which is the single difference
+ * between this looking like metal and looking like a web page about metal.
+ *
+ * No class here uses the `g-` prefix, so the line between the library and the
+ * page using it stays visible.
  */
 
 :root {
-  /* The grid, on a page that wants a wide measure and air down the sides. */
   --grid-margin: clamp(1.5rem, 6vw, 7rem);
   --grid-measure: 104rem;
   --grid-rule: rgba(224, 228, 236, 0.14);
@@ -21,17 +24,26 @@
   --ground-lift: #12151a;
   --type: #e8ebf0;
   /*
-   * Secondary type at 0.62 on paper is comfortable. The same ratio on black is
-   * mud, because the eye reads light on dark as thinner than it is, so the
-   * quiet colour here is far closer to the loud one than its paper equivalent.
+   * Secondary type at 0.62 on paper is comfortable. The same ratio on black
+   * is mud, because the eye reads light on dark as thinner than it is.
    */
   --type-soft: rgba(232, 235, 240, 0.72);
   --type-faint: rgba(232, 235, 240, 0.45);
   --live: #6fd3c7;
+  --lamp: #ff7a3d;
+
+  /* The metal. Three stops, because brushed aluminium is never one colour. */
+  --panel-low: #1b1f25;
+  --panel-mid: #272c34;
+  --panel-high: #343a44;
+  --groove: rgba(0, 0, 0, 0.75);
+  --lip: rgba(255, 255, 255, 0.16);
 }
 
 html {
   scroll-behavior: auto;
+  /* The bar floats over the page, so an anchor has to clear it. */
+  scroll-padding-top: 5rem;
 }
 
 body {
@@ -51,21 +63,17 @@ h3 {
   font-family: var(--font-display);
   font-weight: 700;
   letter-spacing: -0.035em;
-  line-height: 0.94;
-}
-
-h1 {
-  font-size: clamp(2.6rem, 9vw, 8rem);
+  line-height: 0.92;
 }
 
 h2 {
-  font-size: clamp(1.5rem, 3.4vw, 3rem);
+  font-size: clamp(1.6rem, 4.2vw, 3.4rem);
 }
 
 h3 {
-  font-size: clamp(0.95rem, 1.5vw, 1.25rem);
+  font-size: clamp(0.95rem, 1.5vw, 1.2rem);
   letter-spacing: -0.015em;
-  line-height: 1.15;
+  line-height: 1.2;
 }
 
 p {
@@ -95,8 +103,8 @@ code {
 }
 
 .eyebrow {
-  font-size: 0.66rem;
-  letter-spacing: 0.18em;
+  font-size: 0.64rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--type-faint);
 }
@@ -106,17 +114,12 @@ code {
 }
 
 .lede {
-  font-size: clamp(0.92rem, 1.4vw, 1.15rem);
+  font-size: clamp(0.92rem, 1.4vw, 1.12rem);
   line-height: 1.6;
 }
 
 /* --- the bar -------------------------------------------------------------- */
 
-/*
- * GlassNav supplies the glass. What it does not supply is where the bar sits
- * or what is in it, which is the component's own demo arrangement: the
- * stylesheet styles the pane, the page positions it.
- */
 .bar {
   position: fixed;
   inset-inline: clamp(1rem, 4vw, 3rem);
@@ -126,9 +129,9 @@ code {
 
 .crossbar {
   /*
-   * GlassNav is built for paper, so the pane is told what this page is made of
-   * rather than left warm white over near black. These are the component's own
-   * custom properties: configuring it, not restyling it.
+   * GlassNav is built for paper, so the pane is told what this page is made
+   * of rather than left warm white over near black. These are the
+   * component's own custom properties: configuring it, not restyling it.
    */
   --crossbar-pane: 11, 13, 16;
   --crossbar-ink: var(--type);
@@ -182,13 +185,9 @@ code {
 /* --- bands ---------------------------------------------------------------- */
 
 .g-band {
-  padding-block: clamp(3rem, 9vw, 8rem);
+  padding-block: clamp(3rem, 8vw, 7rem);
 }
 
-/*
- * A band carrying a backdrop. The ground bleeds and the tracks stay inset,
- * which is the split TwelveColumn is built around.
- */
 .band__ground {
   position: absolute;
   inset: 0;
@@ -203,57 +202,289 @@ code {
 }
 
 /*
- * Everything in a backdrop band needs lifting over it. On paper this is a
+ * Everything in a backdrop band needs lifting over it. On paper that is a
  * nicety; here the backdrop is the brightest thing in the section, so type
- * left at the same level is not merely behind it, it is gone.
+ * left at the same level is not behind it, it is gone.
  */
 .band--hero .g-band__grid,
 .band--shafts .g-band__grid,
-.band--foot .g-band__grid {
+.band--foot .g-band__grid,
+.wordmark {
   position: relative;
   z-index: 1;
 }
 
 .band--hero {
-  padding-block: clamp(6rem, 18vw, 14rem) clamp(4rem, 10vw, 9rem);
+  padding-block: clamp(6rem, 17vw, 13rem) clamp(4rem, 10vw, 9rem);
 }
 
 .hero-line {
-  margin-block: 0.4em 0.6em;
+  font-size: clamp(2.6rem, 10.5vw, 9.5rem);
+  margin-block: 0.3em 0.55em;
 }
 
-.band--range {
-  border-top: 1px solid var(--grid-rule);
-}
+/* --- the panel ------------------------------------------------------------ */
 
-.band--range h2,
-.band--measured h2,
-.band--foot h2 {
-  margin-bottom: clamp(2rem, 5vw, 3.5rem);
+/*
+ * Brushed aluminium. The brush is a repeating gradient at a very fine pitch,
+ * laid under a broad vertical sheen so the face is lighter where a panel
+ * actually catches the room. Two layers, because one reads as a texture
+ * swatch and two reads as a surface.
+ */
+.panel {
+  position: relative;
+  background:
+    linear-gradient(
+      180deg,
+      var(--panel-high) 0%,
+      var(--panel-mid) 38%,
+      var(--panel-low) 100%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.035) 0 1px,
+      rgba(0, 0, 0, 0.04) 1px 2px,
+      rgba(255, 255, 255, 0.015) 2px 3px
+    );
+  background-blend-mode: overlay, normal;
+  border-block: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.6);
 }
 
 /*
- * The cards are SpotlightCard. The item draws the light; the box, the rule and
- * the padding are the brand's. A card with no edge of its own gives the
- * spotlight nothing to run out to and the effect reads as a smudge.
+ * Cut in, not printed on. Dark in the groove, and the lower lip is where the
+ * light lands.
  */
-.card {
+.engraved {
+  color: #c9d0da;
+  text-shadow:
+    0 -1px 0 var(--groove),
+    0 1px 0 var(--lip);
+}
+
+/* --- screws --------------------------------------------------------------- */
+
+/*
+ * A panel is fixed at its corners, so that is where these go. The slot is
+ * turned a different amount on each, because four screws driven to the same
+ * angle is the one thing that never happens on a real chassis.
+ */
+.screw {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background:
+    linear-gradient(var(--slot, 20deg), transparent 44%, var(--groove) 44% 56%, transparent 56%),
+    radial-gradient(circle at 35% 30%, #4a515c, #20242b 70%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.screw--tl {
+  top: 14px;
+  left: 14px;
+  --slot: 20deg;
+}
+.screw--tr {
+  top: 14px;
+  right: 14px;
+  --slot: 115deg;
+}
+.screw--bl {
+  bottom: 14px;
+  left: 14px;
+  --slot: 70deg;
+}
+.screw--br {
+  bottom: 14px;
+  right: 14px;
+  --slot: 160deg;
+}
+
+/* --- readouts ------------------------------------------------------------- */
+
+.readouts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+  gap: clamp(1rem, 3vw, 2.5rem);
+  margin: clamp(2rem, 5vw, 3.5rem) var(--grid-margin) 0;
+}
+
+.readout {
+  padding: clamp(1rem, 2.5vw, 1.6rem);
+  background: rgba(0, 0, 0, 0.26);
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 2px;
+  /* Recessed, so the readout sits in the panel rather than on it. */
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.6),
+    0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.readout__legend {
+  display: block;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--type-faint);
+}
+
+.readout__value {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3em;
+  margin-top: 0.45rem;
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 6vw, 4.2rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--live);
+}
+
+.readout__value i {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-style: normal;
+  letter-spacing: 0.1em;
+  color: var(--type-faint);
+}
+
+/*
+ * A meter rather than a bar. The track is the scale, the fill is the reading,
+ * and the hairline at the end is the needle: a bar chart would be a statistic
+ * about the amplifier, and this is the amplifier telling you.
+ */
+.meter {
+  position: relative;
+  display: block;
+  height: 3px;
+  margin-top: 1rem;
+  background: rgba(0, 0, 0, 0.55);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.7);
+}
+
+.meter i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--at, 0.5) * 100%);
+  background: linear-gradient(90deg, rgba(111, 211, 199, 0.25), var(--live));
+}
+
+.meter i::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  right: 0;
+  width: 1px;
+  background: var(--type);
+}
+
+/* --- vents ---------------------------------------------------------------- */
+
+/*
+ * Slots, not a pattern. Each one is a cut through the panel, so it is black
+ * with a lit lower lip, and the whole run is inset from the margins the way a
+ * vent is inset from the edge of a chassis.
+ */
+.vents {
+  height: 26px;
+  margin: clamp(2rem, 5vw, 3.5rem) var(--grid-margin) 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 6px,
+    var(--groove) 6px 10px,
+    transparent 10px 16px
+  );
+  border-radius: 1px;
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* --- units ---------------------------------------------------------------- */
+
+.units {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
+  gap: clamp(1rem, 2.5vw, 1.8rem);
+  margin: clamp(2rem, 5vw, 3.5rem) var(--grid-margin) 0;
+}
+
+/*
+ * The cards are SpotlightCard. The item draws the light; the recess, the
+ * bevel and the knob are the panel's.
+ */
+.unit {
+  position: relative;
   display: grid;
   align-content: start;
-  gap: 0.75rem;
-  padding: clamp(1.1rem, 2.4vw, 1.8rem);
-  background: var(--ground-lift);
-  border: 1px solid var(--grid-rule);
+  gap: 0.7rem;
+  padding: clamp(1.2rem, 2.6vw, 1.9rem);
+  padding-right: clamp(3.6rem, 7vw, 5rem);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 2px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.45);
+}
+
+/*
+ * A knurled control. The knurling is a repeating conic gradient, which is
+ * what a milled edge actually is: evenly spaced cuts around a circle.
+ */
+.unit__knob {
+  position: absolute;
+  top: clamp(1.1rem, 2.4vw, 1.7rem);
+  right: clamp(1.1rem, 2.4vw, 1.7rem);
+  width: clamp(2rem, 4vw, 2.8rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, #2b3039 0 52%, transparent 52%),
+    repeating-conic-gradient(#3b414b 0deg 6deg, #262b33 6deg 12deg);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* The pointer, at a different angle on each so they read as set, not drawn. */
+.unit__knob::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  width: 2px;
+  height: 26%;
+  translate: -50% 0;
+  background: var(--lamp);
+  border-radius: 1px;
+}
+
+.unit:nth-child(2) .unit__knob::after {
+  rotate: 42deg;
+  transform-origin: 50% 160%;
+}
+
+.unit:nth-child(3) .unit__knob::after {
+  rotate: -38deg;
+  transform-origin: 50% 160%;
 }
 
 .price {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   letter-spacing: -0.02em;
   color: var(--live);
 }
+
+/* --- the shafts band ------------------------------------------------------ */
 
 .band--shafts {
   border-block: 1px solid var(--grid-rule);
@@ -269,35 +500,8 @@ code {
   text-wrap: balance;
 }
 
-.band--measured {
-  background: var(--ground-lift);
-}
-
-.figure {
-  display: grid;
-  gap: 0.5rem;
-  align-content: start;
-}
-
-.odo,
-.counter {
-  font-family: var(--font-display);
-  font-size: clamp(2.4rem, 6.5vw, 5rem);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-.figure__unit {
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--type-faint);
-}
-
 .band--plate {
-  padding-top: 0;
+  padding-top: clamp(2rem, 6vw, 4rem);
 }
 
 .stack-note {
@@ -310,6 +514,11 @@ code {
 
 .band--foot {
   border-top: 1px solid var(--grid-rule);
+  padding-bottom: 0;
+}
+
+.band--foot h2 {
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
 }
 
 .manifest {
@@ -353,13 +562,24 @@ code {
   font-size: 0.7rem;
 }
 
-/*
- * Reduced motion is handled inside every item, so there is nothing to switch
- * off here. What does belong here is the page's own scroll behaviour, which is
- * the one piece of motion the library has no say over.
- */
+.wordmark {
+  margin: clamp(2rem, 6vw, 5rem) 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17vw;
+  letter-spacing: -0.055em;
+  line-height: 0.76;
+  white-space: nowrap;
+  overflow: hidden;
+  padding-inline: var(--grid-margin);
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(232, 235, 240, 0.18);
+}
+
+/* --- reduced motion ------------------------------------------------------- */
+
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
+  .crossbar__links a {
+    transition-duration: 0.01ms;
   }
 }
