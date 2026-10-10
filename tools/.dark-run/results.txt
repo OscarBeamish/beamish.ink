@@ -9,3 +9,6 @@ OK    falling-letters  13s  225kB
 OK    gradual-blur  59s  477kB
 OK    guilloche-lines  134s  3569kB
 OK    ink-bleed-text  24s  345kB
+OK    light-shafts  684s  2789kB
+OK    magnetic-button  16s  85kB
+FAIL  masked-heading  (see tools/.dark-run/masked-heading.log)

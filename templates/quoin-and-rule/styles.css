@@ -1,30 +1,46 @@
 /*
  * Quoin & Rule, the page's own stylesheet.
  *
- * This is the part that is not the library: a brand's type scale, its colours
- * and its chrome. The layout comes from TwelveColumn and the motion comes from
- * the items, so what is left here is what any studio would have written for
- * itself. Keeping the line visible matters, because a template that quietly
- * restyles the library is not showing you the library.
+ * The layout comes from TwelveColumn and the motion from the items. What is
+ * here is the forme: the chase it is locked into, the furniture filling the
+ * space around the type, the quoins tightening the corners and the brass
+ * rules, which on a press are the only ornament you have.
  *
- * No class here uses the `g-` prefix, for the same reason.
+ * This file used to be twenty-seven rules of padding and borders, because the
+ * page was written as an example whose job was to prove the items survive a
+ * real page. That is a different job from being worth taking, and the
+ * difference is almost entirely here rather than in the markup.
+ *
+ * No class uses the `g-` prefix, so the line between the library and the page
+ * using it stays visible.
  */
 
 :root {
-  /* The grid, tuned for a page that wants wide margins and a tight gutter. */
   --grid-margin: clamp(1.5rem, 6vw, 7rem);
   --grid-measure: 104rem;
-  --grid-rule: rgba(54, 54, 48, 0.22);
+  --grid-rule: rgba(54, 54, 48, 0.2);
 
-  --ink: #1b1b17;
-  --ink-soft: rgba(27, 27, 23, 0.62);
   --sheet: #f4f1ea;
   --sheet-deep: #e9e5db;
+  --ink: #1b1b17;
+  --ink-soft: rgba(27, 27, 23, 0.66);
+  --ink-faint: rgba(27, 27, 23, 0.42);
   --accent: #9a3b1f;
+
+  /* The metal. Furniture is wood, the chase and quoins are iron. */
+  --wood: #cdc4b0;
+  --wood-lit: #ded6c4;
+  --wood-dark: #b2a894;
+  --iron: #6f6a62;
+
+  /* Real rule weights. A point is 1/72 inch; at 96dpi that is 1.333px. */
+  --pt: 1.333px;
 }
 
 html {
   scroll-behavior: auto;
+  /* The masthead is sticky, so an anchor has to clear it. */
+  scroll-padding-top: 4.5rem;
 }
 
 body {
@@ -44,21 +60,17 @@ h3 {
   font-family: var(--font-display);
   font-weight: 700;
   letter-spacing: -0.035em;
-  line-height: 0.94;
-}
-
-h1 {
-  font-size: clamp(2.6rem, 9vw, 8rem);
+  line-height: 0.92;
 }
 
 h2 {
-  font-size: clamp(1.5rem, 3.4vw, 3rem);
+  font-size: clamp(1.6rem, 4.5vw, 3.6rem);
 }
 
 h3 {
   font-size: clamp(0.95rem, 1.5vw, 1.25rem);
   letter-spacing: -0.015em;
-  line-height: 1.15;
+  line-height: 1.2;
 }
 
 p {
@@ -76,17 +88,22 @@ figure {
 }
 
 figcaption {
-  margin-top: 0.6rem;
+  margin-top: 0.7rem;
   font-size: 0.7rem;
   letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+
+code {
+  font-family: var(--font-mono);
   color: var(--ink-soft);
 }
 
 .eyebrow {
   font-size: 0.66rem;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--ink-soft);
+  color: var(--ink-faint);
 }
 
 .note {
@@ -94,8 +111,8 @@ figcaption {
 }
 
 .lede {
-  font-size: clamp(0.92rem, 1.4vw, 1.15rem);
-  line-height: 1.6;
+  font-size: clamp(0.92rem, 1.4vw, 1.1rem);
+  line-height: 1.62;
 }
 
 /* --- chrome --------------------------------------------------------------- */
@@ -106,52 +123,82 @@ figcaption {
   z-index: 40;
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 2rem;
-  padding: 1.1rem var(--grid-margin);
-  background: color-mix(in srgb, var(--sheet) 86%, transparent);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--grid-rule);
+  gap: clamp(1rem, 4vw, 3rem);
+  padding: 0.9rem var(--grid-margin);
+  background: color-mix(in srgb, var(--sheet) 90%, transparent);
+  backdrop-filter: blur(10px);
+  /* The top rail of the chase: iron, with the bevel a cast edge has. */
+  border-bottom: 2px solid var(--iron);
+  box-shadow: inset 0 -3px 0 rgba(255, 255, 255, 0.5);
 }
 
 .masthead__mark {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 1rem;
   letter-spacing: -0.02em;
-  color: inherit;
   text-decoration: none;
+  color: var(--ink);
 }
 
 .masthead__nav {
   display: flex;
-  gap: clamp(1rem, 3vw, 2.5rem);
-}
-
-.masthead__nav a {
+  gap: clamp(0.8rem, 2vw, 1.6rem);
+  margin-inline-start: auto;
   font-size: 0.68rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ink-soft);
-  text-decoration: none;
-  transition: color 0.2s linear;
 }
 
-.masthead__nav a:hover {
+.masthead__nav a {
+  position: relative;
+  color: var(--ink-faint);
+  text-decoration: none;
+  transition: color 200ms var(--ease-66, ease);
+}
+
+/* The hover is a rule, drawn at one point, because that is the idiom here. */
+.masthead__nav a::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: -4px;
+  height: var(--pt);
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 240ms var(--ease-66, ease);
+}
+
+.masthead__nav a:hover,
+.masthead__nav a:focus-visible {
   color: var(--ink);
+}
+
+.masthead__nav a:hover::after,
+.masthead__nav a:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.masthead__chase {
+  display: none;
+  font-size: 0.58rem;
+  letter-spacing: 0.3em;
+  color: var(--ink-faint);
+}
+
+@media (min-width: 60rem) {
+  .masthead__chase {
+    display: block;
+  }
 }
 
 /* --- bands ---------------------------------------------------------------- */
 
 .g-band {
-  padding-block: clamp(3rem, 9vw, 8rem);
+  padding-block: clamp(3rem, 8vw, 7rem);
 }
 
-/*
- * A band that carries a backdrop. The ground is full bleed and the content
- * sits over it, which is the band/grid split TwelveColumn is built around: the
- * section bleeds, the tracks stay inset.
- */
 .band__ground {
   position: absolute;
   inset: 0;
@@ -164,18 +211,110 @@ figcaption {
   overflow: hidden;
 }
 
-.band__over {
+.band--hero .g-band__grid,
+.band--marks .g-band__grid {
   position: relative;
   z-index: 1;
 }
 
 .band--hero {
-  padding-block: clamp(5rem, 16vw, 13rem) clamp(4rem, 10vw, 9rem);
+  padding-block: clamp(4rem, 12vw, 9rem);
 }
 
-.band--rule {
-  border-block: 1px solid var(--grid-rule);
-  padding-block: clamp(2rem, 5vw, 4rem);
+.hero-line {
+  font-size: clamp(2.6rem, 10vw, 9rem);
+  margin-block: 0.28em 0.5em;
+  /*
+   * The impression. A press pushes the type into dampened paper, so the
+   * letter sits slightly below the surface and catches light on its upper
+   * edge. One inset highlight and one soft shadow is the whole of it; any
+   * more and it reads as a bevel filter rather than as paper.
+   */
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.75),
+    0 -1px 1px rgba(27, 27, 23, 0.14);
+}
+
+/* --- the quoins ----------------------------------------------------------- */
+
+/*
+ * A quoin is a pair of toothed iron wedges driven against each other to lock
+ * the forme. Drawn as two blocks meeting on a diagonal, which is what you see
+ * looking down into a chase, and placed in the corners where the lockup is
+ * actually tightened.
+ */
+.quoin {
+  position: absolute;
+  width: clamp(1.4rem, 3vw, 2.4rem);
+  height: clamp(1.4rem, 3vw, 2.4rem);
+  z-index: 1;
+  background: linear-gradient(
+    135deg,
+    var(--iron) 0 48%,
+    rgba(255, 255, 255, 0.35) 48% 52%,
+    var(--iron) 52% 100%
+  );
+  opacity: 0.5;
+}
+
+.quoin--tl {
+  top: 0;
+  left: 0;
+}
+.quoin--tr {
+  top: 0;
+  right: 0;
+  rotate: 90deg;
+}
+.quoin--br {
+  bottom: 0;
+  right: 0;
+  rotate: 180deg;
+}
+.quoin--bl {
+  bottom: 0;
+  left: 0;
+  rotate: 270deg;
+}
+
+/* --- the rules ------------------------------------------------------------ */
+
+/*
+ * Set at the weights a compositor actually had: a hairline, then one, two,
+ * six and twelve point. They are stacked rather than spread, because that is
+ * how they sit in the case and because the jump between them is the point.
+ */
+.rules {
+  display: grid;
+  gap: 0.42rem;
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.rules--under {
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
+}
+
+.rule {
+  display: block;
+  width: 100%;
+  background: var(--ink);
+}
+
+.rule--hair {
+  height: 0.5px;
+}
+.rule--1 {
+  height: var(--pt);
+}
+.rule--2 {
+  height: calc(var(--pt) * 2);
+}
+.rule--6 {
+  height: calc(var(--pt) * 6);
+}
+.rule--12 {
+  height: calc(var(--pt) * 12);
+  background: var(--accent);
 }
 
 .running {
@@ -183,7 +322,8 @@ figcaption {
   font-size: clamp(1.2rem, 3.4vw, 2.6rem);
   font-weight: 700;
   letter-spacing: -0.03em;
-  line-height: 1.1;
+  line-height: 1.12;
+  text-wrap: balance;
 }
 
 /* The word list is an item: it sizes its own box, so nothing here does. */
@@ -191,92 +331,252 @@ figcaption {
   color: var(--accent);
 }
 
-.band--marks {
-  background: var(--sheet-deep);
+/* --- the slug ------------------------------------------------------------- */
+
+/*
+ * Type sits on a body taller than the letter, and the space above and below
+ * is the shoulder. Marking the size in the margin is what a specimen does and
+ * what a studio's own page should do.
+ */
+.slug {
+  position: relative;
+  padding-left: 3.4rem;
 }
+
+.slug__size {
+  position: absolute;
+  left: 0;
+  top: 0.35rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+@media (max-width: 48rem) {
+  .slug {
+    padding-left: 0;
+  }
+  .slug__size {
+    position: static;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+}
+
+/* --- the specimen --------------------------------------------------------- */
+
+.band--specimen {
+  border-top: calc(var(--pt) * 2) solid var(--ink);
+}
+
+.specimen {
+  margin: clamp(2rem, 5vw, 3.5rem) var(--grid-margin) 0;
+}
+
+.specimen__row {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  gap: 1.5rem;
+  align-items: baseline;
+  padding-block: clamp(0.8rem, 2vw, 1.4rem);
+  border-top: 0.5px solid var(--grid-rule);
+}
+
+.specimen__row:last-child {
+  border-bottom: 0.5px solid var(--grid-rule);
+}
+
+.specimen dt {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.specimen__line {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+/* The sizes are the content, so they are set rather than scaled. */
+.specimen__line--72 {
+  font-size: clamp(2.4rem, 9vw, 6rem);
+}
+.specimen__line--36 {
+  font-size: clamp(1.6rem, 4.5vw, 3rem);
+}
+.specimen__line--18 {
+  font-size: clamp(1rem, 2.2vw, 1.5rem);
+}
+.specimen__line--10 {
+  font-size: clamp(0.8rem, 1.2vw, 0.84rem);
+  font-family: var(--font-mono);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* --- the furniture -------------------------------------------------------- */
+
+/*
+ * Furniture is the wood that fills a chase around the type. Bevelled, because
+ * a block that has been knocked about in a stone for fifty years is never
+ * square, and the bevel is how you can tell wood from metal at a glance.
+ */
+.band--figures {
+  background: var(--sheet-deep);
+  border-block: calc(var(--pt) * 6) solid var(--ink);
+}
+
+.furniture {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+  gap: clamp(0.8rem, 2vw, 1.4rem);
+  margin-inline: var(--grid-margin);
+}
+
+.furniture__block {
+  padding: clamp(1.2rem, 3vw, 2rem);
+  background: linear-gradient(160deg, var(--wood-lit), var(--wood) 55%, var(--wood-dark));
+  border-radius: 1px;
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(27, 27, 23, 0.18);
+}
+
+.furniture__block .counter {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 6vw, 4.2rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.furniture__label {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(27, 27, 23, 0.58);
+}
+
+/* --- plates and notes ----------------------------------------------------- */
 
 .stack-note {
   display: grid;
-  gap: 0.6rem;
+  gap: 0.7rem;
   align-content: start;
 }
 
-.figure-big {
-  font-family: var(--font-display);
-  font-size: clamp(2.6rem, 7vw, 5.5rem);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 1;
+.band--plates {
+  padding-top: clamp(2rem, 6vw, 4rem);
 }
 
-.band--plates {
-  padding-top: 0;
+/*
+ * A printed sheet sits slightly off the page it is shown on, and the shadow
+ * is tight rather than soft: paper on paper, not paper floating.
+ */
+.plate img {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8),
+    0 2px 10px -4px rgba(27, 27, 23, 0.3);
 }
 
 .band--quote {
-  border-top: 1px solid var(--grid-rule);
+  border-top: 0.5px solid var(--grid-rule);
 }
 
 .quote {
   font-family: var(--font-display);
-  font-size: clamp(1.3rem, 3.6vw, 3rem);
+  font-size: clamp(1.3rem, 3.8vw, 3.2rem);
   font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.12;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  text-wrap: balance;
 }
 
 /* --- colophon ------------------------------------------------------------- */
 
 .band--foot {
-  background: var(--sheet-deep);
-  border-top: 1px solid var(--grid-rule);
+  border-top: calc(var(--pt) * 12) solid var(--ink);
+  padding-bottom: 0;
 }
 
-/*
- * The manifest is written by the page from the list it actually mounted, not
- * typed out here. A hand-written list goes stale the first time an item is
- * added or renamed, and the whole value of it is being true.
- */
+.band--foot h2 {
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+
 .manifest {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
-  gap: 0.4rem 1.5rem;
-  margin: clamp(1.5rem, 4vw, 3rem) 0;
+  gap: 0.35rem 1.5rem;
+  margin: 0 0 2rem;
   padding: 0;
   list-style: none;
+  font-size: 0.78rem;
 }
 
 .manifest li {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.4rem 0;
-  border-top: 1px solid var(--grid-rule);
-  font-size: 0.7rem;
+  padding-block: 0.4rem;
+  border-bottom: 0.5px solid var(--grid-rule);
 }
 
 .manifest a {
-  color: inherit;
+  color: var(--ink);
   text-decoration: none;
+  border-bottom: 1px solid transparent;
 }
 
-.manifest a:hover {
-  color: var(--accent);
+.manifest a:hover,
+.manifest a:focus-visible {
+  border-bottom-color: var(--accent);
 }
 
 .manifest .kind {
-  color: var(--ink-soft);
-  letter-spacing: 0.1em;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  font-size: 0.6rem;
+  color: var(--ink-faint);
 }
 
-@media (max-width: 48rem) {
-  .masthead__nav {
-    gap: 1rem;
-  }
+.credit {
+  font-size: 0.7rem;
+}
 
-  .band--hero {
-    padding-block: clamp(3rem, 12vw, 6rem) clamp(2rem, 8vw, 4rem);
+/*
+ * The name at the foot, set to the width of the sheet and trimmed by it. A
+ * forme is locked up to the chase and anything past the edge does not print.
+ */
+.wordmark {
+  margin: clamp(2rem, 6vw, 5rem) 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17vw;
+  letter-spacing: -0.055em;
+  line-height: 0.76;
+  white-space: nowrap;
+  overflow: hidden;
+  padding-inline: var(--grid-margin);
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(27, 27, 23, 0.25);
+}
+
+/* --- reduced motion ------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .masthead__nav a::after {
+    transition-duration: 0.01ms;
   }
 }
