@@ -3122,7 +3122,7 @@
       "duration": 30,
       "fps": 15,
       "posterAt": 2.05,
-      "crf": 32,
+      "crf": 38,
       "webmCrf": 47
     },
     "group": "effects",
@@ -3306,7 +3306,9 @@
       "duration": 6,
       "fps": 30,
       "posterAt": 2.2,
-      "crf": 30
+      "crf": 30,
+      "webmCrf": 48,
+      "posterQuality": 9
     },
     "group": "effects",
     "intro": "A printer's glass laid on the page.\n\nThe picture is continuous tone until you look closely, and then it is dots. That\nis not a stylisation. It is what a printed photograph is, and it is the one\nthing a screen never shows you: away from the glass the halftone is finer than\nthe eye resolves and reads as tone, which is the entire reason printing works at\nall, and under the glass it resolves into four screens at four angles.\n\nSo the dots are not drawn at whatever size looks good. They are drawn at\n`screen` pixels in the print and magnified along with everything else, which is\nwhy turning `zoom` up makes them bigger rather than finer. A screen ruling\nbelongs to the press, not to the person looking at it.\n\nThe four angles are 15, 75, 0 and 45 degrees, and they are not decoration.\nThirty degrees between the strong plates is what keeps their interference down\nto a fine rosette instead of a coarse plaid, and yellow sits at zero because it\nis the plate you cannot see anyway. The ink that all three of cyan, magenta and\nyellow have in common is pulled out and printed as black instead, which is what\na press does and the reason a shadow in a printed photograph is not a muddy\nbrown.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency."
@@ -8823,8 +8825,8 @@
       "duration": 36,
       "fps": 12,
       "posterAt": 2.4,
-      "crf": 29,
-      "webmCrf": 44
+      "crf": 34,
+      "webmCrf": 48
     },
     "credit": {
       "what": "real-time terrain with shader displacement",

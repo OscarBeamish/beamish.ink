@@ -86,6 +86,9 @@ const WEBM_BUDGET_BYTES = 1_200 * 1024
 const MP4_BUDGET_BYTES = 3_500 * 1024
 const POSTER_BUDGET_BYTES = 260 * 1024
 
+/* Every file that busted its budget this run, reported together at the end. */
+const overBudget: string[] = []
+
 type Ratio = (typeof RATIOS)[number]
 
 // --- page setup ------------------------------------------------------------
@@ -427,7 +430,13 @@ async function ffmpeg(args: string[]) {
   }
 }
 
-async function encode(framesDir: string, outDir: string, ratio: Ratio, meta: Recordable) {
+async function encode(
+  framesDir: string,
+  outDir: string,
+  ratio: Ratio,
+  meta: Recordable,
+  crfOverride?: { crf?: number; webmCrf?: number }
+) {
   const fps = meta.record.fps
   const pattern = path.join(framesDir, '%05d.png')
   const base = path.join(outDir, ratio.key)
@@ -437,7 +446,7 @@ async function encode(framesDir: string, outDir: string, ratio: Ratio, meta: Rec
     '-i', pattern,
     '-c:v', 'libx264',
     '-profile:v', 'high',
-    '-crf', String(meta.record.crf ?? 26),
+    '-crf', String(crfOverride?.crf ?? meta.record.crf ?? 26),
     '-preset', 'slow',
     // yuv420p and even dimensions, or Safari and half of social will refuse it.
     '-pix_fmt', 'yuv420p',
@@ -453,7 +462,7 @@ async function encode(framesDir: string, outDir: string, ratio: Ratio, meta: Rec
       '-i', pattern,
       '-vf', `scale=${ratio.webmWidth}:${height}:flags=lanczos`,
       '-c:v', 'libvpx-vp9',
-      '-crf', String(meta.record.webmCrf ?? 40),
+      '-crf', String(crfOverride?.webmCrf ?? meta.record.webmCrf ?? 40),
       '-b:v', '0',
       '-row-mt', '1',
       '-deadline', 'good',
@@ -487,7 +496,8 @@ async function recordItem(
   item: ItemRef,
   only: string[],
   keepFrames: boolean,
-  ground?: RecordGround
+  ground?: RecordGround,
+  crfOverride?: { crf?: number; webmCrf?: number }
 ) {
   const raw = JSON.parse(await readFile(path.join(item.dir, 'meta.json'), 'utf8'))
   /*
@@ -569,7 +579,7 @@ async function recordItem(
       )
     }
 
-    await encode(framesDir, outDir, ratio, meta)
+    await encode(framesDir, outDir, ratio, meta, crfOverride)
     if (ratio.key === '16x9') await poster(framesDir, outDir, meta)
 
     const seconds = ((Date.now() - started) / 1000).toFixed(0)
@@ -577,8 +587,16 @@ async function recordItem(
     if (!keepFrames) await emptyDir(framesDir)
   }
 
-  // Budgets are not advisory. Media is committed to the repo, and every
-  // re-record adds a permanent blob to history.
+  /*
+   * Budgets are not advisory. Media is committed to the repo, and every
+   * re-record adds a permanent blob to history.
+   *
+   * This printed OVER BUDGET and then exited zero, which is the same as not
+   * checking: nine files sat over the line for four days and every run
+   * reported success. Violations are collected and the command fails on them
+   * at the end, after everything is written, so the files are still there to
+   * tune against.
+   */
   for (const entry of await readdir(outDir)) {
     const bytes = (await stat(path.join(outDir, entry))).size
     const budget = entry.endsWith('.webm')
@@ -588,8 +606,14 @@ async function recordItem(
         : entry.endsWith('.jpg')
           ? POSTER_BUDGET_BYTES
           : null
-    const flag = budget && bytes > budget ? '  OVER BUDGET' : ''
-    console.log(`    ${entry.padEnd(14)} ${(bytes / 1024).toFixed(0)} kB${flag}`)
+    const over = Boolean(budget && bytes > budget)
+    if (over) {
+      overBudget.push(
+        `${item.slug}/${ground ? ground + '/' : ''}${entry}: ` +
+          `${(bytes / 1024).toFixed(0)} kB over ${((budget as number) / 1024).toFixed(0)}`
+      )
+    }
+    console.log(`    ${entry.padEnd(14)} ${(bytes / 1024).toFixed(0)} kB${over ? '  OVER BUDGET' : ''}`)
   }
 
   await writeFile(
@@ -602,6 +626,23 @@ async function recordItem(
 async function main() {
   const args = process.argv.slice(2)
   const all = args.includes('--all')
+  /*
+   * A take against a ground the item was not tuned for can compress very
+   * differently: TerrainRelief's lit relief on near black came out at 4.8MB
+   * against a 3.5 budget, where its paper take fits easily. Rather than raise
+   * the item's own crf, which would change the take that already fits, the
+   * tighter number is passed in for the pass that needs it.
+   */
+  const crfArg = args.indexOf('--crf')
+  const webmCrfArg = args.indexOf('--webm-crf')
+  const crfOverride =
+    crfArg >= 0 || webmCrfArg >= 0
+      ? {
+          ...(crfArg >= 0 ? { crf: Number(args[crfArg + 1]) } : {}),
+          ...(webmCrfArg >= 0 ? { webmCrf: Number(args[webmCrfArg + 1]) } : {})
+        }
+      : undefined
+
   const groundArg = args.indexOf('--ground')
   const ground =
     groundArg >= 0 ? (args[groundArg + 1] as RecordGround | undefined) : undefined
@@ -614,7 +655,9 @@ async function main() {
   const only = ratioArg >= 0 ? [args[ratioArg + 1]!] : []
   const consumed = new Set([
     ...(ratioArg >= 0 ? [ratioArg, ratioArg + 1] : []),
-    ...(groundArg >= 0 ? [groundArg, groundArg + 1] : [])
+    ...(groundArg >= 0 ? [groundArg, groundArg + 1] : []),
+    ...(crfArg >= 0 ? [crfArg, crfArg + 1] : []),
+    ...(webmCrfArg >= 0 ? [webmCrfArg, webmCrfArg + 1] : [])
   ])
   const slugs = args.filter((arg, i) => !arg.startsWith('--') && !consumed.has(i))
 
@@ -640,7 +683,8 @@ async function main() {
   const keepFrames = args.includes('--keep-frames')
 
   try {
-    for (const item of items) await recordItem(browser, item, only, keepFrames, ground)
+    for (const item of items)
+      await recordItem(browser, item, only, keepFrames, ground, crfOverride)
   } finally {
     await browser.close()
     await new Promise<void>(resolve => server.close(() => resolve()))
@@ -648,4 +692,16 @@ async function main() {
   }
 }
 
+function reportBudgets(): void {
+  if (overBudget.length === 0) return
+  console.error('')
+  console.error('Over budget, which is a failure rather than a note:')
+  for (const line of overBudget) console.error('  ' + line)
+  console.error('')
+  console.error('Raise the item crf or webmCrf in meta.json, or pass --crf for a')
+  console.error('one-off pass such as a ground the item was not tuned for.')
+  process.exitCode = 1
+}
+
 await main()
+reportBudgets()
