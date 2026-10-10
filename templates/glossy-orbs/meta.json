@@ -15,7 +15,7 @@
   "record": {
     "duration": 14,
     "fps": 24,
-    "posterAt": 4,
+    "posterAt": 1.2,
     "crf": 38,
     "webmCrf": 48
   }

@@ -220,6 +220,17 @@ body {
   display: inline-block;
   transform: translateY(105%);
 }
+/*
+ * The headline is masked and its words start below the mask, so the CSS alone
+ * hides the whole thing and the intro timeline is what reveals it. Anybody who
+ * has asked for less movement, and anything that holds the clock still, gets a
+ * page with no headline on it. The script skips the intro under reduce; this
+ * is the other half of that, because the starting position is in the
+ * stylesheet rather than in the script.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .headline .word > span { transform: none; }
+}
 
 /* Inline image pill (yellow blob) */
 .inline-img {
@@ -2523,6 +2534,19 @@ section[id] { scroll-margin-top: 90px; }
   padding: 0.18em 0.62em;
   border-radius: 999px;
 }
+
+/*
+ * Reduced motion, last so it wins.
+ *
+ * Both pills in the headline are declared at scale(0) and are grown by the
+ * intro timeline. The override has to come after those declarations rather
+ * than before them: at equal specificity the later rule takes it, and the
+ * first attempt at this sat above both and did nothing at all.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .inline-img,
+  .idea-pill { transform: scale(1); }
+}
 </style>
 
 <div class="grain" aria-hidden="true"></div>
@@ -3048,24 +3072,45 @@ section[id] { scroll-margin-top: 90px; }
 <script>
 gsap.registerPlugin(ScrollTrigger);
 
-// Initial states
-gsap.set(".nav", { opacity: 0, y: -20 });
-gsap.set(".headline .word > span", { y: "105%" });
-gsap.set("#heroEyebrow", { opacity: 0, y: 12 });
-gsap.set("#inlineImg, #ideaPill", { scale: 0 });
+/*
+ * Initial states, and the one guard that has to come before them.
+ *
+ * These four lines hide the whole hero: the nav, the eyebrow, every word of
+ * the headline behind its mask, and both pills at zero scale. The intro
+ * timeline below is the only thing that puts them back, so if it does not run,
+ * the top of this page is empty.
+ *
+ * GSAP does not read prefers-reduced-motion, so somebody who has asked for
+ * less movement still gets the whole entrance. Anything that holds the clock
+ * still instead gets a blank page, which is how this was found: the recorded
+ * poster was a pale rectangle with the card row showing at the bottom and
+ * nothing above it.
+ *
+ * So under reduce, the initial states are never set and the timeline is never
+ * built. The hero is simply there, which is what a reduced-motion user wants
+ * and what a still frame of this page should be. The fan block further down
+ * already did it this way.
+ */
+const stillHero = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-// ============================================================
-// INTRO TIMELINE
-// ============================================================
-const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
-intro
-  .to(".nav", { opacity: 1, y: 0, duration: 0.8 }, 0.1)
-  .to("#heroEyebrow", { opacity: 1, y: 0, duration: 0.7 }, 0.2)
-  .to(".line-1 .word > span", { y: "0%", duration: 0.9, stagger: 0.1 }, 0.3)
-  .to(".line-2 .word > span", { y: "0%", duration: 0.9 }, 0.55)
-  .to("#inlineImg", { scale: 1, duration: 0.9, ease: "back.out(1.6)" }, 0.5)
-  .to("#ideaPill", { scale: 1, duration: 0.9, ease: "back.out(1.6)" }, 0.7)
-  .to(".line-3 .word > span", { y: "0%", duration: 0.9, stagger: 0.1 }, 0.75);
+if (!stillHero) {
+  gsap.set(".nav", { opacity: 0, y: -20 });
+  gsap.set(".headline .word > span", { y: "105%" });
+  gsap.set("#heroEyebrow", { opacity: 0, y: 12 });
+  gsap.set("#inlineImg, #ideaPill", { scale: 0 });
+
+  // ============================================================
+  // INTRO TIMELINE
+  // ============================================================
+  gsap.timeline({ defaults: { ease: "power3.out" } })
+    .to(".nav", { opacity: 1, y: 0, duration: 0.8 }, 0.1)
+    .to("#heroEyebrow", { opacity: 1, y: 0, duration: 0.7 }, 0.2)
+    .to(".line-1 .word > span", { y: "0%", duration: 0.9, stagger: 0.1 }, 0.3)
+    .to(".line-2 .word > span", { y: "0%", duration: 0.9 }, 0.55)
+    .to("#inlineImg", { scale: 1, duration: 0.9, ease: "back.out(1.6)" }, 0.5)
+    .to("#ideaPill", { scale: 1, duration: 0.9, ease: "back.out(1.6)" }, 0.7)
+    .to(".line-3 .word > span", { y: "0%", duration: 0.9, stagger: 0.1 }, 0.75);
+}
 
 // ============================================================
 // CONTINUOUS: inline img + idea pill bob
