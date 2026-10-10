@@ -10,15 +10,58 @@ library and nothing else. Not a gallery of effects with labels on them: a page
 that would pass as a studio's own site, where the effects are doing a job
 rather than being exhibited.
 
-The point is the thing a card cannot show. A card proves an effect loops; an
+The point is the thing a card cannot show. A card proves an effect loops; a
 template proves it survives contact with a header, a paragraph of real copy, a
 photograph and three other effects on the same page. Most of what is wrong with
 an effect only appears there.
 
-Templates are **not pasteable items**. There is no prompt that gives somebody a
-whole brand site. What each one carries instead is a manifest: which items it
-uses, with links. The template is the argument for the items, and the items are
-what gets copied.
+**Templates are pasteable.** This page used to say the opposite, on the grounds
+that nobody pastes a brand site, and that was right while these were called
+examples and their job was to prove the items worked. It stopped being right
+the moment the job changed. Each one now ships a prompt that fetches the page's
+four files and every library file it is built from, and the manifest it carries
+is read out of `meta.json` by both the prompt and the page's own colophon, so
+the two cannot disagree.
+
+## What a template owes
+
+An example owed proof. A template owes a page somebody would want to take, and
+that is a higher bar in one specific way rather than in general.
+
+The first two templates were built to the old bar and it showed. Measured
+against the single-file landing pages this collection is competing with:
+
+| | declaration blocks |
+| --- | --- |
+| Quoin & Rule, as an example | 27 |
+| Coil & Bias, as an example | 34 |
+| a reference landing page | 581 |
+| another | 1023 |
+
+The section counts were comparable. The craft was not. A band that is a
+heading, a paragraph and a library item is a wireframe with an effect in it,
+and five of those in a row is a wireframe with five effects in it.
+
+So, for anything added here:
+
+1. **One idea, carried.** Not a theme, a mechanism: a contact sheet, a forme in
+   a chase, a front panel. It has to appear in at least four different places
+   doing four different jobs, or it is a motif rather than an idea.
+2. **The page brings its own craft.** Every ambient item in this library is
+   required to survive being ignored, so a page that leans on items for its
+   interest inherits their restraint. The items cannot carry a page and are not
+   meant to.
+3. **Display type at display size.** The reference pages set hero numerals at
+   160px and section titles above 100. Timid type is the fastest way to look
+   like a demo.
+4. **Items serve the idea.** HalftoneReveal is the frame being printed, not
+   HalftoneReveal being demonstrated. If an item could be swapped for any other
+   without the page caring, it is being exhibited.
+5. **Say what is invented.** Every brand, figure and photograph credit, in the
+   page and in the markup.
+
+The three current templates sit at 64, 78 and 85 blocks. Better than 27, and
+still well short of the reference. The gap now is density rather than idea.
 
 ## The brands are invented
 

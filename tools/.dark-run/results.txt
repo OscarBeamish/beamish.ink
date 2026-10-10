@@ -12,3 +12,8 @@ OK    ink-bleed-text  24s  345kB
 OK    light-shafts  684s  2789kB
 OK    magnetic-button  16s  85kB
 FAIL  masked-heading  (see tools/.dark-run/masked-heading.log)
+OK    mesh-gradient  386s  2673kB
+OK    odometer-number  18s  365kB
+OK    pointer-filings  39s  2525kB
+OK    pointer-ripple-grid  25s  669kB
+OK    pointer-smoke  13s  357kB
