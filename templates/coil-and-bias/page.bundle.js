@@ -1982,8 +1982,8 @@ ${log ?? ""}`);
   var meta_default = {
     name: "Coil & Bias",
     slug: "coil-and-bias",
-    description: "An invented audio hardware brand on a dark ground, laid out as the front panel of an amplifier",
-    intent: "Brushed aluminium with its legends cut into it rather than printed on it, vents, screws at the corners and meters that read rather than statistics that are stated. Also the real test of the stage: three WebGL backdrops handed one context as the page scrolls.",
+    description: "An invented audio hardware brand where one primitive, a panel of brushed aluminium with its legends cut into it, is every surface on the page",
+    intent: "One primitive carrying a whole page, and one lighting rule carrying the primitive. A panel is a brushed face, a chamfer, legends cut into the metal and screws where it is fixed, and it is the hero, every reading, every amplifier, the window the photograph sits behind and every row of the colophon. Engraving is the whole detail: one shadow above a glyph and one highlight below, never the other way round, because the other way round is embossed plastic. Also the real test of the stage, which is the reason this template exists: three WebGL backdrops handed one context between them as the page scrolls.",
     ground: "dark",
     uses: [
       {
