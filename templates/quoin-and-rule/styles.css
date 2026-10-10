@@ -31,6 +31,17 @@
   --ink: #16150f;
   --second: #b3301c;
 
+  /*
+   * The second colour, taken towards the ink, for text at nine pixels.
+   *
+   * Vermilion measures 5.09:1 on the open paper and 4.00:1 on the darker
+   * ground a tight forme has, which is a fail that only exists in one state.
+   * Rather than lighten the ground or give up the colour, small text in that
+   * state takes this. The vermilion itself is unchanged everywhere it is used
+   * at size, where the threshold is 3:1 and it has room to spare.
+   */
+  --second-ink: color-mix(in srgb, var(--second) 78%, var(--ink));
+
   /* The sheet, worked. */
   --paper-damp: color-mix(in srgb, var(--paper) 93%, var(--ink));
   --paper-deep: color-mix(in srgb, var(--paper) 86%, var(--ink));
@@ -291,7 +302,7 @@ code {
 }
 
 .forme.is-tight::before {
-  color: var(--second);
+  color: var(--second-ink);
 }
 
 .forme.is-tight .forme__quoin {
@@ -341,7 +352,7 @@ code {
 }
 
 .forme.is-pulled::before {
-  color: var(--second);
+  color: var(--second-ink);
 }
 
 /* --- state: pointed at ---------------------------------------------------- */
@@ -356,7 +367,7 @@ code {
 .forme--line:hover::before,
 .forme--figure:hover::before,
 .forme--note:hover::before {
-  color: var(--second);
+  color: var(--second-ink);
 }
 
 .forme--line:hover .forme__quoin,
@@ -442,7 +453,7 @@ code {
 }
 
 .forme--line:hover .specimen__size {
-  color: var(--second);
+  color: var(--second-ink);
 }
 
 .specimen__line {
@@ -636,7 +647,7 @@ code {
 }
 
 .chase__mark:hover .chase__mark-slug {
-  color: var(--second);
+  color: var(--second-ink);
 }
 
 .chase__nav {

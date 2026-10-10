@@ -30,13 +30,7 @@
  */
 
 import { chromium, type Browser, type Page } from 'playwright'
-import { spawn } from 'node:child_process'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
-const PORT = 4321
-const ORIGIN = `http://127.0.0.1:${PORT}`
+import { ensureServer, routeFrom, ORIGIN, PORT } from '../dev-server'
 
 /*
  * Desktop and a phone. Two is the useful number: almost every layout bug this
@@ -47,50 +41,6 @@ const VIEWPORTS = [
   { key: 'desktop', width: 1440, height: 900 },
   { key: 'phone', width: 390, height: 844 }
 ] as const
-
-async function alive(): Promise<boolean> {
-  try {
-    const response = await fetch(ORIGIN, { signal: AbortSignal.timeout(900) })
-    return response.ok
-  } catch {
-    return false
-  }
-}
-
-/*
- * Start one and let it outlive this process. `detached` plus unref is the part
- * that makes the next poke cheap, and on Windows it also means the handle is
- * not tied to a shell that has already exited.
- */
-async function ensureServer(): Promise<'reused' | 'started'> {
-  if (await alive()) return 'reused'
-
-  const child = spawn(
-    process.execPath,
-    [
-      path.join(ROOT, 'site', 'node_modules', 'astro', 'astro.js'),
-      'dev',
-      '--port',
-      String(PORT),
-      /*
-       * Bind IPv4 explicitly. Without this astro listens on localhost, which
-       * Windows resolves to ::1, and a poll of 127.0.0.1 gets nothing back
-       * from a server that is running perfectly.
-       */
-      '--host',
-      '127.0.0.1'
-    ],
-    { cwd: path.join(ROOT, 'site'), stdio: 'ignore', detached: true }
-  )
-  child.unref()
-
-  const deadline = Date.now() + 40_000
-  while (Date.now() < deadline) {
-    if (await alive()) return 'started'
-    await new Promise(resolve => setTimeout(resolve, 300))
-  }
-  throw new Error(`dev server did not come up on ${PORT}`)
-}
 
 /** Real geometry and real colour, resolved, for one selector. */
 async function measure(page: Page, selector: string) {
@@ -225,34 +175,9 @@ async function poke(browser: Browser, route: string, selectors: string[]) {
 }
 
 async function main() {
-  /*
-   * Git Bash rewrites an argument that looks like an absolute POSIX path
-   * before this process ever sees it, so `/` arrives as C:/Program Files/Git/
-   * and `/templates/x` as C:/Program Files/Git/templates/x.
-   *
-   * The first version of this quietly read anything with a drive letter as the
-   * home page, which is worse than useless: asked for a template it measured
-   * the home page instead and reported every selector missing, which looks
-   * exactly like a broken template. Recover the route where the shell left it
-   * recoverable, and refuse rather than guess where it did not.
-   */
   const [given = '/', ...selectors] = process.argv.slice(2)
+  const route = routeFrom(given, 'poke')
 
-  let route = given
-  if (/^[A-Za-z]:/.test(given)) {
-    const tail = given.replace(/\\/g, '/').match(/\/Git\/(.*)$/)
-    if (tail) {
-      route = '/' + tail[1]
-      console.log(`the shell rewrote the route; reading it as ${route || '/'}`)
-    } else {
-      console.error(
-        `"${given}" is a filesystem path, not a route.\n` +
-          'Git Bash rewrites a leading slash. Pass the route without one:\n' +
-          '  pnpm poke templates/coil-and-bias/index.html'
-      )
-      process.exit(1)
-    }
-  }
   const state = await ensureServer()
   console.log(`dev server ${state} on ${PORT}`)
 
@@ -261,7 +186,7 @@ async function main() {
     args: ['--enable-unsafe-swiftshader']
   })
   try {
-    await poke(browser, route.startsWith('/') ? route : `/${route}`, selectors)
+    await poke(browser, route, selectors)
   } finally {
     await browser.close()
   }

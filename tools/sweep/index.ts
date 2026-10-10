@@ -19,14 +19,12 @@
  */
 
 import { chromium, type Browser } from 'playwright'
-import { spawn } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { ensureServer, ORIGIN } from '../dev-server'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
-const PORT = 4321
-const ORIGIN = `http://127.0.0.1:${PORT}`
 const AT_ONCE = 6
 
 /* Errors that belong to the browser rather than to this site. */
@@ -38,37 +36,6 @@ const NOT_OURS = [
   // Vite's own noise when a page is opened mid-reload.
   'Failed to fetch dynamically imported module: http://localhost:4321/@vite'
 ]
-
-async function alive(): Promise<boolean> {
-  try {
-    return (await fetch(ORIGIN, { signal: AbortSignal.timeout(900) })).ok
-  } catch {
-    return false
-  }
-}
-
-async function ensureServer(): Promise<void> {
-  if (await alive()) return
-  const child = spawn(
-    process.execPath,
-    [
-      path.join(ROOT, 'site', 'node_modules', 'astro', 'astro.js'),
-      'dev',
-      '--port',
-      String(PORT),
-      '--host',
-      '127.0.0.1'
-    ],
-    { cwd: path.join(ROOT, 'site'), stdio: 'ignore', detached: true }
-  )
-  child.unref()
-  const deadline = Date.now() + 40_000
-  while (Date.now() < deadline) {
-    if (await alive()) return
-    await new Promise(resolve => setTimeout(resolve, 300))
-  }
-  throw new Error(`dev server did not come up on ${PORT}`)
-}
 
 function slugsIn(collection: string): string[] {
   const dir = path.join(ROOT, collection)

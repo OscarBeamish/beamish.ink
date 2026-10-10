@@ -171,6 +171,39 @@ is how an afternoon of small overlaps becomes a crash.
 processes whose command line contains `headless`. Both should be empty, and
 they will not be unless you killed the processes rather than the tasks.
 
+### The tools, and which question each answers
+
+All four talk to one dev server on 4321 and leave it running, so the second
+call costs about two seconds. They share `tools/dev-server.ts`; if you add a
+fifth, use it rather than copying the spawn again. Three copies existed before
+it did, and only one of them recovered the route Git Bash rewrites, which is
+how `pnpm shot /templates/coil-and-bias/index.html` silently screenshotted the
+home page and reported it as the template.
+
+| | question |
+| --- | --- |
+| `pnpm poke <route> [sel…]` | what size, colour and position is this element really, at desktop and on a phone |
+| `pnpm contrast <route>…` | does any text on this page fail WCAG, at either width |
+| `pnpm shot <route> <file>` | what does the whole page look like |
+| `pnpm sweep` | did any of the 74 routes throw |
+
+**Contrast is not something you can see.** `pnpm contrast` reads every distinct
+text style off the live DOM, composites the translucent layers, and prints the
+ratio. The first run across the three rebuilt templates found 37 failures, the
+worst at 1.37:1, on pages that had just been built carefully and screenshotted
+and looked fine. Run it after any colour change, including one that was not
+about text: half of those 37 were made by a tone three rules away from the type
+they broke.
+
+A page may exempt genuinely decorative text with `data-decoration`, in the
+markup, where a reviewer sees the claim. Do not exempt it in the checker, and
+do not reach for the attribute to make a number go away.
+
+**Sweep says clean or it does not.** If it reports `504 Outdated Optimize Dep`
+or a dead request into `node_modules/.vite/deps`, that is Vite re-optimising
+mid-run and not a page fault. Delete `site/node_modules/.vite`, let the server
+restart, and run it again before believing either answer.
+
 ## meta.json is the source of truth
 
 Prompts, docs pages, the site index and prop tables are generated from

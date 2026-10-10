@@ -13,12 +13,20 @@
  */
 
 import { chromium } from 'playwright'
-
-const ORIGIN = 'http://127.0.0.1:4321'
+import { ensureServer, routeFrom, ORIGIN } from '../dev-server'
 
 async function main() {
-  const [route = '/', out = 'tools/review/.shots/shot.png'] = process.argv.slice(2)
-  const path = /^[A-Za-z]:/.test(route) ? '/' : route.startsWith('/') ? route : '/' + route
+  const [given = '/', out = 'tools/review/.shots/shot.png'] = process.argv.slice(2)
+  /*
+   * This used to read any drive-lettered argument as '/'. Git Bash rewrites a
+   * leading slash, so `pnpm shot /templates/coil-and-bias/index.html` arrived
+   * as a Windows path, became the home page, and was screenshotted and
+   * reported as the template, with no error anywhere. The shared recovery
+   * gets the route back, or refuses.
+   */
+  const path = routeFrom(given, 'shot')
+
+  await ensureServer()
 
   const browser = await chromium.launch({
     channel: 'chromium',

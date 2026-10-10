@@ -21,6 +21,7 @@
     "review": "tsx tools/review/index.ts",
     "poke": "tsx tools/poke/index.ts",
     "sweep": "tsx tools/sweep/index.ts",
+    "contrast": "tsx tools/contrast/index.ts",
     "shot": "tsx tools/shot/index.ts",
     "check": "pnpm typecheck && pnpm generate:check && pnpm test && pnpm build && pnpm review",
     "social": "tsx tools/social/index.ts",
