@@ -188,9 +188,26 @@ async function collect(page: Page): Promise<Finding[]> {
       for (const h of heads) {
         if (h.closest('[data-earned]')) continue
         const base = getComputedStyle(h).color
+        const whole = (h.textContent || '').trim().length
         for (const span of h.querySelectorAll<HTMLElement>('span, em, b, strong, i')) {
           if (span.children.length > 0) continue
           const t = (span.textContent || '').trim()
+          /*
+           * An accent has the heading's own colour on both sides of it. A
+           * coloured run at the start or the end is a two-tone heading, which
+           * is a different device and a perfectly ordinary one: this site's
+           * own h1 sets its second line in a quieter tone on every page.
+           *
+           * Length alone cannot tell them apart, which the first attempt at
+           * this proved: at 60% of the heading it still reported "The boring
+           * parts of agents, done properly." and "The | Lab" as accented
+           * words. Position can. Uncoloured text before and after is what
+           * makes a word stand out from a line rather than divide it.
+           */
+          const full = (h.textContent || '').trim()
+          const at = full.indexOf(t)
+          if (at <= 0 || at + t.length >= full.length) continue
+          void whole
           // Two characters at least, for the same reason the caps rule has that
           // floor: a headline typed on one letter at a time wraps every
           // character in its own span, and one of those being a different

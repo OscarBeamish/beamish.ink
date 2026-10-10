@@ -130,7 +130,12 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   letter-spacing: -0.035em;
   line-height: 0.98;
 }
-.display em, .quote blockquote em { font-style: normal; color: var(--signal); font-weight: 400; }
+/* The heading accent is gone. Every one of the eight headings had exactly
+   one phrase in the signal colour, and an emphasis on every line is not an
+   emphasis. The pull quote keeps it: one marked phrase in a quotation is a
+   person pointing at something. */
+.display em { font-style: normal; color: inherit; font-weight: 400; }
+.quote blockquote em { font-style: normal; color: var(--signal); font-weight: 400; }
 
 /* ───────── Buttons ───────── */
 .btn {

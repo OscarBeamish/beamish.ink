@@ -52,7 +52,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
 <style>
 :root {
@@ -78,7 +78,7 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: "Inter Tight", system-ui, sans-serif;
+  font-family: "Syne", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -412,7 +412,7 @@ main { position: relative; z-index: 1; }
   border-radius: 0;
   background: transparent;
   color: var(--ink);
-  font: 500 18px "Inter Tight", sans-serif;
+  font: 500 18px "Syne", sans-serif;
   outline: none;
   resize: none;
 }
@@ -451,7 +451,7 @@ main { position: relative; z-index: 1; }
   border-radius: 50%;
   background: var(--ink);
   color: var(--bg);
-  font: 700 13px "Inter Tight", sans-serif;
+  font: 700 13px "Syne", sans-serif;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
@@ -551,7 +551,7 @@ body::after {
 }
 .label { align-items: center; }
 .label::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--prism); }
-.project-meta .year { font-family: "Inter Tight", system-ui, sans-serif; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+.project-meta .year { font-family: "Syne", system-ui, sans-serif; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
 .quote { font-family: var(--serif); font-weight: 400; font-size: clamp(32px, 4.2vw, 68px); line-height: 1.04; letter-spacing: -0.015em; }
 
 /* Code card */
@@ -690,7 +690,7 @@ body::after {
 .pricing-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; margin-bottom: 56px; }
 .pricing-head .display { font-size: clamp(56px, 10vw, 180px); }
 .billing { display: inline-flex; padding: 4px; border-radius: 999px; background: var(--surface); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: var(--lift); }
-.billing button { padding: 9px 16px; border: 0; border-radius: 999px; background: transparent; color: var(--mute); font: 600 13px "Inter Tight", system-ui, sans-serif; cursor: pointer; transition: background 0.3s, color 0.3s; }
+.billing button { padding: 9px 16px; border: 0; border-radius: 999px; background: transparent; color: var(--mute); font: 600 13px "Syne", system-ui, sans-serif; cursor: pointer; transition: background 0.3s, color 0.3s; }
 .billing button[aria-pressed="true"] { background: var(--ink); color: #fff; }
 .billing button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .billing small { margin-left: 6px; color: #127a45; font: 500 10.5px var(--mono); }
@@ -762,8 +762,8 @@ body::after {
 .foot-logo { font-size: 20px; font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase; color: var(--ink); text-decoration: none; }
 .foot-brand > p { max-width: 320px; color: var(--mute); font-size: 14.5px; line-height: 1.55; }
 .foot-news { display: flex; width: 100%; max-width: 360px; padding: 5px; border-radius: 999px; background: #fff; border: 1px solid var(--line); }
-.foot-news input { flex: 1; min-width: 0; padding: 0 14px; border: 0; background: transparent; color: var(--ink); font: 500 14px "Inter Tight", system-ui, sans-serif; outline: none; }
-.foot-news button { height: 38px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--ink); color: #fff; font: 600 13px "Inter Tight", system-ui, sans-serif; cursor: pointer; }
+.foot-news input { flex: 1; min-width: 0; padding: 0 14px; border: 0; background: transparent; color: var(--ink); font: 500 14px "Syne", system-ui, sans-serif; outline: none; }
+.foot-news button { height: 38px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--ink); color: #fff; font: 600 13px "Syne", system-ui, sans-serif; cursor: pointer; }
 .foot-news:focus-within { border-color: var(--ink); }
 .foot-news-msg { min-height: 16px; color: var(--mute); font: 500 11.5px var(--mono); }
 .foot-col { display: flex; flex-direction: column; gap: 10px; }
@@ -841,7 +841,7 @@ body::after {
 .r span { grid-column: 1; color: var(--mute); font: 500 0.78em var(--mono); }
 .r em { grid-row: 1 / 3; grid-column: 2; align-self: center; font: normal 600 0.8em var(--mono); color: #1667c2; }
 .timer { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; font: 500 0.8em var(--mono); color: var(--mute); }
-.timer b { color: var(--ink); font: 700 1.9em "Inter Tight", system-ui, sans-serif; letter-spacing: -0.03em; }
+.timer b { color: var(--ink); font: 700 1.9em "Syne", system-ui, sans-serif; letter-spacing: -0.03em; }
 .timer s { text-decoration-thickness: 1px; }
 
 /* Lumen Legal: a contract with risk flags */
@@ -859,7 +859,7 @@ body::after {
 .flag { display: flex; align-items: center; gap: 8px; padding: 0.5em 0.75em; border-radius: 0.6em; background: rgba(255, 255, 255, 0.82); font-size: 0.9em; }
 .flag span:first-child { color: var(--mute); font: 500 0.82em var(--mono); }
 .sev { margin-left: auto; padding: 0.15em 0.55em; border-radius: 999px; font: 600 0.72em var(--mono); text-transform: uppercase; letter-spacing: 0.04em; }
-.sev--hi { background: rgba(255, 59, 59, 0.14); color: #c22a2a; } .sev--md { background: rgba(255, 176, 0, 0.2); color: #8a5a00; } .sev--ok { background: rgba(47, 210, 122, 0.18); color: #127a45; }
+.sev--hi { background: rgba(255, 59, 59, 0.14); color: #c22a2a; } .sev--md { background: rgba(255, 176, 0, 0.2); color: #8a5a00; } .sev--ok { background: rgba(47, 210, 122, 0.18); color: #0f6a3c; }
 
 /* Orbit Logistics: overnight dispatch */
 .scene--orbit { background: #f3f4f6; color: var(--ink); }
@@ -1462,7 +1462,7 @@ function drawText(width, height) {
   const baseSize = 100;
   const lineGap = 0.98;
 
-  textCtx.font = `900 ${baseSize}px "Inter Tight", sans-serif`;
+  textCtx.font = `900 ${baseSize}px "Syne", sans-serif`;
   const sizes = LINES.map(
     (line) => baseSize * (maxWidth / textCtx.measureText(line).width)
   );
@@ -1472,7 +1472,7 @@ function drawText(width, height) {
   let y = height * 0.45 - (totalHeight * fit) / 2;
   LINES.forEach((line, i) => {
     const size = sizes[i] * fit;
-    textCtx.font = `900 ${size}px "Inter Tight", sans-serif`;
+    textCtx.font = `900 ${size}px "Syne", sans-serif`;
     y += (size * lineGap) / 2;
     textCtx.fillText(line, width / 2, y);
     y += (size * lineGap) / 2;
@@ -1569,7 +1569,7 @@ window.addEventListener("scroll", () => { if (reducedMotion && running) render()
 
 // fonts.ready alone resolves at once when nothing has requested the font yet
 Promise.race([
-  document.fonts.load('900 100px "Inter Tight"'),
+  document.fonts.load('900 100px "Syne"'),
   new Promise((r) => setTimeout(r, 2500))
 ]).then(() => {
   resize();
@@ -1638,9 +1638,9 @@ function start() {
     ctx.fillStyle = l.ink;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font = '900 100px "Inter Tight", sans-serif';
+    ctx.font = '900 100px "Syne", sans-serif';
     const size = Math.min((100 * w * 0.94) / ctx.measureText(l.word).width, h * 0.78);
-    ctx.font = `900 ${size}px "Inter Tight", sans-serif`;
+    ctx.font = `900 ${size}px "Syne", sans-serif`;
     if ("letterSpacing" in ctx) ctx.letterSpacing = `${-0.045 * size}px`;
     ctx.fillText(l.word, w / 2, h * 0.53);
     l.tex.needsUpdate = true;
@@ -1726,7 +1726,7 @@ function start() {
 
 if (lensEls.length) {
   Promise.race([
-    document.fonts.load('900 100px "Inter Tight"'),
+    document.fonts.load('900 100px "Syne"'),
     new Promise((r) => setTimeout(r, 2500))
   ]).then(start);
 }

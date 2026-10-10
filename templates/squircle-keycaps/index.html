@@ -55,7 +55,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Material+Icons&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Spline+Sans:wght@300..700&family=DM+Mono:wght@400;500&family=Material+Icons&display=swap" rel="stylesheet">
 
 <style>
 /* Layout: ink-outlined bento for the things you operate (hero, console, audit,
@@ -84,8 +84,8 @@
   --shadow-sm: 4px 4px 0 var(--shadow-c);
   --shadow-xs: 3px 3px 0 var(--shadow-c);
 
-  --display: "Bricolage Grotesque", "Instrument Sans", system-ui, sans-serif;
-  --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: "Bricolage Grotesque", "Spline Sans", system-ui, sans-serif;
+  --body: "Spline Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   --gap-section: 104px;
@@ -687,7 +687,7 @@ p.mono {
       var scale = h / 40, label = l.toUpperCase();
 
       if (!w) {
-        CTX.font = '700 15px "Instrument Sans", system-ui';
+        CTX.font = '700 15px "Spline Sans", system-ui';
         w = sq ? 48 : Math.ceil((CTX.measureText(label).width + (icon ? 96 : 76)) * 1.08);
       }
       var faceY = pressed ? 8 : (hover ? 3 : 4);

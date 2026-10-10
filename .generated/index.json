@@ -5714,6 +5714,173 @@
     "intro": "OdometerNumber is a number on wheels. Each digit is a strip of figures behind a\nwindow, and the strips roll.\n\nThe whole difference between this and ten independent spinners is the **carry**,\nand it is one line of arithmetic. A wheel does not move on its own: it is driven\nby the one to its right, and it only turns while that one is going from nine\nround to nought. So the tens wheel sits perfectly still for most of the units\nwheel's revolution and then turns all at once, and the hundreds wheel is still\nfor most of that.\n\nYou can see it on any petrol pump. The pence wheel is a blur, the pounds wheel\nsteps, and the tens of pounds wheel has not moved all day. Get it wrong and\nevery wheel turns at its own steady speed, which is a fruit machine."
   },
   {
+    "name": "PanelGauge",
+    "slug": "panel-gauge",
+    "tier": 1,
+    "description": "A moving-coil gauge with a scale that lights to the reading and a needle that is never quite still",
+    "category": "surfaces",
+    "tags": [
+      "canvas",
+      "2d",
+      "gauge",
+      "instrument",
+      "dial",
+      "surfaces",
+      "dark",
+      "ambient",
+      "no-dependencies"
+    ],
+    "ground": "dark",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "The scale is not symmetrical about the top. A panel meter sweeps about 250 degrees from the lower left, because that is where the stops are, and the dead sector at the bottom is where the movement lives. A scale that starts at twelve o'clock and runs clockwise is a progress ring",
+        "Majors and minors are not the same tick. The minors between two majors are what make the eye read a position as a value rather than as an angle, and the ticks below the reading are lit while the ones above are not, which is how a scale carries the value as well as the needle does",
+        "The reading hunts. A real one moves by a fraction of a division because what is being measured is not still either, and a needle frozen at exactly 0.62 reads as a picture of a gauge. Two sines of different periods, so it does not tick like a metronome, and both complete whole turns in a period so the needle comes home",
+        "There is no overshoot, and that is a loss taken deliberately. A moving coil arrives at a reading by passing it, which is the most characterful thing a needle does, but it is a response to a change and therefore state between frames. The first version drove a closed-form damped oscillator from t: the needle swept up from zero and settled, which reads beautifully and does not loop, because frame zero was at the bottom of the scale and the last frame was at the reading",
+        "2D rather than WebGL. An instrument is something you want four of on a page, and the budget is one WebGL context",
+        "Built for a dark ground and declared as one. The face is painted, so the item supplies its own ground and only the area outside the dial shows the page"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.3,
+      "contexts": 0,
+      "notes": [
+        "One filled circle, one arc, thirty-ish ticks and a four-point needle. The tick loop is the whole cost and it is linear in majors times minors",
+        "No canvas and no WebGL context held between frames beyond the one it draws into, so this does not compete with a backdrop for the page's context"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/panel-gauge/core.ts",
+        "to": "src/beamish/effects/panel-gauge/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/panel-gauge/adapters/react.tsx",
+        "to": "src/beamish/effects/panel-gauge/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/panel-gauge/adapters/vue.ts",
+        "to": "src/beamish/effects/panel-gauge/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "face": {
+        "type": "color",
+        "default": "#15171b",
+        "description": "The dial face. Painted rather than left transparent, because a gauge is a thing with a face on it and the alternative is ticks floating on your page."
+      },
+      "ink": {
+        "type": "color",
+        "default": "#8b9199",
+        "description": "Unlit ticks and the boss at the centre. Grey rather than white: the unlit half of the scale is there to be read past, not read."
+      },
+      "needle": {
+        "type": "color",
+        "default": "#ff9426",
+        "description": "The pointer. The one thing on the dial that should be found without looking, so it wants to be the only saturated colour in the frame apart from the lit arc it belongs to."
+      },
+      "lit": {
+        "type": "color",
+        "default": "#ff9426",
+        "description": "The arc and the ticks below the reading. Usually the needle's colour, because they are telling you the same thing; set them apart only if the arc is reporting something the needle is not."
+      },
+      "value": {
+        "type": "number",
+        "default": 0.62,
+        "description": "Where the needle sits on the scale. Drive this through update() to make the gauge report something real; the hunt is applied on top of whatever you set.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "hunt": {
+        "type": "number",
+        "default": 0.035,
+        "description": "How far the reading wanders either side, as a share of the scale. Small. At 0 the needle is frozen and the gauge stops reading as something connected to anything; past about 0.12 it is a fault rather than a reading.",
+        "min": 0,
+        "max": 0.3,
+        "step": 0.005,
+        "sensible": [
+          0.02,
+          0.08
+        ]
+      },
+      "sweep": {
+        "type": "number",
+        "default": 250,
+        "description": "Degrees of arc the scale covers, centred on twelve o'clock with the dead sector at the bottom. 250 is what a panel meter does, because that is where its stops are. At 320 there is nowhere for the movement to go and it reads as a ring.",
+        "min": 90,
+        "max": 320,
+        "step": 5,
+        "unit": "deg",
+        "sensible": [
+          200,
+          270
+        ]
+      },
+      "majors": {
+        "type": "number",
+        "default": 6,
+        "description": "Major divisions, the ones a real dial numbers. Few: a scale you can count at a glance is the point of a dial, and past about ten you are reading a ruler.",
+        "min": 2,
+        "max": 16,
+        "step": 1
+      },
+      "minors": {
+        "type": "number",
+        "default": 4,
+        "description": "Minor divisions between each pair of majors. These are what let the eye read a needle between two numbers as a value. At 0 the dial can only say which division it is in.",
+        "min": 0,
+        "max": 10,
+        "step": 1
+      },
+      "period": {
+        "type": "number",
+        "default": 18,
+        "description": "Seconds for one cycle of the hunt. Both sines complete whole turns in it, so the needle is in the same place at the start and the end.",
+        "min": 4,
+        "max": 120,
+        "step": 1,
+        "unit": "s",
+        "sensible": [
+          12,
+          40
+        ]
+      },
+      "seed": {
+        "type": "number",
+        "default": 3,
+        "description": "Seed for the hunt's phase. Two gauges side by side want two seeds, or they wander in step and read as one instrument drawn twice.",
+        "min": 0,
+        "max": 9999,
+        "step": 1
+      }
+    },
+    "instruction": "the reading hunts on its own",
+    "oneShot": false,
+    "record": {
+      "duration": 18,
+      "fps": 24,
+      "posterAt": 6
+    },
+    "credit": {
+      "what": "the lit scale and the live readings on the front panel in the Machine Front Panel Page",
+      "author": "Ray Velez",
+      "url": "https://github.com/RayVelez27/instalanding.ai"
+    },
+    "group": "effects",
+    "intro": "PanelGauge is a moving-coil gauge: a painted dial face, a scale that lights up\nto the reading, and a needle that is never quite still."
+  },
+  {
     "name": "PaperGrain",
     "slug": "paper-grain",
     "tier": 1,

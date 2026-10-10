@@ -102,16 +102,38 @@ const total = items.length + grids.length + templates.length
 >
   <section class="spine pt-32 pb-16 md:pt-44">
     {/*
-      Three nouns on the first line and who it is for on the second. Each line
-      is a whole phrase, for the reason the old two-line lockup was written
-      that way: left to wrap on its own, the break landed after a preposition
-      at every width tested.
+      A trial of the statement register, after haoqi.design, whose toggle and
+      label tokens this site already took.
+
+      Three things make it that register rather than a bigger version of what
+      was here. The line is uppercase with leading-none, so the lockup is a
+      block of letterforms rather than a sentence that happens to be large. It
+      is sized in svw rather than clamped against rem, so it holds its share of
+      the viewport instead of stopping at a ceiling. And each line sits in its
+      own columns of the page grid, stepping right, so the shape is placed
+      rather than flowed: the thing that makes their pages read as composed is
+      that the words are put somewhere, not that the type is big.
+
+      What is missing is the width axis. Theirs pushes the variable face to
+      wdth 120, and the Archivo subset bundled here is weight-only, 400 to 700,
+      so that part waits on a font file with the axis in it.
+
+      Each line is still a whole phrase, which is the one thing worth keeping
+      from the lockup this replaces: left to wrap on its own, the break landed
+      after a preposition at every width tested.
     */}
-    <h1 class="col-span-12 text-[clamp(2.3rem,7vw,5rem)] leading-[0.95] lg:col-span-10">
-      <span class="block">Pages, effects and grids</span>
-      <span class="text-l3 block">for AI agents.</span>
+    <h1
+      class="col-span-12 grid grid-cols-12 gap-x-2 text-[10.5svw] leading-[0.86] font-bold tracking-[-0.012em] uppercase lg:text-[6.6svw]"
+    >
+      <span class="col-span-12">Pages, effects</span>
+      {/* The stepping is a composition for a wide screen. On a phone the
+          columns are narrow enough that an indented line wraps, which turns
+          three placed lines into four flowed ones, so below lg each takes the
+          full width. */}
+      <span class="text-l3 col-span-12 lg:col-span-11 lg:col-start-2">and grids</span>
+      <span class="col-span-12 lg:col-span-9 lg:col-start-4">for AI agents</span>
     </h1>
-    <p class="text-l2 col-span-12 mt-8 text-[1rem] sm:col-span-9 lg:col-span-6">
+    <p class="text-l2 col-span-12 mt-10 text-[1rem] sm:col-span-9 lg:col-span-6 lg:col-start-4">
       Whole pages you can take as one file, three.js scenes, WebGL shaders, text
       animations, interface components and the grids underneath them. There is
       nothing to install. Pick one, press Copy prompt, and paste it into Claude
