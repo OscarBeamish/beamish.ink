@@ -145,11 +145,21 @@ async function emptyDir(dir: string) {
  * span of its scroll, which has to be the take's own duration or the last
  * frame will not match the first and the loop will jump.
  */
+/*
+ * Which ground to record against.
+ *
+ * Undefined means the one the page already declares, which is what every take
+ * before this did. A value overrides it, and that is how an item that claims
+ * to work on either ground gets a take proving it rather than a claim.
+ */
+export type RecordGround = 'paper' | 'dark'
+
 async function openDemo(
   browser: Browser,
   item: ItemRef,
   ratio: Ratio,
-  extra = ''
+  extra = '',
+  ground?: RecordGround
 ): Promise<Page> {
   const context = await browser.newContext({
     // Half the target in CSS pixels at 2× DPR, so a screenshot lands on the
@@ -181,6 +191,32 @@ async function openDemo(
   const pageUrl =
     item.kind === 'template' ? demoUrl(item.dir).replace(/demo\.html$/, 'index.html') : demoUrl(item.dir)
   const url = `${pageUrl}?record=1${extra}`
+
+  /*
+   * The ground is forced by rewriting the attribute in the served HTML rather
+   * than by setting it from a script.
+   *
+   * It has to be in place before the page's own module runs, because every
+   * item resolves `auto` against the page once, at mount. Setting it on
+   * DOMContentLoaded is already too late: the module executes first, the
+   * effect reads the old ground and paints the colour of a page that is about
+   * to change. That cost an afternoon the first time.
+   */
+  if (ground) {
+    await page.route(url, async route => {
+      const response = await route.fetch()
+      const html = (await response.text()).replace(
+        /data-ground="(?:paper|dark)"/,
+        'data-ground="' + ground + '"'
+      )
+      await route.fulfill({
+        response,
+        body: html,
+        headers: { ...response.headers(), 'content-type': 'text/html' }
+      })
+    })
+  }
+
   await page.goto(url, { waitUntil: 'load' })
   await page.evaluate(() => document.fonts.ready)
 
@@ -446,7 +482,13 @@ async function poster(framesDir: string, outDir: string, meta: Recordable) {
 
 // --- driver ----------------------------------------------------------------
 
-async function recordItem(browser: Browser, item: ItemRef, only: string[], keepFrames: boolean) {
+async function recordItem(
+  browser: Browser,
+  item: ItemRef,
+  only: string[],
+  keepFrames: boolean,
+  ground?: RecordGround
+) {
   const raw = JSON.parse(await readFile(path.join(item.dir, 'meta.json'), 'utf8'))
   /*
    * Three kinds, three schemas, and none is a subset of another. A template
@@ -459,7 +501,13 @@ async function recordItem(browser: Browser, item: ItemRef, only: string[], keepF
       : item.kind === 'template'
         ? templateMetaSchema.parse(raw)
         : metaSchema.parse(raw)
-  const outDir = path.join(item.dir, 'media')
+  /*
+   * A forced ground is a second take of the same item, not a replacement, so
+   * it goes in its own directory beside the first. media/ stays the take on
+   * the ground the item declares; media/dark/ is the one that earns the word
+   * either.
+   */
+  const outDir = ground ? path.join(item.dir, 'media', ground) : path.join(item.dir, 'media')
   await mkdir(outDir, { recursive: true })
   await buildItem(item)
 
@@ -494,7 +542,7 @@ async function recordItem(browser: Browser, item: ItemRef, only: string[], keepF
         item.kind === 'grid' || item.kind === 'template'
           ? `&span=${meta.record.duration}`
           : ''
-      const page = await openDemo(browser, item, ratio, span)
+      const page = await openDemo(browser, item, ratio, span, ground)
       frames =
         item.tier === 1
           ? await captureTier1(page, meta, framesDir)
@@ -554,9 +602,20 @@ async function recordItem(browser: Browser, item: ItemRef, only: string[], keepF
 async function main() {
   const args = process.argv.slice(2)
   const all = args.includes('--all')
+  const groundArg = args.indexOf('--ground')
+  const ground =
+    groundArg >= 0 ? (args[groundArg + 1] as RecordGround | undefined) : undefined
+  if (groundArg >= 0 && ground !== 'paper' && ground !== 'dark') {
+    console.error('--ground takes paper or dark')
+    process.exit(1)
+  }
+
   const ratioArg = args.indexOf('--ratio')
   const only = ratioArg >= 0 ? [args[ratioArg + 1]!] : []
-  const consumed = new Set(ratioArg >= 0 ? [ratioArg, ratioArg + 1] : [])
+  const consumed = new Set([
+    ...(ratioArg >= 0 ? [ratioArg, ratioArg + 1] : []),
+    ...(groundArg >= 0 ? [groundArg, groundArg + 1] : [])
+  ])
   const slugs = args.filter((arg, i) => !arg.startsWith('--') && !consumed.has(i))
 
   const items = (await listItems()).filter(item => all || slugs.includes(item.slug))
@@ -581,7 +640,7 @@ async function main() {
   const keepFrames = args.includes('--keep-frames')
 
   try {
-    for (const item of items) await recordItem(browser, item, only, keepFrames)
+    for (const item of items) await recordItem(browser, item, only, keepFrames, ground)
   } finally {
     await browser.close()
     await new Promise<void>(resolve => server.close(() => resolve()))
