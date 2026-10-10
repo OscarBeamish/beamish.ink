@@ -240,6 +240,8 @@ a { color: inherit; text-decoration: none; }
   text-indent: 0.34em;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.85), 0 1px 0 rgba(255, 255, 255, 0.06);
 }
+/* a section lead-in is not a legend; nothing stencils it, so nothing pretends */
+.lead-in { font-family: var(--display); font-size: 13.5px; font-weight: 600; color: var(--mute); }
 .caption { font-family: var(--mono); font-size: 10px; line-height: 1.6; color: var(--dim); text-align: center; }
 h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-transform: uppercase; }
 
@@ -559,15 +561,20 @@ h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-tra
   transition-delay: calc(0.22s + var(--i) * 0.045s);
 }
 .menu-nav a {
-  position: relative; display: grid; grid-template-columns: 3.4em minmax(0, 1fr) auto; align-items: baseline; gap: 10px;
+  position: relative; display: grid; grid-template-columns: 1.1em minmax(0, 1fr) auto; align-items: baseline; gap: 14px;
   padding: clamp(8px, 1.1vh, 14px) 0; outline: none;
 }
-.mi { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--dim); transition: color 0.3s var(--ease), transform 0.4s var(--ease); }
+/* the row marker is an indicator lamp, not a number: the panel has them */
+.mlamp {
+  align-self: center; display: block; width: 7px; height: 7px; border-radius: 50%;
+  background: #1b1e23; box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.9), 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: background 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
 .mt {
   font-weight: 900; font-size: clamp(30px, min(5.2vw, 6.4vh), 66px); line-height: 1; letter-spacing: -0.035em; text-transform: uppercase;
   color: #d9dde2; transition: color 0.3s var(--ease), transform 0.45s var(--ease), text-shadow 0.3s var(--ease);
 }
-.md { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); opacity: 0; transform: translateX(-10px); transition: opacity 0.3s var(--ease), transform 0.4s var(--ease); white-space: nowrap; }
+.md { font-family: var(--display); font-size: 13px; color: var(--dim); opacity: 0; transform: translateX(-10px); transition: opacity 0.3s var(--ease), transform 0.4s var(--ease); white-space: nowrap; }
 /* a hairline that sweeps across under the hovered row */
 .menu-nav a::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px;
@@ -576,11 +583,11 @@ h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-tra
 }
 .menu-nav ol:hover a:not(:hover) .mt { color: #50555d; }
 .menu-nav a:hover .mt, .menu-nav a:focus-visible .mt { color: var(--amber); transform: translateX(10px); text-shadow: 0 0 28px rgba(255, 148, 38, 0.35); }
-.menu-nav a:hover .mi, .menu-nav a:focus-visible .mi { color: var(--amber); }
+.menu-nav a:hover .mlamp, .menu-nav a:focus-visible .mlamp { background: rgba(255, 148, 38, 0.5); box-shadow: 0 0 10px rgba(255, 148, 38, 0.3); }
 .menu-nav a:hover .md, .menu-nav a:focus-visible .md { opacity: 1; transform: none; color: var(--mute); }
 .menu-nav a:hover::after, .menu-nav a:focus-visible::after { transform: scaleX(1); }
-.menu-nav a[aria-current="true"] .mi { color: var(--amber); }
-.menu-nav a[aria-current="true"] .mi::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 8px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 8px var(--amber); vertical-align: 0.15em; }
+.menu-nav a[aria-current="true"] .mlamp { background: var(--amber); box-shadow: 0 0 10px var(--amber); }
+
 
 .menu-side { display: grid; gap: 18px; align-content: center; opacity: 0; transform: translateY(20px); transition: opacity 0.3s var(--ease), transform 0.3s var(--ease); }
 .menu.open .menu-side { opacity: 1; transform: none; transition: opacity 0.7s var(--ease) 0.5s, transform 0.8s var(--ease) 0.5s; }
@@ -604,7 +611,7 @@ h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-tra
 }
 @media (max-width: 600px) {
   .order { padding: 9px 13px; font-size: 9.5px; letter-spacing: 0.12em; gap: 8px; }
-  .menu-nav a { grid-template-columns: 2.8em minmax(0, 1fr); }
+  .menu-nav a { grid-template-columns: 1.1em minmax(0, 1fr); }
   .menu-card { padding: 26px 22px 22px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -756,8 +763,8 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
 
 .built { display: flex; align-items: center; gap: 18px; padding: 0 26px; min-width: 270px; transition: box-shadow 0.3s var(--ease); }
 .built .ic { width: 30px; height: 30px; stroke: var(--text); }
-.built span { font-family: var(--mono); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; line-height: 1.6; }
-.built small { display: block; font-size: 9.5px; letter-spacing: 0.22em; color: var(--mute); }
+.built span { font-family: var(--display); font-size: 15px; font-weight: 700; line-height: 1.5; }
+.built small { display: block; font-size: 12px; font-weight: 500; color: var(--mute); }
 .built .chev { width: 16px; height: 16px; margin-left: auto; color: var(--mute); transition: transform 0.3s var(--ease), color 0.3s var(--ease); }
 .built:hover .chev { transform: translateX(3px); color: var(--amber); }
 
@@ -799,7 +806,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
    and header position so they stop rhyming
    ============================================================ */
 .section-head.center { margin-left: auto; margin-right: auto; text-align: center; }
-.section-head.center .stencil { text-indent: 0.34em; }
+.section-head.center .lead-in { text-indent: 0; }
 .why { padding-top: 120px; }
 .inside-sec { padding-top: 104px; }
 .spec-sec { padding-top: 140px; }
@@ -812,7 +819,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
 /* ============================================================
    WHY — the route a request takes, drawn straight on the page
    ============================================================ */
-.swipe { display: none; margin-bottom: 10px; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--amber); }
+.swipe { display: none; margin-bottom: 10px; font-family: var(--display); font-size: 12.5px; font-weight: 600; color: var(--amber); }
 .why-scroll { margin: 0 -8px; overflow-x: auto; scrollbar-width: none; }
 .why-scroll::-webkit-scrollbar { display: none; }
 #route { display: block; width: 100%; min-width: 760px; height: auto; }
@@ -833,7 +840,8 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
 .reasons { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin-top: 30px; }
 .reasons li { padding: 26px 28px 6px 0; border-top: 1px solid rgba(0, 0, 0, 0.7); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05); }
 .reasons li + li { padding-left: 28px; border-left: 1px solid rgba(0, 0, 0, 0.6); }
-.reasons .rn { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; color: var(--amber); margin-bottom: 14px; }
+/* a scribe line off the panel, where a 01 02 03 used to sit for no reason */
+.reasons li::before { content: ""; display: block; width: 26px; height: 2px; margin-bottom: 16px; background: var(--amber); box-shadow: 0 0 10px rgba(255, 148, 38, 0.45); }
 .reasons h3 { font-size: 20px; font-weight: 800; letter-spacing: -0.015em; margin-bottom: 9px; }
 .reasons p { font-size: 14px; line-height: 1.64; color: var(--mute); max-width: 38ch; }
 
@@ -964,7 +972,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
 .versus { border-radius: 14px; padding: 6px 30px; }
 .vrow { display: grid; grid-template-columns: 17ch minmax(0, 1fr); gap: 24px; align-items: center; padding: 22px 0; border-bottom: 1px solid rgba(0, 0, 0, 0.6); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03); }
 .vrow:last-child { border-bottom: 0; box-shadow: none; }
-.vl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim); }
+.vl { font-family: var(--display); font-size: 13px; font-weight: 600; color: var(--mute); }
 .va { display: grid; overflow: hidden; font-size: clamp(16px, 1.9vw, 22px); font-weight: 700; letter-spacing: -0.015em; line-height: 1.3; }
 .va > span { grid-area: 1 / 1; transition: transform 0.5s var(--ease), opacity 0.4s var(--ease); }
 .va .h { color: var(--mute); }
@@ -1081,7 +1089,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
 .cfg li span:first-child { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); padding-top: 3px; }
 .cfg .price { display: flex; align-items: baseline; gap: 10px; margin-bottom: 20px; }
 .cfg .price b { font-size: 34px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
-.cfg .price small { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.12em; color: var(--dim); text-transform: uppercase; }
+.cfg .price small { font-family: var(--display); font-size: 12.5px; color: var(--dim); }
 .cfg.swap > * { animation: cfgIn 0.45s var(--ease) both; }
 .cfg.swap > *:nth-child(2) { animation-delay: 0.03s; }
 .cfg.swap > *:nth-child(3) { animation-delay: 0.06s; }
@@ -1301,20 +1309,20 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
   <div class="menu-bg" aria-hidden="true"></div>
   <div class="wrap menu-inner">
     <nav class="menu-nav" aria-label="Sections">
-      <p class="stencil menu-label">Index · eight sections</p>
+      <p class="lead-in menu-label">Index · eight sections</p>
       <ol>
-        <li style="--i: 0"><a href="#panel"><span class="mi">01</span><span class="mt">Panel</span><span class="md">The live front panel</span></a></li>
-        <li style="--i: 1"><a href="#why"><span class="mi">02</span><span class="mt">Why a box</span><span class="md">Where a request goes</span></a></li>
-        <li style="--i: 2"><a href="#inside"><span class="mi">03</span><span class="mt">Inside</span><span class="md">Four parts, no mystery</span></a></li>
-        <li style="--i: 3"><a href="#specsheet"><span class="mi">04</span><span class="mt">Spec sheet</span><span class="md">The rating plate</span></a></li>
-        <li style="--i: 4"><a href="#compare"><span class="mi">05</span><span class="mt">Versus</span><span class="md">Box against endpoint</span></a></li>
-        <li style="--i: 5"><a href="#install"><span class="mi">06</span><span class="mt">Install</span><span class="md">Live in an afternoon</span></a></li>
-        <li style="--i: 6"><a href="#configs"><span class="mi">07</span><span class="mt">Configs</span><span class="md">Pick one from the rack</span></a></li>
-        <li style="--i: 7"><a href="#faq"><span class="mi">08</span><span class="mt">Questions</span><span class="md">Before procurement</span></a></li>
+        <li style="--i: 0"><a href="#panel"><span class="mlamp" aria-hidden="true"></span><span class="mt">Panel</span><span class="md">The live front panel</span></a></li>
+        <li style="--i: 1"><a href="#why"><span class="mlamp" aria-hidden="true"></span><span class="mt">Why a box</span><span class="md">Where a request goes</span></a></li>
+        <li style="--i: 2"><a href="#inside"><span class="mlamp" aria-hidden="true"></span><span class="mt">Inside</span><span class="md">Four parts, no mystery</span></a></li>
+        <li style="--i: 3"><a href="#specsheet"><span class="mlamp" aria-hidden="true"></span><span class="mt">Spec sheet</span><span class="md">The rating plate</span></a></li>
+        <li style="--i: 4"><a href="#compare"><span class="mlamp" aria-hidden="true"></span><span class="mt">Versus</span><span class="md">Box against endpoint</span></a></li>
+        <li style="--i: 5"><a href="#install"><span class="mlamp" aria-hidden="true"></span><span class="mt">Install</span><span class="md">Live in an afternoon</span></a></li>
+        <li style="--i: 6"><a href="#configs"><span class="mlamp" aria-hidden="true"></span><span class="mt">Configs</span><span class="md">Pick one from the rack</span></a></li>
+        <li style="--i: 7"><a href="#faq"><span class="mlamp" aria-hidden="true"></span><span class="mt">Questions</span><span class="md">Before procurement</span></a></li>
       </ol>
     </nav>
     <aside class="menu-side">
-      <div class="plate menu-card">
+      <div class="plate menu-card" data-earned="a bench label and live readouts stamped on the unit's plate">
         <span class="screw tl" aria-hidden="true"></span><span class="screw tr" aria-hidden="true"></span>
         <span class="screw bl" aria-hidden="true"></span><span class="screw br" aria-hidden="true"></span>
         <p class="stencil">Unit IG-4 · bench</p>
@@ -1350,7 +1358,8 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
 
       <div class="hero-stage">
         <div class="chassis">
-          <div class="plate face machine off" id="machine" data-component="front-panel">
+          <div class="plate face machine off" id="machine" data-component="front-panel"
+               data-earned="the legends are stencilled on the unit itself, which is what a front panel is">
             <div class="spill" aria-hidden="true"></div>
             <span class="screw tl" aria-hidden="true"></span>
             <span class="screw tr" aria-hidden="true"></span>
@@ -1474,29 +1483,26 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
   <section class="section why" id="why" data-section="why">
     <div class="wrap">
       <div class="section-head">
-        <p class="stencil">Why a box</p>
+        <p class="lead-in">Why a box</p>
         <h2>Some data never leaves.</h2>
         <p>Follow one request through the building. It goes to the unit, the answer comes back, and that is the whole trip. Anything that tries to go further stops at your network edge.</p>
       </div>
     </div>
     <div class="wrap">
       <p class="swipe" aria-hidden="true">Swipe to follow the route →</p>
-      <div class="why-scroll">
+      <div class="why-scroll" data-earned="a wiring diagram labels its nodes and numbers the hops the copy walks through">
         <svg id="route" viewBox="0 0 1160 380" role="img" aria-label="Diagram: a laptop sends a request through a switch to the Ingot unit and gets the answer back. A packet heading for the internet stops at the network boundary."></svg>
       </div>
       <ol class="reasons">
         <li>
-          <span class="rn">01</span>
           <h3>Nothing egresses</h3>
           <p>The prompt, the documents and the output stay inside your network. There is no request to review, because there is no request.</p>
         </li>
         <li>
-          <span class="rn">02</span>
           <h3>Flat cost</h3>
           <p>A unit costs what a unit costs. The bill does not move because somebody shipped a chatty retry loop on a Friday afternoon.</p>
         </li>
         <li>
-          <span class="rn">03</span>
           <h3>It keeps working</h3>
           <p>No deprecation notice, no silent model swap, no provider incident. The weights on the drive are the weights you evaluated.</p>
         </li>
@@ -1508,7 +1514,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
   <section class="section inside-sec" id="inside" data-section="inside">
     <div class="wrap">
       <div class="section-head center">
-        <p class="stencil">Inside the box</p>
+        <p class="lead-in">Inside the box</p>
         <h2>Four parts, no mystery.</h2>
         <p>Point at a part to find it in the chassis. Everything that wears out is replaceable from the front panel or the top lid.</p>
       </div>
@@ -1548,11 +1554,11 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
   <section class="section spec-sec" id="specsheet" data-section="spec-sheet">
     <div class="wrap">
       <div class="section-head center">
-        <p class="stencil">Spec sheet</p>
+        <p class="lead-in">Spec sheet</p>
         <h2>IG-4, by the numbers.</h2>
         <p>Copied off the rating plate on the back of the unit. Every reading on the panel stays inside these limits.</p>
       </div>
-      <div class="rating">
+      <div class="rating" data-earned="copied off the rating plate on the back of the unit, which is stamped">
         <span class="rivet tl" aria-hidden="true"></span><span class="rivet tr" aria-hidden="true"></span>
         <span class="rivet bl" aria-hidden="true"></span><span class="rivet br" aria-hidden="true"></span>
         <div class="r-top">
@@ -1595,11 +1601,11 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
     <div class="wrap">
       <div class="versus-head">
         <div class="section-head">
-          <p class="stencil">Box versus endpoint</p>
+          <p class="lead-in">Box versus endpoint</p>
           <h2>What changes when you own it.</h2>
           <p>A hosted endpoint is the right call for plenty of work. Flip the switch to see what changes when it isn't.</p>
         </div>
-        <div class="flip">
+        <div class="flip" data-earned="a switch legend, stencilled either side of the switch it names">
           <span class="flip-l">Hosted endpoint</span>
           <button class="flipper" id="flipper" type="button" role="switch" aria-checked="false" aria-label="Show Ingot instead of a hosted endpoint">
             <span class="knob" aria-hidden="true"></span>
@@ -1623,18 +1629,19 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
     <div class="wrap install">
       <div class="install-side">
         <div class="section-head">
-          <p class="stencil">Install</p>
+          <p class="lead-in">Install</p>
           <h2>Racked in an afternoon.</h2>
           <p>No consultants and no onboarding call. If your team can rack a server, they can rack this. Here is the whole job, from the box to a live endpoint.</p>
         </div>
-        <ol class="milestones" id="milestones">
+        <ol class="milestones" id="milestones" data-earned="a real install sequence: each step is timed and referred to by number">
           <li data-step="1"><b>01</b><span>Rack it<small>Two rails, four screws, two power cords</small></span><em>20 min</em></li>
           <li data-step="2"><b>02</b><span>Connect the network<small>One 100 GbE link, no outbound route</small></span><em>10 min</em></li>
           <li data-step="3"><b>03</b><span>Load your weights<small>From a drive or an internal share</small></span><em>1 h</em></li>
         </ol>
-        <button class="btn btn-sm" id="replay" type="button">Replay install</button>
+        <button class="btn btn-sm" id="replay" type="button"
+                data-earned="a legend stamped on a control, like every other control on this page">Replay install</button>
       </div>
-      <div class="well terminal">
+      <div class="well terminal" data-earned="a console log, monospaced because that is how it comes out of the machine">
         <div class="term-bar">
           <span class="stencil">Install log · IG-4</span>
           <span class="clock" id="clock">T+00:00</span>
@@ -1648,7 +1655,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
   <section class="section rack-sec" id="configs" data-section="configurations">
     <div class="wrap">
       <div class="section-head">
-        <p class="stencil">Configurations</p>
+        <p class="lead-in">Configurations</p>
         <h2>Three sizes, one panel.</h2>
         <p>Every unit ships with the same front panel and firmware. Pick one out of the rack. Prices are illustrative, like everything else here.</p>
       </div>
@@ -1669,7 +1676,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
           <span class="tag" id="cfg-tag">Shown above</span>
           <h3 id="cfg-name">IG-4</h3>
           <p class="sub" id="cfg-sub">The bench unit on this page. Most teams start here.</p>
-          <ul id="cfg-list"></ul>
+          <ul id="cfg-list" data-earned="the chosen unit's spec rows, read off its plate"></ul>
           <div class="price"><b id="cfg-price">$64,000</b><small>one-time</small></div>
           <a class="btn btn-amber" href="#order">Configure <span id="cfg-btn">IG-4</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg></a>
         </div>
@@ -1682,7 +1689,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
     <div class="wrap faq-grid">
       <div class="faq-side">
         <div class="section-head">
-          <p class="stencil">Questions</p>
+          <p class="lead-in">Questions</p>
           <h2>Before you ask procurement.</h2>
           <p>The five things every security review asks first.</p>
         </div>
@@ -1716,7 +1723,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
   <section class="section cta-sec" data-section="cta">
     <div class="wrap">
       <div class="cta" id="order">
-        <p class="stencil">Nothing here is real</p>
+        <p class="lead-in">Nothing here is real</p>
         <h2>It is a concept machine.</h2>
         <p>Ingot is invented. There is no unit, no firmware and no telemetry, and every reading on this page is simulated in your browser.</p>
         <a class="keyslot" href="#panel">
@@ -2541,7 +2548,7 @@ else setTimeout(() => { if (!state.power) powerOn(true); }, 560);
   var GLITCH = "!<>-_\/[]{}—=+*^?#_@";
   var GROUPS = [
     { sel: ".hero-copy h1, .section-head h2, .cta h2", speed: 26, glitch: 0.42 },
-    { sel: ".hero-copy .eyebrow, .section-head .stencil, .cta .stencil", speed: 30, glitch: 0.55 },
+    { sel: ".hero-copy .eyebrow, .section-head .lead-in, .cta .lead-in", speed: 30, glitch: 0.55 },
     { sel: ".hero-copy .lede, .section-head p, .cta > p", speed: 7, glitch: 0 }
   ];
 
