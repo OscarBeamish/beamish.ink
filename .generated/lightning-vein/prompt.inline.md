@@ -181,7 +181,18 @@ function envelope(age: number, afterglow: number): number {
 
   const strike = age < 0.06 ? age / 0.06 : Math.exp(-(age - 0.06) * 9)
   const second = age > 0.34 && age < 0.9 ? Math.exp(-Math.abs(age - 0.42) * 14) * 0.55 : 0
-  const glow = Math.exp(-age / Math.max(afterglow, 0.01)) * 0.14
+
+  /*
+   * The afterglow rises with the strike rather than starting lit.
+   *
+   * Without that attack it is at full strength at age zero, so the first
+   * frame of a cycle shows the channel at 0.14 while the last shows 0.0002,
+   * and the loop pops every time it comes round. Measured before it was
+   * caught: seam 0.14 against 0.0002, which is the whole glow appearing
+   * between two frames.
+   */
+  const attack = Math.min(1, age / 0.06)
+  const glow = Math.exp(-age / Math.max(afterglow, 0.01)) * 0.14 * attack
 
   return Math.min(1, Math.max(strike, second) + glow)
 }

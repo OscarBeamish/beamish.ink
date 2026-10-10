@@ -53,6 +53,24 @@ const periodOf = (dir: string): number | null => {
   return typeof value === 'number' ? value : null
 }
 
+/*
+ * Which context the item draws with, read from meta rather than discovered by
+ * asking the canvas.
+ *
+ * Asking is destructive. A canvas can only ever have one kind of context, and
+ * getContext('webgl2') on a fresh canvas does not report whether WebGL is in
+ * use, it takes a WebGL context and keeps it. This test used to probe that way
+ * and it worked for fifty WebGL items, then silently broke the first 2D one:
+ * the probe ran before the surface had set up, so by the time the effect asked
+ * for its own 2D context the canvas was already spoken for and it threw.
+ */
+const contextOf = (dir: string): 'none' | 'webgl1' | 'webgl2' => {
+  const meta = JSON.parse(readFileSync(path.join(dir, 'meta.json'), 'utf8')) as {
+    browser?: { webgl?: 'none' | 'webgl1' | 'webgl2' }
+  }
+  return meta.browser?.webgl ?? 'none'
+}
+
 const periodic = (await listItems())
   // A grid has no options, so no `period` to close over. Its take loops
   // because the scroll goes out and back, which is a property of the demo
@@ -80,21 +98,37 @@ describe('periodic effects return to their first frame', () => {
 
         await page.goto(`${demoUrl(item.dir)}?record=1`, { waitUntil: 'load' })
 
-        const result = await page.evaluate(async p => {
+        const result = await page.evaluate(async ({ p, kind }) => {
           const handle = window.__beamish!
           const canvas = document.querySelector<HTMLCanvasElement>('#stage canvas')
           // A DOM effect has no canvas to read back. Nothing to measure, and
           // nothing the recorder loops either.
           if (!canvas) return null
-          const gl = canvas.getContext('webgl2')
-          if (!gl) return null
 
           const w = Math.min(canvas.width, 320)
           const h = Math.min(canvas.height, 240)
-          const grab = () => {
-            const px = new Uint8Array(w * h * 4)
-            gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px)
-            return px
+
+          /*
+           * Read back the way the item draws. Asking for the context the item
+           * already holds hands back the same one; asking for the other kind
+           * would take it and break the item mid-test.
+           */
+          let grab: () => Uint8Array
+          if (kind === 'none') {
+            // The surface has not set up yet, and it owns the 2D context. One
+            // frame first, so the context exists before it is read.
+            handle.renderAtTime(0)
+            const ctx = canvas.getContext('2d')
+            if (!ctx) return null
+            grab = () => new Uint8Array(ctx.getImageData(0, 0, w, h).data.buffer.slice(0))
+          } else {
+            const gl = canvas.getContext('webgl2')
+            if (!gl) return null
+            grab = () => {
+              const px = new Uint8Array(w * h * 4)
+              gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px)
+              return px
+            }
           }
           const mean = (a: Uint8Array, b: Uint8Array) => {
             let sum = 0
@@ -111,7 +145,7 @@ describe('periodic effects return to their first frame', () => {
           const next = grab()
 
           return { seam: mean(first, last), frame: mean(first, next) }
-        }, period)
+        }, { p: period, kind: contextOf(item.dir) })
 
         expect(errors, `page errors: ${errors.join(' | ')}`).toEqual([])
         if (!result) return

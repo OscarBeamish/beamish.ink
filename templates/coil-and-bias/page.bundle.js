@@ -817,7 +817,7 @@ ${log ?? ""}`);
 
   // effects/light-shafts/core.ts
   var lightShaftsDefaults = {
-    ground: "#e7e2d6",
+    ground: "auto",
     light: "#fff6e2",
     angle: 128,
     distance: 1.6,
@@ -1982,8 +1982,8 @@ ${log ?? ""}`);
   var meta_default = {
     name: "Coil & Bias",
     slug: "coil-and-bias",
-    description: "An invented audio hardware brand, on a dark ground, where three backdrops share one context",
-    intent: "The dark end of the library under load, and the real test of the stage: three WebGL backdrops on one page, handed the single context as the page scrolls, with the DOM items that claim to work on either ground made to prove it.",
+    description: "An invented audio hardware brand on a dark ground, laid out as the front panel of an amplifier",
+    intent: "Brushed aluminium with its legends cut into it rather than printed on it, vents, screws at the corners and meters that read rather than statistics that are stated. Also the real test of the stage: three WebGL backdrops handed one context as the page scrolls.",
     ground: "dark",
     uses: [
       {

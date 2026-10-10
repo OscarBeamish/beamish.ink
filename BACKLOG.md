@@ -111,7 +111,7 @@ exactly as they do to a sheet of paper.
 | Prism | Prism, Prismatic Burst | 2 | |
 | Bloom | Plasma, Plasma Wave, Aurora, Soft Aurora | 1 | Aurora over a dark sky. Four of theirs, one of ours. Was a recast because of the paper rule; it is the thing itself now |
 | Dust | Particles, Pixel Snow, Galaxy | 2 | **done**. Shipped as DustMotes, on a dark ground. A lattice rather than a particle array, so it can be seeked and the count is free. Most of it out of focus, and blurred means fainter |
-| Vein | Lightning | 2 | Capillary spread on paper, or the strike itself on dark. Both are worth one item each, if either earns it |
+| Vein | Lightning | 2 | **done**, as the strike on dark, shipped as LightningVein. Recursive midpoint displacement along the segment normal, which is what gives kinks at every scale; a per-step wobble has detail at one scale and reads as a scribble. Canvas 2D, so it spends none of the one-context budget. Flashing is held to 0.222 per second against WCAG 2.3.1's limit of 3, because imitating the real rate would breach a Level A criterion. The capillary spread on paper is still open and still worth its own item |
 | Foundry | Letter Glitch | 3 | A tray of type, not a Matrix screen |
 | Bearings | Ballpit | 3 | Needs a physics solver. Expensive |
 | Orb | Orb | 3 | |
