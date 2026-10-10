@@ -204,6 +204,22 @@ or a dead request into `node_modules/.vite/deps`, that is Vite re-optimising
 mid-run and not a page fault. Delete `site/node_modules/.vite`, let the server
 restart, and run it again before believing either answer.
 
+**Stop the shared server when you stop working.** Leaving it up is what makes
+the second call cheap and it is the right trade inside a session, but it does
+not shrink. After a session of sweeps, pokes and contrast runs the astro
+process on 4321 was holding 5949 MB. It is one process and it is easy to find:
+
+```powershell
+Get-CimInstance Win32_Process -Filter "Name='node.exe'" |
+  Where-Object { $_.CommandLine -like '*astro.js dev*' } |
+  ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+```
+
+This is the same rule as the one above about killing processes rather than
+tasks; it is written out again because the tools are deliberately built to
+leave something running, and a rule that one tool is exempt from is a rule
+nobody applies.
+
 ## meta.json is the source of truth
 
 Prompts, docs pages, the site index and prop tables are generated from
