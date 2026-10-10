@@ -62,8 +62,8 @@
   "options": {
     "ground": {
       "type": "color",
-      "default": "#e7e2d6",
-      "description": "The surface the light falls on, which is that surface in shadow: the lit bands are added on top of it, so it has to sit below them with room to spare. A ground as pale as the light clips to white across the whole frame, which is the first thing that went wrong here. Set it near black and the same effect is a projector beam in a dark room."
+      "default": "auto",
+      "description": "The surface the light falls on, which is that surface in shadow: the lit bands are added on top of it, so it has to sit below them with room to spare. A ground as pale as the light clips to white across the whole frame, which is the first thing that went wrong here. Set it near black and the same effect is a projector beam in a dark room. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "light": {
       "type": "color",

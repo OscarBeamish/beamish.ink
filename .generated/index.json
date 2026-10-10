@@ -2699,8 +2699,8 @@
       },
       "tint": {
         "type": "color",
-        "default": "#fbfaf4",
-        "description": "The colour of the wash, if there is one. The page's own paper is the usual answer. Over a photograph a colour taken out of the image reads better than white."
+        "default": "auto",
+        "description": "The colour of the wash, if there is one. The page's own paper is the usual answer. Over a photograph a colour taken out of the image reads better than white. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "wash": {
         "type": "number",
@@ -3790,8 +3790,8 @@
     "options": {
       "ground": {
         "type": "color",
-        "default": "#e7e2d6",
-        "description": "The surface the light falls on, which is that surface in shadow: the lit bands are added on top of it, so it has to sit below them with room to spare. A ground as pale as the light clips to white across the whole frame, which is the first thing that went wrong here. Set it near black and the same effect is a projector beam in a dark room."
+        "default": "auto",
+        "description": "The surface the light falls on, which is that surface in shadow: the lit bands are added on top of it, so it has to sit below them with room to spare. A ground as pale as the light clips to white across the whole frame, which is the first thing that went wrong here. Set it near black and the same effect is a projector beam in a dark room. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "light": {
         "type": "color",
@@ -4489,8 +4489,8 @@
     "options": {
       "base": {
         "type": "color",
-        "default": "#fbfaf4",
-        "description": "What the colour layers are laid over, and what shows wherever none of them reaches. Usually the palest of the four, because it is doing the job the paper does in print."
+        "default": "auto",
+        "description": "What the colour layers are laid over, and what shows wherever none of them reaches. Usually the palest of the four, because it is doing the job the paper does in print. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "one": {
         "type": "color",

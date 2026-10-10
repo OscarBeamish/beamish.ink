@@ -75,7 +75,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `base` | color | `#fbfaf4` | any CSS hex | What the colour layers are laid over, and what shows wherever none of them reaches. Usually the palest of the four, because it is doing the job the paper does in print. |
+| `base` | color | `auto` | any CSS hex | What the colour layers are laid over, and what shows wherever none of them reaches. Usually the palest of the four, because it is doing the job the paper does in print. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `one` | color | `#ffc9e3` | any CSS hex | The first colour layer, laid over the base. Keep the three within reach of each other on the wheel and mind what they make where they overlap: the first palette here had a peach under a cornflower, and peach under blue is tan, so the frame had a patch of mud in it that neither colour explains. |
 | `two` | color | `#a9d8ff` | any CSS hex | The second layer, over the first. |
 | `three` | color | `#cdbcff` | any CSS hex | The third, and the one that shows least, because it is only drawn where its own field is high. |

@@ -48,7 +48,7 @@ export type MeshGradientOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const meshGradientDefaults: MeshGradientOptions = {
-  base: '#fbfaf4',
+  base: 'auto',
   one: '#ffc9e3',
   two: '#a9d8ff',
   three: '#cdbcff',
