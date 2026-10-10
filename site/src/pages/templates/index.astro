@@ -2,25 +2,24 @@
 /*
  * The templates wall.
  *
- * Each card opens a standalone page rather than a page inside this site, and
- * that is deliberate: a template is supposed to read as somebody's own site,
- * which it cannot do wearing this one's header. The card is the only place
- * the library speaks about it.
+ * Same cards and same three columns as the effects and grids walls. A template
+ * is a different kind of thing from an effect, but a wall of them is not a
+ * different kind of wall, and the two that were two-up read as a separate site
+ * sitting inside this one.
  *
- * Which is why the prompt sits on the card rather than behind a detail page.
- * A template is for taking, and a wall of previews with no way to take one
- * from it would make the reader click through to a page that says nothing
- * about the library just to come back.
+ * The card opens the template's page here rather than the standalone file.
+ * That page carries the frame, the licence it arrived under and the prompt,
+ * which is everything the library has to say about it; the earlier version put
+ * the prompt on the card and linked the card straight out, so the only place
+ * the library spoke was the one surface the reader left immediately.
  */
 import Base from '../../layouts/Base.astro'
 import ItemCard from '../../components/ItemCard.astro'
-import PromptButtons from '../../components/PromptButtons.astro'
-import { loadTemplates, loadTemplateMedia, loadTemplatePrompt } from '../../lib/templates'
+import { loadTemplates, loadTemplateMedia } from '../../lib/templates'
 
 const templates = loadTemplates().map(template => ({
   template,
-  media: loadTemplateMedia(template.slug),
-  prompt: loadTemplatePrompt(template.slug)
+  media: loadTemplateMedia(template.slug)
 }))
 ---
 
@@ -35,26 +34,25 @@ const templates = loadTemplates().map(template => ({
     </h1>
     <p class="text-l2 col-span-12 mt-8 text-[1rem] sm:col-span-9 lg:col-span-6">
       Everything one of these needs is in its own index.html: its CSS, its SVG
-      and its script. Every brand on them is invented and every figure is made up, so there is nothing to unpick
-      before you start. Most of these are adapted from somebody else's work
-      under its licence, and each one says whose, on its own page and in its
-      prompt.
+      and its script. Every brand on them is invented and every figure is made
+      up, so there is nothing to unpick before you start. Most of these are
+      adapted from somebody else's work under its licence, and each one says
+      whose, on its own page and in its prompt.
     </p>
   </section>
 
   <section class="spine pb-32">
-    <ul class="col-span-12 grid grid-cols-1 gap-6 sm:grid-cols-2">
+    <ul class="col-span-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {
-        templates.map(({ template, media, prompt }) => (
-          <li class="flex h-full flex-col gap-4">
+        templates.map(({ template, media }) => (
+          <li class="h-full">
             <ItemCard
-              href={`/templates/${template.slug}/index.html`}
+              href={`/templates/${template.slug}`}
               name={template.name}
               description={template.description}
-              label={template.ground === 'dark' ? 'Dark' : 'Paper'}
+              label={template.ground === 'dark' ? 'Dark' : 'Light'}
               media={media}
             />
-            <PromptButtons slug={template.slug} linked={prompt} />
           </li>
         ))
       }

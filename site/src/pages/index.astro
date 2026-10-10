@@ -1,43 +1,128 @@
 ---
+/*
+ * The front door.
+ *
+ * It used to be the effects catalogue itself: hero, then sixty-one cards under
+ * six category headings. That was right while effects were all there was. With
+ * nineteen templates and eight grids beside them it stopped being right, for a
+ * reason worth writing down: a homepage that is one tier's index tells the
+ * reader the other tiers are afterthoughts, whatever the nav says. The wall
+ * moved to /effects unchanged and this page became three shelves.
+ *
+ * Templates first. They are the only tier you can look at and understand
+ * without being told what the library is, because a template is a page and
+ * everybody already knows what a page is. An effect is a piece of one and a
+ * grid is the rules underneath it, and both read better once you have seen
+ * where they end up.
+ *
+ * The three on each shelf are chosen by hand and listed here rather than taken
+ * off the front of the catalogue. Alphabetical order is not a curation, and a
+ * shelf is the one place on the site where the point is to show the range
+ * rather than the inventory. They are picked to disagree with each other: a
+ * dark instrument beside pale editorial type, a shader beside a text effect.
+ */
 import Base from '../layouts/Base.astro'
 import ItemCard from '../components/ItemCard.astro'
-import { loadCatalogue, loadMedia, CATEGORY_ORDER } from '../lib/catalogue'
-import { CATEGORY_LABELS, CATEGORY_BLURBS } from '../../../tools/schema/meta'
+import { loadCatalogue, loadMedia } from '../lib/catalogue'
+import { loadGrids, loadGridMedia, GRID_CATEGORY_LABELS } from '../lib/grids'
+import { loadTemplates, loadTemplateMedia } from '../lib/templates'
+import { CATEGORY_LABELS } from '../../../tools/schema/meta'
 
 const items = loadCatalogue()
+const grids = loadGrids()
+const templates = loadTemplates()
 
-const groups = CATEGORY_ORDER.map(category => ({
-  category,
-  items: items.filter(item => item.category === category)
-})).filter(group => group.items.length > 0)
+/* A dark machine, a page made of type, and a soft product interface. */
+const SHOWN_TEMPLATES = ['machine-panel', 'editorial-portfolio', 'clay-surfaces']
+/* A three.js scene, a shader backdrop and a text effect: the three kinds. */
+const SHOWN_ITEMS = ['pointer-lit-busts', 'mesh-gradient', 'split-flap-text']
+/* The plainest, the strictest and the one that is obviously a layout. */
+const SHOWN_GRIDS = ['twelve-column', 'baseline-grid', 'marginalia-columns']
+
+/*
+ * Picked in the order written above rather than in catalogue order, and a slug
+ * that no longer exists is dropped rather than rendered as a hole. The counts
+ * under each heading come from the real collections, so a shelf can go stale
+ * without the number beside it lying.
+ */
+const shelves = [
+  {
+    heading: 'Templates',
+    blurb: 'Whole pages, one file each',
+    href: '/templates',
+    total: templates.length,
+    cards: SHOWN_TEMPLATES.map(slug => templates.find(t => t.slug === slug))
+      .filter(t => t !== undefined)
+      .map(template => ({
+        href: `/templates/${template.slug}`,
+        name: template.name,
+        description: template.description,
+        label: template.ground === 'dark' ? 'Dark' : 'Light',
+        media: loadTemplateMedia(template.slug)
+      }))
+  },
+  {
+    heading: 'Effects and components',
+    blurb: 'Scenes, shaders, text and interface parts',
+    href: '/effects',
+    total: items.length,
+    cards: SHOWN_ITEMS.map(slug => items.find(i => i.slug === slug))
+      .filter(i => i !== undefined)
+      .map(item => ({
+        href: `/${item.group}/${item.slug}`,
+        name: item.name,
+        description: item.description,
+        label: CATEGORY_LABELS[item.category],
+        media: loadMedia(item)
+      }))
+  },
+  {
+    heading: 'Grids',
+    blurb: 'Editorial layout as plain CSS',
+    href: '/grids',
+    total: grids.length,
+    cards: SHOWN_GRIDS.map(slug => grids.find(g => g.slug === slug))
+      .filter(g => g !== undefined)
+      .map(grid => ({
+        href: `/grids/${grid.slug}`,
+        name: grid.name,
+        description: grid.description,
+        label: GRID_CATEGORY_LABELS[grid.category],
+        media: loadGridMedia(grid.slug)
+      }))
+  }
+]
+
+const total = items.length + grids.length + templates.length
 ---
 
 <Base
-  title="Beamish: web effects and components for AI agents"
-  description="Three.js scenes, WebGL shaders and interface components. Nothing to install: copy a prompt, paste it into your AI agent, and it writes the code."
+  title="Beamish: web effects, templates and grids for AI agents"
+  description="Whole pages, three.js scenes, WebGL shaders and interface components. Nothing to install: copy a prompt, paste it into your AI agent, and it writes the code."
 >
   <section class="spine pt-32 pb-16 md:pt-44">
     {/*
-      A two-line lockup rather than one long string. Left to wrap on its own,
-      "components for" put a preposition at the end of a line at every width
-      tested. Each line is now a whole phrase, so the only break left is inside
-      "Effects and components" on the narrowest screens.
+      Three nouns on the first line and who it is for on the second. Each line
+      is a whole phrase, for the reason the old two-line lockup was written
+      that way: left to wrap on its own, the break landed after a preposition
+      at every width tested.
     */}
     <h1 class="col-span-12 text-[clamp(2.3rem,7vw,5rem)] leading-[0.95] lg:col-span-10">
-      <span class="block">Effects and components</span>
+      <span class="block">Pages, effects and grids</span>
       <span class="text-l3 block">for AI agents.</span>
     </h1>
     <p class="text-l2 col-span-12 mt-8 text-[1rem] sm:col-span-9 lg:col-span-6">
-      Three.js scenes, WebGL shaders, text animations and interface components.
-      There is nothing to install. Pick one, press Copy prompt, and paste it into
-      Claude Code or Cursor. Your agent fetches the source and writes it into your
+      Whole pages you can take as one file, three.js scenes, WebGL shaders, text
+      animations, interface components and the grids underneath them. There is
+      nothing to install. Pick one, press Copy prompt, and paste it into Claude
+      Code or Cursor. Your agent fetches the source and writes it into your
       project.
     </p>
 
     <ol class="text-l2 col-span-12 mt-10 grid gap-3 text-[0.9rem] sm:col-span-9 lg:col-span-5">
       <li class="border-line flex gap-4 border-t pt-3">
         <span class="tag flex-none pt-[0.15rem]">01</span>
-        <span>Pick an effect and watch the video.</span>
+        <span>Pick one and watch it run.</span>
       </li>
       <li class="border-line flex gap-4 border-t pt-3">
         <span class="tag flex-none pt-[0.15rem]">02</span>
@@ -50,45 +135,44 @@ const groups = CATEGORY_ORDER.map(category => ({
     </ol>
 
     <p class="tag col-span-12 mt-10">
-      {items.length} items · MIT · works with Claude Code, Cursor, Copilot,
-      Windsurf
+      {total} items · MIT · works with Claude Code, Cursor, Copilot, Windsurf
     </p>
   </section>
 
   {/*
-    The cards sit directly in the page grid rather than in a grid of their own
-    inside each category. Nesting one meant a card's left edge was set by its
-    group's width instead of by the page, so the columns drifted out of step
-    with the heading above them at some widths. Fragment, so no wrapper element
-    breaks the grid flow.
+    The shelves. Same card and same three columns as every wall on the site, so
+    a shelf reads as the top of a wall rather than as a different component,
+    and the link at the right of each heading is the rest of it.
+
+    id="catalogue" is on the first shelf because the nav and some item pages
+    have linked to /#catalogue since the first version of the site. The anchor
+    now lands on the shelves rather than on the wall, which is the correct
+    destination for it: the wall has its own URL.
   */}
-  <section id="catalogue" class="spine gap-y-5 pb-16">
+  <section id="catalogue" class="spine gap-y-5 pb-24">
     {
-      groups.map((group, index) => (
+      shelves.map((shelf, index) => (
         <Fragment>
-          {/* The blurb is hidden below 640px. At 390px it collided with the
-              heading, and it is a nicety rather than information. */}
-          {/* An id, so an item page can link back to the shelf it came
-              from. scroll-mt clears the fixed header, which otherwise lands
-              the heading underneath it. */}
           <div
-            id={group.category}
             class:list={[
               'border-line col-span-12 flex scroll-mt-24 items-baseline justify-between gap-6 border-b pb-3',
-              index > 0 && 'mt-11'
+              index > 0 && 'mt-14'
             ]}
           >
-            <h2 class="text-[1.05rem]">{CATEGORY_LABELS[group.category]}</h2>
-            <p class="tag hidden text-right sm:block">{CATEGORY_BLURBS[group.category]}</p>
+            <h2 class="text-[1.05rem]">{shelf.heading}</h2>
+            <p class="tag hidden text-right sm:block">{shelf.blurb}</p>
+            <a href={shelf.href} class="tag text-l1 flex-none whitespace-nowrap hover:underline">
+              All {shelf.total} &#8594;
+            </a>
           </div>
-          {group.items.map(item => (
+          {shelf.cards.map(card => (
             <div class="col-span-12 sm:col-span-6 lg:col-span-4">
               <ItemCard
-                href={`/${item.group}/${item.slug}`}
-                name={item.name}
-                description={item.description}
-                label={CATEGORY_LABELS[item.category]}
-                media={loadMedia(item)}
+                href={card.href}
+                name={card.name}
+                description={card.description}
+                label={card.label}
+                media={card.media}
               />
             </div>
           ))}

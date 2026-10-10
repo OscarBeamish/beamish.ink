@@ -136,7 +136,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
           <span data-scramble>Beamish.ink</span>
         </a>
         <nav class="site-nav__links" aria-label="Primary">
-          <a href="/#catalogue" class="site-nav__hit" data-scramble>Effects</a>
+          <a href="/effects" class="site-nav__hit" data-scramble>Effects</a>
           <a href="/grids" class="site-nav__hit" data-scramble>Grids</a>
           <a href="/templates" class="site-nav__hit" data-scramble>Templates</a>
           <a href="/how-it-works" class="site-nav__hit" data-scramble>How it works</a>
@@ -153,7 +153,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
             the catalogue that displays them has to be able to show either.
           -->
           <button type="button" class="site-nav__hit site-nav__ground" data-ground-toggle>
-            <span data-ground-label>Dark</span>
+            <!-- Matches data-ground on <html> above, so it is already right
+                 before the script runs and never corrects itself in view. -->
+            <span data-ground-label>THEME[L]</span>
           </button>
         </nav>
       </div>
@@ -188,8 +190,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
        * and slow to arrive and the length of the gesture sets the length of the
        * movement. 0.1 is the reference's value and it is the right one.
        *
-       * `anchors` because the nav links to /#catalogue, and without it that one
-       * link jumps while every other movement on the site glides.
+       * `anchors` because an item page links back to its shelf at
+       * /effects#<category>, and without it that one link jumps while every
+       * other movement on the site glides.
        */
       const reduced = matchMedia('(prefers-reduced-motion: reduce)')
       if (!reduced.matches) {
@@ -260,9 +263,16 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
       /*
        * The ground toggle.
        *
-       * The label says where the button goes rather than where you are, which
-       * is the one decision worth making here: a control labelled with the
-       * current state reads as a status line and gets pressed by mistake.
+       * THEME[L] and THEME[D], after haoqi.design, whose ASCII toggle this
+       * nav's scramble and label tokens already come from. The bracketed
+       * letter is a readout and a control at once, which is the one thing a
+       * word cannot be: "Dark" has to mean either where you are or where the
+       * button goes, and whichever you pick half the people read it the other
+       * way. A letter in brackets reads as a position on a switch.
+       *
+       * It also retires the word paper from the interface. The ground is still
+       * called paper in meta.json, in the tokens and in all seventy-odd demo
+       * pages, because that is a value with a meaning, not a button.
        *
        * The attribute is already correct before this runs, set by the inline
        * script in the head, so nothing here has to fix a flash.
@@ -272,10 +282,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
       const label = toggle?.querySelector<HTMLElement>('[data-ground-label]')
 
       const show = (ground: string) => {
-        if (label) label.textContent = ground === 'dark' ? 'Paper' : 'Dark'
+        if (label) label.textContent = ground === 'dark' ? 'THEME[D]' : 'THEME[L]'
         toggle?.setAttribute(
           'aria-label',
-          ground === 'dark' ? 'Switch to the paper ground' : 'Switch to the dark ground'
+          ground === 'dark' ? 'Theme: dark. Switch to light' : 'Theme: light. Switch to dark'
         )
       }
 

@@ -106,7 +106,7 @@ const notes = [...item.browser.notes, ...item.perf.notes]
         <div>
           <dt class="tag">Category</dt>
           <dd class="text-l2 mt-1 ml-0">
-            <a href={`/#${item.category}`}>{CATEGORY_LABELS[item.category]}</a>,{' '}
+            <a href={`/effects#${item.category}`}>{CATEGORY_LABELS[item.category]}</a>,{' '}
             {item.tier === 1 ? 'an effect' : 'a component'}
           </dd>
         </div>

@@ -1,0 +1,146 @@
+---
+/*
+ * A template's page: the real page at the top, in a frame, then where it came
+ * from and the prompt that builds it.
+ *
+ * WHY A FRAME AND NOT THE PAGE ITSELF
+ *
+ * The same reason a grid gets one, only more so. A template is a whole
+ * document: its own head, its own fonts, its own ground, its own fixed header
+ * and a scroll driver that moves the lot. It cannot be rendered inside this
+ * document without this document's header sitting on top of its header, and a
+ * page that is supposed to read as somebody else's site cannot do that wearing
+ * ours.
+ *
+ * The wall used to link straight out to the standalone file, with the prompt on
+ * the card. That put the only thing the library has to say about a template on
+ * a card the reader leaves immediately, and it made the templates the one tier
+ * with no page of its own: an effect has one, a grid has one, a component has
+ * one. This is that page. The standalone file is still one click away and still
+ * the thing being shown, in the frame and behind the button under it.
+ *
+ * The frame points at /template-demos/<slug>/index.html, not at
+ * /templates/<slug>/. This route builds to the second of those, so the two
+ * would be the same path and one would overwrite the other. sync-public.mjs
+ * explains the move; the depth is the same either way, so the page's own
+ * relative links to ../../shared still resolve.
+ */
+import Base from '../../layouts/Base.astro'
+import PromptButtons from '../../components/PromptButtons.astro'
+import { loadTemplates, loadTemplatePrompt } from '../../lib/templates'
+
+export function getStaticPaths() {
+  return loadTemplates().map(template => ({
+    params: { slug: template.slug },
+    props: { template }
+  }))
+}
+
+const { template } = Astro.props
+const prompt = loadTemplatePrompt(template.slug)
+const demo = `/template-demos/${template.slug}/index.html`
+const source = template.source
+---
+
+<Base title={`${template.name}: Beamish`} description={template.description}>
+  <section class="spine pt-32 pb-8 md:pt-40">
+    <h1 class="col-span-12 text-[clamp(2.2rem,6vw,4.5rem)] leading-[0.95] lg:col-span-9">
+      {template.name}
+    </h1>
+    <p
+      class="text-l2 col-span-12 mt-6 font-mono text-[0.9rem] leading-[1.7] sm:col-span-9 lg:col-span-6"
+    >
+      {template.description}. Every brand on it is invented and every figure is
+      made up, so there is nothing to unpick before you start.
+    </p>
+  </section>
+
+  {/*
+    The page in its own document.
+
+    The heights are the grid page's, for the same reasons measured there: a
+    layout is read by going down it, so a short frame defeats the point, and at
+    78vh on a phone the frame ran past the fold and left no page beside it to
+    put a thumb on. No background colour, because the template carries its own
+    ground and hard-coding one here would flash the wrong colour first.
+  */}
+  <section class="spine pb-4">
+    <div class="border-line col-span-12 overflow-hidden rounded-[2px] border">
+      <iframe
+        src={demo}
+        title={`${template.name}, the page itself`}
+        class="block h-[60vh] w-full border-0 md:h-[min(78vh,48rem)]"></iframe>
+    </div>
+  </section>
+
+  <section class="spine pb-16">
+    <div class="col-span-12 flex flex-wrap items-center gap-x-6 gap-y-3">
+      <a
+        href={demo}
+        target="_blank"
+        rel="noreferrer"
+        class="border-line hover:border-l1 inline-flex items-center gap-2 border px-4 py-2 font-mono text-[0.78rem] transition-colors"
+      >
+        View the full page
+        <span aria-hidden="true">&#8599;</span>
+      </a>
+      <p class="text-l3 font-mono text-[0.72rem] leading-[1.7]">
+        Scroll inside the frame, or open it on its own for the full width.
+      </p>
+    </div>
+  </section>
+
+  {
+    source && (
+      <section class="spine pb-16">
+        <h2 class="col-span-12 text-[1.6rem] leading-tight">Where this page came from</h2>
+        <p class="text-l2 col-span-12 mt-3 font-mono text-[0.8rem] leading-[1.7] lg:col-span-7">
+          It is an adaptation, not ours from nothing, and the licence it arrived
+          under is the reason it can be here at all.
+        </p>
+        <dl class="col-span-12 mt-8 grid grid-cols-1 gap-x-8 gap-y-6 lg:grid-cols-2">
+          <div class="border-line border-t pt-3">
+            <dt class="tag">The original</dt>
+            <dd class="text-l1 mt-2 ml-0 font-mono text-[0.78rem] leading-[1.65]">
+              {source.title}, by {source.author}
+            </dd>
+          </div>
+          <div class="border-line border-t pt-3">
+            <dt class="tag">Licence</dt>
+            <dd class="text-l1 mt-2 ml-0 font-mono text-[0.78rem] leading-[1.65]">
+              {source.licence},{' '}
+              <a href={source.url} target="_blank" rel="noreferrer" class="underline">
+                the source
+              </a>
+            </dd>
+          </div>
+          <div class="border-line border-t pt-3 lg:col-span-2">
+            <dt class="tag">What was changed</dt>
+            <dd class="text-l2 mt-2 ml-0 font-mono text-[0.78rem] leading-[1.65]">
+              {source.changed}.
+            </dd>
+          </div>
+        </dl>
+      </section>
+    )
+  }
+
+  <section class="spine pb-12">
+    <h2 class="col-span-12 text-[1.6rem] leading-tight">What it is for</h2>
+    <p class="text-l2 col-span-12 mt-3 font-mono text-[0.8rem] leading-[1.7] lg:col-span-7">
+      {template.intent}
+    </p>
+  </section>
+
+  <section class="spine pb-32">
+    <h2 class="col-span-12 text-[1.6rem] leading-tight">Take it</h2>
+    <p class="text-l2 col-span-12 mt-3 font-mono text-[0.8rem] leading-[1.7] lg:col-span-7">
+      One prompt, not two. An effect ships a second copy with its source pasted
+      in for agents with no web access; a page this size has nothing sane to
+      inline, so this one fetches the files and writes them where you say.
+    </p>
+    <div class="col-span-12 mt-6">
+      <PromptButtons slug={template.slug} linked={prompt} />
+    </div>
+  </section>
+</Base>

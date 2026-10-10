@@ -54,12 +54,16 @@ function routes(): string[] {
     : []
   return [
     '/',
+    '/effects/',
     '/how-it-works/',
     ...items.map(i => `/${i.group}/${i.slug}/`),
     '/grids/',
     ...slugsIn('grids').map(s => `/grids/${s}/`),
     '/templates/',
-    ...slugsIn('templates').map(s => `/templates/${s}/index.html`)
+    ...slugsIn('templates').map(s => `/templates/${s}/`),
+    // The standalone page as well as the page about it. They are different
+    // documents at different URLs and either can break on its own.
+    ...slugsIn('templates').map(s => `/template-demos/${s}/index.html`)
   ]
 }
 

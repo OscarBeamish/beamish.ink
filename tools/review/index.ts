@@ -184,17 +184,20 @@ async function routes(): Promise<string[]> {
 
   const all = [
     '/',
+    '/effects/',
     '/how-it-works/',
     ...items.map(item => `/${item.group}/${item.slug}/`),
     '/grids/',
     ...grids.map(slug => `/grids/${slug}/`),
     '/templates/',
+    ...templates.map(slug => `/templates/${slug}/`),
     /*
-     * A template is a standalone page copied into public, not an Astro route,
-     * so it is addressed by its file. Without index.html the server has
-     * nothing to answer with and the route 404s.
+     * The standalone page, which is a file copied into public rather than an
+     * Astro route, so it is addressed by its file: without index.html the
+     * server has nothing to answer with and the route 404s. It lives under
+     * template-demos because /templates/<slug>/ is now a page of this site.
      */
-    ...templates.map(slug => `/templates/${slug}/index.html`)
+    ...templates.map(slug => `/template-demos/${slug}/index.html`)
   ]
 
   /*

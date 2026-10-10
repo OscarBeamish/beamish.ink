@@ -20,7 +20,7 @@ site/public/fonts/
 # shared stylesheets that go with them.
 site/public/grid-demos/
 site/public/shared/
-site/public/templates/
+site/public/template-demos/
 site/public/grids/
 site/public/components/
 site/.astro/

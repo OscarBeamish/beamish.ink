@@ -94,12 +94,25 @@ if (existsSync(gridsDir)) {
  * site furniture, because the whole point is that it reads as somebody's own
  * site. It links the library by the same relative paths it uses on disk, so
  * the public tree has to mirror the repo for those paths to resolve:
- * ../../shared and ../../grids from templates/<slug>/.
+ * ../../shared and ../../grids from one directory down.
  *
  * grids/ is copied here as well as to grid-demos/. The two serve different
  * jobs and must not be merged: grid-demos carries an index.html per grid so a
  * directory URL works, and an index.html under /grids/<slug>/ would collide
  * with the Astro route that already generates one.
+ *
+ * Which is exactly why these land under template-demos/ rather than
+ * templates/. A template now has a page on the site at /templates/<slug>, and
+ * that route builds to templates/<slug>/index.html: the same path the
+ * standalone page used to occupy, so one would have silently overwritten the
+ * other. The depth is unchanged, which is the part that matters, because the
+ * page's own ../../shared and ../../grids still resolve to /shared and /grids.
+ */
+await rm(path.join(PUBLIC, 'template-demos'), { recursive: true, force: true })
+/*
+ * Where they used to go. A tree synced before the move still has them there,
+ * and in dev a file in public/ wins over a route, so the leftovers would serve
+ * the old standalone page at the new page's URL and nothing would look wrong.
  */
 await rm(path.join(PUBLIC, 'templates'), { recursive: true, force: true })
 await rm(path.join(PUBLIC, 'grids'), { recursive: true, force: true })
@@ -109,7 +122,7 @@ if (existsSync(templatesDir)) {
     if (!entry.isDirectory()) continue
     await cp(
       path.join(templatesDir, entry.name),
-      path.join(PUBLIC, 'templates', entry.name),
+      path.join(PUBLIC, 'template-demos', entry.name),
       { recursive: true }
     )
   }
