@@ -81,7 +81,27 @@ for (const counter of document.querySelectorAll<HTMLElement>('.counter')) {
 
 /* One pass of ink across the pull quote. */
 const quote = at('#quote-line')
-if (quote) keep(splitFountainText(quote))
+/*
+ * The fountain split, in the page's own two inks.
+ *
+ * The item's default is three: orange, purple and blue, which is a beautiful
+ * thing and belongs to a different page. This one says in its own stylesheet
+ * that it has one ink, one paper and one second colour, and a six-colour
+ * rainbow across the only quote on the page makes that a claim rather than a
+ * rule. A press splits the fountain between two inks anyway; `second` matching
+ * `third` is how the item is told to do that.
+ *
+ * Read off the page rather than typed here, so the two cannot drift apart when
+ * the stylesheet is retuned.
+ */
+const inkOf = (name: string, fallback: string) =>
+  getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback
+
+if (quote) {
+  const ink = inkOf('--ink', '#16150f')
+  const second = inkOf('--second', '#b3301c')
+  keep(splitFountainText(quote, { first: ink, second, third: second, angle: 8, blend: 0.5 }))
+}
 
 /* The colophon, written from what was actually mounted. */
 const manifest = at('#manifest')

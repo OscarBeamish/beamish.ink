@@ -1,55 +1,102 @@
 /*
  * Quoin & Rule, the page's own stylesheet.
  *
- * The layout comes from TwelveColumn and the motion from the items. What is
- * here is the forme: the chase it is locked into, the furniture filling the
- * space around the type, the quoins tightening the corners and the brass
- * rules, which on a press are the only ornament you have.
+ * THE FORME IS THE DESIGN SYSTEM. It is built first, in full, and every
+ * surface after it is a variant rather than a new thing.
  *
- * This file used to be twenty-seven rules of padding and borders, because the
- * page was written as an example whose job was to prove the items survive a
- * real page. That is a different job from being worth taking, and the
- * difference is almost entirely here rather than in the markup.
+ * IMPRESSION, NOT ELEVATION. This is the rule that decides every shadow in
+ * this file. A press has no way of putting anything on top of a sheet, so
+ * nothing here is raised, nothing floats and nothing casts a drop shadow.
+ * Every forme is debossed into the paper with an inset shadow, and the only
+ * light that falls on anything falls on the bevel of the furniture, which is
+ * how a block of beech actually catches it.
  *
- * No class uses the `g-` prefix, so the line between the library and the page
- * using it stays visible.
+ * THE GRIDS DO THE PLACING. There is not one `grid-template-columns` in this
+ * file for a row of formes. TwelveColumn has twelve tracks already; the bands
+ * retune its tokens, which is using it, rather than declaring tracks of their
+ * own, which would be replacing it.
+ *
+ * ONE INK, ONE PAPER, ONE SECOND COLOUR. The beech of the furniture is a mix
+ * of the second colour and the paper, so the page has three colours in it and
+ * everything else is a percentage.
  */
 
+/* ========================================================================
+   TOKENS
+   ======================================================================== */
+
 :root {
-  --grid-margin: clamp(1.5rem, 6vw, 7rem);
-  --grid-measure: 104rem;
-  --grid-rule: rgba(54, 54, 48, 0.2);
+  /* The three. */
+  --paper: #efe9dc;
+  --ink: #16150f;
+  --second: #b3301c;
 
-  --sheet: #f4f1ea;
-  --sheet-deep: #e9e5db;
-  --ink: #1b1b17;
-  --ink-soft: rgba(27, 27, 23, 0.66);
-  --ink-faint: rgba(27, 27, 23, 0.42);
-  --accent: #9a3b1f;
+  /* The sheet, worked. */
+  --paper-damp: color-mix(in srgb, var(--paper) 93%, var(--ink));
+  --paper-deep: color-mix(in srgb, var(--paper) 86%, var(--ink));
+  --ink-78: color-mix(in srgb, var(--ink) 78%, var(--paper));
+  --ink-58: color-mix(in srgb, var(--ink) 58%, var(--paper));
+  --ink-30: color-mix(in srgb, var(--ink) 30%, var(--paper));
+  --ink-16: color-mix(in srgb, var(--ink) 16%, var(--paper));
 
-  /* The metal. Furniture is wood, the chase and quoins are iron. */
-  --wood: #cdc4b0;
-  --wood-lit: #ded6c4;
-  --wood-dark: #b2a894;
-  --iron: #6f6a62;
+  /*
+   * The quiet tone for text, and it is not the same thing as a quiet tone for
+   * a rule. The first draft of this file used --ink-30 for slugs and --ink-58
+   * for labels, which looked right and measured 1.49:1 and 3.01:1 on the damp
+   * paper. A hairline can be as faint as it likes because nobody reads it. The
+   * steps above are for rules and borders now; anything a person reads takes
+   * this or darker.
+   */
+  --ink-quiet: color-mix(in srgb, var(--ink) 74%, var(--paper));
 
-  /* Real rule weights. A point is 1/72 inch; at 96dpi that is 1.333px. */
-  --pt: 1.333px;
+  /*
+   * Beech. Furniture is wood, and wood on this page is not a fourth colour:
+   * it is the second colour taken most of the way to the paper and then a
+   * little way towards the ink. The second step is the one that matters. The
+   * mix on its own came out a clean dusty pink, which is a colour, but it is
+   * not a colour any plank has ever been; knocking it back with ink takes the
+   * chroma out and lands it on tan.
+   */
+  --wood: color-mix(in srgb, color-mix(in srgb, var(--second) 26%, var(--paper)) 86%, var(--ink));
+  --wood-lit: color-mix(in srgb, var(--wood) 70%, var(--paper));
+  --wood-dark: color-mix(in srgb, var(--wood) 62%, var(--ink));
+
+  /* The quoin is steel, so it is ink with the warmth taken out. */
+  --steel: color-mix(in srgb, var(--ink) 62%, #6d7480);
+
+  /*
+   * The impression. One shadow, used by every forme, because an inset shadow
+   * is the only kind this page is allowed and there is no reason for two
+   * surfaces to be pressed to different depths by the same press.
+   */
+  --impress:
+    inset 0 2px 3px -1px color-mix(in srgb, var(--ink) 26%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--paper) 70%, #fff);
+
+  --impress-deep:
+    inset 0 3px 5px -1px color-mix(in srgb, var(--ink) 38%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--paper) 80%, #fff);
+
+  /* The bevel on a block of furniture, as one reusable border. */
+  --bevel: 3px;
+
+  /* The grid's rules, from the same ink rather than guessed. */
+  --grid-rule: var(--ink-16);
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html {
-  scroll-behavior: auto;
-  /* The masthead is sticky, so an anchor has to clear it. */
-  scroll-padding-top: 4.5rem;
+  scroll-padding-top: 5rem;
 }
 
 body {
   margin: 0;
-  background: var(--sheet);
+  background: var(--paper);
   color: var(--ink);
   font-family: var(--font-mono);
-  font-size: clamp(0.8rem, 1.05vw, 0.92rem);
-  line-height: 1.75;
+  font-size: clamp(0.78rem, 1vw, 0.86rem);
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -60,20 +107,20 @@ h3 {
   font-family: var(--font-display);
   font-weight: 700;
   letter-spacing: -0.035em;
-  line-height: 0.92;
+  line-height: 0.95;
 }
 
-h2 {
-  font-size: clamp(1.6rem, 4.5vw, 3.6rem);
-}
-
-h3 {
-  font-size: clamp(0.95rem, 1.5vw, 1.25rem);
-  letter-spacing: -0.015em;
-  line-height: 1.2;
-}
-
-p {
+/*
+ * `figure` is in this list because the proof is one, and a figure's default
+ * margin is `1em 40px`. It put the plate 40px to the right of every other
+ * forme on the page, which measured as a 40px offset at 2560 and as nothing
+ * at all at 1440, where the band was narrower than its own measure anyway.
+ */
+p,
+dd,
+dt,
+figure,
+figcaption {
   margin: 0;
 }
 
@@ -83,56 +130,494 @@ img {
   height: auto;
 }
 
-figure {
-  margin: 0;
-}
-
-figcaption {
-  margin-top: 0.7rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.04em;
-  color: var(--ink-faint);
-}
-
 code {
   font-family: var(--font-mono);
-  color: var(--ink-soft);
+  color: var(--ink-78);
+}
+
+::selection {
+  background: var(--second);
+  color: var(--paper);
+}
+
+/* ========================================================================
+   THE FORME. Build this first; everything else is drawn in its language.
+   ======================================================================== */
+
+/*
+ * A forme is four things and it is never fewer: the type, the furniture packed
+ * around it, a quoin in the corner, and the slug in the margin saying what
+ * size the type is. Take the furniture and the slug away and it is a card.
+ */
+.forme {
+  position: relative;
+  box-sizing: border-box;
+  padding: clamp(1.4rem, 3vw, 2.4rem) clamp(1.1rem, 2.4vw, 1.8rem) clamp(0.9rem, 2vw, 1.4rem);
+  background: var(--paper-damp);
+  box-shadow: var(--impress);
+  isolation: isolate;
+
+  /*
+   * Furniture. Beech on three sides with the light coming from the top left,
+   * which is the one lighting decision on the page and every bevel obeys it.
+   */
+  border: var(--bevel) solid var(--wood);
+  border-top-color: var(--wood-lit);
+  border-left-color: var(--wood-lit);
+  border-bottom-color: var(--wood-dark);
+  border-right-color: var(--wood-dark);
+
+  transition:
+    background-color 260ms var(--ease),
+    box-shadow 260ms var(--ease);
+}
+
+/*
+ * The slug. Printed in the furniture at the top left, the way a compositor
+ * writes the size on the packing so the next person does not have to measure.
+ */
+.forme::before {
+  content: attr(data-slug);
+  position: absolute;
+  top: 0.4rem;
+  left: 0.75rem;
+  z-index: 2;
+  font-size: 0.56rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-quiet);
+  transition: color 220ms var(--ease);
+}
+
+/* The type. Everything readable lives here and never on the furniture. */
+.forme__type {
+  display: grid;
+  gap: clamp(0.7rem, 1.6vw, 1.1rem);
+  align-content: start;
+}
+
+/* The foot, below the type, still inside the chase. */
+.forme__foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: clamp(1rem, 2.4vw, 1.6rem);
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--ink-16);
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.forme__by {
+  color: var(--ink-78);
+}
+
+.forme__note {
+  color: var(--ink-quiet);
+  text-align: right;
+}
+
+/* --- the quoin ------------------------------------------------------------
+ *
+ * The expanding wedge that tightens the lockup. Two steel faces that run past
+ * each other, so the corner reads as something that can be driven in rather
+ * than as a decorative tick. It is placed in the furniture, not in the type.
+ */
+.forme__quoin {
+  position: absolute;
+  width: 1.05rem;
+  height: 1.05rem;
+  z-index: 2;
+  pointer-events: none;
+  transition:
+    translate 320ms var(--ease),
+    opacity 220ms var(--ease);
+}
+
+.forme__quoin::before,
+.forme__quoin::after {
+  content: '';
+  position: absolute;
+  background: var(--steel);
+}
+
+/* The long face. */
+.forme__quoin::before {
+  inset-block: 0;
+  width: 2px;
+  left: 0;
+}
+
+/* The short face, which is the wedge. */
+.forme__quoin::after {
+  inset-inline: 0;
+  height: 2px;
+  top: 0;
+}
+
+.forme__quoin--tl {
+  top: calc(var(--bevel) * -1);
+  left: calc(var(--bevel) * -1);
+}
+
+.forme__quoin--tr {
+  top: calc(var(--bevel) * -1);
+  right: calc(var(--bevel) * -1);
+  rotate: 90deg;
+}
+
+.forme__quoin--bl {
+  bottom: calc(var(--bevel) * -1);
+  left: calc(var(--bevel) * -1);
+  rotate: -90deg;
+}
+
+.forme__quoin--br {
+  bottom: calc(var(--bevel) * -1);
+  right: calc(var(--bevel) * -1);
+  rotate: 180deg;
+}
+
+/* --- state: tight ---------------------------------------------------------
+ *
+ * The quoin driven home. The impression goes deeper, the quoin moves in by a
+ * pixel and the slug takes the second colour, because a forme under pressure
+ * is the one you are about to print.
+ */
+.forme.is-tight {
+  box-shadow: var(--impress-deep);
+  background: color-mix(in srgb, var(--paper-damp) 94%, var(--ink));
+}
+
+.forme.is-tight::before {
+  color: var(--second);
+}
+
+.forme.is-tight .forme__quoin {
+  translate: 1px 1px;
+}
+
+.forme.is-tight .forme__quoin--tr {
+  translate: -1px 1px;
+}
+
+.forme.is-tight .forme__quoin--bl {
+  translate: 1px -1px;
+}
+
+.forme.is-tight .forme__quoin--br {
+  translate: -1px -1px;
+}
+
+/* --- state: standing ------------------------------------------------------
+ *
+ * Set, but not yet printed. No impression at all, because nothing has been
+ * under the press: the furniture is there and the paper is flat.
+ */
+.forme.is-standing {
+  background: var(--paper);
+  box-shadow: none;
+}
+
+.forme.is-standing .specimen__line,
+.forme.is-standing .forme__type {
+  color: var(--ink-78);
+}
+
+.forme.is-standing .forme__quoin {
+  opacity: 0.4;
+}
+
+/* --- state: pulled --------------------------------------------------------
+ *
+ * A proof has been taken, so the forme carries ink. The second colour appears
+ * in the furniture, which is what a sheet looks like when it has been through
+ * the press twice and the register was good.
+ */
+.forme.is-pulled {
+  border-top-color: color-mix(in srgb, var(--wood-lit) 82%, var(--second));
+  border-left-color: color-mix(in srgb, var(--wood-lit) 82%, var(--second));
+}
+
+.forme.is-pulled::before {
+  color: var(--second);
+}
+
+/* --- state: pointed at ---------------------------------------------------- */
+
+.forme--line:hover,
+.forme--figure:hover,
+.forme--note:hover {
+  background: color-mix(in srgb, var(--paper-damp) 95%, var(--ink));
+  box-shadow: var(--impress-deep);
+}
+
+.forme--line:hover::before,
+.forme--figure:hover::before,
+.forme--note:hover::before {
+  color: var(--second);
+}
+
+.forme--line:hover .forme__quoin,
+.forme--figure:hover .forme__quoin,
+.forme--note:hover .forme__quoin {
+  translate: 1px 1px;
+}
+
+.forme--figure:hover .forme__quoin--br,
+.forme--note:hover .forme__quoin--br {
+  translate: -1px -1px;
+}
+
+/* ========================================================================
+   FORME VARIANTS
+   ======================================================================== */
+
+/* --- the hero: one large forme ------------------------------------------- */
+
+.forme--hero {
+  padding: clamp(2rem, 5vw, 4rem) clamp(1.4rem, 4vw, 3rem) clamp(1.2rem, 2.5vw, 1.8rem);
+}
+
+.forme--hero::before {
+  top: 0.6rem;
+  left: 1rem;
+  font-size: 0.6rem;
 }
 
 .eyebrow {
-  font-size: 0.66rem;
-  letter-spacing: 0.2em;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--ink-faint);
+  color: var(--ink-quiet);
 }
 
-.note {
-  color: var(--ink-soft);
+.hero-line {
+  max-width: 14ch;
+  font-size: clamp(2.6rem, 9.5vw, 8.5rem);
 }
 
 .lede {
-  font-size: clamp(0.92rem, 1.4vw, 1.1rem);
-  line-height: 1.62;
+  max-width: 44ch;
+  font-size: clamp(0.84rem, 1.3vw, 1rem);
+  color: var(--ink-78);
 }
 
-/* --- chrome --------------------------------------------------------------- */
+@media (max-width: 48rem) {
+  .forme--hero .forme__foot {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .forme--hero .forme__note {
+    text-align: left;
+  }
+}
 
-.masthead {
+/* --- the line: one size of the specimen ----------------------------------
+ *
+ * The slug goes in the furniture at the left and the line runs beside it, so
+ * four of these stacked read as a specimen sheet rather than as four cards.
+ */
+.forme--line {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0 clamp(1rem, 2.5vw, 2rem);
+  padding: clamp(0.9rem, 2vw, 1.4rem) clamp(1rem, 2vw, 1.4rem);
+}
+
+/* The slug is already in the row for this variant, so it is not repeated. */
+.forme--line::before {
+  content: none;
+}
+
+.specimen__size {
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-quiet);
+  font-variant-numeric: tabular-nums;
+  transition: color 220ms var(--ease);
+}
+
+.forme--line:hover .specimen__size {
+  color: var(--second);
+}
+
+.specimen__line {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+ * The four sizes, in the ratios a case actually holds rather than a ramp
+ * somebody invented. They are capped against the viewport because seventy-two
+ * point is seventy-two point, and on a phone that is wider than the phone.
+ */
+.specimen__line--72 {
+  font-size: clamp(2.2rem, 9vw, 4.5rem);
+}
+
+.specimen__line--36 {
+  font-size: clamp(1.5rem, 5vw, 2.25rem);
+}
+
+.specimen__line--18 {
+  font-size: clamp(1rem, 2.6vw, 1.125rem);
+}
+
+.specimen__line--10 {
+  font-size: 0.625rem;
+  letter-spacing: 0;
+}
+
+@media (max-width: 40rem) {
+  .forme--line {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.3rem;
+  }
+  .specimen__line--18,
+  .specimen__line--10 {
+    white-space: normal;
+  }
+}
+
+/* --- the figure: one forme, one number ----------------------------------- */
+
+.forme--figure {
+  display: grid;
+  align-content: space-between;
+  gap: 0.4rem;
+  min-height: 9rem;
+  padding-top: clamp(1.6rem, 3vw, 2.2rem);
+}
+
+.figure__value {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.5vw, 3.4rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.figure__label {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-quiet);
+}
+
+/* --- the note: a forme of running copy ------------------------------------ */
+
+.note-title {
+  font-size: clamp(1.1rem, 2.4vw, 1.7rem);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.note {
+  color: var(--ink-78);
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
+/* --- the plate: a forme with a pulled sheet in it ------------------------- */
+
+.forme--plate {
+  padding: clamp(1.4rem, 3vw, 2rem) clamp(0.8rem, 1.6vw, 1.1rem) clamp(0.8rem, 1.6vw, 1.1rem);
+}
+
+/*
+ * The well, with a definite ratio. The picture is absolute inside it, because
+ * a library item sizes its canvas to its host and a canvas left in flow grows
+ * the host it is measuring against.
+ */
+.forme__well {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 8 / 5;
+  background: var(--paper-deep);
+  box-shadow: inset 0 0 0 1px var(--ink-16);
+}
+
+.forme__well > img,
+.forme__well > canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: filter 500ms var(--ease);
+}
+
+.forme--plate:hover .forme__well > img {
+  filter: contrast(1.05) saturate(1.04);
+}
+
+/* --- the quote: the tightest forme on the page ---------------------------- */
+
+.forme--quote {
+  padding: clamp(2rem, 5vw, 3.5rem) clamp(1.4rem, 4vw, 3rem) clamp(1.2rem, 2.5vw, 1.8rem);
+}
+
+.quote {
+  max-width: 22ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 5.5vw, 4rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+/* ========================================================================
+   THE CHASE. The top rail, with the studio locked into it.
+   ======================================================================== */
+
+/*
+ * The lit face of the wood, not the wood. Knocking the beech back towards the
+ * ink took the masthead's own text under 4.5:1, which is the kind of thing one
+ * colour change does three rules away from itself. The rail is the top face of
+ * a block lit from above, so the lit tone is also the truthful one here, and
+ * the bevel under it stays dark.
+ */
+.chase {
   position: sticky;
   top: 0;
   z-index: 40;
-  display: flex;
-  align-items: baseline;
-  gap: clamp(1rem, 4vw, 3rem);
-  padding: 0.9rem var(--grid-margin);
-  background: color-mix(in srgb, var(--sheet) 90%, transparent);
-  backdrop-filter: blur(10px);
-  /* The top rail of the chase: iron, with the bevel a cast edge has. */
-  border-bottom: 2px solid var(--iron);
-  box-shadow: inset 0 -3px 0 rgba(255, 255, 255, 0.5);
+  background: var(--wood-lit);
 }
 
-.masthead__mark {
+.chase__rail {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  max-width: var(--grid-measure);
+  margin-inline: auto;
+  padding: 0.45rem var(--grid-margin);
+}
+
+/* The light falls from the top left here too, so the rail is a block of wood
+ * seen from the same side as every piece of furniture on the page. */
+.chase__bevel {
+  display: block;
+  height: var(--bevel);
+  background: var(--wood-dark);
+}
+
+.chase__mark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1rem;
@@ -141,62 +626,106 @@ code {
   color: var(--ink);
 }
 
-.masthead__nav {
+.chase__mark-slug {
+  font-family: var(--font-mono);
+  font-size: 0.54rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-quiet);
+  transition: color 200ms var(--ease);
+}
+
+.chase__mark:hover .chase__mark-slug {
+  color: var(--second);
+}
+
+.chase__nav {
   display: flex;
-  gap: clamp(0.8rem, 2vw, 1.6rem);
+  gap: clamp(0.7rem, 2vw, 1.5rem);
   margin-inline-start: auto;
-  font-size: 0.68rem;
+}
+
+.chase__link {
+  position: relative;
+  font-size: 0.62rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-}
-
-.masthead__nav a {
-  position: relative;
-  color: var(--ink-faint);
   text-decoration: none;
-  transition: color 200ms var(--ease-66, ease);
+  white-space: nowrap;
+  color: var(--ink-78);
+  transition: color 200ms var(--ease);
 }
 
-/* The hover is a rule, drawn at one point, because that is the idiom here. */
-.masthead__nav a::after {
+/* A rule, not an underline: it is the one ornament this page has. */
+.chase__link::after {
   content: '';
   position: absolute;
   inset-inline: 0;
-  bottom: -4px;
-  height: var(--pt);
-  background: var(--accent);
+  bottom: -3px;
+  height: 2px;
+  background: var(--second);
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 240ms var(--ease-66, ease);
+  transition: transform 240ms var(--ease);
 }
 
-.masthead__nav a:hover,
-.masthead__nav a:focus-visible {
+.chase__link:hover,
+.chase__link:focus-visible {
   color: var(--ink);
 }
 
-.masthead__nav a:hover::after,
-.masthead__nav a:focus-visible::after {
+.chase__link:hover::after,
+.chase__link:focus-visible::after {
   transform: scaleX(1);
 }
 
-.masthead__chase {
-  display: none;
-  font-size: 0.58rem;
-  letter-spacing: 0.3em;
-  color: var(--ink-faint);
+.chase__link:active {
+  color: var(--second);
 }
 
-@media (min-width: 60rem) {
-  .masthead__chase {
-    display: block;
+.chase__link:focus-visible {
+  outline: 2px solid var(--second);
+  outline-offset: 4px;
+}
+
+.chase__size {
+  font-size: 0.54rem;
+  letter-spacing: 0.22em;
+  color: var(--ink-quiet);
+}
+
+@media (max-width: 64rem) {
+  .chase__size {
+    display: none;
   }
 }
 
-/* --- bands ---------------------------------------------------------------- */
+@media (max-width: 40rem) {
+  .chase__rail {
+    flex-wrap: wrap;
+    gap: 0.35rem 1rem;
+    padding-block: 0.4rem;
+  }
+  .chase__nav {
+    width: 100%;
+    margin-inline-start: 0;
+    justify-content: space-between;
+    gap: 0.35rem;
+  }
+  .chase__link {
+    font-size: 0.55rem;
+    letter-spacing: 0.06em;
+  }
+}
 
-.g-band {
-  padding-block: clamp(3rem, 8vw, 7rem);
+/* ========================================================================
+   BANDS
+   ======================================================================== */
+
+.band__head {
+  align-items: end;
+  margin-bottom: clamp(1.2rem, 3vw, 2rem);
+  row-gap: 0.6rem;
 }
 
 .band__ground {
@@ -205,95 +734,45 @@ code {
   z-index: 0;
 }
 
-.band--hero,
-.band--marks {
-  position: relative;
-  overflow: hidden;
-}
-
-.band--hero .g-band__grid,
-.band--marks .g-band__grid {
+.band--hero > .g-band__grid,
+.band--marks > .g-band__grid {
   position: relative;
   z-index: 1;
 }
+
+.section-title {
+  font-size: clamp(1.7rem, 5vw, 3.8rem);
+}
+
+/* --- hero ---------------------------------------------------------------- */
 
 .band--hero {
-  padding-block: clamp(4rem, 12vw, 9rem);
+  position: relative;
+  overflow: hidden;
+  padding-block: clamp(1.5rem, 4vw, 3rem);
 }
 
-.hero-line {
-  font-size: clamp(2.6rem, 10vw, 9rem);
-  margin-block: 0.28em 0.5em;
-  /*
-   * The impression. A press pushes the type into dampened paper, so the
-   * letter sits slightly below the surface and catches light on its upper
-   * edge. One inset highlight and one soft shadow is the whole of it; any
-   * more and it reads as a bevel filter rather than as paper.
-   */
-  text-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.75),
-    0 -1px 1px rgba(27, 27, 23, 0.14);
+/* --- the rule case -------------------------------------------------------- */
+
+.band--rule {
+  padding-block: clamp(1.5rem, 4vw, 3rem);
 }
 
-/* --- the quoins ----------------------------------------------------------- */
-
-/*
- * A quoin is a pair of toothed iron wedges driven against each other to lock
- * the forme. Drawn as two blocks meeting on a diagonal, which is what you see
- * looking down into a chase, and placed in the corners where the lockup is
- * actually tightened.
- */
-.quoin {
-  position: absolute;
-  width: clamp(1.4rem, 3vw, 2.4rem);
-  height: clamp(1.4rem, 3vw, 2.4rem);
-  z-index: 1;
-  background: linear-gradient(
-    135deg,
-    var(--iron) 0 48%,
-    rgba(255, 255, 255, 0.35) 48% 52%,
-    var(--iron) 52% 100%
-  );
-  opacity: 0.5;
+.band--rule .g-band__grid {
+  row-gap: clamp(0.8rem, 2vw, 1.4rem);
 }
 
-.quoin--tl {
-  top: 0;
-  left: 0;
-}
-.quoin--tr {
-  top: 0;
-  right: 0;
-  rotate: 90deg;
-}
-.quoin--br {
-  bottom: 0;
-  right: 0;
-  rotate: 180deg;
-}
-.quoin--bl {
-  bottom: 0;
-  left: 0;
-  rotate: 270deg;
-}
-
-/* --- the rules ------------------------------------------------------------ */
-
-/*
- * Set at the weights a compositor actually had: a hairline, then one, two,
- * six and twelve point. They are stacked rather than spread, because that is
- * how they sit in the case and because the jump between them is the point.
- */
 .rules {
   display: grid;
-  gap: 0.42rem;
-  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  gap: 0.35rem;
 }
 
-.rules--under {
-  margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
-}
-
+/*
+ * Real letterpress weights. A hairline is a hairline, and the rest are points
+ * converted at the usual 72 to the inch, so a six point rule here is a six
+ * point rule. Rounding them to a tidy 1, 2, 4, 8 would have been easier and
+ * would have made the page a chart of nothing.
+ */
 .rule {
   display: block;
   width: 100%;
@@ -301,282 +780,217 @@ code {
 }
 
 .rule--hair {
-  height: 0.5px;
+  height: 1px;
+  background: var(--ink-58);
 }
+
 .rule--1 {
-  height: var(--pt);
+  height: 1.33px;
 }
+
 .rule--2 {
-  height: calc(var(--pt) * 2);
+  height: 2.67px;
 }
+
 .rule--6 {
-  height: calc(var(--pt) * 6);
+  height: 8px;
 }
+
 .rule--12 {
-  height: calc(var(--pt) * 12);
-  background: var(--accent);
+  height: 16px;
+}
+
+.rules--under {
+  gap: 0.35rem;
 }
 
 .running {
   font-family: var(--font-display);
-  font-size: clamp(1.2rem, 3.4vw, 2.6rem);
+  font-size: clamp(1.1rem, 3vw, 2.1rem);
   font-weight: 700;
   letter-spacing: -0.03em;
-  line-height: 1.12;
-  text-wrap: balance;
+  line-height: 1.15;
 }
 
-/* The word list is an item: it sizes its own box, so nothing here does. */
+/* RotatingWords stacks its words and shows one; the slot has to hold them. */
 #we-print {
-  color: var(--accent);
+  position: relative;
+  display: inline-block;
+  vertical-align: bottom;
+  color: var(--second);
 }
 
-/* --- the slug ------------------------------------------------------------- */
+/* --- specimen ------------------------------------------------------------- */
 
 /*
- * Type sits on a body taller than the letter, and the space above and below
- * is the shoulder. Marking the size in the margin is what a specimen does and
- * what a studio's own page should do.
+ * The four lines pack against each other with a hairline between, because a
+ * specimen sheet is one sheet. The grid's prose row gap would have made four
+ * separate cards of them.
  */
-.slug {
-  position: relative;
-  padding-left: 3.4rem;
+.specimen {
+  margin-block: 0;
+  row-gap: 1px;
+  background: var(--ink-16);
 }
 
-.slug__size {
-  position: absolute;
-  left: 0;
-  top: 0.35rem;
-  font-size: 0.6rem;
-  letter-spacing: 0.12em;
-  color: var(--accent);
+/* --- figures -------------------------------------------------------------- */
+
+.furniture {
+  --grid-gutter: 2px;
+  row-gap: 2px;
 }
 
 @media (max-width: 48rem) {
-  .slug {
-    padding-left: 0;
+  /* Furniture packs; it does not stack one block per row. */
+  .furniture .forme--figure {
+    grid-column: auto / span 2;
   }
-  .slug__size {
-    position: static;
-    display: block;
-    margin-bottom: 0.4rem;
+  .forme--figure {
+    min-height: 7rem;
+  }
+  .figure__label {
+    font-size: 0.55rem;
   }
 }
 
-/* --- the specimen --------------------------------------------------------- */
+/* --- register ------------------------------------------------------------- */
 
-.band--specimen {
-  border-top: calc(var(--pt) * 2) solid var(--ink);
-}
-
-.specimen {
-  margin: clamp(2rem, 5vw, 3.5rem) var(--grid-margin) 0;
-}
-
-.specimen__row {
-  display: grid;
-  grid-template-columns: 4rem 1fr;
-  gap: 1.5rem;
-  align-items: baseline;
-  padding-block: clamp(0.8rem, 2vw, 1.4rem);
-  border-top: 0.5px solid var(--grid-rule);
-}
-
-.specimen__row:last-child {
-  border-bottom: 0.5px solid var(--grid-rule);
-}
-
-.specimen dt {
-  font-size: 0.62rem;
-  letter-spacing: 0.1em;
-  color: var(--accent);
-}
-
-.specimen__line {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 1;
-  white-space: nowrap;
+.band--marks {
+  position: relative;
   overflow: hidden;
-  text-overflow: clip;
-}
-
-/* The sizes are the content, so they are set rather than scaled. */
-.specimen__line--72 {
-  font-size: clamp(2.4rem, 9vw, 6rem);
-}
-.specimen__line--36 {
-  font-size: clamp(1.6rem, 4.5vw, 3rem);
-}
-.specimen__line--18 {
-  font-size: clamp(1rem, 2.2vw, 1.5rem);
-}
-.specimen__line--10 {
-  font-size: clamp(0.8rem, 1.2vw, 0.84rem);
-  font-family: var(--font-mono);
-  font-weight: 400;
-  letter-spacing: 0;
-}
-
-/* --- the furniture -------------------------------------------------------- */
-
-/*
- * Furniture is the wood that fills a chase around the type. Bevelled, because
- * a block that has been knocked about in a stone for fifty years is never
- * square, and the bevel is how you can tell wood from metal at a glance.
- */
-.band--figures {
-  background: var(--sheet-deep);
-  border-block: calc(var(--pt) * 6) solid var(--ink);
-}
-
-.furniture {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
-  gap: clamp(0.8rem, 2vw, 1.4rem);
-  margin-inline: var(--grid-margin);
-}
-
-.furniture__block {
-  padding: clamp(1.2rem, 3vw, 2rem);
-  background: linear-gradient(160deg, var(--wood-lit), var(--wood) 55%, var(--wood-dark));
-  border-radius: 1px;
-  box-shadow:
-    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
-    inset -1px -1px 0 rgba(27, 27, 23, 0.18);
-}
-
-.furniture__block .counter {
-  display: block;
-  font-family: var(--font-display);
-  font-size: clamp(2.2rem, 6vw, 4.2rem);
-  font-weight: 700;
-  letter-spacing: -0.045em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink);
-}
-
-.furniture__label {
-  display: block;
-  margin-top: 0.5rem;
-  font-size: 0.64rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(27, 27, 23, 0.58);
-}
-
-/* --- plates and notes ----------------------------------------------------- */
-
-.stack-note {
-  display: grid;
-  gap: 0.7rem;
-  align-content: start;
-}
-
-.band--plates {
-  padding-top: clamp(2rem, 6vw, 4rem);
-}
-
-/*
- * A printed sheet sits slightly off the page it is shown on, and the shadow
- * is tight rather than soft: paper on paper, not paper floating.
- */
-.plate img {
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.8),
-    0 2px 10px -4px rgba(27, 27, 23, 0.3);
-}
-
-.band--quote {
-  border-top: 0.5px solid var(--grid-rule);
-}
-
-.quote {
-  font-family: var(--font-display);
-  font-size: clamp(1.3rem, 3.8vw, 3.2rem);
-  font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 1.1;
-  text-wrap: balance;
 }
 
 /* --- colophon ------------------------------------------------------------- */
 
 .band--foot {
-  border-top: calc(var(--pt) * 12) solid var(--ink);
+  position: relative;
+  overflow: hidden;
+  border-top: var(--bevel) solid var(--wood-dark);
   padding-bottom: 0;
 }
 
-.band--foot h2 {
-  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
-}
-
+/*
+ * Each row is a forme on its side, packed into a block the way the furniture
+ * is. These are not `.forme` elements because the colophon is written from
+ * meta.json at runtime and entry.ts should not have to know the page's
+ * vocabulary; they take the same furniture and the same impression here.
+ *
+ * `.g-band__grid.manifest > li` rather than `.manifest > li`: TwelveColumn's
+ * narrow rule is `.g-band__grid > *:not(.g-keep)`, which is two classes and
+ * outranks one class plus an element however late this file loads. And
+ * `grid-column: auto / span N`, not `grid-column-end`, because that rule is
+ * the shorthand `1 / -1` and overriding only the end leaves every row still
+ * starting at column one.
+ */
+/*
+ * `margin-block`, never the `margin` shorthand.
+ *
+ * `.g-band__grid` centres itself with `margin-inline: auto`, and a shorthand
+ * here resets that to 0. At 1440 nothing shows, because the measure is wider
+ * than the window and the band fills it either way. At 2560 this band pinned
+ * itself to the left edge while every other band on the page stayed centred,
+ * which is the kind of thing only a wide viewport ever reports.
+ */
 .manifest {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
-  gap: 0.35rem 1.5rem;
-  margin: 0 0 2rem;
-  padding: 0;
+  --grid-gutter: 2px;
+  row-gap: 2px;
+  margin-block: 0 clamp(1.4rem, 3.5vw, 2.2rem);
   list-style: none;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
 }
 
-.manifest li {
+.g-band__grid.manifest > li {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  box-sizing: border-box;
   gap: 1rem;
-  padding-block: 0.4rem;
-  border-bottom: 0.5px solid var(--grid-rule);
+  grid-column: auto / span 3;
+  padding: 0.5rem 0.7rem;
+  background: var(--paper-damp);
+  box-shadow: var(--impress);
+  border: 2px solid var(--wood);
+  border-top-color: var(--wood-lit);
+  border-left-color: var(--wood-lit);
+  border-bottom-color: var(--wood-dark);
+  border-right-color: var(--wood-dark);
+  transition:
+    background-color 240ms var(--ease),
+    box-shadow 240ms var(--ease);
+}
+
+.g-band__grid.manifest > li:hover {
+  background: color-mix(in srgb, var(--paper-damp) 95%, var(--ink));
+  box-shadow: var(--impress-deep);
 }
 
 .manifest a {
   color: var(--ink);
   text-decoration: none;
   border-bottom: 1px solid transparent;
+  transition: border-color 200ms var(--ease);
 }
 
 .manifest a:hover,
 .manifest a:focus-visible {
-  border-bottom-color: var(--accent);
+  border-bottom-color: var(--second);
+}
+
+.manifest a:focus-visible {
+  outline: 2px solid var(--second);
+  outline-offset: 3px;
 }
 
 .manifest .kind {
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
+  flex: none;
+  font-size: 0.54rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ink-faint);
+  color: var(--ink-quiet);
+}
+
+@media (max-width: 48rem) {
+  .g-band__grid.manifest > li {
+    grid-column: auto / span 2;
+  }
 }
 
 .credit {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
 }
 
 /*
- * The name at the foot, set to the width of the sheet and trimmed by it. A
- * forme is locked up to the chase and anything past the edge does not print.
+ * The name at the foot, trimmed by the sheet. A forme wider than the chase
+ * does not print the part that hangs over, and neither does this.
  */
 .wordmark {
-  margin: clamp(2rem, 6vw, 5rem) 0 0;
+  margin: clamp(2rem, 5vw, 4rem) 0 0;
+  padding-inline: var(--grid-margin);
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 17vw;
-  letter-spacing: -0.055em;
-  line-height: 0.76;
+  letter-spacing: -0.05em;
+  line-height: 0.8;
   white-space: nowrap;
   overflow: hidden;
-  padding-inline: var(--grid-margin);
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(27, 27, 23, 0.25);
+  color: var(--ink-16);
 }
 
-/* --- reduced motion ------------------------------------------------------- */
+/* ========================================================================
+   REDUCED MOTION. Each item handles its own; this is the page's.
+   ======================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
-  .masthead__nav a::after {
+  .forme,
+  .forme::before,
+  .forme__quoin,
+  .forme__well > img,
+  .specimen__size,
+  .chase__link,
+  .chase__link::after,
+  .chase__mark-slug,
+  .g-band__grid.manifest > li,
+  .manifest a {
     transition-duration: 0.01ms;
   }
 }

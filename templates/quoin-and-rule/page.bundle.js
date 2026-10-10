@@ -1514,7 +1514,12 @@ ${log ?? ""}`);
     keep(core_default5(counter, { duration: 1400 }));
   }
   var quote = at("#quote-line");
-  if (quote) keep(core_default6(quote));
+  var inkOf = (name, fallback) => getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+  if (quote) {
+    const ink = inkOf("--ink", "#16150f");
+    const second = inkOf("--second", "#b3301c");
+    keep(core_default6(quote, { first: ink, second, third: second, angle: 8, blend: 0.5 }));
+  }
   var manifest = at("#manifest");
   if (manifest) {
     for (const item of used) {

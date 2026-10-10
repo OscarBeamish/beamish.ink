@@ -812,10 +812,19 @@ code {
  * of floating as four cards, and they still sit on the same twelve tracks as
  * everything else on the page.
  */
+/*
+ * `margin-block`, never the `margin` shorthand.
+ *
+ * `.g-band__grid` centres itself with `margin-inline: auto`, and a shorthand
+ * here resets that to 0. At 1440 nothing shows, because the measure is wider
+ * than the window and the band fills it either way. At 2560 this band pinned
+ * itself to the left edge while every other band on the page stayed centred,
+ * which is the kind of thing only a wide viewport ever reports.
+ */
 .exposure {
   --grid-gutter: 1px;
   row-gap: 1px;
-  margin: 0;
+  margin-block: 0;
 }
 
 @media (max-width: 48rem) {
@@ -914,7 +923,7 @@ code {
 }
 
 .roster {
-  margin: 0;
+  margin-block: 0;
   list-style: none;
   row-gap: clamp(0.8rem, 2vw, 1.4rem);
 }
@@ -922,7 +931,7 @@ code {
 /* --- process ------------------------------------------------------------- */
 
 .process {
-  margin: 0;
+  margin-block: 0;
   list-style: none;
   row-gap: clamp(0.8rem, 2vw, 1.4rem);
 }
@@ -987,7 +996,7 @@ code {
 .manifest {
   --grid-gutter: 1px;
   row-gap: 1px;
-  margin: 0 0 clamp(1.5rem, 4vw, 2.5rem);
+  margin-block: 0 clamp(1.5rem, 4vw, 2.5rem);
   list-style: none;
   font-size: 0.74rem;
 }

@@ -452,7 +452,14 @@
           </p>
         </div>
 
-        <p class="wordmark" aria-hidden="true">Halide &amp; Grain</p>
+        <!--
+          Pure decoration under WCAG 1.4.3: the page name again at display
+          size, trimmed by the sheet, carrying no information that is not
+          already in the masthead. `data-decoration` says so where somebody
+          reading the markup will see it, and the contrast check honours it
+          rather than silently reporting a failure nobody intends to fix.
+        -->
+        <p class="wordmark" data-decoration aria-hidden="true">Halide &amp; Grain</p>
       </footer>
     </main>
 
