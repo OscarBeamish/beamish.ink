@@ -1430,8 +1430,8 @@ ${log ?? ""}`);
   var meta_default = {
     name: "Quoin & Rule",
     slug: "quoin-and-rule",
-    description: "An invented letterpress studio on paper, laid out as a forme locked up in a chase",
-    intent: "A page with an idea rather than a set of bands: quoins tightening the corners, brass rules at real letterpress weights, furniture bevelled the way wood is, and a specimen setting one line at four sizes. The library items serve that, with two WebGL backdrops brokered by the stage so only one context is ever live.",
+    description: "An invented letterpress studio where one primitive, a forme locked up in a chase, is every surface on the page",
+    intent: "One primitive carrying a whole page, and depth that goes the right way. A forme is type, the furniture packed round it, a quoin in the corner and a slug saying the size, and it is the masthead, the hero, every line of the specimen, every figure, the proof and the quote. Nothing on the page is raised, because a press cannot put anything on top of a sheet: every surface is pressed into the paper and the only light falls on the bevel of the furniture. The library items serve that, with two WebGL backdrops brokered by the stage so only one context is ever live.",
     ground: "paper",
     uses: [
       {
