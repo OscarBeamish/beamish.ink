@@ -6,14 +6,21 @@
  * that is deliberate: a template is supposed to read as somebody's own site,
  * which it cannot do wearing this one's header. The card is the only place
  * the library speaks about it.
+ *
+ * Which is why the prompt sits on the card rather than behind a detail page.
+ * A template is for taking, and a wall of previews with no way to take one
+ * from it would make the reader click through to a page that says nothing
+ * about the library just to come back.
  */
 import Base from '../../layouts/Base.astro'
 import ItemCard from '../../components/ItemCard.astro'
-import { loadTemplates, loadTemplateMedia } from '../../lib/templates'
+import PromptButtons from '../../components/PromptButtons.astro'
+import { loadTemplates, loadTemplateMedia, loadTemplatePrompt } from '../../lib/templates'
 
 const templates = loadTemplates().map(template => ({
   template,
-  media: loadTemplateMedia(template.slug)
+  media: loadTemplateMedia(template.slug),
+  prompt: loadTemplatePrompt(template.slug)
 }))
 ---
 
@@ -37,8 +44,8 @@ const templates = loadTemplates().map(template => ({
   <section class="spine pb-32">
     <ul class="col-span-12 grid grid-cols-1 gap-6 sm:grid-cols-2">
       {
-        templates.map(({ template, media }) => (
-          <li class="h-full">
+        templates.map(({ template, media, prompt }) => (
+          <li class="flex h-full flex-col gap-4">
             <ItemCard
               href={`/templates/${template.slug}/index.html`}
               name={template.name}
@@ -46,6 +53,7 @@ const templates = loadTemplates().map(template => ({
               label={template.ground === 'dark' ? 'Dark' : 'Paper'}
               media={media}
             />
+            <PromptButtons slug={template.slug} linked={prompt} />
           </li>
         ))
       }

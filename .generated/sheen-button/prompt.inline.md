@@ -118,6 +118,15 @@ export default SheenButton
 
 .beamish-sheen-button {
   --sheen-accent: var(--accent, #c44400);
+  /*
+   * What goes on top of the accent, which is not always white.
+   *
+   * The paper accent is a surface that carries white text at 5.03:1. The dark
+   * one is brighter, because on near black the accent is the text rather than
+   * the thing behind it, and white on that is 2.59:1 and fails. The ground
+   * decides, so the token does.
+   */
+  --sheen-on-accent: var(--accent-ink, #fff);
   --sheen-ink: var(--label-1, #000);
   --sheen-line: var(--control-line, rgba(54, 54, 48, 0.7));
   --sheen-ease: var(--ease-66, cubic-bezier(0.66, 0, 0.01, 1));
@@ -161,12 +170,19 @@ export default SheenButton
 
 .beamish-sheen-button--solid {
   background-color: var(--sheen-accent);
-  color: #fff;
+  color: var(--sheen-on-accent);
 }
 
 /*
- * Darkens on hover rather than lightening. The accent sits near the top of its
- * range already, and lifting it drops the white lettering below 4.5:1.
+ * Darkens on hover rather than lightening, and it has to stay one direction
+ * for both grounds because the hover is a gesture, not a palette.
+ *
+ * On paper that is the safe way: the accent is near the top of its range and
+ * lifting it drops the white lettering below 4.5:1, while darkening takes
+ * 5.03:1 to 6.59:1. On a dark page the lettering is the ground rather than
+ * white, so the same move costs contrast instead of buying it, 7.45:1 down to
+ * 5.34:1. Still clear, which is why this stays as it is, but it is the
+ * narrower of the two and worth knowing before the accent moves again.
  */
 .beamish-sheen-button--solid:hover:not(:disabled) {
   background-color: color-mix(in srgb, var(--sheen-accent) 84%, #000);

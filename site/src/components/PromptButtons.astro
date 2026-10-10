@@ -12,7 +12,15 @@ import '@items/components/sheen-button/styles.css'
 type Props = {
   slug: string
   linked: string
-  inlined: string
+  /*
+   * Optional, because not everything has one. An item can carry its source in
+   * the prompt since an item is one file; a template is four of its own plus a
+   * dozen library ones, so there is nothing sane to inline. When it is absent
+   * the second button is not rendered at all rather than rendered and inert,
+   * which is the rule at the top of this file: neither button may ever be a
+   * dead end, and the cheapest way to keep that true is not to draw one.
+   */
+  inlined?: string | undefined
 }
 
 const { slug, linked, inlined } = Astro.props
@@ -35,13 +43,17 @@ const embed = (text: string) => JSON.stringify(text).replaceAll('</', '<\\/')
   <button type="button" class="beamish-sheen-button beamish-sheen-button--solid" data-copy="linked">
     <span data-label>Copy prompt</span>
   </button>
-  <button type="button" class="beamish-sheen-button beamish-sheen-button--quiet" data-copy="inlined">
-    <span data-label>Copy with code inlined</span>
-  </button>
+  {
+    inlined && (
+      <button type="button" class="beamish-sheen-button beamish-sheen-button--quiet" data-copy="inlined">
+        <span data-label>Copy with code inlined</span>
+      </button>
+    )
+  }
 
   {/* Kept out of the DOM as text so a stray selection cannot pick up 8kB of markdown. */}
   <script type="application/json" data-prompt="linked" set:html={embed(linked)} />
-  <script type="application/json" data-prompt="inlined" set:html={embed(inlined)} />
+  {inlined && <script type="application/json" data-prompt="inlined" set:html={embed(inlined)} />}
 
   <p class="text-l3 basis-full text-[0.7rem] tracking-[0.08em] uppercase">
     Paste into Claude Code, Cursor or any agent. Pinned to a tag, so it will not
