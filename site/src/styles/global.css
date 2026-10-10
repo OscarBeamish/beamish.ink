@@ -532,94 +532,6 @@
 }
 
 @layer components {
-  /* The block MaskedHeading uncovers. The clip is on the whole thing, so the
-     heading and the note come away under one torn sheet. */
-  /*
-   * The grid is the page's business, not the effect's: these three columns are
-   * here so the panel has cells to open out of. The 1px gap with a ground
-   * showing through is what draws the rules between cells, and the effect's
-   * travelling rules are tuned to match it.
-   */
-  /*
-   * The demonstration band on a grid page.
-   *
-   * The grid supplies the layout and these supply the type, which is the
-   * right division: a grid system should not be shipping a heading size, and
-   * a page showing one should not be inventing a second layout to display it.
-   * Prefixed gd- so nothing here can be mistaken for part of the grid being
-   * demonstrated, which is the whole thing the reader is trying to read.
-   */
-  .grid-demo {
-    border-block: 1px solid var(--line);
-    background: var(--background-elevated);
-    padding-block: clamp(1.5rem, 4vw, 3.5rem);
-    overflow: hidden;
-  }
-
-  .grid-demo .gd-pad {
-    padding-inline: clamp(1rem, 4vw, 3rem);
-  }
-
-  .grid-demo .gd-h {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(1.2rem, 2.8vw, 2.2rem);
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1;
-  }
-
-  .grid-demo .gd-p,
-  .grid-demo .gd-p p {
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    line-height: 1.7;
-    color: var(--label-2);
-  }
-
-  .grid-demo .gd-n {
-    font-family: var(--font-mono);
-    font-size: 0.64rem;
-    letter-spacing: 0.16em;
-    color: var(--label-3);
-  }
-
-  .grid-demo .gd-t {
-    font-family: var(--font-display);
-    font-size: clamp(0.9rem, 2.4cqw, 1.8rem);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1;
-  }
-
-  .grid-demo .gd-f {
-    margin: 0;
-  }
-
-  .grid-demo img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  /* The tile grid sizes its own plates, so it must keep its object-fit. */
-  .grid-demo .g-tile--plate img {
-    height: 100%;
-    object-fit: cover;
-  }
-
-  /* Overlap places pictures into fixed areas and fills them. */
-  .grid-demo .g-over img {
-    height: 100%;
-    object-fit: cover;
-  }
-
-  /* The baseline grid crops its plates to whole baselines. */
-  .grid-demo .g-plate {
-    object-fit: cover;
-  }
-
   /*
    * The letters fall out of this element by design, so the panel must not
    * clip them. It sits high in the stage for the same reason: the fall needs
@@ -658,6 +570,12 @@
     color: var(--accent);
   }
 
+  /*
+   * The grid is the page's business, not the effect's: these three columns are
+   * here so the panel has cells to open out of. The 1px gap with a ground
+   * showing through is what draws the rules between cells, and the effect's
+   * travelling rules are tuned to match it.
+   */
   .demo-tiles {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -697,6 +615,8 @@
     line-height: 0.98;
   }
 
+  /* The block MaskedHeading uncovers. The clip is on the whole thing, so the
+     heading and the note come away under one torn sheet. */
   .demo-uncover {
     display: grid;
     align-content: center;

@@ -1,20 +1,34 @@
 ---
 /*
- * A grid's page, showing the grid in use.
+ * A grid's page: the real demo at the top, in a frame, then the reference.
  *
- * The demonstration band is written in each grid's own vocabulary, which is
- * the thing this page exists to show, and that has to be per grid. The first
- * version of this file was written in TwelveColumn's class names and then
- * reused for all seven, so six of them loaded a stylesheet defining none of
- * the classes the page used and rendered as unstyled blocks.
+ * WHY A FRAME AND NOT MARKUP ON THIS PAGE
  *
- * Everything around that band, the properties, the notes and the source, is
- * the site's own layout. A grid describes itself in the demonstration; the
- * reference material underneath is reference material.
+ * A grid is a whole page's worth of layout. It sets custom properties on
+ * :root, it lays out full-bleed bands, and the thing worth looking at is how
+ * those behave down a long page at a real width. Rendered inside this document
+ * it is none of those things: the bands are bounded by the site's own column,
+ * the :root properties land on a document the site also styles, and what you
+ * read is a demonstration of the grid inside another grid.
  *
- * The standalone demo still exists, because the recorder needs a page it can
- * scroll on its own and because it is worth being able to open without the
- * site around it.
+ * The version before this one did render it inline, and it worked, but it cost
+ * more than it looked like. Each of the seven grids needed its own composition
+ * written in its own class names, in this file, because a single composition
+ * written in TwelveColumn's names rendered as unstyled blocks on the other six.
+ * That is seven hand-written layouts kept in step with seven demo pages that
+ * already existed and already said the same thing, in a file that is otherwise
+ * about reference material. The frame deletes all of it and shows the real
+ * page instead of a shortened restatement of it.
+ *
+ * It also puts the grid overlay back where it belongs. Three of these grids
+ * draw their rules over the layout and four have nothing to draw, and each of
+ * those three already carries its own floating toggle inside its demo. This
+ * page used to carry a second copy of that button and a second copy of the
+ * overlay markup, for the same three grids, to drive the inline composition.
+ *
+ * The standalone demo is a link as well as a frame. Scrolling a long document
+ * inside a frame is workable and not pleasant, particularly on a phone, so the
+ * way out is directly underneath it rather than at the bottom of the page.
  */
 import Base from '../../layouts/Base.astro'
 import { loadGrids, loadGridSource, GRID_CATEGORY_LABELS } from '../../lib/grids'
@@ -34,162 +48,76 @@ const source = loadGridSource(grid.slug)
  * this one.
  */
 const demo = `/grid-demos/${grid.slug}/demo.html`
-const css = `/grid-demos/${grid.slug}/grid.css`
 const properties = Object.entries(grid.properties)
 /*
  * The same two prompts every other item has, generated the same way and
  * pinned to the same tag. A grid is pasted like everything else here.
  */
 const { linked, inlined } = loadPrompts(grid.slug)
-const plate = (n: string) => `/grid-demos/_media/plate-${n}.webp`
 
 /*
- * The overlay each grid draws its rules with, where it has one. FullBleedTiles,
- * MarginaliaColumns, OverlapGrid and MasonryColumns do not: their structure is
- * visible without anything being drawn over it.
+ * Which grids draw their rules, so the line under the frame tells you the
+ * toggle is there only where there is one. The three that do are the three
+ * whose structure is invisible without it; FullBleedTiles, MarginaliaColumns,
+ * OverlapGrid and MasonryColumns show their structure by existing.
  */
-const OVERLAY: Record<string, { cls: string; cells: number }> = {
-  'twelve-column': { cls: 'g-rules', cells: 12 },
-  'baseline-grid': { cls: 'g-baseline-rules', cells: 0 },
-  'asymmetric-columns': { cls: 'g-asym g-asym-rules', cells: 4 }
-}
-const overlay = OVERLAY[grid.slug]
-
-/*
- * One composition per grid, in that grid's own classes. Short on purpose: the
- * demo page is the long version, and this is the page saying what the thing is
- * before you decide to open it.
- */
-const COMPOSITION: Record<string, string> = {
-  'twelve-column': `
-    <section class="g-band">
-      <div class="g-band__grid">
-        <h2 class="g-col-7 gd-h">Set on twelve, read on seven</h2>
-        <p class="g-col-4 g-start-9 gd-p">Twelve divides by two, three, four and six, which is every division an editorial page asks for.</p>
-        <figure class="g-col-7 gd-f"><img src="${plate('1043')}" alt="A road running into low cloud between dark hills" width="1400" height="875" /></figure>
-        <p class="g-col-4 g-start-9 g-measure gd-p">The margin is not the gutter, and the band bleeds while its tracks stay inset by it.</p>
-      </div>
-    </section>`,
-
-  'full-bleed-tiles': `
-    <div class="g-tiles">
-      <div class="g-tile"><span class="gd-n">01</span><span class="gd-t">Letterpress</span></div>
-      <div class="g-tile g-tile--plate"><img src="${plate('1043')}" alt="A road running into low cloud" width="1400" height="875" /></div>
-      <div class="g-tile g-tile--wide"><span class="gd-n">02</span><span class="gd-t">Lithography</span></div>
-      <div class="g-tile g-tile--plate"><img src="${plate('1015')}" alt="A river in a wooded valley" width="1400" height="875" /></div>
-      <div class="g-tile"><span class="gd-n">03</span><span class="gd-t">Screen print</span></div>
-      <div class="g-tile"><span class="gd-n">04</span><span class="gd-t">Risograph</span></div>
-      <div class="g-tile g-tile--plate"><img src="${plate('1016')}" alt="Bare trees against a pale sky" width="1400" height="875" /></div>
-      <div class="g-tile g-tile--wide"><span class="gd-n">05</span><span class="gd-t">Gravure</span></div>
-    </div>`,
-
-  'baseline-grid': `
-    <div class="g-rhythm gd-pad">
-      <h2>Every line on the same rule</h2>
-      <div class="g-columns">
-        <div>
-          <p>Two columns read as one spread rather than as two lists that happen to be adjacent, because every line in both sits on the same invisible rule.</p>
-          <img class="g-plate" style="--plate-lines: 6" src="${plate('1015')}" alt="A river running through a steep wooded valley" width="1400" height="875" />
-          <p>Six baselines, cropped to the rhythm.</p>
-        </div>
-        <div>
-          <p>A picture is almost never a whole number of baselines, and one of them puts every line below it off the rule for the rest of the page.</p>
-          <img class="g-plate" style="--plate-lines: 6" src="${plate('1016')}" alt="Bare trees against a pale winter sky" width="1400" height="875" />
-          <p>Six baselines, so the captions agree.</p>
-        </div>
-      </div>
-    </div>`,
-
-  'asymmetric-columns': `
-    <section class="g-asym">
-      <h2 class="g-a-3 gd-h">Unequal, on one axis</h2>
-      <p class="g-axis g-a-2 g-measure gd-p">The tracks are a geometric run: each one is the last divided by a single ratio, and almost everything begins on the same line.</p>
-      <p class="g-at-4 g-a-1 g-note gd-n">Ratio 1.38</p>
-      <figure class="g-a-2 gd-f"><img src="${plate('1043')}" alt="A road running into low cloud" width="1400" height="875" /></figure>
-      <div class="g-axis g-a-2 gd-p"><p>The axis is the point rather than the unevenness. Take it away and unequal columns are a mess.</p></div>
-    </section>`,
-
-  'marginalia-columns': `
-    <article class="g-marg g-marg--ruled gd-pad">
-      <h2 class="gd-h">Notes in the margin</h2>
-      <aside class="g-note g-note--level">The oldest layout here, and the one most often built wrongly.</aside>
-      <p class="gd-p">A note belongs to a particular sentence, and a layout that cannot keep the two together has not done the job.</p>
-      <aside class="g-note g-note--level">Floats land where the line ended. Absolute positioning holds still while the text reflows.</aside>
-      <p class="gd-p">Here the note is a grid item in the same row as its paragraph, so the browser keeps them level at every width, with no measurement and no script.</p>
-      <aside class="g-note g-note--level">One row, two cells. The pair cannot come apart.</aside>
-    </article>`,
-
-  'overlap-grid': `
-    <section class="g-over">
-      <figure class="g-o-c1 g-o-w9 g-o-r1 g-o-h6 gd-f"><img src="${plate('1043')}" alt="A road running into low cloud between dark hills" width="1400" height="875" /></figure>
-      <div class="g-o-c6 g-o-w7 g-o-r4 g-o-h4 g-lift-2 g-over-shade">
-        <h2 class="gd-h">Over, not beside</h2>
-        <p class="gd-p">Both items were told to share these cells. There is not a negative margin anywhere in the file.</p>
-      </div>
-    </section>`,
-
-  'masonry-columns': `
-    <div class="g-mason">
-      <figure class="g-card"><img src="${plate('1043')}" alt="A road running into low cloud" width="1400" height="875" /><div class="g-card__body"><span class="gd-n">01</span></div></figure>
-      <figure class="g-card"><div class="g-card__body"><span class="gd-n">02</span><p class="gd-p">Taller than its neighbours, which is the whole reason to pack rather than use equal boxes.</p></div></figure>
-      <figure class="g-card"><img src="${plate('1015')}" alt="A river in a wooded valley" width="1400" height="875" /><div class="g-card__body"><span class="gd-n">03</span></div></figure>
-      <figure class="g-card"><div class="g-card__body"><span class="gd-n">04</span><p class="gd-p">Reading order runs down each column, not across. For pictures nobody minds; for a list it is a bug.</p></div></figure>
-      <figure class="g-card"><img src="${plate('1016')}" alt="Bare trees against a pale sky" width="1400" height="875" /><div class="g-card__body"><span class="gd-n">05</span></div></figure>
-      <figure class="g-card"><div class="g-card__body"><span class="gd-n">06</span></div></figure>
-    </div>`
-}
-const composition = COMPOSITION[grid.slug] ?? ''
+const DRAWS_RULES = new Set(['twelve-column', 'baseline-grid', 'asymmetric-columns'])
+const hasToggle = DRAWS_RULES.has(grid.slug)
 ---
 
 <Base title={`${grid.name}: Beamish`} description={grid.description}>
-  {/*
-    The stylesheet under test, on this page only. Its custom properties are all
-    namespaced and every class carries a g- prefix, because Tailwind already
-    defines start-8 and col-6 and this page uses both vocabularies at once.
-  */}
-  <link rel="stylesheet" href={css} />
-
-  <section class="spine pt-32 pb-10 md:pt-40">
+  <section class="spine pt-32 pb-8 md:pt-40">
     <h1 class="col-span-12 text-[clamp(2.2rem,6vw,4.5rem)] leading-[0.95] lg:col-span-9">
       {grid.name}
     </h1>
     <p
       class="text-l2 col-span-12 mt-6 font-mono text-[0.9rem] leading-[1.7] sm:col-span-9 lg:col-span-6"
     >
-      {grid.description}. {GRID_CATEGORY_LABELS[grid.category]}, and the band
-      below is laid out with it.
+      {grid.description}. {GRID_CATEGORY_LABELS[grid.category]}, and the page in
+      the frame below is built with it.
     </p>
   </section>
 
-  {/* The grid doing its job, in its own class names. */}
-  <div class="grid-demo" set:html={composition} />
+  {/*
+    The page using the grid, in its own document.
 
-  <section class="spine pt-8 pb-6">
-    <div class="col-span-12 flex flex-wrap items-center gap-3">
-      <a
-        href={demo}
-        target="_blank"
-        rel="noreferrer"
-        class="beamish-sheen-button beamish-sheen-button--quiet no-underline"
-      >
-        Open the full demo
-      </a>
-      {
-        overlay && (
-          <button
-            type="button"
-            class="beamish-sheen-button beamish-sheen-button--quiet"
-            aria-pressed="false"
-            data-rules-toggle
-          >
-            Show grid
-          </button>
-        )
-      }
+    The height is viewport-relative with a ceiling: a layout is read by going
+    down it, so a short frame defeats the point, and a frame taller than about
+    forty-eight rems on a tall monitor is showing more of the demo than of this
+    page. No background colour is set, because the demos carry a ground and
+    hard-coding one here would flash the wrong colour before the frame paints.
+
+    Shorter than the viewport on a phone, and that is the whole reason for the
+    breakpoint. At 78vh the frame measured 658px inside an 844px window and ran
+    155px past the fold, so once you had scrolled to it there was no page left
+    beside it to put a thumb on: every touch went to the document inside the
+    frame and the page underneath could not be moved. 60vh leaves about a third
+    of the window outside it at all times.
+
+    Not `loading="lazy"`. This is the first thing on the page and above the
+    fold on every width, so deferring it only means arriving at a blank box.
+  */}
+  <section class="spine pb-4">
+    <div class="border-line col-span-12 overflow-hidden rounded-[2px] border">
+      <iframe
+        src={demo}
+        title={`${grid.name} in use`}
+        class="block h-[60vh] w-full border-0 md:h-[min(78vh,48rem)]"></iframe>
     </div>
   </section>
 
-  <section class="spine py-12">
+  <section class="spine pb-16">
+    <p class="text-l3 col-span-12 font-mono text-[0.72rem] leading-[1.7]">
+      Scroll inside the frame.{
+        hasToggle && ' Press Show grid, bottom right, to see the rules.'
+      }{' '}
+      <a href={demo} target="_blank" rel="noreferrer" class="underline"
+        >Open it on its own</a
+      > for the full width.
+    </p>
+  </section>
+
+  <section class="spine pb-12">
     <h2 class="col-span-12 text-[1.6rem] leading-tight">The properties are the interface</h2>
     <p class="text-l2 col-span-12 mt-3 font-mono text-[0.8rem] leading-[1.7] lg:col-span-7">
       Override these in your own stylesheet rather than editing the file, so the
@@ -240,26 +168,4 @@ const composition = COMPOSITION[grid.slug] ?? ''
       class="border-line bg-be text-l1 col-span-12 mt-6 max-h-[32rem] overflow-auto rounded-[2px] border p-4 font-mono text-[0.72rem] leading-[1.6]"
     ><code>{source}</code></pre>
   </section>
-
-  {
-    overlay && (
-      <div class={overlay.cls} data-rules hidden>
-        {Array.from({ length: overlay.cells }).map(() => (
-          <i />
-        ))}
-      </div>
-    )
-  }
 </Base>
-
-<script>
-  const rules = document.querySelector<HTMLElement>('[data-rules]')
-  const toggle = document.querySelector<HTMLButtonElement>('[data-rules-toggle]')
-  toggle?.addEventListener('click', () => {
-    if (!rules) return
-    const on = toggle.getAttribute('aria-pressed') === 'true'
-    rules.hidden = on
-    toggle.setAttribute('aria-pressed', String(!on))
-    toggle.textContent = on ? 'Show grid' : 'Hide grid'
-  })
-</script>
