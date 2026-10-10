@@ -1,0 +1,676 @@
+/*
+ * Halide & Grain, the page's own stylesheet.
+ *
+ * This is the part that is not the library, and on this page it is most of the
+ * character. The grids place the bands and the items supply the motion; the
+ * contact sheet is built here, out of gradients and counters and one ring of
+ * grease pencil.
+ *
+ * Worth saying plainly, because the first two templates in this collection got
+ * it wrong: a page assembled from library items and nothing else is quiet by
+ * construction. Every ambient item in Beamish is required to survive being
+ * ignored, so a template that leans on them for its interest inherits their
+ * restraint and reads as a wireframe. The page has to bring an idea of its
+ * own. Here it is a contact sheet, and it is carried five ways: the sprockets,
+ * the rebate, the frame numbers, the grease pencil and the exposure strip.
+ *
+ * No class here uses the `g-` prefix, so the line between the library and the
+ * page using it stays visible.
+ */
+
+:root {
+  /* The bands. */
+  --grid-margin: clamp(1.25rem, 5vw, 6rem);
+  --grid-measure: 112rem;
+  --grid-rule: rgba(28, 26, 22, 0.16);
+
+  /* The roster, on the second grid. */
+  --marg-measure: 34rem;
+  --marg-note: 12rem;
+  --marg-gutter: clamp(1.5rem, 4vw, 3rem);
+  --marg-rule: rgba(28, 26, 22, 0.16);
+
+  --sheet: #f6f4ee;
+  --sheet-deep: #edeae1;
+  --ink: #141310;
+  --ink-soft: rgba(20, 19, 16, 0.66);
+  --ink-faint: rgba(20, 19, 16, 0.4);
+
+  /* The negative. A rebate is never pure black; it is dense, not empty. */
+  --rebate: #17161a;
+  --rebate-ink: #cfc8b8;
+  --grease: #e4572e;
+
+  /* One sprocket and the gap after it. Everything about the strip is this. */
+  --perf: 13px;
+  --perf-gap: 11px;
+  --perf-radius: 2.5px;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  margin: 0;
+  background: var(--sheet);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: clamp(0.78rem, 1vw, 0.9rem);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.88;
+}
+
+h2 {
+  font-size: clamp(1.8rem, 5.5vw, 4.5rem);
+}
+
+p {
+  margin: 0;
+}
+
+img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+figure {
+  margin: 0;
+}
+
+code {
+  font-family: var(--font-mono);
+  color: var(--ink-soft);
+}
+
+.eyebrow {
+  font-size: 0.64rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.note {
+  color: var(--ink-soft);
+}
+
+/* --- chrome --------------------------------------------------------------- */
+
+.masthead {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: baseline;
+  gap: clamp(1rem, 4vw, 3rem);
+  padding: 0.9rem var(--grid-margin);
+  background: color-mix(in srgb, var(--sheet) 90%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--grid-rule);
+}
+
+.masthead__mark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.masthead__nav {
+  display: flex;
+  gap: clamp(0.8rem, 2vw, 1.6rem);
+  margin-inline-start: auto;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.masthead__nav a {
+  color: var(--ink-faint);
+  text-decoration: none;
+  position: relative;
+  transition: color 200ms var(--ease-66, ease);
+}
+
+.masthead__nav a::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: -3px;
+  height: 1px;
+  background: var(--grease);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 260ms var(--ease-66, ease);
+}
+
+.masthead__nav a:hover,
+.masthead__nav a:focus-visible {
+  color: var(--ink);
+}
+
+.masthead__nav a:hover::after,
+.masthead__nav a:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* The film stock, printed along the edge the way it is on the real thing. */
+.masthead__stock {
+  display: none;
+  font-size: 0.58rem;
+  letter-spacing: 0.3em;
+  color: var(--ink-faint);
+}
+
+@media (min-width: 60rem) {
+  .masthead__stock {
+    display: block;
+  }
+}
+
+/* --- the sprocket strip --------------------------------------------------- */
+
+/*
+ * One rule draws every perforation on the page.
+ *
+ * A repeating linear gradient gives the rhythm and a radial one would give
+ * round holes, but a sprocket is a rounded rectangle, so the hole is a solid
+ * block with its corners taken off by the mask rather than a shape in the
+ * paint. Drawn rather than placed as an image: it stays crisp at any width,
+ * reflows with the band and costs no request.
+ */
+.sprockets,
+.sheet__sprockets {
+  height: calc(var(--perf) + 10px);
+  background: var(--rebate);
+  --perf-mask: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent var(--perf-gap),
+    #000 var(--perf-gap),
+    #000 calc(var(--perf-gap) + var(--perf))
+  );
+  position: relative;
+}
+
+.sprockets::before,
+.sheet__sprockets::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  translate: 0 -50%;
+  height: var(--perf);
+  background: var(--sheet);
+  -webkit-mask-image: var(--perf-mask);
+  mask-image: var(--perf-mask);
+  border-radius: var(--perf-radius);
+}
+
+/* --- a frame -------------------------------------------------------------- */
+
+/*
+ * The rebate, which is the whole unit. A frame is the picture plus the black
+ * it is held in plus the numbers printed on that black, and taking any of the
+ * three away leaves a photograph with a border.
+ *
+ * counter-reset here and counter-increment on the tiles means the sheet
+ * numbers itself. The hero carries its own number through data-frame, because
+ * one frame pulled off the strip keeps the number it had on it.
+ */
+.frame {
+  position: relative;
+  background: var(--rebate);
+  padding: 1.55rem 0.5rem 0.55rem;
+  color: var(--rebate-ink);
+}
+
+/* The frame number, printed on the rebate above the picture. */
+.frame::before {
+  content: attr(data-frame);
+  position: absolute;
+  top: 0.45rem;
+  left: 0.75rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  color: var(--grease);
+}
+
+/* The stock name, printed along the rebate the way the maker prints it. */
+.frame::after {
+  content: 'HALIDE 400';
+  position: absolute;
+  top: 0.45rem;
+  right: 0.75rem;
+  font-size: 0.56rem;
+  letter-spacing: 0.26em;
+  color: rgba(207, 200, 184, 0.45);
+}
+
+.frame__shot {
+  position: relative;
+  overflow: hidden;
+}
+
+.frame__shot img {
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+
+.frame__label,
+.frame__caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0.25rem 0.1rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(207, 200, 184, 0.62);
+}
+
+/* --- the hero frame ------------------------------------------------------- */
+
+.band--hero {
+  padding-block: clamp(2.5rem, 7vw, 5rem) 0;
+}
+
+.hero-line {
+  margin-block: 0.3em 0;
+  font-size: clamp(2.6rem, 11.5vw, 11rem);
+}
+
+.hero-line__row {
+  display: block;
+}
+
+/*
+ * One line outlined rather than filled. On a page whose pictures are this
+ * loud the headline has to hold its own without simply being bigger, and an
+ * outlined line reads as a held breath between two solid ones.
+ */
+.hero-line__row--out {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--ink);
+}
+
+@media (min-width: 60rem) {
+  .hero-line__row--out {
+    -webkit-text-stroke-width: 2px;
+    padding-inline-start: 0.12em;
+  }
+}
+
+.frame--hero {
+  margin-top: clamp(1.5rem, 4vw, 3rem);
+  margin-inline: var(--grid-margin);
+  padding: 2rem 0.9rem 0.9rem;
+}
+
+.frame--hero .frame__shot img {
+  aspect-ratio: 21 / 9;
+}
+
+.frame--hero::before,
+.frame--hero::after {
+  top: 0.8rem;
+  font-size: 0.66rem;
+}
+
+/* --- the exposure strip --------------------------------------------------- */
+
+.band--exposure {
+  padding-block: 0;
+}
+
+.exposure {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  margin: 0;
+  background: var(--grid-rule);
+  border-block: 1px solid var(--grid-rule);
+}
+
+@media (min-width: 48rem) {
+  .exposure {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.exposure__cell {
+  background: var(--sheet);
+  padding: clamp(1.4rem, 3.5vw, 2.6rem) var(--grid-margin);
+}
+
+.exposure dt {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.exposure dd {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5.5vw, 4rem);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- statement ------------------------------------------------------------ */
+
+.band--statement {
+  border-bottom: 1px solid var(--grid-rule);
+}
+
+.running {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 3.2vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.14;
+  text-wrap: balance;
+}
+
+/* --- the sheet ------------------------------------------------------------ */
+
+.band--work h2 {
+  margin-bottom: 0.6rem;
+}
+
+.sheet {
+  margin-top: clamp(2rem, 5vw, 3.5rem);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+  gap: 0;
+  background: var(--rebate);
+  counter-reset: frame;
+}
+
+.tile {
+  cursor: pointer;
+  padding-inline: 0.55rem;
+}
+
+/*
+ * The grease pencil.
+ *
+ * A picture editor rings the frame to print, in chinagraph, roughly. It is
+ * drawn as a ring that is not quite closed and not quite round, which is the
+ * difference between a mark somebody made and a border somebody set: a perfect
+ * ellipse reads as a UI state, a lopsided one reads as a hand.
+ */
+.tile .frame__shot::after {
+  content: '';
+  position: absolute;
+  inset: 7%;
+  border: 2px solid var(--grease);
+  border-radius: 48% 52% 51% 49% / 49% 48% 52% 51%;
+  border-top-color: transparent;
+  rotate: -3deg;
+  opacity: 0;
+  scale: 1.06;
+  transition:
+    opacity 180ms var(--ease-66, ease),
+    scale 260ms var(--ease-66, ease);
+  pointer-events: none;
+}
+
+.tile:hover .frame__shot::after,
+.tile:focus-visible .frame__shot::after {
+  opacity: 0.92;
+  scale: 1;
+  animation: grease-settle 420ms var(--ease-66, ease);
+}
+
+@keyframes grease-settle {
+  0% {
+    rotate: -7deg;
+    scale: 1.1;
+  }
+  60% {
+    rotate: -1.5deg;
+    scale: 0.99;
+  }
+  100% {
+    rotate: -3deg;
+    scale: 1;
+  }
+}
+
+/* The picture lifts a little under the mark, the way a chosen frame does. */
+.tile .frame__shot img {
+  transition: scale 700ms var(--ease-66, ease), filter 400ms var(--ease-66, ease);
+}
+
+.tile:hover .frame__shot img {
+  scale: 1.03;
+  filter: contrast(1.05);
+}
+
+/*
+ * An open tile fills the window, so the 3:2 crop has to give way and the
+ * rebate has to grow with it. The item sets this attribute for the length of
+ * the gesture.
+ */
+.tile[data-open] {
+  padding: 2.2rem 1rem 1rem;
+}
+
+.tile[data-open] .frame__shot img {
+  aspect-ratio: auto;
+  height: 100%;
+  object-fit: cover;
+  scale: 1;
+}
+
+.tile[data-open] .frame__shot::after {
+  opacity: 0;
+}
+
+/* --- the roster ----------------------------------------------------------- */
+
+.band--roster {
+  background: var(--sheet-deep);
+  border-block: 1px solid var(--grid-rule);
+}
+
+.band--roster h2 {
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.roster {
+  margin-inline: var(--grid-margin);
+}
+
+.roster p {
+  margin-block: 1rem;
+}
+
+.roster strong {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+/*
+ * Each name gets a frame number, continuing the sheet's own count rather than
+ * starting a new one. The roster is the back of the contact sheet.
+ */
+.roster {
+  counter-reset: person 14;
+}
+
+.roster p {
+  counter-increment: person;
+  position: relative;
+}
+
+@media (min-width: 60rem) {
+  .roster p::before {
+    content: counter(person) 'A';
+    position: absolute;
+    left: -3.4rem;
+    top: 0.2rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    color: var(--grease);
+  }
+}
+
+/* --- the call ------------------------------------------------------------- */
+
+.band--call {
+  padding-block: clamp(3.5rem, 10vw, 8rem);
+}
+
+.call {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 7vw, 6rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  margin-bottom: 1.4rem;
+}
+
+/* The one word that is ringed, same pencil as the sheet. */
+.call__mark {
+  position: relative;
+  display: inline-block;
+  color: var(--grease);
+}
+
+.call__mark::after {
+  content: '';
+  position: absolute;
+  inset: -16% -7%;
+  border: 2px solid var(--grease);
+  border-radius: 49% 51% 52% 48% / 52% 49% 51% 48%;
+  border-left-color: transparent;
+  rotate: -1.5deg;
+  opacity: 0.85;
+}
+
+/* --- colophon ------------------------------------------------------------- */
+
+.band--foot {
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--grid-rule);
+  padding-bottom: 0;
+}
+
+.band__ground {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.band--foot .g-band__grid,
+.wordmark {
+  position: relative;
+  z-index: 1;
+}
+
+.band--foot h2 {
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.manifest {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.35rem 1.5rem;
+  margin: 0 0 2rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.76rem;
+}
+
+.manifest li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.4rem;
+  border-bottom: 1px solid var(--grid-rule);
+}
+
+.manifest a {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.manifest a:hover,
+.manifest a:focus-visible {
+  border-bottom-color: var(--grease);
+}
+
+.manifest .kind {
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.credit {
+  font-size: 0.68rem;
+}
+
+/*
+ * The wordmark, set to the width of the page and cropped by it. A name this
+ * size stops being a label and becomes the end of the sheet.
+ */
+.wordmark {
+  margin: clamp(2rem, 6vw, 5rem) 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17.5vw;
+  letter-spacing: -0.055em;
+  line-height: 0.78;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(20, 19, 16, 0.22);
+  padding-inline: var(--grid-margin);
+  overflow: hidden;
+}
+
+/* --- reduced motion ------------------------------------------------------- */
+
+/*
+ * The items handle their own. What belongs here is the page's own movement:
+ * the grease pencil settling and the lift under a chosen frame.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .tile:hover .frame__shot::after,
+  .tile:focus-visible .frame__shot::after {
+    animation: none;
+  }
+
+  .tile .frame__shot img,
+  .tile .frame__shot::after,
+  .masthead__nav a::after {
+    transition-duration: 0.01ms;
+  }
+
+  .tile:hover .frame__shot img {
+    scale: 1;
+  }
+}

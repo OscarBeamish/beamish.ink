@@ -18,10 +18,33 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
 ---
 
 <!doctype html>
-<html lang="en-GB" data-ground="dark">
+<!--
+  Paper is the default because that is what the catalogue is mostly made of,
+  not because it is the house style: forty-eight of the fifty-eight recorded
+  posters are light, and a dark default frames a wall of bright rectangles.
+  The library has no house ground and the site is only one page using it.
+-->
+<html lang="en-GB" data-ground="paper">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!--
+      Before the first paint, not after. A ground applied on DOMContentLoaded
+      shows the default first and then corrects itself, and a page that
+      flashes white at somebody who chose dark has told them their choice is
+      an afterthought.
+    -->
+    <script is:inline>
+      try {
+        var chosen = localStorage.getItem('beamish-ground')
+        if (chosen === 'dark' || chosen === 'paper') {
+          document.documentElement.dataset.ground = chosen
+        }
+      } catch (error) {
+        /* Private windows throw on localStorage. The default stands. */
+      }
+    </script>
     <link rel="canonical" href={canonical.href} />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -124,6 +147,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
             rel="noreferrer"
             target="_blank">GitHub</a
           >
+          <!--
+            The ground, as a control rather than a preference buried in the
+            system. This library endorses two grounds and says so per item, so
+            the catalogue that displays them has to be able to show either.
+          -->
+          <button type="button" class="site-nav__hit site-nav__ground" data-ground-toggle>
+            <span data-ground-label>Dark</span>
+          </button>
         </nav>
       </div>
     </header>
@@ -223,6 +254,50 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
           }, STAGGER * characters + 250)
         })
       }
+    </script>
+
+    <script>
+      /*
+       * The ground toggle.
+       *
+       * The label says where the button goes rather than where you are, which
+       * is the one decision worth making here: a control labelled with the
+       * current state reads as a status line and gets pressed by mistake.
+       *
+       * The attribute is already correct before this runs, set by the inline
+       * script in the head, so nothing here has to fix a flash.
+       */
+      const root = document.documentElement
+      const toggle = document.querySelector<HTMLButtonElement>('[data-ground-toggle]')
+      const label = toggle?.querySelector<HTMLElement>('[data-ground-label]')
+
+      const show = (ground: string) => {
+        if (label) label.textContent = ground === 'dark' ? 'Paper' : 'Dark'
+        toggle?.setAttribute(
+          'aria-label',
+          ground === 'dark' ? 'Switch to the paper ground' : 'Switch to the dark ground'
+        )
+      }
+
+      show(root.dataset.ground ?? 'paper')
+
+      toggle?.addEventListener('click', () => {
+        const next = root.dataset.ground === 'dark' ? 'paper' : 'dark'
+        root.dataset.ground = next
+        show(next)
+        try {
+          localStorage.setItem('beamish-ground', next)
+        } catch (error) {
+          /* Nothing to do: the choice holds for this page either way. */
+        }
+        /*
+         * Anything already mounted resolved `auto` against the old ground, so
+         * it is painting the colour of a page that no longer exists. Items
+         * re-read the page on update, and the ones that take no colour ignore
+         * this harmlessly.
+         */
+        document.dispatchEvent(new CustomEvent('beamish:ground', { detail: next }))
+      })
     </script>
   </body>
 </html>

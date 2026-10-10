@@ -1,0 +1,61 @@
+{
+  "name": "Halide & Grain",
+  "slug": "halide-and-grain",
+  "description": "An invented photographic agency on paper, where the work opens full bleed and the grids do the rest",
+  "intent": "The grids under load, which neither other template does: two grid systems on one page, a portfolio whose tiles open to fill the window, and only six photographs, so the layout has to carry the weight that a bigger library of pictures would otherwise hide.",
+  "ground": "paper",
+  "uses": [
+    {
+      "name": "TwelveColumn",
+      "slug": "twelve-column",
+      "kind": "grid"
+    },
+    {
+      "name": "MarginaliaColumns",
+      "slug": "marginalia-columns",
+      "kind": "grid"
+    },
+    {
+      "name": "HalftoneReveal",
+      "slug": "halftone-reveal",
+      "kind": "effect"
+    },
+    {
+      "name": "ExpandingTiles",
+      "slug": "expanding-tiles",
+      "kind": "effect"
+    },
+    {
+      "name": "ScrambleText",
+      "slug": "scramble-text",
+      "kind": "effect"
+    },
+    {
+      "name": "CrosshairCursor",
+      "slug": "crosshair-cursor",
+      "kind": "effect"
+    },
+    {
+      "name": "CountUpNumber",
+      "slug": "count-up-number",
+      "kind": "effect"
+    },
+    {
+      "name": "PaperGrain",
+      "slug": "paper-grain",
+      "kind": "effect"
+    },
+    {
+      "name": "Stage",
+      "slug": "",
+      "kind": "shared"
+    }
+  ],
+  "record": {
+    "duration": 14,
+    "fps": 24,
+    "posterAt": 1.6,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

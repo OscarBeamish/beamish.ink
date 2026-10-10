@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en-GB" data-ground="paper">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Halide &amp; Grain: a photographic agency</title>
+    <meta
+      name="description"
+      content="An invented photographic agency, built entirely from Beamish items, laid out as a contact sheet."
+    />
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <link rel="stylesheet" href="../../grids/twelve-column/grid.css" />
+    <link rel="stylesheet" href="../../grids/marginalia-columns/grid.css" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <!--
+      Halide & Grain is invented. There is no such agency, the photographers
+      are made up and so is every frame number and exposure on this page.
+
+      THE IDEA, because a template without one is a wireframe: the page is a
+      contact sheet. Not decorated like one, built like one. Sprockets run down
+      the bands, every picture sits in the black rebate of a negative with its
+      edge markings printed along it, the frames are numbered by a CSS counter
+      rather than by hand, and the one you point at gets ringed in grease
+      pencil the way a picture editor rings the frame to print.
+
+      That idea is what the library items are in service of. HalftoneReveal is
+      the picture being printed. ExpandingTiles is pulling a frame for the
+      enlarger. PaperGrain is the sheet it all sits on. None of them is the
+      reason the page exists, which is the difference between a template and a
+      demonstration.
+
+      Two grid systems share the page: TwelveColumn for the bands and
+      MarginaliaColumns for the roster. They do not collide because the class
+      names share nothing and the custom properties are namespaced apart.
+    -->
+    <header class="masthead">
+      <a class="masthead__mark" href="#top">Halide&nbsp;&amp;&nbsp;Grain</a>
+      <nav class="masthead__nav" aria-label="Primary">
+        <a href="#work">Work</a>
+        <a href="#roster">Roster</a>
+        <a href="#colophon">Colophon</a>
+      </nav>
+      <span class="masthead__stock" aria-hidden="true">KODAK 5063 TX</span>
+    </header>
+
+    <main id="top">
+      <section class="g-band band--hero" data-stage-section>
+        <div class="g-band__grid">
+          <p class="eyebrow g-col-12" id="eyebrow">
+            Landscape and wildlife &middot; six photographers &middot; est 1998
+          </p>
+
+          <h1 class="hero-line g-col-12">
+            <span class="hero-line__row">Pictures that</span>
+            <span class="hero-line__row hero-line__row--out">had to be</span>
+            <span class="hero-line__row">waited for</span>
+          </h1>
+        </div>
+
+        <!--
+          The hero is one frame off the strip, enlarged. It keeps the rebate
+          and the edge markings it would have had on the sheet, because a
+          frame that loses them stops being a frame and becomes a photograph
+          with a border.
+        -->
+        <figure class="frame frame--hero" data-frame="01A">
+          <div class="frame__shot" data-backdrop="halftone-reveal">
+            <img
+              src="../../grids/_media/plate-1043.webp"
+              alt="A granite cliff above a river, with conifers along both banks"
+              width="1400"
+              height="875"
+            />
+          </div>
+          <figcaption class="frame__caption">
+            <span>Mara Oyelaran</span>
+            <span>a week waiting for the cloud to lift</span>
+          </figcaption>
+        </figure>
+      </section>
+
+      <!--
+        The exposure strip. Real contact sheets carry the frame data along the
+        edge, so the page's numbers live here rather than in a stats band that
+        could belong to any website.
+      -->
+      <section class="g-band band--exposure">
+        <dl class="exposure">
+          <div class="exposure__cell">
+            <dt>Photographers</dt>
+            <dd><span class="counter" data-suffix="">6</span></dd>
+          </div>
+          <div class="exposure__cell">
+            <dt>Frames filed</dt>
+            <dd><span class="counter">148200</span></dd>
+          </div>
+          <div class="exposure__cell">
+            <dt>Years printing</dt>
+            <dd><span class="counter">27</span></dd>
+          </div>
+          <div class="exposure__cell">
+            <dt>Commissions, last year</dt>
+            <dd><span class="counter">94</span></dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="g-band band--statement">
+        <div class="g-band__grid">
+          <p class="running g-col-10 g-start-2">
+            We represent six photographers and we are not looking for a
+            seventh. Every one of them will tell you the picture took longer
+            than the brief allowed, and every one of them was right.
+          </p>
+        </div>
+      </section>
+
+      <section class="g-band band--work" id="work">
+        <div class="g-band__grid">
+          <h2 class="g-col-7 g-start-2">The sheet</h2>
+          <p class="note g-col-3 g-start-9">
+            Five frames from the last year. Point at one to mark it, open it to
+            put it under the enlarger.
+          </p>
+        </div>
+
+        <!--
+          The contact sheet itself. The sprockets above and below are drawn by
+          the stylesheet rather than set as images, so they stay crisp at any
+          width and cost nothing to load.
+        -->
+        <div class="sheet">
+          <div class="sheet__sprockets" aria-hidden="true"></div>
+
+          <div class="tiles" id="tiles">
+            <article class="frame tile" data-frame="02">
+              <div class="frame__shot">
+                <img
+                  src="../../grids/_media/plate-1015.webp"
+                  alt="A fjord far below, seen from a clifftop where people are standing on the rock"
+                  width="1400"
+                  height="875"
+                />
+              </div>
+              <span class="frame__label">Lysefjord &middot; outdoor label</span>
+            </article>
+
+            <article class="frame tile" data-frame="04A">
+              <div class="frame__shot">
+                <img
+                  src="../../grids/_media/plate-1016.webp"
+                  alt="A red sandstone canyon lit low by the sun, under broken cloud"
+                  width="1400"
+                  height="875"
+                />
+              </div>
+              <span class="frame__label">Kings Canyon &middot; editorial</span>
+            </article>
+
+            <article class="frame tile" data-frame="07">
+              <div class="frame__shot">
+                <img
+                  src="../../grids/_media/plate-1018.webp"
+                  alt="A single track road winding between steep green hills under low cloud"
+                  width="1400"
+                  height="875"
+                />
+              </div>
+              <span class="frame__label">Skye &middot; car maker</span>
+            </article>
+
+            <article class="frame tile" data-frame="11A">
+              <div class="frame__shot">
+                <img
+                  src="../../grids/_media/plate-1024.webp"
+                  alt="A griffon vulture coming in to land with its wings spread wide"
+                  width="1400"
+                  height="875"
+                />
+              </div>
+              <span class="frame__label">Extremadura &middot; conservation trust</span>
+            </article>
+
+            <article class="frame tile" data-frame="14">
+              <div class="frame__shot">
+                <img
+                  src="../../grids/_media/plate-1039.webp"
+                  alt="A waterfall dropping from a cliff into a conifer forest in mist"
+                  width="1400"
+                  height="875"
+                />
+              </div>
+              <span class="frame__label">Cascades &middot; self-initiated</span>
+            </article>
+          </div>
+
+          <div class="sheet__sprockets" aria-hidden="true"></div>
+        </div>
+      </section>
+
+      <section class="g-band band--roster" id="roster">
+        <div class="g-band__grid">
+          <h2 class="g-col-7 g-start-2">Who we represent</h2>
+        </div>
+
+        <article class="g-marg g-marg--ruled roster">
+          <p>
+            <strong>Mara Oyelaran</strong> works almost entirely in bad
+            weather, on the grounds that good weather has already been
+            photographed.
+          </p>
+          <aside class="g-note g-note--level">Landscape &middot; commissions only</aside>
+
+          <p>
+            <strong>Jonas Whitlock</strong> spent eleven years as a field
+            biologist and still prefers a hide to a studio.
+          </p>
+          <aside class="g-note g-note--level">Wildlife</aside>
+
+          <p>
+            <strong>Inés Carrera</strong> shoots the road rather than the
+            destination, which is why the car clients keep calling.
+          </p>
+          <aside class="g-note g-note--level">Transport &middot; travel</aside>
+
+          <p>
+            <strong>Tobias Lunn</strong> is the one to ask when the brief says
+            the light has to look accidental.
+          </p>
+          <aside class="g-note g-note--level">Editorial</aside>
+
+          <p>
+            <strong>Priya Raghavan</strong> makes long exposures of moving
+            water and will not be hurried about it.
+          </p>
+          <aside class="g-note g-note--level">Long exposure</aside>
+
+          <p>
+            <strong>Soren Haas</strong> joined last spring and has already been
+            three places none of us wanted to go.
+          </p>
+          <aside class="g-note g-note--level">Expedition</aside>
+        </article>
+      </section>
+
+      <section class="g-band band--call">
+        <div class="g-band__grid">
+          <p class="call g-col-10 g-start-2">
+            Commissions open for <span class="call__mark">spring</span>
+          </p>
+          <p class="note g-col-6 g-start-2">
+            Tell us the place and the month. We will tell you which of the six
+            has already been and what the light did.
+          </p>
+        </div>
+      </section>
+
+      <footer class="g-band band--foot" id="colophon" data-stage-section>
+        <div class="band__ground" data-backdrop="paper-grain" aria-hidden="true"></div>
+        <div class="g-band__grid">
+          <h2 class="g-col-5 g-start-2">Colophon</h2>
+          <p class="note g-col-4 g-start-8">
+            Everything here comes from Beamish. The page writes this list from
+            its own meta.json, so it cannot drift from what is actually
+            mounted.
+          </p>
+          <ul class="manifest g-col-10 g-start-2" id="manifest"></ul>
+          <p class="note g-col-10 g-start-2 credit">
+            Photographs from Unsplash, credited in
+            <code>grids/_media/CREDITS.md</code>. The agency, its photographers
+            and their commissions are invented.
+          </p>
+        </div>
+        <p class="wordmark" aria-hidden="true">Halide &amp; Grain</p>
+      </footer>
+    </main>
+
+    <script type="module" src="./page.bundle.js"></script>
+  </body>
+</html>
