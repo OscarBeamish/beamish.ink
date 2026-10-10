@@ -1,8 +1,8 @@
 {
   "name": "Quoin & Rule",
   "slug": "quoin-and-rule",
-  "description": "An invented letterpress studio, built entirely from library items, on paper",
-  "intent": "The paper end of the library under load: a twelve column grid carrying real copy and photographs, with two WebGL backdrops brokered by the stage so only one context is ever live.",
+  "description": "An invented letterpress studio on paper, laid out as a forme locked up in a chase",
+  "intent": "A page with an idea rather than a set of bands: quoins tightening the corners, brass rules at real letterpress weights, furniture bevelled the way wood is, and a specimen setting one line at four sizes. The library items serve that, with two WebGL backdrops brokered by the stage so only one context is ever live.",
   "ground": "paper",
   "uses": [
     {

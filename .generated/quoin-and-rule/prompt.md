@@ -1,6 +1,6 @@
 You are building **Quoin & Rule** from Beamish into this project.
 
-> An invented letterpress studio, built entirely from library items, on paper. A whole page, MIT.
+> An invented letterpress studio on paper, laid out as a forme locked up in a chase. A whole page, MIT.
 > https://beamish.ink/templates/quoin-and-rule
 
 This is a page, not a component. It is one HTML file, one stylesheet and one

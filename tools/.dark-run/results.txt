@@ -17,3 +17,9 @@ OK    odometer-number  18s  365kB
 OK    pointer-filings  39s  2525kB
 OK    pointer-ripple-grid  25s  669kB
 OK    pointer-smoke  13s  357kB
+OK    relight-image  105s  1753kB
+FAIL  rotating-words  (see tools/.dark-run/rotating-words.log)
+OK    scramble-text  12s  105kB
+OK    scroll-marquee  61s  1417kB
+OK    scroll-reveal-rows  12s  113kB
+SKIP  stipple-field (recorded while proving the flag)

@@ -1,6 +1,6 @@
 You are building **Coil & Bias** from Beamish into this project.
 
-> An invented audio hardware brand, on a dark ground, where three backdrops share one context. A whole page, MIT.
+> An invented audio hardware brand on a dark ground, laid out as the front panel of an amplifier. A whole page, MIT.
 > https://beamish.ink/templates/coil-and-bias
 
 This is a page, not a component. It is one HTML file, one stylesheet and one
