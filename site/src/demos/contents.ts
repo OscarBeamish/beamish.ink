@@ -15,7 +15,7 @@ export const props = {
     },
     {
       title: 'Pointer',
-      items: [{ label: 'Foil', href: '/effects/pointer-foil-sheen', meta: 'shader' }]
+      items: [{ label: 'Smoke', href: '/effects/pointer-smoke', meta: 'shader' }]
     },
     {
       title: 'Navigation',

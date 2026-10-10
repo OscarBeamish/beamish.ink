@@ -131,12 +131,12 @@ as the second argument to the create function; anything omitted takes its defaul
 | `systems` | number | `4` | 1 to 8 (looks right between 3 and 5) | How many pressure systems are in the field. Few and large reads as weather; many and small reads as decoration, because a real chart is mostly one system's skirt running into another's. This is also the main cost: the field is evaluated eighteen times per pixel and each evaluation walks this many systems. |
 | `drift` | number | `0.42` | 0 to 1.5 (looks right between 0.2 and 0.6) | The prevailing wind across the frame, before any system touches it. At 0 the systems sit in dead air and the field has no direction, which is the single clearest way to make this look like a screensaver. |
 | `wander` | number | `0.06` | 0 to 0.3 | How far each system travels from its home over a period, as a share of the height. Small: weather moves, but a backdrop that moves its structure around is a backdrop you keep looking at. At 0 the field is fixed and only the streaks travel, which is a legitimate and very quiet way to use this. |
-| `scale` | number | `7` | 2 to 40 px (looks right between 4 and 12) | Cell size of the noise the streaks are made of. It sets how coarse the combing is, and nothing else in here does. Large values give a few wide ribbons; small ones give fine hair, and below about 3 it starts to alias into sparkle. |
-| `length` | number | `58` | 10 to 180 px (looks right between 40 and 90) | How long a streak is. This is the distance the walk covers, so it is also how far the shader can see along the flow: long streaks follow a curve further and make the field legible, and past about 120 they start to straighten the tight air near a system centre into chords. |
+| `scale` | number | `2.2` | 0.8 to 12 px (looks right between 1.2 and 3) | Cell size of the noise the streaks are made of. It sets how coarse the combing is, and nothing else in here does. Large values give a few wide ribbons; small ones give fine hair, and below about 3 it starts to alias into sparkle. |
+| `length` | number | `60` | 10 to 180 px (looks right between 40 and 90) | How long a streak is. This is the distance the walk covers, so it is also how far the shader can see along the flow: long streaks follow a curve further and make the field legible, and past about 120 they start to straighten the tight air near a system centre into chords. |
 | `turns` | number | `3` | 1 to 12 (looks right between 2 and 5) | Whole turns the streaks travel along the flow in one period. Whole, because a fraction means the loop never comes home, and core.ts rounds it rather than trusting it. With the default period of 36 seconds, 3 is a streak pattern that takes twelve seconds to repeat. |
-| `contrast` | number | `0.38` | 0 to 1 (looks right between 0.35 and 0.7) | How hard the result is stretched away from its mean. Line integral convolution of a uniform field sits in a narrow band around the middle, so at 0 this is a flat wash with a hint of structure. Past about 0.8 the streaks go to hard black and white and the field stops reading as air. |
+| `contrast` | number | `0.46` | 0 to 1 (looks right between 0.35 and 0.7) | How hard the result is stretched away from its mean. Line integral convolution of a uniform field sits in a narrow band around the middle, so at 0 this is a flat wash with a hint of structure. Past about 0.8 the streaks go to hard black and white and the field stops reading as air. |
 | `seed` | number | `11` | 0 to 9999 | Seed for the systems: where they sit, which way they turn, how big and how strong. The same seed gives the same weather, so a recording and a live page agree streak for streak. |
-| `period` | number | `36` | 10 to 180 s (looks right between 24 and 90) | Seconds for one cycle. Long, because a backdrop has to survive being ignored: this is both how long a system takes to go round its home and the time in which the streaks make `turns` complete passes. |
+| `period` | number | `24` | 10 to 180 s (looks right between 24 and 90) | Seconds for one cycle. Long, because a backdrop has to survive being ignored: this is both how long a system takes to go round its home and the time in which the streaks make `turns` complete passes. |
 
 ## 5. Why not particles
 
@@ -190,16 +190,23 @@ default, or the mismatch shows as a rectangle.
 
 ## 8. It is expensive
 
-Eighteen samples per pixel, and each one evaluates the field, which walks every
-system. Measured at 1280 by 720 that is 1.4ms for a draw and a forced flush,
-against DustMotes at 0.7 and MarbledPaper at 2.2 on the same machine: near the
-top of this library but not at it.
+Twenty-eight samples per pixel along the streamline, but only seven field
+evaluations each way: the field is what costs, and a streamline is straight
+enough over a couple of pixels that the samples between evaluations are nearly
+free. Measured at 1280 by 720 that is 1.0ms for a draw and a forced flush,
+against DustMotes at 0.7 and MarbledPaper at 2.2 on the same machine.
 
-Cost is taps times systems. Two knobs before anything else:
+Cost is segments times systems. Two knobs before anything else:
 
 - **`systems`** is an option. Three instead of five is a quarter off.
-- **TAPS** is a constant at the top of the shader. Below about five the streaks
-  stop being streaks and the field reads as noise.
+- **SEGMENTS** is a constant at the top of the shader. SUB is nearly free and
+  is what controls whether the hair combs; SEGMENTS is what controls how
+  faithfully a streak follows a curve.
+
+**The step must be about one noise cell.** `length / 28` is the step and
+`scale` is the cell. Step past a cell and consecutive samples are independent,
+which is static. Step well inside one and they are identical, which is smear.
+The first version of this had both at 7px and produced neither.
 
 `maxDpr` defaults to 1.5 rather than the usual 2, because what this draws is
 noise at a cell size of a few pixels and the fourth sub-pixel buys nothing you

@@ -6,7 +6,6 @@
     <title>Magnet: Beamish demo</title>
     <link rel="stylesheet" href="../../shared/tokens.css" />
     <link rel="stylesheet" href="../../shared/fonts.css" />
-    <link rel="stylesheet" href="../../components/sheen-button/styles.css" />
     <style>
       html,
       body {
@@ -34,8 +33,30 @@
         border: 1px dashed var(--label-4);
         border-radius: 100px;
       }
-      .beamish-sheen-button {
+      /*
+       * A plain control, not SheenButton.
+       *
+       * This item is one idea: an element that leans towards the cursor before
+       * the cursor arrives. Mounting it on a button that also has a band of
+       * light crossing it means two things are happening and the reader cannot
+       * tell which one is the item. The dashed outline is the only other mark
+       * here, and it is there to show where the button sits at rest.
+       */
+      .magnet {
         grid-area: 1 / 1;
+        display: grid;
+        place-items: center;
+        width: 11.4rem;
+        height: 3.2rem;
+        border: 0;
+        border-radius: 100px;
+        background: var(--label-1);
+        color: rgb(var(--background-deep));
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
       }
     </style>
   </head>
@@ -50,12 +71,12 @@
     -->
     <div id="stage">
       <div class="rest" aria-hidden="true"></div>
-      <button type="button" class="beamish-sheen-button beamish-sheen-button--solid">Get prompt</button>
+      <button type="button" class="magnet">Get prompt</button>
     </div>
 
     <script src="./demo.bundle.js"></script>
     <script>
-      const handle = window.Beamish.create(document.querySelector('.beamish-sheen-button'))
+      const handle = window.Beamish.create(document.querySelector('.magnet'))
 
       // The recorder drives renderAtTime itself and must not race a RAF loop.
       window.__beamish = handle

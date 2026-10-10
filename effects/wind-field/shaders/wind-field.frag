@@ -56,13 +56,30 @@ out vec4 fragColor;
 const float TAU = 6.28318530718;
 
 /*
- * Taps each way along the streamline, counting the pixel itself: nine each way,
- * eighteen samples, seventeen distinct points. The cost of the whole effect is
- * this number times the cost of one field evaluation, so it is the first knob
- * to reach for if this ever has to be cheaper. Below about five the streaks
- * stop being streaks and the field reads as noise.
+ * The walk, split into two loops for a reason that decides how this looks.
+ *
+ * Line integral convolution only combs if consecutive samples land on
+ * DIFFERENT noise and the ones along a streamline agree. The first version of
+ * this stepped 7px at a time through noise with 7px cells, so every step
+ * landed in the same cell as the last: the samples agreed everywhere, nothing
+ * cancelled, and the result was smeared blobs rather than hair. It read as wet
+ * paint, which is what it was.
+ *
+ * So the noise is now nearly per-pixel and the step is about a pixel. That
+ * wants far more samples, and samples are cheap; what is expensive is
+ * evaluating the field, which walks every pressure system. The two are
+ * separated here: SEGMENTS field evaluations, each followed by SUB samples
+ * taken in a straight line along the direction that evaluation gave. A
+ * streamline is locally straight over a couple of pixels, so nothing is lost
+ * and the cost stays where it was.
+ *
+ * The one rule that has to hold: the step must be no longer than a noise cell.
+ * Step past a cell and consecutive samples are independent, which is static;
+ * step well inside one and they are identical, which is smear. About one cell
+ * per step is where it combs.
  */
-const int TAPS = 8;
+const int SEGMENTS = 7;
+const int SUB = 4;
 /* Room for eight systems. u_systems says how many are actually walked. */
 const int MAX_SYSTEMS = 8;
 
@@ -141,8 +158,9 @@ void main() {
   /* Step length along the streamline, in field units. stepLen rather than
      step, because `step` is a GLSL built-in and a variable of that name hides
      it for the rest of the shader. */
-  float stepLen = (max(u_length, 4.0) / float(TAPS)) / height;
-  float noiseScale = height / max(u_scale, 2.0);
+  float samples = float(SEGMENTS * SUB);
+  float stepLen = (max(u_length, 4.0) / samples) / height;
+  float noiseScale = height / max(u_scale, 0.8);
 
   /*
    * The travelling kernel. Its phase is the only thing in here that moves the
@@ -162,28 +180,34 @@ void main() {
   vec2 fwd = q;
   vec2 back = q;
   float speedHere = length(wind(q, aspect, phase));
+  float walked = 0.0;
 
-  for (int j = 0; j <= TAPS; j++) {
-    float s = float(j);
-    /*
-     * A raised cosine down the length of the kernel, so a streak fades out at
-     * both ends instead of stopping. The travel term slides that envelope along
-     * the streamline, which is what makes the wind look like it is going
-     * somewhere.
-     */
-    float w = (0.5 + 0.5 * cos(TAU * (s / float(TAPS)) * 0.5)) *
-              (0.6 + 0.4 * cos(TAU * s / float(TAPS) * 1.5 - travel));
-
-    sum += vnoise(fwd * noiseScale) * w;
-    sum += vnoise(back * noiseScale) * w;
-    weight += 2.0 * w;
-
+  for (int seg = 0; seg < SEGMENTS; seg++) {
+    /* One field evaluation per segment, in each direction. */
     vec2 vf = wind(fwd, aspect, phase);
     vec2 vb = wind(back, aspect, phase);
-    float lf = max(length(vf), 1e-4);
-    float lb = max(length(vb), 1e-4);
-    fwd += (vf / lf) * stepLen;
-    back -= (vb / lb) * stepLen;
+    vec2 df = (vf / max(length(vf), 1e-4)) * stepLen;
+    vec2 db = (vb / max(length(vb), 1e-4)) * stepLen;
+
+    for (int k = 0; k < SUB; k++) {
+      fwd += df;
+      back -= db;
+      walked += 1.0;
+      float s = walked / samples;
+
+      /*
+       * A raised cosine down the length of the kernel, so a streak fades out
+       * at both ends instead of stopping, times a travelling wave that slides
+       * that envelope along the streamline. The second term is the only thing
+       * in here that moves.
+       */
+      float w = (0.5 + 0.5 * cos(TAU * s * 0.5)) *
+                (0.62 + 0.38 * cos(TAU * s * 1.5 - travel));
+
+      sum += vnoise(fwd * noiseScale) * w;
+      sum += vnoise(back * noiseScale) * w;
+      weight += 2.0 * w;
+    }
   }
 
   float ink = sum / max(weight, 1e-4);
@@ -196,12 +220,12 @@ void main() {
   ink = clamp(0.5 + (ink - 0.5) * (1.0 + u_contrast * 7.0), 0.0, 1.0);
 
   /*
-   * Then thin it. Stretching alone gives a field with as much streak in it as
-   * ground, which is the difference between a chart and a sheet of marbled
-   * paper: on a chart you read the shape of the air, and you can only do that
-   * if there is dark between the streaks for them to be shapes against.
+   * Then thin it, so there is dark between the streaks for them to be shapes
+   * against. Squared rather than cubed: the cube was tuned against the blobby
+   * version, where it was hiding the smear, and on properly combed hair it
+   * eats the mid-tones and leaves only the brightest few strands.
    */
-  ink = ink * ink * ink;
+  ink = ink * ink;
 
   /*
    * Colour by speed, the way every chart of this kind does: the ramp is the

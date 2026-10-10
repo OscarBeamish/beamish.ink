@@ -125,16 +125,23 @@ default, or the mismatch shows as a rectangle.
 
 ## It is expensive
 
-Eighteen samples per pixel, and each one evaluates the field, which walks every
-system. Measured at 1280 by 720 that is 1.4ms for a draw and a forced flush,
-against DustMotes at 0.7 and MarbledPaper at 2.2 on the same machine: near the
-top of this library but not at it.
+Twenty-eight samples per pixel along the streamline, but only seven field
+evaluations each way: the field is what costs, and a streamline is straight
+enough over a couple of pixels that the samples between evaluations are nearly
+free. Measured at 1280 by 720 that is 1.0ms for a draw and a forced flush,
+against DustMotes at 0.7 and MarbledPaper at 2.2 on the same machine.
 
-Cost is taps times systems. Two knobs before anything else:
+Cost is segments times systems. Two knobs before anything else:
 
 - **`systems`** is an option. Three instead of five is a quarter off.
-- **TAPS** is a constant at the top of the shader. Below about five the streaks
-  stop being streaks and the field reads as noise.
+- **SEGMENTS** is a constant at the top of the shader. SUB is nearly free and
+  is what controls whether the hair combs; SEGMENTS is what controls how
+  faithfully a streak follows a curve.
+
+**The step must be about one noise cell.** `length / 28` is the step and
+`scale` is the cell. Step past a cell and consecutive samples are independent,
+which is static. Step well inside one and they are identical, which is smear.
+The first version of this had both at 7px and produced neither.
 
 `maxDpr` defaults to 1.5 rather than the usual 2, because what this draws is
 noise at a cell size of a few pixels and the fourth sub-pixel buys nothing you

@@ -5744,10 +5744,11 @@
       ]
     },
     "perf": {
-      "frameBudgetMs": 0.3,
+      "frameBudgetMs": 1.7,
       "contexts": 0,
       "notes": [
         "One filled circle, one arc, thirty-ish ticks and a four-point needle. The tick loop is the whole cost and it is linear in majors times minors",
+        "Measured with `pnpm budget` at 1280 by 720: 1.7ms for a draw and a forced flush, against DustMotes at 1.6 on the same run, and 0.016 mean absolute change per frame on a 0 to 255 scale, worst 0.026. A dial that barely moves is the point: the hunt is a fraction of a division",
         "No canvas and no WebGL context held between frames beyond the one it draws into, so this does not compete with a backdrop for the page's context"
       ]
     },
@@ -6240,239 +6241,6 @@
     },
     "group": "effects",
     "intro": "Iron filings scattered over a magnet, and the magnet is the cursor.\n\nFilings do not point at a magnet. That is the thing most versions of this get\nwrong, and it is why most of them look like a starburst rather than like a\nphysics demonstration. Filings align with the **field**, and the field of a\ndipole loops: out of one pole, round through the space beside it, and back into\nthe other. Spokes radiating from a point are what a single charge gives, and a\nsingle magnetic charge is not a thing that exists.\n\nSo this evaluates the real expression. For a moment **m** at displacement **r**\nthe field runs along `3(m · r̂)r̂ − m`, and every mark is a short segment laid\nalong it. The loops are a consequence of the maths rather than something drawn.\n\nThe field is sampled once per filing, at the filing, not per pixel. Sampling per\npixel bends each segment into a little curve, which no single filing does: a\nfiling is a rigid sliver of iron and it can only be straight.\n\nNear the magnet the dipole expression runs away to infinity, so the falloff is a\nratio rather than a product. It saturates at 1 instead of producing a handful of\nenormous marks on top of each other at the centre.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency."
-  },
-  {
-    "name": "PointerFoilSheen",
-    "slug": "pointer-foil-sheen",
-    "tier": 1,
-    "description": "A hot-foil stamp on paper, raked by the light your cursor carries",
-    "category": "pointer",
-    "tags": [
-      "shader",
-      "webgl2",
-      "pointer",
-      "specular",
-      "print",
-      "paper",
-      "no-dependencies"
-    ],
-    "ground": "paper",
-    "peerDependencies": {},
-    "browser": {
-      "webgl": "webgl2",
-      "notes": [
-        "WebGL2 for gl_VertexID; there is no WebGL1 fallback and none is planned",
-        "Pointer-driven, never pointer-dependent. With no cursor the light orbits on its own, so it works on touch and under reduced motion"
-      ]
-    },
-    "perf": {
-      "frameBudgetMs": 2.2,
-      "contexts": 1,
-      "notes": [
-        "Five evaluations of the height field per pixel: one for the mask, four for the gradient",
-        "No render targets, no textures, no allocations per frame"
-      ]
-    },
-    "files": [
-      {
-        "from": "shared/runtime.ts",
-        "to": "src/beamish/shared/runtime.ts",
-        "role": "runtime"
-      },
-      {
-        "from": "effects/pointer-foil-sheen/core.ts",
-        "to": "src/beamish/effects/pointer-foil-sheen/core.ts",
-        "role": "core"
-      },
-      {
-        "from": "effects/pointer-foil-sheen/adapters/react.tsx",
-        "to": "src/beamish/effects/pointer-foil-sheen/react.tsx",
-        "role": "adapter"
-      },
-      {
-        "from": "effects/pointer-foil-sheen/adapters/vue.ts",
-        "to": "src/beamish/effects/pointer-foil-sheen/vue.ts",
-        "role": "adapter"
-      }
-    ],
-    "options": {
-      "paper": {
-        "type": "color",
-        "default": "auto",
-        "description": "The paper the stamp is pressed into. Match it to your page background or the panel reads as a pasted-in rectangle. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
-      },
-      "foilLow": {
-        "type": "color",
-        "default": "#7a3410",
-        "description": "The foil where the light does not reach. Metal takes almost all its colour from the highlight, so this wants to be genuinely dark."
-      },
-      "foilHigh": {
-        "type": "color",
-        "default": "#f0b070",
-        "description": "The foil at the highlight. Copper by default; a pale grey here gives silver, a yellow gives gold."
-      },
-      "spokes": {
-        "type": "number",
-        "default": 28,
-        "description": "Points on the rosette. Above about 24 the petals are narrower than the relief and it turns into a disc.",
-        "min": 3,
-        "max": 40,
-        "step": 1,
-        "sensible": [
-          8,
-          18
-        ]
-      },
-      "scale": {
-        "type": "number",
-        "default": 0.8,
-        "description": "Size of the stamp relative to the shorter side of the element.",
-        "min": 0.3,
-        "max": 1.6,
-        "step": 0.01,
-        "sensible": [
-          0.7,
-          1.1
-        ]
-      },
-      "relief": {
-        "type": "number",
-        "default": 0.28,
-        "description": "Depth of the brushed relief. At zero the foil is a flat shape that changes brightness, which reads as plastic rather than metal.",
-        "min": 0,
-        "max": 1,
-        "step": 0.01,
-        "sensible": [
-          0.35,
-          0.7
-        ]
-      },
-      "sharpness": {
-        "type": "number",
-        "default": 0.42,
-        "description": "How tight the highlight is. High is a mirror finish, low is a brushed one.",
-        "min": 0,
-        "max": 1,
-        "step": 0.01,
-        "sensible": [
-          0.3,
-          0.65
-        ]
-      },
-      "iridescence": {
-        "type": "number",
-        "default": 0.22,
-        "description": "Spectral shift at grazing angles. Past about 0.6 it stops being a foil and becomes a hologram.",
-        "min": 0,
-        "max": 1,
-        "step": 0.01,
-        "sensible": [
-          0.15,
-          0.45
-        ]
-      },
-      "lightHeight": {
-        "type": "number",
-        "default": 0.42,
-        "description": "How far above the surface the cursor's light sits. Low is a hard raking light that sweeps a narrow band; high floods the whole stamp at once.",
-        "min": 0.05,
-        "max": 2,
-        "step": 0.01,
-        "sensible": [
-          0.3,
-          0.7
-        ]
-      },
-      "grain": {
-        "type": "number",
-        "default": 0.3,
-        "description": "Paper tooth. Static by design. Animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent.",
-        "min": 0,
-        "max": 1,
-        "step": 0.01
-      },
-      "period": {
-        "type": "number",
-        "default": 5,
-        "description": "Seconds for one orbit of the idle light, which is the motion used when no pointer is present. Exactly periodic, so the loop has no seam.",
-        "min": 2,
-        "max": 60,
-        "step": 1,
-        "unit": "s",
-        "sensible": [
-          5,
-          20
-        ]
-      },
-      "reducedMotionTime": {
-        "type": "number",
-        "default": 0.9,
-        "description": "The single frame shown when the user prefers reduced motion. Pick a light angle where the relief is legible.",
-        "min": 0,
-        "max": 60,
-        "step": 0.1,
-        "unit": "s"
-      }
-    },
-    "instruction": "move the cursor. it carries the light",
-    "oneShot": false,
-    "cursor": {
-      "duration": 5,
-      "keys": [
-        {
-          "t": 0,
-          "x": 0.86,
-          "y": 0.5
-        },
-        {
-          "t": 0.625,
-          "x": 0.755,
-          "y": 0.641
-        },
-        {
-          "t": 1.25,
-          "x": 0.5,
-          "y": 0.7
-        },
-        {
-          "t": 1.875,
-          "x": 0.245,
-          "y": 0.641
-        },
-        {
-          "t": 2.5,
-          "x": 0.14,
-          "y": 0.5
-        },
-        {
-          "t": 3.125,
-          "x": 0.245,
-          "y": 0.359
-        },
-        {
-          "t": 3.75,
-          "x": 0.5,
-          "y": 0.3
-        },
-        {
-          "t": 4.375,
-          "x": 0.755,
-          "y": 0.359
-        },
-        {
-          "t": 5,
-          "x": 0.86,
-          "y": 0.5
-        }
-      ]
-    },
-    "record": {
-      "duration": 5,
-      "fps": 30,
-      "posterAt": 1.6
-    },
-    "group": "effects",
-    "intro": "Foil is a hot-foil stamp pressed into paper, and the cursor is the light. Move it\nand the highlight rakes across the relief the way tilting a real foil-stamped\ncard does: a narrow band of brightness travelling over a brushed surface, picking\nup a little colour at the grazing edges.\n\nThere is no image and no texture. The stamp is a signed-distance rosette with a\nbrushed relief written into its height field. The light is a point source sitting\njust above the surface at the cursor. Everything you see is that height field,\nits gradient, and one specular term. WebGL2, one full-screen triangle, no npm\ndependencies.\n\nIt is pointer-driven, never pointer-dependent. With no cursor, on touch, or\nbefore anyone has moved the mouse, the light takes a slow closed orbit of its\nown. The panel is alive on arrival and the loop still has no seam."
   },
   {
     "name": "PointerLitBusts",
@@ -7277,167 +7045,6 @@
     },
     "group": "effects",
     "intro": "A beam of white light through a slowly turning prism, on a dark ground.\n\nThe fan is **traced, not drawn**. Sixteen wavelengths, each with its own\nrefractive index, each refracted at the entry face, carried through the glass\nand refracted again on the way out, each cast as its own ray.\n\nThat matters because everything people recognise about a prism then falls out\nof it rather than being arranged:\n\n**Red bends least and violet most**, because the refractive index of glass rises\ntowards the blue end. The ordering is not a choice here. Reverse `dispersion`\nand the spectrum reverses, as it would in a material with anomalous dispersion.\n\n**The fan is narrow.** A real 60 degree prism in crown glass spreads the visible\nband by about one degree. That is why a prism throws a long thin spectrum rather\nthan a wide one, and why the picture everybody has in mind is of a spectrum cast\nseveral metres away.\n\n**The spread changes as it turns**, and it is tightest near minimum deviation,\nwhere the beam passes through symmetrically. That is the one moment in the cycle\nwhen the fan narrows and brightens, and it is the detail that says this is being\nworked out rather than painted.\n\n**Some wavelengths do not get out.** Where the angle inside the glass is past\nthe critical angle the ray is totally internally reflected and no line is drawn\nfor it, which is a real thing a prism does and not a case to paper over."
-  },
-  {
-    "name": "RegistrationMarks",
-    "slug": "registration-marks",
-    "tier": 1,
-    "description": "The marks a printer puts outside the trim, with the plates slightly out of register and drifting",
-    "category": "backdrops",
-    "tags": [
-      "webgl",
-      "shader",
-      "backdrop",
-      "print",
-      "registration",
-      "ambient",
-      "no-dependencies"
-    ],
-    "ground": "paper",
-    "peerDependencies": {},
-    "browser": {
-      "webgl": "webgl2",
-      "notes": [
-        "A registration mark is a ring with a cross through it, and the arms run past the ring on all four sides. That is not a style: the ring reads rotation and the arms read translation, so a printer can judge both through a loupe at once",
-        "The subject is the error. Three plates, each drifting on its own closed orbit, which is what a press operator is looking for when they pull a sheet and hold it up. At spread 0 it is a sheet in perfect register, which is the correct answer and much the duller picture",
-        "The inks multiply. Where all three plates land together the mark goes nearly black, and where they have come apart you see three coloured marks beside each other, which is exactly how misregistration announces itself. Added instead, that difference is lost",
-        "Everything is a signed distance in CSS pixels, softened by one pixel's footprint. That is not for looks: these are hairlines moving by fractions of a pixel, and a hairline without anti-aliasing crawls between whole pixels as it drifts. The sub-pixel movement is the entire subject, so it has to be the thing that survives",
-        "The plates orbit rather than wander, a third of a turn apart, so after one period every plate is back where it started and the loop closes. A press drifts because something is turning",
-        "The colour bar along the foot is the other half of what a printer reads off a sheet: one solid patch per plate, for a densitometer",
-        "One WebGL2 context, one full-screen triangle, no buffers and no attributes",
-        "Measured at 0.023 mean absolute change per frame on a 0 to 255 scale, which makes it the quietest backdrop here after PaperGrain, and 0.55ms at 640 by 360. Nearly all of the frame is bare paper"
-      ]
-    },
-    "perf": {
-      "frameBudgetMs": 0.2,
-      "contexts": 1,
-      "notes": [
-        "Three plates, each one a handful of signed distances and a derivative. The four marks are one evaluation, not four: the frame is folded about its centre so a corner mark is the same arithmetic as all of them",
-        "No textures, no noise and no render targets. Nearly all of the frame is paper and costs a single comparison"
-      ]
-    },
-    "files": [
-      {
-        "from": "effects/registration-marks/core.ts",
-        "to": "src/beamish/effects/registration-marks/core.ts",
-        "role": "core"
-      },
-      {
-        "from": "effects/registration-marks/adapters/react.tsx",
-        "to": "src/beamish/effects/registration-marks/react.tsx",
-        "role": "adapter"
-      },
-      {
-        "from": "effects/registration-marks/adapters/vue.ts",
-        "to": "src/beamish/effects/registration-marks/vue.ts",
-        "role": "adapter"
-      },
-      {
-        "from": "shared/runtime.ts",
-        "to": "src/beamish/shared/runtime.ts",
-        "role": "runtime"
-      }
-    ],
-    "options": {
-      "paper": {
-        "type": "color",
-        "default": "#fbfaf4",
-        "description": "The sheet. Nearly all of the frame is this, which is the point: registration marks live in the margin and the margin is mostly empty."
-      },
-      "first": {
-        "type": "color",
-        "default": "#1b6f8c",
-        "description": "The first plate. Process colours are the honest choice here, but any three inks that can be told apart will do: the whole effect depends on seeing which plate has moved."
-      },
-      "second": {
-        "type": "color",
-        "default": "#c44400",
-        "description": "The second plate."
-      },
-      "third": {
-        "type": "color",
-        "default": "#36362f",
-        "description": "The third plate. Making one of them the key black is worth it, because black over the other two is what a mark in register actually looks like."
-      },
-      "size": {
-        "type": "number",
-        "default": 17,
-        "description": "Radius of a mark's ring. Real ones are a few millimetres across and read at arm's length, so keep them small: a large registration mark is a logo.",
-        "min": 5,
-        "max": 60,
-        "step": 1,
-        "unit": "px",
-        "sensible": [
-          12,
-          26
-        ]
-      },
-      "weight": {
-        "type": "number",
-        "default": 1.4,
-        "description": "Thickness of the rules. Hairline, because the whole purpose of the mark is to resolve a small error, and a thick rule cannot show a small error. It is also why the anti-aliasing matters so much here.",
-        "min": 0.4,
-        "max": 6,
-        "step": 0.1,
-        "unit": "px"
-      },
-      "arms": {
-        "type": "number",
-        "default": 1.8,
-        "description": "How far the cross runs past the ring, as a share of the radius. At 1 the arms stop at the ring and it is a target rather than a registration mark.",
-        "min": 1,
-        "max": 4,
-        "step": 0.1
-      },
-      "margin": {
-        "type": "number",
-        "default": 0.13,
-        "description": "How far the marks sit in from the edge, as a share of the short side. On a press sheet they are outside the trim, so near the edge is the truthful setting and also the one that leaves the middle of the frame free.",
-        "min": 0.02,
-        "max": 0.45,
-        "step": 0.01
-      },
-      "spread": {
-        "type": "number",
-        "default": 3.2,
-        "description": "Worst misregistration, in pixels, and the whole subject. A few pixels is a press that needs attention; twenty is a sheet nobody would let off the floor. At 0 the plates sit exactly on top of each other and the marks read as one black mark, which is what a printer is aiming for and the dullest version of this.",
-        "min": 0,
-        "max": 30,
-        "step": 0.1,
-        "unit": "px",
-        "sensible": [
-          1.5,
-          6
-        ]
-      },
-      "bar": {
-        "type": "number",
-        "default": 18,
-        "description": "Height of the colour bar along the foot, one solid patch per plate. 0 leaves only the marks, which is cleaner and loses the other half of what a printer reads off a sheet.",
-        "min": 0,
-        "max": 60,
-        "step": 1,
-        "unit": "px"
-      },
-      "period": {
-        "type": "number",
-        "default": 32,
-        "description": "Seconds for one cycle of the drift. A press does not go out of register quickly, and this is a backdrop, so long.",
-        "min": 8,
-        "max": 180,
-        "step": 1,
-        "unit": "s"
-      }
-    },
-    "instruction": "the plates drift on their own",
-    "oneShot": false,
-    "record": {
-      "duration": 32,
-      "fps": 30,
-      "posterAt": 8
-    },
-    "group": "effects",
-    "intro": "RegistrationMarks draws the marks a printer puts outside the trim so the plates\ncan be lined up, with the plates slightly out of register and drifting.\n\nA registration mark is a ring with a cross through it, and the arms run past the\nring on all four sides. That is not a style choice: the ring reads rotation and\nthe arms read translation, so an operator can judge both through a loupe at\nonce. Each ink gets its own set in its own colour, and when the press is right\nthey sit exactly on top of one another and read as a single black mark.\n\nSo the subject here is the error. Three plates, each drifting on its own closed\norbit, which is what a press operator is looking at when they pull a sheet and\nhold it up to the light. At `spread: 0` the plates land together and the marks\ngo black, which is the correct answer and much the duller picture.\n\nAlong the foot is the colour bar: one solid patch per plate, the way a sheet\ncarries them for a densitometer. It is the other half of what a printer reads\noff a sheet."
   },
   {
     "name": "RelightImage",
@@ -10441,175 +10048,6 @@
     "intro": "VariableWeightText makes type put on weight under the cursor. The hand presses,\nthe letters take more ink, and the line stays exactly where it was.\n\nThat last clause is the whole item, and it is why most versions of this only\never appear on a single centred word.\n\nA variable font's weight axis changes the **advance width** of every glyph it\ntouches. Go from 400 to 700 and the letters get wider, so a line whose letters\nare individually weighted reflows continuously as the cursor crosses it:\ncharacters shuffle sideways, the line end breathes, and anything laid out after\nit moves too.\n\nSo each character is measured once at the heaviest value the axis will ever\nreach, which is the widest it can ever be, and held in a box that wide with the\nletter centred in it. One measuring pass, and after it nothing moves again. It\nis the difference between an effect you can put on a paragraph and one you can\nput on a word.\n\nTwo smaller things. The falloff has a shoulder rather than being linear, because\npressure does not fall off in a straight line from a nib and a linear ramp reads\nas a triangle of bold sliding along the line. And the axis is a setting rather\nthan a constant: weight is the obvious one, but a width or slant axis works the\nsame way and only the strings change."
   },
   {
-    "name": "WatermarkSheet",
-    "slug": "watermark-sheet",
-    "tier": 1,
-    "description": "Handmade paper held up to the light, with laid lines, chain lines and a wire device",
-    "category": "backdrops",
-    "tags": [
-      "webgl",
-      "shader",
-      "paper",
-      "watermark",
-      "laid",
-      "backdrop",
-      "no-dependencies"
-    ],
-    "ground": "paper",
-    "peerDependencies": {},
-    "browser": {
-      "webgl": "webgl2",
-      "notes": [
-        "Everything here is thickness rather than ink. Paper is translucent, so what shows against a light is where the sheet is thinner, and every term lightens rather than darkens",
-        "Laid lines are a ripple and chain lines are a band, because a sheet follows fine wires and is drawn down sharply over thick ones",
-        "The device is drawn as a signed distance, so the wire keeps an even thickness all the way round, which a wire does",
-        "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
-      ]
-    },
-    "perf": {
-      "frameBudgetMs": 1,
-      "contexts": 1,
-      "notes": [
-        "Four octaves of value noise for the formation, two trigonometric terms for the wires, one distance for the device",
-        "Nothing is uploaded per frame. Only uniforms change",
-        "No loops and no branching, so the cost is flat across the frame"
-      ]
-    },
-    "files": [
-      {
-        "from": "shared/runtime.ts",
-        "to": "src/beamish/shared/runtime.ts",
-        "role": "runtime"
-      },
-      {
-        "from": "effects/watermark-sheet/core.ts",
-        "to": "src/beamish/effects/watermark-sheet/core.ts",
-        "role": "core"
-      },
-      {
-        "from": "effects/watermark-sheet/adapters/react.tsx",
-        "to": "src/beamish/effects/watermark-sheet/react.tsx",
-        "role": "adapter"
-      },
-      {
-        "from": "effects/watermark-sheet/adapters/vue.ts",
-        "to": "src/beamish/effects/watermark-sheet/vue.ts",
-        "role": "adapter"
-      }
-    ],
-    "options": {
-      "paper": {
-        "type": "color",
-        "default": "#efede7",
-        "description": "The sheet seen front on, before any light comes through it. Slightly deeper than the page, so there is somewhere for the thin parts to brighten into."
-      },
-      "light": {
-        "type": "color",
-        "default": "#fffdf6",
-        "description": "What comes through where the sheet is thinnest. Everything here lightens toward this; nothing darkens, because every feature is somewhere the paper is thinner."
-      },
-      "laid": {
-        "type": "number",
-        "default": 0.32,
-        "description": "How much light the close-set mould wires let through. A ripple rather than hard lines: the sheet follows fine wires rather than being drawn down over them.",
-        "min": 0,
-        "max": 1,
-        "step": 0.01
-      },
-      "laidPitch": {
-        "type": "number",
-        "default": 210,
-        "description": "Laid wires across the sheet. A real mould has them roughly a millimetre apart, so this wants to be high enough that they are a texture rather than a pattern.",
-        "min": 40,
-        "max": 600,
-        "step": 10
-      },
-      "chain": {
-        "type": "number",
-        "default": 0.5,
-        "description": "How much light the heavy cross wires let through. A narrow band rather than a ripple, because the sheet is drawn down sharply over a thick wire.",
-        "min": 0,
-        "max": 1,
-        "step": 0.01
-      },
-      "chainPitch": {
-        "type": "number",
-        "default": 1.6,
-        "description": "Chain wires across the sheet. Rarely more than a handful: they sit about an inch apart on a real mould, and crowding them is the quickest way to stop it looking like paper.",
-        "min": 0.3,
-        "max": 8,
-        "step": 0.1
-      },
-      "formation": {
-        "type": "number",
-        "default": 0.5,
-        "description": "How unevenly the fibres settled. This is most of what separates a handmade sheet from a machine one, and at 0 you have made cartridge paper.",
-        "min": 0,
-        "max": 1.5,
-        "step": 0.05
-      },
-      "cloud": {
-        "type": "number",
-        "default": 2.4,
-        "description": "Size of the cloudiness. Lower is a coarser, blotchier sheet.",
-        "min": 0.3,
-        "max": 10,
-        "step": 0.1
-      },
-      "device": {
-        "type": "number",
-        "default": 0.75,
-        "description": "How brightly the wire device shows. The sheet is much thinner there than anywhere else, so it is the brightest thing present. Zero for a plain laid sheet with no watermark.",
-        "min": 0,
-        "max": 1,
-        "step": 0.01
-      },
-      "deviceSize": {
-        "type": "number",
-        "default": 0.4,
-        "description": "Size of the device, as a share of the short side.",
-        "min": 0.05,
-        "max": 0.6,
-        "step": 0.01
-      },
-      "angle": {
-        "type": "number",
-        "default": 4,
-        "description": "Angle of the mould to the frame. A few degrees off square, because a sheet is not laid down obediently aligned to anything.",
-        "min": -45,
-        "max": 45,
-        "step": 1
-      },
-      "grain": {
-        "type": "number",
-        "default": 0.35,
-        "description": "Paper tooth over the whole thing.",
-        "min": 0,
-        "max": 1,
-        "step": 0.01
-      },
-      "period": {
-        "type": "number",
-        "default": 40,
-        "description": "Seconds for one slow tilt against the light. Nothing moves on the sheet; the sheet moves. A closed orbit, so it returns to exactly where it began, and slow enough that nobody catches it at it.",
-        "min": 4,
-        "max": 180,
-        "step": 1
-      }
-    },
-    "instruction": "ambient, the sheet tilts against the light",
-    "oneShot": false,
-    "record": {
-      "duration": 40,
-      "fps": 15,
-      "posterAt": 5,
-      "crf": 32,
-      "webmCrf": 48
-    },
-    "group": "effects",
-    "intro": "A sheet of handmade paper held up to the light.\n\nEverything here is thickness. Paper is translucent, so what you see against a\nlight is not ink but where the sheet is thinner and lets more through. That is\nthe whole premise, and it is why nothing in this effect darkens: every term\nlightens the paper, because every term is somewhere the paper is thinner.\n\nThree of them come from the mould the sheet was formed on, not from the pulp.\nThe **laid lines** are its close-set wires, so the sheet is very slightly thinner\nover each one. The **chain lines** are the heavier wires at right angles holding\nthose together, an inch or so apart. And the **formation** is the cloudiness:\nfibres never settle evenly, and that blotchy variation is most of what separates\na handmade sheet from a machine one.\n\nThe fourth is the watermark proper, a wire device sewn onto the mould. The sheet\nis much thinner there, which is why a watermark is brighter than everything\naround it and why it only shows against a light.\n\nLaid lines are drawn as a ripple and chain lines as a band, which is not an\narbitrary difference. A forming sheet follows fine wires and is drawn down\nsharply over thick ones.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency."
-  },
-  {
     "name": "WindField",
     "slug": "wind-field",
     "tier": 1,
@@ -10643,14 +10081,16 @@
       ]
     },
     "perf": {
-      "frameBudgetMs": 1.4,
+      "frameBudgetMs": 2,
       "contexts": 1,
       "notes": [
-        "Eighteen samples per pixel, each one a field evaluation plus a value-noise lookup, and the field evaluation is a loop over the systems. Cost is therefore taps times systems, and both are knobs: `systems` is an option and TAPS is a constant at the top of the shader",
-        "Measured with `pnpm budget` at 1280 by 720: 1.4ms for a draw and a forced flush, against DustMotes at 0.7, WovenThreads at 0.8 and MarbledPaper at 2.2 on the same machine. Expensive, but not the most expensive thing here",
-        "maxDpr is capped at 1.5 rather than the usual 2. What it draws is noise at a cell size of a few pixels, so the fourth sub-pixel is paid for and not seen",
-        "0.051 mean absolute change per frame on a 0 to 255 scale, sampled at six phases of the period and worst at 0.057. Three times DustMotes and half of MarbledPaper, which is where a backdrop with something travelling across it should sit",
-        "No textures, no buffers and no feedback. There is nothing to allocate between frames"
+        "Seven field evaluations each way, each followed by four noise samples taken in a straight line along the direction that evaluation gave. The field is what costs, and a streamline is locally straight over a couple of pixels, so the samples that make the combing are nearly free",
+        "The step has to be about one noise cell. Longer and consecutive samples are independent, which is static; much shorter and they are identical, which is smear. The first version stepped 7px through 7px cells and produced neither: it read as wet paint",
+        "Measured with `pnpm budget` at 1280 by 720: 2.0ms for a draw and a forced flush, against DustMotes at 1.6 on the same run. The comparison is the part to trust rather than the absolute: DustMotes read 0.7 earlier in the same session on the same machine, so these numbers drift with whatever else is running and are only worth anything beside a reference taken at the same time",
+        "0.104 mean absolute change per frame on a 0 to 255 scale, worst 0.125, sampled at six phases. It was 0.044 at a 36 second period; halving the period to 24 to get the take inside its media budget doubled it, which is the trade and is still inside the band a backdrop wants",
+        "maxDpr is capped at 1.5 rather than the usual 2. What it draws is noise at a cell of about two pixels, so the fourth sub-pixel is paid for and not seen",
+        "No textures, no buffers and no feedback. There is nothing to allocate between frames",
+        "A field of fine hard-edged noise is the case a codec has nothing to work with: there is no redundancy in it, so the settings that are generous for a photograph are extravagant here. The take is 24s at crf 40 and webmCrf 54 for that reason, and the first attempt at 36s and crf 34 came out 3832 kB against a 3500 limit"
       ]
     },
     "files": [
@@ -10730,20 +10170,20 @@
       },
       "scale": {
         "type": "number",
-        "default": 7,
+        "default": 2.2,
         "description": "Cell size of the noise the streaks are made of. It sets how coarse the combing is, and nothing else in here does. Large values give a few wide ribbons; small ones give fine hair, and below about 3 it starts to alias into sparkle.",
-        "min": 2,
-        "max": 40,
-        "step": 0.5,
+        "min": 0.8,
+        "max": 12,
+        "step": 0.1,
         "unit": "px",
         "sensible": [
-          4,
-          12
+          1.2,
+          3
         ]
       },
       "length": {
         "type": "number",
-        "default": 58,
+        "default": 60,
         "description": "How long a streak is. This is the distance the walk covers, so it is also how far the shader can see along the flow: long streaks follow a curve further and make the field legible, and past about 120 they start to straighten the tight air near a system centre into chords.",
         "min": 10,
         "max": 180,
@@ -10768,7 +10208,7 @@
       },
       "contrast": {
         "type": "number",
-        "default": 0.38,
+        "default": 0.46,
         "description": "How hard the result is stretched away from its mean. Line integral convolution of a uniform field sits in a narrow band around the middle, so at 0 this is a flat wash with a hint of structure. Past about 0.8 the streaks go to hard black and white and the field stops reading as air.",
         "min": 0,
         "max": 1,
@@ -10788,7 +10228,7 @@
       },
       "period": {
         "type": "number",
-        "default": 36,
+        "default": 24,
         "description": "Seconds for one cycle. Long, because a backdrop has to survive being ignored: this is both how long a system takes to go round its home and the time in which the streaks make `turns` complete passes.",
         "min": 10,
         "max": 180,
@@ -10803,11 +10243,11 @@
     "instruction": "the wind runs on its own",
     "oneShot": false,
     "record": {
-      "duration": 36,
+      "duration": 24,
       "fps": 20,
       "posterAt": 9,
-      "crf": 34,
-      "webmCrf": 48
+      "crf": 40,
+      "webmCrf": 54
     },
     "credit": {
       "what": "the field of named pressure systems behind the Wind Field Routing page, and the speed-as-colour ramp that goes with it. The method here is line integral convolution rather than fourteen thousand advected particles, because an advected field cannot be seeked",

@@ -95,6 +95,8 @@ type Raw = {
   grounds: string[]
   /** True when the ground is painted rather than a colour, so it must be sampled. */
   painted: boolean
+  /** True when this element or an ancestor blends, so the colour is not what renders. */
+  blended: boolean
 }
 
 /** The lightest and darkest pixel behind one element, as `r,g,b` triples. */
@@ -266,6 +268,29 @@ async function collect(page: Page): Promise<Raw[]> {
         (style.webkitTextStrokeWidth !== '0px' && style.color.includes('rgba(0, 0, 0, 0)'))
 
       /*
+       * Blended text is not the colour it says it is.
+       *
+       * This site's own nav is `color: #fff` with `mix-blend-mode: difference`,
+       * so it comes out the inverse of whatever it is over and is legible on
+       * any ground. The declared colour is white, the ground is cream, and the
+       * arithmetic says 1.05:1 on text anybody can read.
+       *
+       * It is reported as unsampleable rather than passed, because the honest
+       * answer is that this tool cannot compute it: the rendered colour is a
+       * function of the backdrop per pixel. The same guard that stops a
+       * surprising failure being "fixed" into a real one, which has already
+       * happened twice here.
+       */
+      let blended = false
+      for (let node: HTMLElement | null = el; node; node = node.parentElement) {
+        const mode = getComputedStyle(node).mixBlendMode
+        if (mode && mode !== 'normal') {
+          blended = true
+          break
+        }
+      }
+
+      /*
        * Visible also means not clipped away by an ancestor.
        *
        * An odometer is a tall strip of digits behind a one-digit window, and
@@ -339,7 +364,8 @@ async function collect(page: Page): Promise<Raw[]> {
           text: (el.textContent ?? '').trim().replace(/\s+/g, ' ').slice(0, 32),
           opacity,
           grounds,
-          painted
+          painted,
+          blended
         })
       }
 
@@ -364,7 +390,8 @@ async function collect(page: Page): Promise<Raw[]> {
           text: cs.content.replace(/^"|"$/g, '').slice(0, 32),
           opacity,
           grounds,
-          painted
+          painted,
+          blended
         })
       }
     }
@@ -872,6 +899,16 @@ async function check(
     for (const { row, ratio: value, need, sampledGround, ground } of seen.values()) {
       if (row.painted && !sampledGround) {
         unknown.push(`${row.px}px ${row.sel}`)
+        continue
+      }
+      /*
+       * Blended text renders as a function of the backdrop per pixel, so the
+       * declared colour is not the colour and this tool cannot score it. Said
+       * out loud rather than passed quietly: an unmeasurable style should be
+       * looked at by a person, not assumed to be fine.
+       */
+      if (row.blended) {
+        unknown.push(`${row.px}px ${row.sel} (blended)`)
         continue
       }
       if (value < need) {

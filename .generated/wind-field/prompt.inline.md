@@ -125,12 +125,12 @@ export const windFieldDefaults: WindFieldOptions = {
   systems: 4,
   drift: 0.42,
   wander: 0.06,
-  scale: 7,
-  length: 58,
+  scale: 2.2,
+  length: 60,
   turns: 3,
-  contrast: 0.38,
+  contrast: 0.46,
   seed: 11,
-  period: 36,
+  period: 24,
   maxDpr: 1.5,
   reducedMotionTime: 0
 }
@@ -207,13 +207,30 @@ out vec4 fragColor;
 const float TAU = 6.28318530718;
 
 /*
- * Taps each way along the streamline, counting the pixel itself: nine each way,
- * eighteen samples, seventeen distinct points. The cost of the whole effect is
- * this number times the cost of one field evaluation, so it is the first knob
- * to reach for if this ever has to be cheaper. Below about five the streaks
- * stop being streaks and the field reads as noise.
+ * The walk, split into two loops for a reason that decides how this looks.
+ *
+ * Line integral convolution only combs if consecutive samples land on
+ * DIFFERENT noise and the ones along a streamline agree. The first version of
+ * this stepped 7px at a time through noise with 7px cells, so every step
+ * landed in the same cell as the last: the samples agreed everywhere, nothing
+ * cancelled, and the result was smeared blobs rather than hair. It read as wet
+ * paint, which is what it was.
+ *
+ * So the noise is now nearly per-pixel and the step is about a pixel. That
+ * wants far more samples, and samples are cheap; what is expensive is
+ * evaluating the field, which walks every pressure system. The two are
+ * separated here: SEGMENTS field evaluations, each followed by SUB samples
+ * taken in a straight line along the direction that evaluation gave. A
+ * streamline is locally straight over a couple of pixels, so nothing is lost
+ * and the cost stays where it was.
+ *
+ * The one rule that has to hold: the step must be no longer than a noise cell.
+ * Step past a cell and consecutive samples are independent, which is static;
+ * step well inside one and they are identical, which is smear. About one cell
+ * per step is where it combs.
  */
-const int TAPS = 8;
+const int SEGMENTS = 7;
+const int SUB = 4;
 /* Room for eight systems. u_systems says how many are actually walked. */
 const int MAX_SYSTEMS = 8;
 
@@ -292,8 +309,9 @@ void main() {
   /* Step length along the streamline, in field units. stepLen rather than
      step, because \`step\` is a GLSL built-in and a variable of that name hides
      it for the rest of the shader. */
-  float stepLen = (max(u_length, 4.0) / float(TAPS)) / height;
-  float noiseScale = height / max(u_scale, 2.0);
+  float samples = float(SEGMENTS * SUB);
+  float stepLen = (max(u_length, 4.0) / samples) / height;
+  float noiseScale = height / max(u_scale, 0.8);
 
   /*
    * The travelling kernel. Its phase is the only thing in here that moves the
@@ -313,28 +331,34 @@ void main() {
   vec2 fwd = q;
   vec2 back = q;
   float speedHere = length(wind(q, aspect, phase));
+  float walked = 0.0;
 
-  for (int j = 0; j <= TAPS; j++) {
-    float s = float(j);
-    /*
-     * A raised cosine down the length of the kernel, so a streak fades out at
-     * both ends instead of stopping. The travel term slides that envelope along
-     * the streamline, which is what makes the wind look like it is going
-     * somewhere.
-     */
-    float w = (0.5 + 0.5 * cos(TAU * (s / float(TAPS)) * 0.5)) *
-              (0.6 + 0.4 * cos(TAU * s / float(TAPS) * 1.5 - travel));
-
-    sum += vnoise(fwd * noiseScale) * w;
-    sum += vnoise(back * noiseScale) * w;
-    weight += 2.0 * w;
-
+  for (int seg = 0; seg < SEGMENTS; seg++) {
+    /* One field evaluation per segment, in each direction. */
     vec2 vf = wind(fwd, aspect, phase);
     vec2 vb = wind(back, aspect, phase);
-    float lf = max(length(vf), 1e-4);
-    float lb = max(length(vb), 1e-4);
-    fwd += (vf / lf) * stepLen;
-    back -= (vb / lb) * stepLen;
+    vec2 df = (vf / max(length(vf), 1e-4)) * stepLen;
+    vec2 db = (vb / max(length(vb), 1e-4)) * stepLen;
+
+    for (int k = 0; k < SUB; k++) {
+      fwd += df;
+      back -= db;
+      walked += 1.0;
+      float s = walked / samples;
+
+      /*
+       * A raised cosine down the length of the kernel, so a streak fades out
+       * at both ends instead of stopping, times a travelling wave that slides
+       * that envelope along the streamline. The second term is the only thing
+       * in here that moves.
+       */
+      float w = (0.5 + 0.5 * cos(TAU * s * 0.5)) *
+                (0.62 + 0.38 * cos(TAU * s * 1.5 - travel));
+
+      sum += vnoise(fwd * noiseScale) * w;
+      sum += vnoise(back * noiseScale) * w;
+      weight += 2.0 * w;
+    }
   }
 
   float ink = sum / max(weight, 1e-4);
@@ -347,12 +371,12 @@ void main() {
   ink = clamp(0.5 + (ink - 0.5) * (1.0 + u_contrast * 7.0), 0.0, 1.0);
 
   /*
-   * Then thin it. Stretching alone gives a field with as much streak in it as
-   * ground, which is the difference between a chart and a sheet of marbled
-   * paper: on a chart you read the shape of the air, and you can only do that
-   * if there is dark between the streaks for them to be shapes against.
+   * Then thin it, so there is dark between the streaks for them to be shapes
+   * against. Squared rather than cubed: the cube was tuned against the blobby
+   * version, where it was hiding the smear, and on properly combed hair it
+   * eats the mid-tones and leaves only the brightest few strands.
    */
-  ink = ink * ink * ink;
+  ink = ink * ink;
 
   /*
    * Colour by speed, the way every chart of this kind does: the ramp is the
@@ -1292,12 +1316,12 @@ as the second argument to the create function; anything omitted takes its defaul
 | `systems` | number | `4` | 1 to 8 (looks right between 3 and 5) | How many pressure systems are in the field. Few and large reads as weather; many and small reads as decoration, because a real chart is mostly one system's skirt running into another's. This is also the main cost: the field is evaluated eighteen times per pixel and each evaluation walks this many systems. |
 | `drift` | number | `0.42` | 0 to 1.5 (looks right between 0.2 and 0.6) | The prevailing wind across the frame, before any system touches it. At 0 the systems sit in dead air and the field has no direction, which is the single clearest way to make this look like a screensaver. |
 | `wander` | number | `0.06` | 0 to 0.3 | How far each system travels from its home over a period, as a share of the height. Small: weather moves, but a backdrop that moves its structure around is a backdrop you keep looking at. At 0 the field is fixed and only the streaks travel, which is a legitimate and very quiet way to use this. |
-| `scale` | number | `7` | 2 to 40 px (looks right between 4 and 12) | Cell size of the noise the streaks are made of. It sets how coarse the combing is, and nothing else in here does. Large values give a few wide ribbons; small ones give fine hair, and below about 3 it starts to alias into sparkle. |
-| `length` | number | `58` | 10 to 180 px (looks right between 40 and 90) | How long a streak is. This is the distance the walk covers, so it is also how far the shader can see along the flow: long streaks follow a curve further and make the field legible, and past about 120 they start to straighten the tight air near a system centre into chords. |
+| `scale` | number | `2.2` | 0.8 to 12 px (looks right between 1.2 and 3) | Cell size of the noise the streaks are made of. It sets how coarse the combing is, and nothing else in here does. Large values give a few wide ribbons; small ones give fine hair, and below about 3 it starts to alias into sparkle. |
+| `length` | number | `60` | 10 to 180 px (looks right between 40 and 90) | How long a streak is. This is the distance the walk covers, so it is also how far the shader can see along the flow: long streaks follow a curve further and make the field legible, and past about 120 they start to straighten the tight air near a system centre into chords. |
 | `turns` | number | `3` | 1 to 12 (looks right between 2 and 5) | Whole turns the streaks travel along the flow in one period. Whole, because a fraction means the loop never comes home, and core.ts rounds it rather than trusting it. With the default period of 36 seconds, 3 is a streak pattern that takes twelve seconds to repeat. |
-| `contrast` | number | `0.38` | 0 to 1 (looks right between 0.35 and 0.7) | How hard the result is stretched away from its mean. Line integral convolution of a uniform field sits in a narrow band around the middle, so at 0 this is a flat wash with a hint of structure. Past about 0.8 the streaks go to hard black and white and the field stops reading as air. |
+| `contrast` | number | `0.46` | 0 to 1 (looks right between 0.35 and 0.7) | How hard the result is stretched away from its mean. Line integral convolution of a uniform field sits in a narrow band around the middle, so at 0 this is a flat wash with a hint of structure. Past about 0.8 the streaks go to hard black and white and the field stops reading as air. |
 | `seed` | number | `11` | 0 to 9999 | Seed for the systems: where they sit, which way they turn, how big and how strong. The same seed gives the same weather, so a recording and a live page agree streak for streak. |
-| `period` | number | `36` | 10 to 180 s (looks right between 24 and 90) | Seconds for one cycle. Long, because a backdrop has to survive being ignored: this is both how long a system takes to go round its home and the time in which the streaks make `turns` complete passes. |
+| `period` | number | `24` | 10 to 180 s (looks right between 24 and 90) | Seconds for one cycle. Long, because a backdrop has to survive being ignored: this is both how long a system takes to go round its home and the time in which the streaks make `turns` complete passes. |
 
 ## 5. Why not particles
 
@@ -1351,16 +1375,23 @@ default, or the mismatch shows as a rectangle.
 
 ## 8. It is expensive
 
-Eighteen samples per pixel, and each one evaluates the field, which walks every
-system. Measured at 1280 by 720 that is 1.4ms for a draw and a forced flush,
-against DustMotes at 0.7 and MarbledPaper at 2.2 on the same machine: near the
-top of this library but not at it.
+Twenty-eight samples per pixel along the streamline, but only seven field
+evaluations each way: the field is what costs, and a streamline is straight
+enough over a couple of pixels that the samples between evaluations are nearly
+free. Measured at 1280 by 720 that is 1.0ms for a draw and a forced flush,
+against DustMotes at 0.7 and MarbledPaper at 2.2 on the same machine.
 
-Cost is taps times systems. Two knobs before anything else:
+Cost is segments times systems. Two knobs before anything else:
 
 - **`systems`** is an option. Three instead of five is a quarter off.
-- **TAPS** is a constant at the top of the shader. Below about five the streaks
-  stop being streaks and the field reads as noise.
+- **SEGMENTS** is a constant at the top of the shader. SUB is nearly free and
+  is what controls whether the hair combs; SEGMENTS is what controls how
+  faithfully a streak follows a curve.
+
+**The step must be about one noise cell.** `length / 28` is the step and
+`scale` is the cell. Step past a cell and consecutive samples are independent,
+which is static. Step well inside one and they are identical, which is smear.
+The first version of this had both at 7px and produced neither.
 
 `maxDpr` defaults to 1.5 rather than the usual 2, because what this draws is
 noise at a cell size of a few pixels and the fourth sub-pixel buys nothing you

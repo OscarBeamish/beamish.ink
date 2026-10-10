@@ -174,7 +174,21 @@ class CardStackSurface implements Surface<CardStackOptions> {
        * flicker that reads as a dropped frame. Done at the far point of the
        * travel, where nothing overlaps, it cannot be seen at all.
        */
-      const order = leaving && moving > 0.5 ? count - 1 - shown : count - shown
+      /*
+       * This did not do what the paragraph above says. It was
+       * `count - shown` until the halfway point, and `shown` grows as soon as
+       * the card starts moving, so the card lost its place at the front almost
+       * immediately: a third of the way through the travel it was already
+       * behind the card beneath it. What that looks like is not a card being
+       * lifted off a pile. It looks like a new card arriving on top, which is
+       * exactly how it was reported.
+       *
+       * A card being lifted stays in front of everything until it is clear,
+       * and is behind everything on the way back. There is nothing to
+       * interpolate: it is above, then it is below, and the swap happens at the
+       * far point where nothing is overlapping and it cannot be seen.
+       */
+      const order = leaving ? (moving < 0.5 ? count + 1 : -1) : count - shown
       const z = String(Math.round(order * 10))
       if (card.style.zIndex !== z) card.style.zIndex = z
 

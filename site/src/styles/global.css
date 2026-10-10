@@ -452,11 +452,22 @@
     padding-right: 2.5rem;
   }
 
+  /*
+   * The display face, because all seven items that use this set their own demo
+   * page in it and that is what every recorded video shows. Without it the
+   * heading inherited the site's monospace body, so the panel and the video
+   * underneath it were in different typefaces: VariableWeightText in
+   * particular is about what a weight axis does to letterforms, and it was
+   * demonstrating that on JetBrains Mono while its video showed Archivo.
+   */
   .demo-heading {
     margin: 0;
     max-width: 18ch;
+    font-family: var(--font-display);
     font-size: clamp(1.5rem, 4.5vw, 3.2rem);
+    font-weight: 700;
     line-height: 1;
+    letter-spacing: -0.03em;
     text-align: center;
   }
 
@@ -537,11 +548,28 @@
    * clip them. It sits high in the stage for the same reason: the fall needs
    * somewhere to go.
    */
+  /*
+   * FallingLetters measures where each letter sits, then pins every one of
+   * them absolutely at that position. So whatever width the host has when it
+   * is mounted is the width the line keeps, for ever.
+   *
+   * Without the width below it is a grid item that shrinks to fit, and with a
+   * span per letter that resolves to the widest single letter: the line was
+   * measured at 96px in a 1178px panel, one letter per row, four rows of it.
+   * The letters then fell out of the bottom from there, which is what you see
+   * on the page: an empty panel.
+   */
   .demo-pied {
     margin: 0;
-    padding: 14% clamp(1rem, 5cqw, 3rem) 0;
+    width: 100%;
+    box-sizing: border-box;
+    /* Room below for the fall. The letters drop 3.2 line heights and settle
+       there, so the line has to start high enough that the floor is still
+       inside the panel. */
+    padding: 8% clamp(1rem, 5cqw, 3rem) 0;
+    text-align: center;
     font-family: var(--font-display);
-    font-size: clamp(1.6rem, 9cqw, 5rem);
+    font-size: clamp(1.4rem, 7cqw, 4rem);
     font-weight: 700;
     letter-spacing: -0.03em;
     line-height: 1;
@@ -773,12 +801,23 @@
   /* The buttons CrosshairCursor takes aim at. cursor: none is set here rather
      than in the effect, because losing the system cursor is a decision about
      the page: over a panel of buttons it is fine, over a form it is not. */
+  /*
+   * Full width, and the reason is the effect rather than the layout.
+   *
+   * CrosshairCursor listens for pointermove on the element it is mounted on
+   * and hides itself whenever the pointer is not over it. Mounted on this box
+   * it was alive inside 231 by 170 of a 1178 by 662 stage, which is where the
+   * buttons are, so it looked like it only appeared on hover over a button. It
+   * mounts on the stage now; the cursor still has to be hidden here, because
+   * that is the element the pointer is actually over.
+   */
   .demo-reticle {
     display: grid;
     justify-items: center;
     align-content: center;
     gap: 0.8rem;
-    height: 100%;
+    /* The effect mounts on the stage rather than on this, so this only has to
+       carry the buttons and the hidden system cursor. */
     cursor: none;
   }
 
@@ -923,8 +962,27 @@
     border-radius: 100px;
   }
 
-  .demo-magnetic-button .beamish-sheen-button {
+  /*
+   * A plain control rather than SheenButton. The item is one idea, an element
+   * leaning towards the cursor before it arrives, and a button that also has a
+   * band of light crossing it means two things are happening at once with no
+   * way to tell which one is the item.
+   */
+  .demo-magnetic-button__btn {
     grid-area: 1 / 1;
+    display: grid;
+    place-items: center;
+    width: 11.4rem;
+    height: 3.2rem;
+    border: 0;
+    border-radius: 100px;
+    background: var(--label-1);
+    color: var(--color-b1);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
   }
 }
 

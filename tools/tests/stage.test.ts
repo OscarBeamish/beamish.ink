@@ -47,13 +47,13 @@ beforeAll(async () => {
       contents: `
         import { createStage } from './shared/stage'
         import paperGrain from './effects/paper-grain/core'
-        import registrationMarks from './effects/registration-marks/core'
+        import stippleField from './effects/stipple-field/core'
         import dustMotes from './effects/dust-motes/core'
 
         const at = id => document.getElementById(id)
         window.__stage = createStage([
           { el: at('a').parentElement, create: () => paperGrain(at('a')) },
-          { el: at('b').parentElement, create: () => registrationMarks(at('b')) },
+          { el: at('b').parentElement, create: () => stippleField(at('b')) },
           { el: at('c').parentElement, create: () => dustMotes(at('c')) }
         ])
       `,

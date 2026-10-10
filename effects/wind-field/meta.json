@@ -32,14 +32,16 @@
     ]
   },
   "perf": {
-    "frameBudgetMs": 1.4,
+    "frameBudgetMs": 2.0,
     "contexts": 1,
     "notes": [
-      "Eighteen samples per pixel, each one a field evaluation plus a value-noise lookup, and the field evaluation is a loop over the systems. Cost is therefore taps times systems, and both are knobs: `systems` is an option and TAPS is a constant at the top of the shader",
-      "Measured with `pnpm budget` at 1280 by 720: 1.4ms for a draw and a forced flush, against DustMotes at 0.7, WovenThreads at 0.8 and MarbledPaper at 2.2 on the same machine. Expensive, but not the most expensive thing here",
-      "maxDpr is capped at 1.5 rather than the usual 2. What it draws is noise at a cell size of a few pixels, so the fourth sub-pixel is paid for and not seen",
-      "0.051 mean absolute change per frame on a 0 to 255 scale, sampled at six phases of the period and worst at 0.057. Three times DustMotes and half of MarbledPaper, which is where a backdrop with something travelling across it should sit",
-      "No textures, no buffers and no feedback. There is nothing to allocate between frames"
+      "Seven field evaluations each way, each followed by four noise samples taken in a straight line along the direction that evaluation gave. The field is what costs, and a streamline is locally straight over a couple of pixels, so the samples that make the combing are nearly free",
+      "The step has to be about one noise cell. Longer and consecutive samples are independent, which is static; much shorter and they are identical, which is smear. The first version stepped 7px through 7px cells and produced neither: it read as wet paint",
+      "Measured with `pnpm budget` at 1280 by 720: 2.0ms for a draw and a forced flush, against DustMotes at 1.6 on the same run. The comparison is the part to trust rather than the absolute: DustMotes read 0.7 earlier in the same session on the same machine, so these numbers drift with whatever else is running and are only worth anything beside a reference taken at the same time",
+      "0.104 mean absolute change per frame on a 0 to 255 scale, worst 0.125, sampled at six phases. It was 0.044 at a 36 second period; halving the period to 24 to get the take inside its media budget doubled it, which is the trade and is still inside the band a backdrop wants",
+      "maxDpr is capped at 1.5 rather than the usual 2. What it draws is noise at a cell of about two pixels, so the fourth sub-pixel is paid for and not seen",
+      "No textures, no buffers and no feedback. There is nothing to allocate between frames",
+      "A field of fine hard-edged noise is the case a codec has nothing to work with: there is no redundancy in it, so the settings that are generous for a photograph are extravagant here. The take is 24s at crf 40 and webmCrf 54 for that reason, and the first attempt at 36s and crf 34 came out 3832 kB against a 3500 limit"
     ]
   },
   "files": [
@@ -119,20 +121,20 @@
     },
     "scale": {
       "type": "number",
-      "default": 7,
-      "min": 2,
-      "max": 40,
-      "step": 0.5,
+      "default": 2.2,
+      "min": 0.8,
+      "max": 12,
+      "step": 0.1,
       "unit": "px",
       "sensible": [
-        4,
-        12
+        1.2,
+        3
       ],
       "description": "Cell size of the noise the streaks are made of. It sets how coarse the combing is, and nothing else in here does. Large values give a few wide ribbons; small ones give fine hair, and below about 3 it starts to alias into sparkle."
     },
     "length": {
       "type": "number",
-      "default": 58,
+      "default": 60,
       "min": 10,
       "max": 180,
       "step": 1,
@@ -157,7 +159,7 @@
     },
     "contrast": {
       "type": "number",
-      "default": 0.38,
+      "default": 0.46,
       "min": 0,
       "max": 1,
       "step": 0.01,
@@ -177,7 +179,7 @@
     },
     "period": {
       "type": "number",
-      "default": 36,
+      "default": 24,
       "min": 10,
       "max": 180,
       "step": 1,
@@ -192,11 +194,11 @@
   "instruction": "the wind runs on its own",
   "oneShot": false,
   "record": {
-    "duration": 36,
+    "duration": 24,
     "fps": 20,
     "posterAt": 9,
-    "crf": 34,
-    "webmCrf": 48
+    "crf": 40,
+    "webmCrf": 54
   },
   "credit": {
     "what": "the field of named pressure systems behind the Wind Field Routing page, and the speed-as-colour ramp that goes with it. The method here is line integral convolution rather than fourteen thousand advected particles, because an advected field cannot be seeked",

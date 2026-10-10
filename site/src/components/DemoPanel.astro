@@ -272,7 +272,6 @@ const tweakable = tier === 1 ? Object.entries(options) : []
   > = {
     'halftone-backdrop': () => import('@items/effects/halftone-backdrop/core'),
     'cast-shadow-scene': () => import('@items/effects/cast-shadow-scene/core'),
-    'pointer-foil-sheen': () => import('@items/effects/pointer-foil-sheen/core'),
     'scramble-text': () => import('@items/effects/scramble-text/core'),
     'decode-text': () => import('@items/effects/decode-text/core'),
     'split-flap-text': () => import('@items/effects/split-flap-text/core'),
@@ -302,13 +301,13 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'light-shafts': () => import('@items/effects/light-shafts/core'),
     'lightning-vein': () => import('@items/effects/lightning-vein/core'),
     'moire-screens': () => import('@items/effects/moire-screens/core'),
-    'registration-marks': () => import('@items/effects/registration-marks/core'),
     'woven-threads': () => import('@items/effects/woven-threads/core'),
     'dust-motes': () => import('@items/effects/dust-motes/core'),
     'wind-field': () => import('@items/effects/wind-field/core'),
     'ember-rise': () => import('@items/effects/ember-rise/core'),
     'highlighter-mark': () => import('@items/effects/highlighter-mark/core'),
     'iris-reveal': () => import('@items/effects/iris-reveal/core'),
+    'panel-gauge': () => import('@items/effects/panel-gauge/core'),
     tooth: () => import('@items/effects/paper-grain/core'),
     'scroll-marquee': () => import('@items/effects/scroll-marquee/core'),
     'aurora-curtain': () => import('@items/effects/aurora-curtain/core'),
@@ -323,7 +322,6 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'misprint-text': () => import('@items/effects/misprint-text/core'),
     'spotlight-card': () => import('@items/effects/spotlight-card/core'),
     'pointer-smoke': () => import('@items/effects/pointer-smoke/core'),
-    'watermark-sheet': () => import('@items/effects/watermark-sheet/core'),
     'ink-bleed-text': () => import('@items/effects/ink-bleed-text/core'),
     'halftone-magnifier': () => import('@items/effects/halftone-magnifier/core'),
     'relight-image': () => import('@items/effects/relight-image/core'),
@@ -508,7 +506,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     </div>`,
     'magnetic-button': `<div class="demo-magnetic-button">
       <div class="demo-magnetic-button__rest" aria-hidden="true"></div>
-      <button type="button" class="beamish-sheen-button beamish-sheen-button--solid">Get prompt</button>
+      <button type="button" class="demo-magnetic-button__btn">Get prompt</button>
     </div>`,
     'tilt-card': `<article class="demo-card">
       <div class="demo-card__mark"></div>
@@ -538,12 +536,32 @@ const tweakable = tier === 1 ? Object.entries(options) : []
      * gesture. Here it would walk the reader off the item page they are reading,
      * so the panel shows the opening and the closing instead.
      */
-    'expanding-tiles': { follow: false }
+    'expanding-tiles': { follow: false },
+    /*
+     * A shorter drop than the item's own default. The letters settle 3.2 line
+     * heights below the baseline, which is right in a full-height demo and
+     * lands them on the bottom edge of a panel this shape. 2.1 keeps the whole
+     * fall inside the frame with room under it.
+     */
+    'falling-letters': { floor: 2.1 }
   }
 
-  /* Where inside the injected markup the effect actually mounts. */
+  /*
+   * Where inside the injected markup the effect actually mounts.
+   *
+   * ':scope' means the stage itself, for an effect that needs the whole panel
+   * while its content stays centred inside it.
+   */
   const MOUNT_ON: Record<string, string> = {
-    'magnetic-button': '.beamish-sheen-button',
+    /*
+     * The crosshair tracks the pointer across the panel and hides itself when
+     * the pointer is not over the element it is mounted on. Mounted on the
+     * button column it was alive in a box 231 by 170 inside a stage of 1178 by
+     * 662, which is why it looked like it only appeared over a button: that
+     * box is where the buttons are.
+     */
+    'crosshair-cursor': ':scope',
+    'magnetic-button': '.demo-magnetic-button__btn',
     'count-up-number': '.demo-count-up-number__value',
     'odometer-number': '.demo-odometer',
     'card-stack': '.demo-pile',
@@ -561,6 +579,14 @@ const tweakable = tier === 1 ? Object.entries(options) : []
    * and the centring styles for DOM content must not apply to it.
    */
   const CANVAS_WITH_CONTENT = new Set([
+    /*
+     * AsciiImage samples the <img> the panel gives it, hides it, and draws the
+     * glyphs into a canvas filling the stage. Without it in this set the stage
+     * was treated as a DOM-content panel, so the image was centred and padded
+     * as the thing on show and the effect was invisible behind it: the panel
+     * showed a photograph, which is exactly what the item exists not to do.
+     */
+    'ascii-image',
     'scroll-slideshow',
     'scroll-warp-image',
     'halftone-reveal',
@@ -609,10 +635,33 @@ const tweakable = tier === 1 ? Object.entries(options) : []
         }
       }
       const module = await load()
+
+      /*
+       * Wait for the picture before mounting anything that draws from one.
+       *
+       * AsciiImage is a one shot: it plays, it finishes, and the last frame it
+       * drew is the frame that stays on the page. If the photograph is still
+       * decoding while that happens, every cell samples a blank texture, picks
+       * the same glyph for the same brightness, and the panel ends up as a
+       * uniform field of one character. That is exactly what it looked like,
+       * and the item's own demo page was fine because the recorder waits for
+       * load before it starts the handle.
+       *
+       * decode() rather than the load event, because load fires when the bytes
+       * are in and decode resolves when there is something to upload.
+       */
+      if (drawsToCanvas) {
+        await Promise.all(
+          [...stage.querySelectorAll('img')].map(img =>
+            img.decode().catch(() => undefined)
+          )
+        )
+      }
+
       // A DOM effect wants the element holding the content, not the stage.
       const inner = MOUNT_ON[slug]
       const target =
-        markup && !drawsToCanvas
+        markup && !drawsToCanvas && inner !== ':scope'
           ? ((inner ? stage.querySelector<HTMLElement>(inner) : stage.firstElementChild) as HTMLElement)
           : stage
       const effect = module.default(target, OPTIONS[slug])
