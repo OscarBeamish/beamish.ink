@@ -23,6 +23,7 @@
     "sweep": "tsx tools/sweep/index.ts",
     "contrast": "tsx tools/contrast/index.ts",
     "tells": "tsx tools/tells/index.ts",
+    "budget": "tsx tools/budget/index.ts",
     "shot": "tsx tools/shot/index.ts",
     "check": "pnpm typecheck && pnpm generate:check && pnpm test && pnpm build && pnpm review",
     "social": "tsx tools/social/index.ts",

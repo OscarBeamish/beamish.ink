@@ -1,0 +1,177 @@
+{
+  "name": "HighlighterMark",
+  "slug": "highlighter-mark",
+  "tier": 1,
+  "description": "Somebody going through a page with a highlighter, marking one phrase at a time, overshooting the ends",
+  "category": "type",
+  "ground": "paper",
+  "tags": [
+    "svg",
+    "type",
+    "highlighter",
+    "annotation",
+    "markup",
+    "paper",
+    "one-shot",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "It marks the `<mark>` elements already in the text, and that is the whole interface. The browser has had an element for this bit matters since HTML 4 and screen readers announce it, so a page using it reads correctly with the effect off, with CSS off and in a feed reader. Nothing here parses prose, searches for strings or wraps words in spans",
+      "Not a CSS background. An animated linear-gradient gets the sweep right and everything else wrong: the band is level, the edges are straight by construction, it stops exactly on the last letter, and the ink is the same everywhere",
+      "A hand does none of those. The band has a slight slope, the edges are ragged at the scale of the tip, the stroke overshoots the phrase by a different amount at each end, and the ink doubles where the pen went back over it. The second pass is most of what makes it read as a pen rather than as a fill",
+      "Blended with multiply, because that is what translucent ink on paper does: the glyphs stay on top and darken the ink rather than being covered by it. It is also why this is a paper item and has no dark version. Multiply against a dark ground is black",
+      "A phrase that wraps gets one stroke per line, because that is what a person does, and getClientRects already returns exactly those boxes",
+      "The geometry is built once and the animation is a clip rectangle widening over it, so a frame costs one attribute per stroke. Rebuilt only on resize or when an option that changes the shape changes, because measuring forces layout",
+      "The host is promoted to position: relative if it is static, because the overlay is absolutely positioned inside it, and a static host silently puts every stroke at the top left of the page. Put back on teardown"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.1,
+    "contexts": 0,
+    "notes": [
+      "One SVG, one polygon pair per stroke, and one clip rectangle per stroke resized per frame. There is no per-pixel work at all",
+      "Measured with `pnpm budget` at 1280 by 720: 0.0ms, which is to say below the resolution of the timer once style and layout have been forced. The cost of this item is not in its frames",
+      "getClientRects is the expensive call and it runs on setup and on resize, not per frame. It is cached against a key built from the options that change the geometry",
+      "No canvas and no WebGL context, so this does not compete with a backdrop for the one the page is allowed"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/highlighter-mark/core.ts",
+      "to": "src/beamish/effects/highlighter-mark/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/highlighter-mark/adapters/react.tsx",
+      "to": "src/beamish/effects/highlighter-mark/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/highlighter-mark/adapters/vue.ts",
+      "to": "src/beamish/effects/highlighter-mark/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "selector": {
+      "type": "string",
+      "default": "mark",
+      "description": "What to mark, inside the element this is mounted on. The default is the element HTML already has for the job, and using anything else means the page stops saying what it means when the effect is off."
+    },
+    "ink": {
+      "type": "color",
+      "default": "#ffe14d",
+      "description": "The ink. Highlighter yellow is yellow because it is the hue that darkens text least at a given opacity: a blue of the same strength takes a paragraph down to grey. Any colour works, but check the text through it before shipping a dark one."
+    },
+    "strength": {
+      "type": "number",
+      "default": 0.55,
+      "min": 0.05,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [
+        0.35,
+        0.7
+      ],
+      "description": "How opaque one pass of the pen is. The second pass goes over the first and multiplies rather than adds, so the middle of a stroke is always darker than this. Past about 0.8 the text underneath starts to struggle, which is a contrast failure rather than a look."
+    },
+    "height": {
+      "type": "number",
+      "default": 0.72,
+      "min": 0.3,
+      "max": 1.4,
+      "step": 0.01,
+      "description": "Band height as a share of the line's height. Under 1 by default, and sat low on the line, because a highlighter covers the body of the text and lets the ascenders out of the top. At 1.2 it is a wide chisel tip and starts to touch the line above."
+    },
+    "overshoot": {
+      "type": "number",
+      "default": 7,
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "sensible": [
+        4,
+        14
+      ],
+      "description": "How far the stroke runs past the phrase, with a different amount drawn at each end from the seed. Nobody stops exactly on the last letter, and at 0 this reads as a rectangle that happens to be ragged."
+    },
+    "tilt": {
+      "type": "number",
+      "default": 1.1,
+      "min": 0,
+      "max": 6,
+      "step": 0.1,
+      "unit": "deg",
+      "description": "Slope of the hand. A degree is enough: it is the difference between a stroke and a highlight, and it is the first thing to turn down if the marks start to look untidy rather than human."
+    },
+    "rag": {
+      "type": "number",
+      "default": 1.6,
+      "min": 0,
+      "max": 8,
+      "step": 0.1,
+      "unit": "px",
+      "description": "How ragged the edges are, at the scale of the pen tip. The two edges are ragged independently, because a soft tip wears differently on each side. At 0 the stroke is a clean polygon, which is a sticker."
+    },
+    "duration": {
+      "type": "number",
+      "default": 420,
+      "min": 80,
+      "max": 3000,
+      "step": 10,
+      "unit": "ms",
+      "sensible": [
+        250,
+        700
+      ],
+      "description": "Milliseconds for one stroke to be drawn, eased out, because a pen is thrown rather than driven. A long duration reads as a machine filling a box; this is somebody moving their wrist once."
+    },
+    "stagger": {
+      "type": "number",
+      "default": 260,
+      "min": 0,
+      "max": 3000,
+      "step": 10,
+      "unit": "ms",
+      "description": "Milliseconds between the start of one stroke and the next. Less than the duration, so a reader is still finishing one mark as the next begins, which is what reading with a pen in your hand looks like. At 0 every mark appears at once and the sequence is lost."
+    },
+    "hold": {
+      "type": "number",
+      "default": 260,
+      "min": 0,
+      "max": 5000,
+      "step": 10,
+      "unit": "ms",
+      "description": "Milliseconds of stillness before the first stroke. The page should be readable for a moment before anything is marked on it, or the marks arrive before anybody has seen what is being marked."
+    },
+    "seed": {
+      "type": "number",
+      "default": 3,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "description": "Seed for the hand: the rag on both edges, the slope of each stroke, how far each one overshoots and where the second pass starts and stops. The same seed draws the same strokes every time."
+    }
+  },
+  "instruction": "press Replay to mark it again",
+  "oneShot": true,
+  "record": {
+    "duration": 5,
+    "fps": 30,
+    "posterAt": 3.4
+  },
+  "credit": {
+    "what": "marking running text with a highlighter rather than a background, from the Highlighter Markup page",
+    "author": "Ray Velez",
+    "url": "https://github.com/RayVelez27/instalanding.ai"
+  }
+}

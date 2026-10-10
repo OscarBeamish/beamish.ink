@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en-GB" data-ground="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>IrisReveal: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        /*
+         * The page behind the iris, which is what shows where the blades are.
+         * The item itself has no colour in it: it clips, and this is the thing
+         * being clipped.
+         */
+        background: #0b0b0d;
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        place-content: center;
+        box-sizing: border-box;
+        padding: 0 7vw;
+        background:
+          radial-gradient(120% 90% at 22% 18%, #2f6f8f 0%, transparent 58%),
+          radial-gradient(100% 80% at 82% 76%, #b4522f 0%, transparent 55%),
+          #141418;
+        color: #f4f2ea;
+      }
+      #stage h1 {
+        margin: 0;
+        max-width: 14ch;
+        font-family: var(--font-display);
+        font-size: clamp(2.2rem, 9vw, 6rem);
+        font-weight: 700;
+        letter-spacing: -0.035em;
+        line-height: 0.95;
+      }
+      #stage p {
+        margin: 1.2rem 0 0;
+        max-width: 34ch;
+        font-size: clamp(0.8rem, 1.6vw, 1rem);
+        line-height: 1.6;
+        color: #c9c5b8;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+
+      The iris is mounted on #stage, so what it opens on is the whole plate:
+      the colour, the heading and the paragraph together, clipped as one thing
+      rather than revealed one at a time.
+    -->
+    <div id="stage">
+      <h1>Seven blades, not a circle</h1>
+      <p>
+        A diaphragm is a ring of overlapping plates, so the hole they leave has
+        as many sides as there are blades, and it turns as it opens.
+      </p>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const handle = window.Beamish.create(document.getElementById('stage'))
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      window.__beamish = handle
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
+    </script>
+  </body>
+</html>

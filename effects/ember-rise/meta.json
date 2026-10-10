@@ -1,0 +1,186 @@
+{
+  "name": "EmberRise",
+  "slug": "ember-rise",
+  "tier": 1,
+  "description": "Embers lifting off the bottom edge of an element, cooling and slowing as they go, on a transparent canvas",
+  "category": "surfaces",
+  "ground": "dark",
+  "tags": [
+    "canvas",
+    "2d",
+    "embers",
+    "fire",
+    "particles",
+    "surfaces",
+    "dark",
+    "ambient",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "A fixed cast with staggered lives, not an array that grows and shrinks. Ember k is always ember k: its lane, its size, its sway and its place in the queue are hashes of k, and its age is fract(t / life + phase). Nothing is created or destroyed, and the frame at t is the same frame whenever you ask for it",
+      "That is what makes it recordable. The page this came from pushes particles onto a list, advances each one against the last frame and splices out the dead, so there is no value of t you can ask it for and two machines disagree after a minute",
+      "It also makes `count` exact. An emitter with a spawn rate gives you a number of embers that depends on the frame rate",
+      "2D rather than WebGL, deliberately. The budget is one live WebGL context per page and this is an effect you might want on three buttons at once. A couple of hundred small arcs cost almost nothing, and what makes embers look like embers is additive compositing rather than per-pixel work",
+      "The canvas is cleared to transparent and never filled, so it composites over whatever is behind it. An ember effect that paints its own background is one you cannot put on top of a button",
+      "`life` is snapped so a whole number of lives fits the period. Without it the cast is part way through a life when the loop comes round and the video jumps once a cycle",
+      "Small embers go further and live longer in the air. That is the only depth cue in here, and without it the field reads as one object at one distance",
+      "Built for a dark ground and declared as one. The compositing is additive, which on paper makes a hot ember brighter than white and a cool one invisible"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 1.9,
+    "contexts": 0,
+    "notes": [
+      "Two arcs per ember, a wide dim halo and a tight core. A radial gradient per ember per frame would be the one thing that made this expensive, and two flat discs read the same at this size",
+      "Measured with `pnpm budget` at 1280 by 720: 1.9ms for a draw and a forced flush at the default count of 120, against DustMotes at 0.7 on the same machine. Cost is linear in `count`, and that is the knob",
+      "0.163 mean absolute change per frame on a 0 to 255 scale, worst 0.354, sampled at six phases. At the top of the quiet band and deliberately so: this is a decoration on a control rather than a backdrop, and it is measured over a full 720-pixel canvas. On the strip of a button, where the rise is a couple of hundred pixels rather than seven, the same settings move far less",
+      "`life` was 3.2s and `count` 150 until that was measured at 0.358, which is past where a thing you are not looking at should be. 4s and 120 is the same fire, slower",
+      "No WebGL context at all, so this does not compete with a backdrop for the one the page is allowed"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/ember-rise/core.ts",
+      "to": "src/beamish/effects/ember-rise/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/ember-rise/adapters/react.tsx",
+      "to": "src/beamish/effects/ember-rise/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/ember-rise/adapters/vue.ts",
+      "to": "src/beamish/effects/ember-rise/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "ember": {
+      "type": "color",
+      "default": "#ffb257",
+      "description": "The hot core of a new ember. Orange rather than yellow: a yellow ember on a dark ground reads as a spark from a grinder, which is a different and much more violent thing."
+    },
+    "cool": {
+      "type": "color",
+      "default": "#8c2f17",
+      "description": "What an ember has cooled to by the end of its life. Dark red, close to the ground, so an ember goes out rather than disappearing. Set it closer to the ember colour and the field stops having a direction in time."
+    },
+    "count": {
+      "type": "number",
+      "default": 120,
+      "min": 1,
+      "max": 600,
+      "step": 1,
+      "sensible": [
+        80,
+        260
+      ],
+      "description": "How many embers are alive at once, exactly. Not a spawn rate: a fixed cast with staggered lives is what makes this seekable, and it also means the number you set is the number you get on any machine. This is the whole cost of the effect and it is linear."
+    },
+    "rise": {
+      "type": "number",
+      "default": 0.95,
+      "min": 0.1,
+      "max": 2,
+      "step": 0.01,
+      "sensible": [
+        0.6,
+        1.2
+      ],
+      "description": "How far an ember travels in its life, as a share of the host's height. At 1 the longest-lived ones just reach the top, which is usually what you want: embers that stop in the middle of a tall box look like they hit something."
+    },
+    "life": {
+      "type": "number",
+      "default": 4,
+      "min": 0.4,
+      "max": 20,
+      "step": 0.1,
+      "unit": "s",
+      "sensible": [
+        2,
+        5
+      ],
+      "description": "Seconds an ember lives. Snapped at render time so a whole number of lives fits the period, because a cast part way through a life when the loop comes round is a video that jumps once a cycle. Short lives give a busy fire, long ones give a few sparks drifting."
+    },
+    "sway": {
+      "type": "number",
+      "default": 16,
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "unit": "px",
+      "description": "How far an ember wanders sideways, one whole turn over its life. At 0 they go straight up, which reads as a machine rather than as air. Large values turn the rise into a wave and the embers start to look tethered."
+    },
+    "size": {
+      "type": "number",
+      "default": 2.4,
+      "min": 0.4,
+      "max": 10,
+      "step": 0.1,
+      "unit": "px",
+      "sensible": [
+        1.5,
+        4
+      ],
+      "description": "Radius of the largest ember. They are drawn with a halo at three times this, so the lit area is bigger than the number suggests. Past about 5 they stop being embers and become fireflies."
+    },
+    "spread": {
+      "type": "number",
+      "default": 0.74,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How much of the width the embers lift off, centred. Below about 0.3 it is a plume from a single point; at 1 the whole bottom edge is alight, which suits a hero and is too much for a button."
+    },
+    "heat": {
+      "type": "number",
+      "default": 1,
+      "min": 0,
+      "max": 2,
+      "step": 0.01,
+      "description": "Overall brightness. The one control to reach for when the effect is right but loud: it scales alpha rather than count, so the fire thins out instead of thinning down."
+    },
+    "seed": {
+      "type": "number",
+      "default": 5,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "description": "Seed for the cast: lanes, sizes, sway and the order they go up in. The same seed gives the same embers, so two of these side by side want two seeds."
+    },
+    "period": {
+      "type": "number",
+      "default": 16,
+      "min": 2,
+      "max": 120,
+      "step": 1,
+      "unit": "s",
+      "sensible": [
+        10,
+        30
+      ],
+      "description": "Seconds for one cycle. It has to be a whole number of lives and the render rounds `life` to make it so, so this is the figure that actually decides both. Long enough that the repeat is not obvious; a fire that loops every four seconds is a fire you notice looping."
+    }
+  },
+  "instruction": "the embers lift on their own",
+  "oneShot": false,
+  "record": {
+    "duration": 16,
+    "fps": 24,
+    "posterAt": 6
+  },
+  "credit": {
+    "what": "embers lifting off a control, from the Fire Button page. The engine here is a fixed cast with staggered lives rather than a list that grows and shrinks, because a list cannot be seeked",
+    "author": "Ray Velez",
+    "url": "https://github.com/RayVelez27/instalanding.ai"
+  }
+}

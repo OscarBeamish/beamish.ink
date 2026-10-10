@@ -1620,6 +1620,194 @@
     "intro": "DustMotes is dust hanging in a lit room. It is a **field**, not a particle\nsystem, and that is the most important thing about it.\n\nEvery version of this keeps an array of particles, advances each one every\nframe, and respawns the ones that drift out. That costs three things and buys\nnothing. It cannot be seeked, so it cannot be recorded. It drifts on a dropped\nframe, because each position depends on the last. And its cost grows with the\ncount, so a thousand motes is a thousand objects to walk.\n\nThis is a shader over a lattice. The frame is divided into cells, each cell\nholds one mote at a position that is a function of the cell, a seed and the\nclock, and a pixel only ever looks at the nine cells around it. Nothing is\nstored and nothing is advanced, so **the count is a division rather than a\nloop**: ten thousand motes cost exactly what a hundred do."
   },
   {
+    "name": "EmberRise",
+    "slug": "ember-rise",
+    "tier": 1,
+    "description": "Embers lifting off the bottom edge of an element, cooling and slowing as they go, on a transparent canvas",
+    "category": "surfaces",
+    "tags": [
+      "canvas",
+      "2d",
+      "embers",
+      "fire",
+      "particles",
+      "surfaces",
+      "dark",
+      "ambient",
+      "no-dependencies"
+    ],
+    "ground": "dark",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "A fixed cast with staggered lives, not an array that grows and shrinks. Ember k is always ember k: its lane, its size, its sway and its place in the queue are hashes of k, and its age is fract(t / life + phase). Nothing is created or destroyed, and the frame at t is the same frame whenever you ask for it",
+        "That is what makes it recordable. The page this came from pushes particles onto a list, advances each one against the last frame and splices out the dead, so there is no value of t you can ask it for and two machines disagree after a minute",
+        "It also makes `count` exact. An emitter with a spawn rate gives you a number of embers that depends on the frame rate",
+        "2D rather than WebGL, deliberately. The budget is one live WebGL context per page and this is an effect you might want on three buttons at once. A couple of hundred small arcs cost almost nothing, and what makes embers look like embers is additive compositing rather than per-pixel work",
+        "The canvas is cleared to transparent and never filled, so it composites over whatever is behind it. An ember effect that paints its own background is one you cannot put on top of a button",
+        "`life` is snapped so a whole number of lives fits the period. Without it the cast is part way through a life when the loop comes round and the video jumps once a cycle",
+        "Small embers go further and live longer in the air. That is the only depth cue in here, and without it the field reads as one object at one distance",
+        "Built for a dark ground and declared as one. The compositing is additive, which on paper makes a hot ember brighter than white and a cool one invisible"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 1.9,
+      "contexts": 0,
+      "notes": [
+        "Two arcs per ember, a wide dim halo and a tight core. A radial gradient per ember per frame would be the one thing that made this expensive, and two flat discs read the same at this size",
+        "Measured with `pnpm budget` at 1280 by 720: 1.9ms for a draw and a forced flush at the default count of 120, against DustMotes at 0.7 on the same machine. Cost is linear in `count`, and that is the knob",
+        "0.163 mean absolute change per frame on a 0 to 255 scale, worst 0.354, sampled at six phases. At the top of the quiet band and deliberately so: this is a decoration on a control rather than a backdrop, and it is measured over a full 720-pixel canvas. On the strip of a button, where the rise is a couple of hundred pixels rather than seven, the same settings move far less",
+        "`life` was 3.2s and `count` 150 until that was measured at 0.358, which is past where a thing you are not looking at should be. 4s and 120 is the same fire, slower",
+        "No WebGL context at all, so this does not compete with a backdrop for the one the page is allowed"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/ember-rise/core.ts",
+        "to": "src/beamish/effects/ember-rise/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/ember-rise/adapters/react.tsx",
+        "to": "src/beamish/effects/ember-rise/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/ember-rise/adapters/vue.ts",
+        "to": "src/beamish/effects/ember-rise/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "ember": {
+        "type": "color",
+        "default": "#ffb257",
+        "description": "The hot core of a new ember. Orange rather than yellow: a yellow ember on a dark ground reads as a spark from a grinder, which is a different and much more violent thing."
+      },
+      "cool": {
+        "type": "color",
+        "default": "#8c2f17",
+        "description": "What an ember has cooled to by the end of its life. Dark red, close to the ground, so an ember goes out rather than disappearing. Set it closer to the ember colour and the field stops having a direction in time."
+      },
+      "count": {
+        "type": "number",
+        "default": 120,
+        "description": "How many embers are alive at once, exactly. Not a spawn rate: a fixed cast with staggered lives is what makes this seekable, and it also means the number you set is the number you get on any machine. This is the whole cost of the effect and it is linear.",
+        "min": 1,
+        "max": 600,
+        "step": 1,
+        "sensible": [
+          80,
+          260
+        ]
+      },
+      "rise": {
+        "type": "number",
+        "default": 0.95,
+        "description": "How far an ember travels in its life, as a share of the host's height. At 1 the longest-lived ones just reach the top, which is usually what you want: embers that stop in the middle of a tall box look like they hit something.",
+        "min": 0.1,
+        "max": 2,
+        "step": 0.01,
+        "sensible": [
+          0.6,
+          1.2
+        ]
+      },
+      "life": {
+        "type": "number",
+        "default": 4,
+        "description": "Seconds an ember lives. Snapped at render time so a whole number of lives fits the period, because a cast part way through a life when the loop comes round is a video that jumps once a cycle. Short lives give a busy fire, long ones give a few sparks drifting.",
+        "min": 0.4,
+        "max": 20,
+        "step": 0.1,
+        "unit": "s",
+        "sensible": [
+          2,
+          5
+        ]
+      },
+      "sway": {
+        "type": "number",
+        "default": 16,
+        "description": "How far an ember wanders sideways, one whole turn over its life. At 0 they go straight up, which reads as a machine rather than as air. Large values turn the rise into a wave and the embers start to look tethered.",
+        "min": 0,
+        "max": 80,
+        "step": 1,
+        "unit": "px"
+      },
+      "size": {
+        "type": "number",
+        "default": 2.4,
+        "description": "Radius of the largest ember. They are drawn with a halo at three times this, so the lit area is bigger than the number suggests. Past about 5 they stop being embers and become fireflies.",
+        "min": 0.4,
+        "max": 10,
+        "step": 0.1,
+        "unit": "px",
+        "sensible": [
+          1.5,
+          4
+        ]
+      },
+      "spread": {
+        "type": "number",
+        "default": 0.74,
+        "description": "How much of the width the embers lift off, centred. Below about 0.3 it is a plume from a single point; at 1 the whole bottom edge is alight, which suits a hero and is too much for a button.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "heat": {
+        "type": "number",
+        "default": 1,
+        "description": "Overall brightness. The one control to reach for when the effect is right but loud: it scales alpha rather than count, so the fire thins out instead of thinning down.",
+        "min": 0,
+        "max": 2,
+        "step": 0.01
+      },
+      "seed": {
+        "type": "number",
+        "default": 5,
+        "description": "Seed for the cast: lanes, sizes, sway and the order they go up in. The same seed gives the same embers, so two of these side by side want two seeds.",
+        "min": 0,
+        "max": 9999,
+        "step": 1
+      },
+      "period": {
+        "type": "number",
+        "default": 16,
+        "description": "Seconds for one cycle. It has to be a whole number of lives and the render rounds `life` to make it so, so this is the figure that actually decides both. Long enough that the repeat is not obvious; a fire that loops every four seconds is a fire you notice looping.",
+        "min": 2,
+        "max": 120,
+        "step": 1,
+        "unit": "s",
+        "sensible": [
+          10,
+          30
+        ]
+      }
+    },
+    "instruction": "the embers lift on their own",
+    "oneShot": false,
+    "record": {
+      "duration": 16,
+      "fps": 24,
+      "posterAt": 6
+    },
+    "credit": {
+      "what": "embers lifting off a control, from the Fire Button page. The engine here is a fixed cast with staggered lives rather than a list that grows and shrinks, because a list cannot be seeked",
+      "author": "Ray Velez",
+      "url": "https://github.com/RayVelez27/instalanding.ai"
+    },
+    "group": "effects",
+    "intro": "EmberRise is embers lifting off the bottom edge of an element, cooling and\nslowing as they go. It was built for a control that is supposed to look hot, and\nit is transparent, so it sits over whatever that control is.\n\nIt is a **fixed cast with staggered lives**, not an array of particles, and that\nis the most important thing about it."
+  },
+  {
     "name": "EmbossedText",
     "slug": "embossed-text",
     "tier": 1,
@@ -3467,6 +3655,185 @@
     "intro": "A picture arriving the way a printed one does.\n\nNot a fade and not a wipe. The image is screened into halftone cells and each\ncell's dot grows from nothing to full. That is how a halftone carries tone in the\nfirst place, so growing the dots is the honest way to bring one in, and it reads\nas a press coming up to pressure rather than as opacity being turned up.\n\nThe cells do not all start together. Each gets an order, blended between where it\nsits along the sweep direction and a hash of its coordinates, so `scatter` runs\nfrom a clean directional sweep at 0 to a random dissolve at 1. Everything useful\nis in between: the sweep keeps its direction, but its leading edge is ragged\nrather than ruled.\n\nThe dots are tested against the whole neighbourhood rather than against their own\ncell. A dot only stays a dot while it fits inside its cell, and past half a cell\nwidth a single-cell test clips it against the edges, so the dots grow into\nrounded squares and then into plain squares and the whole thing ends up looking\nlike blocks. Taking the union over the nine cells around each pixel lets them\nspill over the boundaries and merge, which is what ink does. The star-shaped\nscraps of paper left between merged dots near the end are not an artefact: that\nis the shadow-dot stage of a real screen.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency, no render targets."
   },
   {
+    "name": "HighlighterMark",
+    "slug": "highlighter-mark",
+    "tier": 1,
+    "description": "Somebody going through a page with a highlighter, marking one phrase at a time, overshooting the ends",
+    "category": "type",
+    "tags": [
+      "svg",
+      "type",
+      "highlighter",
+      "annotation",
+      "markup",
+      "paper",
+      "one-shot",
+      "no-dependencies"
+    ],
+    "ground": "paper",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "It marks the `<mark>` elements already in the text, and that is the whole interface. The browser has had an element for this bit matters since HTML 4 and screen readers announce it, so a page using it reads correctly with the effect off, with CSS off and in a feed reader. Nothing here parses prose, searches for strings or wraps words in spans",
+        "Not a CSS background. An animated linear-gradient gets the sweep right and everything else wrong: the band is level, the edges are straight by construction, it stops exactly on the last letter, and the ink is the same everywhere",
+        "A hand does none of those. The band has a slight slope, the edges are ragged at the scale of the tip, the stroke overshoots the phrase by a different amount at each end, and the ink doubles where the pen went back over it. The second pass is most of what makes it read as a pen rather than as a fill",
+        "Blended with multiply, because that is what translucent ink on paper does: the glyphs stay on top and darken the ink rather than being covered by it. It is also why this is a paper item and has no dark version. Multiply against a dark ground is black",
+        "A phrase that wraps gets one stroke per line, because that is what a person does, and getClientRects already returns exactly those boxes",
+        "The geometry is built once and the animation is a clip rectangle widening over it, so a frame costs one attribute per stroke. Rebuilt only on resize or when an option that changes the shape changes, because measuring forces layout",
+        "The host is promoted to position: relative if it is static, because the overlay is absolutely positioned inside it, and a static host silently puts every stroke at the top left of the page. Put back on teardown"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.1,
+      "contexts": 0,
+      "notes": [
+        "One SVG, one polygon pair per stroke, and one clip rectangle per stroke resized per frame. There is no per-pixel work at all",
+        "Measured with `pnpm budget` at 1280 by 720: 0.0ms, which is to say below the resolution of the timer once style and layout have been forced. The cost of this item is not in its frames",
+        "getClientRects is the expensive call and it runs on setup and on resize, not per frame. It is cached against a key built from the options that change the geometry",
+        "No canvas and no WebGL context, so this does not compete with a backdrop for the one the page is allowed"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/highlighter-mark/core.ts",
+        "to": "src/beamish/effects/highlighter-mark/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/highlighter-mark/adapters/react.tsx",
+        "to": "src/beamish/effects/highlighter-mark/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/highlighter-mark/adapters/vue.ts",
+        "to": "src/beamish/effects/highlighter-mark/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "selector": {
+        "type": "string",
+        "default": "mark",
+        "description": "What to mark, inside the element this is mounted on. The default is the element HTML already has for the job, and using anything else means the page stops saying what it means when the effect is off."
+      },
+      "ink": {
+        "type": "color",
+        "default": "#ffe14d",
+        "description": "The ink. Highlighter yellow is yellow because it is the hue that darkens text least at a given opacity: a blue of the same strength takes a paragraph down to grey. Any colour works, but check the text through it before shipping a dark one."
+      },
+      "strength": {
+        "type": "number",
+        "default": 0.55,
+        "description": "How opaque one pass of the pen is. The second pass goes over the first and multiplies rather than adds, so the middle of a stroke is always darker than this. Past about 0.8 the text underneath starts to struggle, which is a contrast failure rather than a look.",
+        "min": 0.05,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.35,
+          0.7
+        ]
+      },
+      "height": {
+        "type": "number",
+        "default": 0.72,
+        "description": "Band height as a share of the line's height. Under 1 by default, and sat low on the line, because a highlighter covers the body of the text and lets the ascenders out of the top. At 1.2 it is a wide chisel tip and starts to touch the line above.",
+        "min": 0.3,
+        "max": 1.4,
+        "step": 0.01
+      },
+      "overshoot": {
+        "type": "number",
+        "default": 7,
+        "description": "How far the stroke runs past the phrase, with a different amount drawn at each end from the seed. Nobody stops exactly on the last letter, and at 0 this reads as a rectangle that happens to be ragged.",
+        "min": 0,
+        "max": 40,
+        "step": 1,
+        "unit": "px",
+        "sensible": [
+          4,
+          14
+        ]
+      },
+      "tilt": {
+        "type": "number",
+        "default": 1.1,
+        "description": "Slope of the hand. A degree is enough: it is the difference between a stroke and a highlight, and it is the first thing to turn down if the marks start to look untidy rather than human.",
+        "min": 0,
+        "max": 6,
+        "step": 0.1,
+        "unit": "deg"
+      },
+      "rag": {
+        "type": "number",
+        "default": 1.6,
+        "description": "How ragged the edges are, at the scale of the pen tip. The two edges are ragged independently, because a soft tip wears differently on each side. At 0 the stroke is a clean polygon, which is a sticker.",
+        "min": 0,
+        "max": 8,
+        "step": 0.1,
+        "unit": "px"
+      },
+      "duration": {
+        "type": "number",
+        "default": 420,
+        "description": "Milliseconds for one stroke to be drawn, eased out, because a pen is thrown rather than driven. A long duration reads as a machine filling a box; this is somebody moving their wrist once.",
+        "min": 80,
+        "max": 3000,
+        "step": 10,
+        "unit": "ms",
+        "sensible": [
+          250,
+          700
+        ]
+      },
+      "stagger": {
+        "type": "number",
+        "default": 260,
+        "description": "Milliseconds between the start of one stroke and the next. Less than the duration, so a reader is still finishing one mark as the next begins, which is what reading with a pen in your hand looks like. At 0 every mark appears at once and the sequence is lost.",
+        "min": 0,
+        "max": 3000,
+        "step": 10,
+        "unit": "ms"
+      },
+      "hold": {
+        "type": "number",
+        "default": 260,
+        "description": "Milliseconds of stillness before the first stroke. The page should be readable for a moment before anything is marked on it, or the marks arrive before anybody has seen what is being marked.",
+        "min": 0,
+        "max": 5000,
+        "step": 10,
+        "unit": "ms"
+      },
+      "seed": {
+        "type": "number",
+        "default": 3,
+        "description": "Seed for the hand: the rag on both edges, the slope of each stroke, how far each one overshoots and where the second pass starts and stops. The same seed draws the same strokes every time.",
+        "min": 0,
+        "max": 9999,
+        "step": 1
+      }
+    },
+    "instruction": "press Replay to mark it again",
+    "oneShot": true,
+    "record": {
+      "duration": 5,
+      "fps": 30,
+      "posterAt": 3.4
+    },
+    "credit": {
+      "what": "marking running text with a highlighter rather than a background, from the Highlighter Markup page",
+      "author": "Ray Velez",
+      "url": "https://github.com/RayVelez27/instalanding.ai"
+    },
+    "group": "effects",
+    "intro": "HighlighterMark is somebody going through a page with a highlighter, marking\none phrase at a time and overshooting the ends."
+  },
+  {
     "name": "ImageGalleryLightbox",
     "slug": "image-gallery-lightbox",
     "tier": 2,
@@ -3727,6 +4094,164 @@
     },
     "group": "effects",
     "intro": "Type printed on paper that is too absorbent for it.\n\nThe usual version of this is a CRT wobble: the glyph edges shimmer sideways like\na signal losing lock. Paper has its own way of ruining a letter and it is nothing\nlike that. Ink wicks along the fibres, so the edge does not move, it grows teeth.\nSerifs fill in, counters close up, and the letter gains a fuzz that is irregular\nat the scale of the fibre rather than smooth.\n\nAn SVG displacement filter is the honest way to draw it. Turbulence supplies the\nfibre and `feDisplacementMap` pushes each pixel of the glyph sideways by the\namount of fibre under it, which is exactly the mechanism: the ink goes where the\npaper lets it.\n\nIt is deliberately **not** a blur. A Gaussian softens an edge evenly, which is a\nlens out of focus rather than ink spreading, and it is the thing that makes most\nattempts at this look photographic rather than printed.\n\nIt also uses `fractalNoise` rather than turbulence proper. Turbulence takes the\nmodulus of each octave, which leaves hard creases that read as cracks in the\nletter rather than as fibre.\n\nNo canvas and no WebGL."
+  },
+  {
+    "name": "IrisReveal",
+    "slug": "iris-reveal",
+    "tier": 1,
+    "description": "A camera iris opening on whatever is behind it, with as many sides as it has blades and a swing as it goes",
+    "category": "reveals",
+    "tags": [
+      "css",
+      "clip-path",
+      "reveal",
+      "iris",
+      "aperture",
+      "lens",
+      "one-shot",
+      "no-dependencies"
+    ],
+    "ground": "either",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "An iris is not a circle growing. A diaphragm is a ring of overlapping blades and the hole they leave is a polygon with as many sides as there are blades: five give a pentagon, nine give something close to a circle but not one. Anybody who has seen an out-of-focus highlight in a photograph has seen this shape, which is why a growing circle reads as a spotlight and a growing heptagon reads as a lens",
+        "The blades swing as they open, so the whole opening rotates. On a real lens that is a consequence of the mechanism rather than a decision, and leaving it out is the clearest way to make this look like a mask",
+        "The edges bow. A blade is a curved plate, so each side of the hole is a shallow arc bulging inwards. The amount is measured rather than chosen: a polygon's inradius is its circumradius times the cosine of half a blade's angle, so 1/cos minus 1 is exactly how far the middle of a straight edge sits inside the circle it is cutting, and `bow` is the share of that taken back",
+        "It reaches past the far corner rather than to the edge. A box's corner is further from the centre than its side and the polygon's own inradius is shorter again, so an opening that stops at 1 leaves slivers in the corners that read as a dirty lens",
+        "Drawn with clip-path on the element itself. Nothing is added to the DOM, nothing is drawn, and the content is untouched: it selects, scrolls and reads the whole time, it is simply not all visible yet",
+        "The polygon is in percentages, so it follows a resize with no measuring at all",
+        "ground is `either` and for once that needs no argument: there is no colour in this item. It clips whatever you put it on, so there is nothing to tune against a background"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.1,
+      "contexts": 0,
+      "notes": [
+        "One clip-path string per frame, built from blades times seven points, and skipped entirely when it comes out the same as the last one",
+        "Measured with `pnpm budget` at 1280 by 720: 0.1ms with style and layout forced, which is the cheapest item measured so far",
+        "No canvas, no WebGL context and nothing appended to the DOM, so this is free to put on a dozen elements at once",
+        "clip-path on a large element is composited rather than repainted in current browsers, but a host with a backdrop-filter inside it is the exception and will repaint"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/iris-reveal/core.ts",
+        "to": "src/beamish/effects/iris-reveal/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/iris-reveal/adapters/react.tsx",
+        "to": "src/beamish/effects/iris-reveal/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/iris-reveal/adapters/vue.ts",
+        "to": "src/beamish/effects/iris-reveal/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "blades": {
+        "type": "number",
+        "default": 7,
+        "description": "How many blades, and so how many sides the opening has. Five is a cheap lens and the shape is unmistakable; nine is an expensive one and reads as nearly round. Past about twelve nobody can tell it from a circle and you have lost the only thing that says lens.",
+        "min": 3,
+        "max": 16,
+        "step": 1,
+        "sensible": [
+          5,
+          9
+        ]
+      },
+      "swing": {
+        "type": "number",
+        "default": 26,
+        "description": "Degrees the opening rotates between shut and open. This is the mechanism showing, and at 0 the effect is a polygon being scaled, which is a mask. Large values spin rather than swing and start to read as a shutter on a film projector.",
+        "min": 0,
+        "max": 120,
+        "step": 1,
+        "unit": "deg",
+        "sensible": [
+          15,
+          45
+        ]
+      },
+      "bow": {
+        "type": "number",
+        "default": 0.14,
+        "description": "How far each edge bows into the hole, as a share of the gap between the straight edge and the circle through the vertices. At 0 the opening is a strict polygon; at 1 it is a circle and the blade count stops mattering. The default is a plate with a gentle curve on it.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "from": {
+        "type": "number",
+        "default": 0.04,
+        "description": "How far open it starts, as a share of the finished opening. A little rather than nothing, because a real diaphragm does not close to a point and a pinhole gives the eye something to track from. At 0 the first frames are an empty box.",
+        "min": 0,
+        "max": 0.9,
+        "step": 0.01
+      },
+      "duration": {
+        "type": "number",
+        "default": 1100,
+        "description": "Milliseconds for the iris to open, eased at both ends because a diaphragm is sprung at both ends of its travel. An ease-out alone makes it look dropped.",
+        "min": 150,
+        "max": 6000,
+        "step": 10,
+        "unit": "ms",
+        "sensible": [
+          700,
+          1800
+        ]
+      },
+      "hold": {
+        "type": "number",
+        "default": 220,
+        "description": "Milliseconds of stillness before it starts. Short: this is a reveal, and the thing being revealed is what somebody came for.",
+        "min": 0,
+        "max": 5000,
+        "step": 10,
+        "unit": "ms"
+      },
+      "x": {
+        "type": "number",
+        "default": 0.5,
+        "description": "Where the centre sits across the element. Off-centre is worth trying when the content has a subject: opening on the face rather than on the middle of the frame is what a camera operator would do.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "y": {
+        "type": "number",
+        "default": 0.5,
+        "description": "Where the centre sits down the element. The reach is measured to the furthest corner from wherever this puts the centre, so an off-centre iris still clears the box.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      }
+    },
+    "instruction": "press Replay to open it again",
+    "oneShot": true,
+    "record": {
+      "duration": 4,
+      "fps": 30,
+      "posterAt": 0.8
+    },
+    "credit": {
+      "what": "an aperture cut into the page, from the Recessed Aperture page. The blade geometry here is worked out rather than taken",
+      "author": "Ray Velez",
+      "url": "https://github.com/RayVelez27/instalanding.ai"
+    },
+    "group": "effects",
+    "intro": "IrisReveal is a camera iris opening on whatever is behind it."
   },
   {
     "name": "LightShafts",
@@ -9916,6 +10441,214 @@
     },
     "group": "effects",
     "intro": "A sheet of handmade paper held up to the light.\n\nEverything here is thickness. Paper is translucent, so what you see against a\nlight is not ink but where the sheet is thinner and lets more through. That is\nthe whole premise, and it is why nothing in this effect darkens: every term\nlightens the paper, because every term is somewhere the paper is thinner.\n\nThree of them come from the mould the sheet was formed on, not from the pulp.\nThe **laid lines** are its close-set wires, so the sheet is very slightly thinner\nover each one. The **chain lines** are the heavier wires at right angles holding\nthose together, an inch or so apart. And the **formation** is the cloudiness:\nfibres never settle evenly, and that blotchy variation is most of what separates\na handmade sheet from a machine one.\n\nThe fourth is the watermark proper, a wire device sewn onto the mould. The sheet\nis much thinner there, which is why a watermark is brighter than everything\naround it and why it only shows against a light.\n\nLaid lines are drawn as a ripple and chain lines as a band, which is not an\narbitrary difference. A forming sheet follows fine wires and is drawn down\nsharply over thick ones.\n\nOne WebGL2 fragment shader on one full-screen triangle. No three.js, no\ndependency."
+  },
+  {
+    "name": "WindField",
+    "slug": "wind-field",
+    "tier": 1,
+    "description": "The wind on a weather map, combed into streaks that travel along the flow, with the speed read as colour",
+    "category": "backdrops",
+    "tags": [
+      "webgl",
+      "shader",
+      "backdrop",
+      "wind",
+      "flow",
+      "weather",
+      "dark",
+      "ambient",
+      "no-dependencies"
+    ],
+    "ground": "dark",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "Line integral convolution, not a particle system. Each pixel walks a short way up the flow and a short way down it, samples a fixed noise field at each step, and sums those samples under a travelling kernel: along a streamline they agree and the pixel is bright, across the flow they disagree and cancel",
+        "That is not a stylistic choice. A particle's position depends on the one before it, so an advected field cannot be seeked, cannot be recorded, drifts on a dropped frame, and is wrong on the first frame after a resize, because the trail is feedback on the canvas. The page this was taken from runs fourteen thousand particles with a 0.07 erase per frame and there is no value of t you can ask it for",
+        "The streaks move because the kernel's phase moves, not because anything in the field is advected. `turns` is a whole number of turns over the period and is rounded in core.ts rather than trusted, because it is the one value that can stop the loop closing and it arrives from a prompt",
+        "Each system orbits its own home once per period, so the weather changes without the loop failing to come home",
+        "Field space is y from 0 to 1 and x across the aspect ratio, rather than uv. A system placed in uv is an ellipse on a wide canvas",
+        "Colour is a legend rather than a palette. Speed picks the hue through two interpolations, because a straight line between two colours gives one hue and a tint of it, and a chart like this is read by hue",
+        "Built for a dark ground and declared as one. The streaks are drawn by addition onto the ground, which is what lets them overlap without going muddy, and on paper that makes them brighter than the paper rather than darker",
+        "Four systems by default rather than eight. Eight small vortices read as a decorative swirl; four large overlapping ones read as a chart, because a real synoptic map is mostly one system's skirt running into another's",
+        "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 1.4,
+      "contexts": 1,
+      "notes": [
+        "Eighteen samples per pixel, each one a field evaluation plus a value-noise lookup, and the field evaluation is a loop over the systems. Cost is therefore taps times systems, and both are knobs: `systems` is an option and TAPS is a constant at the top of the shader",
+        "Measured with `pnpm budget` at 1280 by 720: 1.4ms for a draw and a forced flush, against DustMotes at 0.7, WovenThreads at 0.8 and MarbledPaper at 2.2 on the same machine. Expensive, but not the most expensive thing here",
+        "maxDpr is capped at 1.5 rather than the usual 2. What it draws is noise at a cell size of a few pixels, so the fourth sub-pixel is paid for and not seen",
+        "0.051 mean absolute change per frame on a 0 to 255 scale, sampled at six phases of the period and worst at 0.057. Three times DustMotes and half of MarbledPaper, which is where a backdrop with something travelling across it should sit",
+        "No textures, no buffers and no feedback. There is nothing to allocate between frames"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/wind-field/core.ts",
+        "to": "src/beamish/effects/wind-field/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/wind-field/adapters/react.tsx",
+        "to": "src/beamish/effects/wind-field/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/wind-field/adapters/vue.ts",
+        "to": "src/beamish/effects/wind-field/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "ground": {
+        "type": "color",
+        "default": "#0d141a",
+        "description": "The ground, and what shows where there is no wind. Dark, because the streaks are added onto it: that is what lets them cross each other without going muddy, and it is also why this item does not work on paper without inverting the idea."
+      },
+      "calm": {
+        "type": "color",
+        "default": "#3f6f93",
+        "description": "The slowest air, at the bottom of the ramp. Cool and close to the ground, so the still parts of the field recede and the fast parts are what you look at."
+      },
+      "mid": {
+        "type": "color",
+        "default": "#58a58c",
+        "description": "The middle of the ramp. It exists so the ramp is read by hue rather than by lightness: a straight line from calm to strong gives one hue and a tint of it, which is the look of a gradient rather than of a chart."
+      },
+      "strong": {
+        "type": "color",
+        "default": "#d8a04a",
+        "description": "The fastest air, which in practice means the air close in around a system. Warm, because that is the convention every wind map uses and conventions are worth keeping where they cost nothing."
+      },
+      "systems": {
+        "type": "number",
+        "default": 4,
+        "description": "How many pressure systems are in the field. Few and large reads as weather; many and small reads as decoration, because a real chart is mostly one system's skirt running into another's. This is also the main cost: the field is evaluated eighteen times per pixel and each evaluation walks this many systems.",
+        "min": 1,
+        "max": 8,
+        "step": 1,
+        "sensible": [
+          3,
+          5
+        ]
+      },
+      "drift": {
+        "type": "number",
+        "default": 0.42,
+        "description": "The prevailing wind across the frame, before any system touches it. At 0 the systems sit in dead air and the field has no direction, which is the single clearest way to make this look like a screensaver.",
+        "min": 0,
+        "max": 1.5,
+        "step": 0.01,
+        "sensible": [
+          0.2,
+          0.6
+        ]
+      },
+      "wander": {
+        "type": "number",
+        "default": 0.06,
+        "description": "How far each system travels from its home over a period, as a share of the height. Small: weather moves, but a backdrop that moves its structure around is a backdrop you keep looking at. At 0 the field is fixed and only the streaks travel, which is a legitimate and very quiet way to use this.",
+        "min": 0,
+        "max": 0.3,
+        "step": 0.01
+      },
+      "scale": {
+        "type": "number",
+        "default": 7,
+        "description": "Cell size of the noise the streaks are made of. It sets how coarse the combing is, and nothing else in here does. Large values give a few wide ribbons; small ones give fine hair, and below about 3 it starts to alias into sparkle.",
+        "min": 2,
+        "max": 40,
+        "step": 0.5,
+        "unit": "px",
+        "sensible": [
+          4,
+          12
+        ]
+      },
+      "length": {
+        "type": "number",
+        "default": 58,
+        "description": "How long a streak is. This is the distance the walk covers, so it is also how far the shader can see along the flow: long streaks follow a curve further and make the field legible, and past about 120 they start to straighten the tight air near a system centre into chords.",
+        "min": 10,
+        "max": 180,
+        "step": 1,
+        "unit": "px",
+        "sensible": [
+          40,
+          90
+        ]
+      },
+      "turns": {
+        "type": "number",
+        "default": 3,
+        "description": "Whole turns the streaks travel along the flow in one period. Whole, because a fraction means the loop never comes home, and core.ts rounds it rather than trusting it. With the default period of 36 seconds, 3 is a streak pattern that takes twelve seconds to repeat.",
+        "min": 1,
+        "max": 12,
+        "step": 1,
+        "sensible": [
+          2,
+          5
+        ]
+      },
+      "contrast": {
+        "type": "number",
+        "default": 0.38,
+        "description": "How hard the result is stretched away from its mean. Line integral convolution of a uniform field sits in a narrow band around the middle, so at 0 this is a flat wash with a hint of structure. Past about 0.8 the streaks go to hard black and white and the field stops reading as air.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.35,
+          0.7
+        ]
+      },
+      "seed": {
+        "type": "number",
+        "default": 11,
+        "description": "Seed for the systems: where they sit, which way they turn, how big and how strong. The same seed gives the same weather, so a recording and a live page agree streak for streak.",
+        "min": 0,
+        "max": 9999,
+        "step": 1
+      },
+      "period": {
+        "type": "number",
+        "default": 36,
+        "description": "Seconds for one cycle. Long, because a backdrop has to survive being ignored: this is both how long a system takes to go round its home and the time in which the streaks make `turns` complete passes.",
+        "min": 10,
+        "max": 180,
+        "step": 1,
+        "unit": "s",
+        "sensible": [
+          24,
+          90
+        ]
+      }
+    },
+    "instruction": "the wind runs on its own",
+    "oneShot": false,
+    "record": {
+      "duration": 36,
+      "fps": 20,
+      "posterAt": 9,
+      "crf": 34,
+      "webmCrf": 48
+    },
+    "credit": {
+      "what": "the field of named pressure systems behind the Wind Field Routing page, and the speed-as-colour ramp that goes with it. The method here is line integral convolution rather than fourteen thousand advected particles, because an advected field cannot be seeked",
+      "author": "Ray Velez",
+      "url": "https://github.com/RayVelez27/instalanding.ai"
+    },
+    "group": "effects",
+    "intro": "WindField is the wind on a weather map: a few pressure systems, a prevailing\ndrift, and the air between them combed into streaks that travel along the flow\nwith their speed read as colour.\n\nIt is **line integral convolution**, not a particle system, and that is the most\nimportant thing about it."
   },
   {
     "name": "WovenThreads",

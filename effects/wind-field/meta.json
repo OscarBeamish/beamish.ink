@@ -1,0 +1,206 @@
+{
+  "name": "WindField",
+  "slug": "wind-field",
+  "tier": 1,
+  "description": "The wind on a weather map, combed into streaks that travel along the flow, with the speed read as colour",
+  "category": "backdrops",
+  "ground": "dark",
+  "tags": [
+    "webgl",
+    "shader",
+    "backdrop",
+    "wind",
+    "flow",
+    "weather",
+    "dark",
+    "ambient",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "Line integral convolution, not a particle system. Each pixel walks a short way up the flow and a short way down it, samples a fixed noise field at each step, and sums those samples under a travelling kernel: along a streamline they agree and the pixel is bright, across the flow they disagree and cancel",
+      "That is not a stylistic choice. A particle's position depends on the one before it, so an advected field cannot be seeked, cannot be recorded, drifts on a dropped frame, and is wrong on the first frame after a resize, because the trail is feedback on the canvas. The page this was taken from runs fourteen thousand particles with a 0.07 erase per frame and there is no value of t you can ask it for",
+      "The streaks move because the kernel's phase moves, not because anything in the field is advected. `turns` is a whole number of turns over the period and is rounded in core.ts rather than trusted, because it is the one value that can stop the loop closing and it arrives from a prompt",
+      "Each system orbits its own home once per period, so the weather changes without the loop failing to come home",
+      "Field space is y from 0 to 1 and x across the aspect ratio, rather than uv. A system placed in uv is an ellipse on a wide canvas",
+      "Colour is a legend rather than a palette. Speed picks the hue through two interpolations, because a straight line between two colours gives one hue and a tint of it, and a chart like this is read by hue",
+      "Built for a dark ground and declared as one. The streaks are drawn by addition onto the ground, which is what lets them overlap without going muddy, and on paper that makes them brighter than the paper rather than darker",
+      "Four systems by default rather than eight. Eight small vortices read as a decorative swirl; four large overlapping ones read as a chart, because a real synoptic map is mostly one system's skirt running into another's",
+      "One WebGL2 context, one full-screen triangle, no buffers and no attributes"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 1.4,
+    "contexts": 1,
+    "notes": [
+      "Eighteen samples per pixel, each one a field evaluation plus a value-noise lookup, and the field evaluation is a loop over the systems. Cost is therefore taps times systems, and both are knobs: `systems` is an option and TAPS is a constant at the top of the shader",
+      "Measured with `pnpm budget` at 1280 by 720: 1.4ms for a draw and a forced flush, against DustMotes at 0.7, WovenThreads at 0.8 and MarbledPaper at 2.2 on the same machine. Expensive, but not the most expensive thing here",
+      "maxDpr is capped at 1.5 rather than the usual 2. What it draws is noise at a cell size of a few pixels, so the fourth sub-pixel is paid for and not seen",
+      "0.051 mean absolute change per frame on a 0 to 255 scale, sampled at six phases of the period and worst at 0.057. Three times DustMotes and half of MarbledPaper, which is where a backdrop with something travelling across it should sit",
+      "No textures, no buffers and no feedback. There is nothing to allocate between frames"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/wind-field/core.ts",
+      "to": "src/beamish/effects/wind-field/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/wind-field/adapters/react.tsx",
+      "to": "src/beamish/effects/wind-field/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/wind-field/adapters/vue.ts",
+      "to": "src/beamish/effects/wind-field/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "ground": {
+      "type": "color",
+      "default": "#0d141a",
+      "description": "The ground, and what shows where there is no wind. Dark, because the streaks are added onto it: that is what lets them cross each other without going muddy, and it is also why this item does not work on paper without inverting the idea."
+    },
+    "calm": {
+      "type": "color",
+      "default": "#3f6f93",
+      "description": "The slowest air, at the bottom of the ramp. Cool and close to the ground, so the still parts of the field recede and the fast parts are what you look at."
+    },
+    "mid": {
+      "type": "color",
+      "default": "#58a58c",
+      "description": "The middle of the ramp. It exists so the ramp is read by hue rather than by lightness: a straight line from calm to strong gives one hue and a tint of it, which is the look of a gradient rather than of a chart."
+    },
+    "strong": {
+      "type": "color",
+      "default": "#d8a04a",
+      "description": "The fastest air, which in practice means the air close in around a system. Warm, because that is the convention every wind map uses and conventions are worth keeping where they cost nothing."
+    },
+    "systems": {
+      "type": "number",
+      "default": 4,
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "sensible": [
+        3,
+        5
+      ],
+      "description": "How many pressure systems are in the field. Few and large reads as weather; many and small reads as decoration, because a real chart is mostly one system's skirt running into another's. This is also the main cost: the field is evaluated eighteen times per pixel and each evaluation walks this many systems."
+    },
+    "drift": {
+      "type": "number",
+      "default": 0.42,
+      "min": 0,
+      "max": 1.5,
+      "step": 0.01,
+      "sensible": [
+        0.2,
+        0.6
+      ],
+      "description": "The prevailing wind across the frame, before any system touches it. At 0 the systems sit in dead air and the field has no direction, which is the single clearest way to make this look like a screensaver."
+    },
+    "wander": {
+      "type": "number",
+      "default": 0.06,
+      "min": 0,
+      "max": 0.3,
+      "step": 0.01,
+      "description": "How far each system travels from its home over a period, as a share of the height. Small: weather moves, but a backdrop that moves its structure around is a backdrop you keep looking at. At 0 the field is fixed and only the streaks travel, which is a legitimate and very quiet way to use this."
+    },
+    "scale": {
+      "type": "number",
+      "default": 7,
+      "min": 2,
+      "max": 40,
+      "step": 0.5,
+      "unit": "px",
+      "sensible": [
+        4,
+        12
+      ],
+      "description": "Cell size of the noise the streaks are made of. It sets how coarse the combing is, and nothing else in here does. Large values give a few wide ribbons; small ones give fine hair, and below about 3 it starts to alias into sparkle."
+    },
+    "length": {
+      "type": "number",
+      "default": 58,
+      "min": 10,
+      "max": 180,
+      "step": 1,
+      "unit": "px",
+      "sensible": [
+        40,
+        90
+      ],
+      "description": "How long a streak is. This is the distance the walk covers, so it is also how far the shader can see along the flow: long streaks follow a curve further and make the field legible, and past about 120 they start to straighten the tight air near a system centre into chords."
+    },
+    "turns": {
+      "type": "number",
+      "default": 3,
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "sensible": [
+        2,
+        5
+      ],
+      "description": "Whole turns the streaks travel along the flow in one period. Whole, because a fraction means the loop never comes home, and core.ts rounds it rather than trusting it. With the default period of 36 seconds, 3 is a streak pattern that takes twelve seconds to repeat."
+    },
+    "contrast": {
+      "type": "number",
+      "default": 0.38,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [
+        0.35,
+        0.7
+      ],
+      "description": "How hard the result is stretched away from its mean. Line integral convolution of a uniform field sits in a narrow band around the middle, so at 0 this is a flat wash with a hint of structure. Past about 0.8 the streaks go to hard black and white and the field stops reading as air."
+    },
+    "seed": {
+      "type": "number",
+      "default": 11,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "description": "Seed for the systems: where they sit, which way they turn, how big and how strong. The same seed gives the same weather, so a recording and a live page agree streak for streak."
+    },
+    "period": {
+      "type": "number",
+      "default": 36,
+      "min": 10,
+      "max": 180,
+      "step": 1,
+      "unit": "s",
+      "sensible": [
+        24,
+        90
+      ],
+      "description": "Seconds for one cycle. Long, because a backdrop has to survive being ignored: this is both how long a system takes to go round its home and the time in which the streaks make `turns` complete passes."
+    }
+  },
+  "instruction": "the wind runs on its own",
+  "oneShot": false,
+  "record": {
+    "duration": 36,
+    "fps": 20,
+    "posterAt": 9,
+    "crf": 34,
+    "webmCrf": 48
+  },
+  "credit": {
+    "what": "the field of named pressure systems behind the Wind Field Routing page, and the speed-as-colour ramp that goes with it. The method here is line integral convolution rather than fourteen thousand advected particles, because an advected field cannot be seeked",
+    "author": "Ray Velez",
+    "url": "https://github.com/RayVelez27/instalanding.ai"
+  }
+}

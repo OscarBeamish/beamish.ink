@@ -305,6 +305,10 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'registration-marks': () => import('@items/effects/registration-marks/core'),
     'woven-threads': () => import('@items/effects/woven-threads/core'),
     'dust-motes': () => import('@items/effects/dust-motes/core'),
+    'wind-field': () => import('@items/effects/wind-field/core'),
+    'ember-rise': () => import('@items/effects/ember-rise/core'),
+    'highlighter-mark': () => import('@items/effects/highlighter-mark/core'),
+    'iris-reveal': () => import('@items/effects/iris-reveal/core'),
     tooth: () => import('@items/effects/paper-grain/core'),
     'scroll-marquee': () => import('@items/effects/scroll-marquee/core'),
     'aurora-curtain': () => import('@items/effects/aurora-curtain/core'),
@@ -435,6 +439,23 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'masked-heading': `<div class="demo-uncover">
       <p class="demo-uncover__head">Uncovered, not wiped</p>
       <p class="demo-uncover__note">A straight-edged mask crossing a heading is a wipe, and the eye reads that edge as a machine.</p>
+    </div>`,
+    /*
+     * Real <mark> elements, because that is the item's whole interface and the
+     * panel should demonstrate the thing people will paste rather than a
+     * version of it with spans in.
+     */
+    'highlighter-mark': `<div class="demo-marked">
+      <p class="demo-marked__text">Every version of this keeps <mark>an array of particles</mark>, advances each one every frame, and respawns the ones that drift out. That buys nothing and costs three things: <mark>it cannot be seeked</mark>, it drifts on a dropped frame, and <mark>the trail is feedback</mark>.</p>
+    </div>`,
+    /*
+     * The iris clips whatever it is mounted on, so the panel has to give it
+     * something with an edge and a subject. The plate is one block, because an
+     * iris opens on a scene rather than on each thing in it.
+     */
+    'iris-reveal': `<div class="demo-iris">
+      <p class="demo-iris__head">Seven blades, not a circle</p>
+      <p class="demo-iris__note">A diaphragm is a ring of overlapping plates, so the hole they leave has as many sides as there are blades, and it turns as it opens.</p>
     </div>`,
     /* The ring fills the box it is given, so the box is the size control. */
     'circular-text': `<div class="demo-seal">Printed and bound in England</div>`,

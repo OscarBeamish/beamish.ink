@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en-GB" data-ground="paper">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HighlighterMark: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        /* Paper, because the ink is multiplied into whatever is behind it. */
+        background: #fbfaf4;
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        align-content: center;
+        padding: 0 8vw;
+        box-sizing: border-box;
+        color: #15150f;
+      }
+      #stage p {
+        margin: 0;
+        max-width: 30ch;
+        font-family: var(--font-display);
+        font-size: clamp(1.4rem, 4.4vw, 3rem);
+        font-weight: 500;
+        line-height: 1.45;
+        letter-spacing: -0.015em;
+      }
+      /*
+       * The element's own default is a yellow box with square corners, which is
+       * the thing this effect exists to replace. The ink is drawn over the top,
+       * so the element itself carries none.
+       */
+      #stage mark {
+        background: none;
+        color: inherit;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+
+      The marks are real <mark> elements. That is the whole interface: the page
+      reads correctly with this effect switched off, with CSS off, and in a
+      screen reader, because the element already means "this bit matters".
+    -->
+    <div id="stage">
+      <p>
+        Every version of this keeps <mark>an array of particles</mark>, advances
+        each one every frame, and respawns the ones that drift out. That buys
+        you nothing and costs three things:
+        <mark>it cannot be seeked</mark>, it drifts on a dropped frame, and
+        <mark>the trail is feedback</mark>.
+      </p>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const handle = window.Beamish.create(document.getElementById('stage'))
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      window.__beamish = handle
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
+    </script>
+  </body>
+</html>

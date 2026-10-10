@@ -1,0 +1,156 @@
+{
+  "name": "IrisReveal",
+  "slug": "iris-reveal",
+  "tier": 1,
+  "description": "A camera iris opening on whatever is behind it, with as many sides as it has blades and a swing as it goes",
+  "category": "reveals",
+  "ground": "either",
+  "tags": [
+    "css",
+    "clip-path",
+    "reveal",
+    "iris",
+    "aperture",
+    "lens",
+    "one-shot",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "An iris is not a circle growing. A diaphragm is a ring of overlapping blades and the hole they leave is a polygon with as many sides as there are blades: five give a pentagon, nine give something close to a circle but not one. Anybody who has seen an out-of-focus highlight in a photograph has seen this shape, which is why a growing circle reads as a spotlight and a growing heptagon reads as a lens",
+      "The blades swing as they open, so the whole opening rotates. On a real lens that is a consequence of the mechanism rather than a decision, and leaving it out is the clearest way to make this look like a mask",
+      "The edges bow. A blade is a curved plate, so each side of the hole is a shallow arc bulging inwards. The amount is measured rather than chosen: a polygon's inradius is its circumradius times the cosine of half a blade's angle, so 1/cos minus 1 is exactly how far the middle of a straight edge sits inside the circle it is cutting, and `bow` is the share of that taken back",
+      "It reaches past the far corner rather than to the edge. A box's corner is further from the centre than its side and the polygon's own inradius is shorter again, so an opening that stops at 1 leaves slivers in the corners that read as a dirty lens",
+      "Drawn with clip-path on the element itself. Nothing is added to the DOM, nothing is drawn, and the content is untouched: it selects, scrolls and reads the whole time, it is simply not all visible yet",
+      "The polygon is in percentages, so it follows a resize with no measuring at all",
+      "ground is `either` and for once that needs no argument: there is no colour in this item. It clips whatever you put it on, so there is nothing to tune against a background"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.1,
+    "contexts": 0,
+    "notes": [
+      "One clip-path string per frame, built from blades times seven points, and skipped entirely when it comes out the same as the last one",
+      "Measured with `pnpm budget` at 1280 by 720: 0.1ms with style and layout forced, which is the cheapest item measured so far",
+      "No canvas, no WebGL context and nothing appended to the DOM, so this is free to put on a dozen elements at once",
+      "clip-path on a large element is composited rather than repainted in current browsers, but a host with a backdrop-filter inside it is the exception and will repaint"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/iris-reveal/core.ts",
+      "to": "src/beamish/effects/iris-reveal/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/iris-reveal/adapters/react.tsx",
+      "to": "src/beamish/effects/iris-reveal/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/iris-reveal/adapters/vue.ts",
+      "to": "src/beamish/effects/iris-reveal/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "blades": {
+      "type": "number",
+      "default": 7,
+      "min": 3,
+      "max": 16,
+      "step": 1,
+      "sensible": [
+        5,
+        9
+      ],
+      "description": "How many blades, and so how many sides the opening has. Five is a cheap lens and the shape is unmistakable; nine is an expensive one and reads as nearly round. Past about twelve nobody can tell it from a circle and you have lost the only thing that says lens."
+    },
+    "swing": {
+      "type": "number",
+      "default": 26,
+      "min": 0,
+      "max": 120,
+      "step": 1,
+      "unit": "deg",
+      "sensible": [
+        15,
+        45
+      ],
+      "description": "Degrees the opening rotates between shut and open. This is the mechanism showing, and at 0 the effect is a polygon being scaled, which is a mask. Large values spin rather than swing and start to read as a shutter on a film projector."
+    },
+    "bow": {
+      "type": "number",
+      "default": 0.14,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "How far each edge bows into the hole, as a share of the gap between the straight edge and the circle through the vertices. At 0 the opening is a strict polygon; at 1 it is a circle and the blade count stops mattering. The default is a plate with a gentle curve on it."
+    },
+    "from": {
+      "type": "number",
+      "default": 0.04,
+      "min": 0,
+      "max": 0.9,
+      "step": 0.01,
+      "description": "How far open it starts, as a share of the finished opening. A little rather than nothing, because a real diaphragm does not close to a point and a pinhole gives the eye something to track from. At 0 the first frames are an empty box."
+    },
+    "duration": {
+      "type": "number",
+      "default": 1100,
+      "min": 150,
+      "max": 6000,
+      "step": 10,
+      "unit": "ms",
+      "sensible": [
+        700,
+        1800
+      ],
+      "description": "Milliseconds for the iris to open, eased at both ends because a diaphragm is sprung at both ends of its travel. An ease-out alone makes it look dropped."
+    },
+    "hold": {
+      "type": "number",
+      "default": 220,
+      "min": 0,
+      "max": 5000,
+      "step": 10,
+      "unit": "ms",
+      "description": "Milliseconds of stillness before it starts. Short: this is a reveal, and the thing being revealed is what somebody came for."
+    },
+    "x": {
+      "type": "number",
+      "default": 0.5,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Where the centre sits across the element. Off-centre is worth trying when the content has a subject: opening on the face rather than on the middle of the frame is what a camera operator would do."
+    },
+    "y": {
+      "type": "number",
+      "default": 0.5,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Where the centre sits down the element. The reach is measured to the furthest corner from wherever this puts the centre, so an off-centre iris still clears the box."
+    }
+  },
+  "instruction": "press Replay to open it again",
+  "oneShot": true,
+  "record": {
+    "duration": 4,
+    "fps": 30,
+    "posterAt": 0.8
+  },
+  "credit": {
+    "what": "an aperture cut into the page, from the Recessed Aperture page. The blade geometry here is worked out rather than taken",
+    "author": "Ray Velez",
+    "url": "https://github.com/RayVelez27/instalanding.ai"
+  }
+}

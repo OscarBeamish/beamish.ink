@@ -641,6 +641,61 @@
     line-height: 1.65;
     color: var(--label-2);
   }
+
+  /* The text HighlighterMark goes over. The browser's own mark styling is a
+     yellow box with square corners, which is the thing the item replaces, so
+     it is turned off and the ink is drawn on top instead. */
+  .demo-marked {
+    display: grid;
+    align-content: center;
+    height: 100%;
+    padding: 0 clamp(1rem, 5cqw, 3rem);
+    box-sizing: border-box;
+  }
+
+  .demo-marked__text {
+    margin: 0;
+    max-width: 34ch;
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 2.6cqw, 1.7rem);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .demo-marked mark {
+    background: none;
+    color: inherit;
+  }
+
+  /* The plate IrisReveal opens on. One block, because an iris opens on a scene
+     rather than on each thing in it. */
+  .demo-iris {
+    display: grid;
+    align-content: center;
+    gap: 0.6rem;
+    height: 100%;
+    padding: 0 clamp(1rem, 5cqw, 3rem);
+    box-sizing: border-box;
+  }
+
+  .demo-iris__head {
+    margin: 0;
+    max-width: 14ch;
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 4.6cqw, 3rem);
+    font-weight: 700;
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+  }
+
+  .demo-iris__note {
+    margin: 0;
+    max-width: 44ch;
+    font-family: var(--font-mono);
+    font-size: clamp(0.7rem, 1.4cqw, 0.9rem);
+    line-height: 1.65;
+    color: var(--label-2);
+  }
 }
 
 @layer components {
