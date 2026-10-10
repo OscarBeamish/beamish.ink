@@ -10,15 +10,25 @@
  * ended up with a video that never played and a category in the wrong place:
  * the hover script below only binds what this file renders.
  */
+type Shot = { poster: string | null; mp4: string | null; webm: string | null }
+
 type Props = {
   href: string
   name: string
   description: string
   label: string
-  media: { poster: string | null; mp4: string | null; webm: string | null }
+  /*
+   * `dark` is the same take against the other ground, and only items that
+   * declare `either` have one. The card follows the page: an item that claims
+   * both grounds has to show the one you are looking at, or the claim is
+   * decoration. An item built for paper keeps its paper take on a dark page,
+   * because that is the truth about the item.
+   */
+  media: Shot & { dark?: Shot | null }
 }
 
 const { href, name, description, label, media } = Astro.props
+const dark = media.dark ?? null
 ---
 
 <a
@@ -36,6 +46,8 @@ const { href, name, description, label, media } = Astro.props
           decoding="async"
           class="absolute inset-0 h-full w-full object-cover"
           data-poster
+          data-poster-paper={media.poster}
+          data-poster-dark={dark?.poster ?? undefined}
         />
       ) : (
         <div class="text-l3 absolute inset-0 grid place-items-center text-[0.7rem] tracking-[0.1em] uppercase">
@@ -56,6 +68,10 @@ const { href, name, description, label, media } = Astro.props
           playsinline
           preload="none"
           data-video
+          data-webm-paper={media.webm ?? undefined}
+          data-mp4-paper={media.mp4 ?? undefined}
+          data-webm-dark={dark?.webm ?? undefined}
+          data-mp4-dark={dark?.mp4 ?? undefined}
         >
           {media.webm && <source src={media.webm} type="video/webm" />}
           {media.mp4 && <source src={media.mp4} type="video/mp4" />}
@@ -72,6 +88,64 @@ const { href, name, description, label, media } = Astro.props
 </a>
 
 <script>
+  /*
+   * The card follows the ground.
+   *
+   * Only items that declare `either` carry a second take, and only they should
+   * switch: an item built for paper is telling the truth by showing a paper
+   * video on a dark page, while an `either` item with one paper take is making
+   * a claim its evidence does not support. That was the actual bug, not the
+   * colour of the page around it.
+   *
+   * Nothing is preloaded here. The poster swaps immediately because it is
+   * already a visible image; the video sources are rewritten but not loaded,
+   * so a page nobody hovers still costs one image per card.
+   */
+  const applyGround = (ground: string) => {
+    const dark = ground === 'dark'
+
+    for (const poster of document.querySelectorAll<HTMLImageElement>('[data-poster]')) {
+      const wanted = dark
+        ? (poster.dataset.posterDark ?? poster.dataset.posterPaper)
+        : poster.dataset.posterPaper
+      if (wanted && !poster.src.endsWith(wanted)) poster.src = wanted
+    }
+
+    for (const video of document.querySelectorAll<HTMLVideoElement>('[data-video]')) {
+      const webm = dark
+        ? (video.dataset.webmDark ?? video.dataset.webmPaper)
+        : video.dataset.webmPaper
+      const mp4 = dark
+        ? (video.dataset.mp4Dark ?? video.dataset.mp4Paper)
+        : video.dataset.mp4Paper
+
+      let changed = false
+      for (const source of video.querySelectorAll('source')) {
+        const wanted = source.type === 'video/webm' ? webm : mp4
+        if (wanted && source.getAttribute('src') !== wanted) {
+          source.setAttribute('src', wanted)
+          changed = true
+        }
+      }
+
+      /*
+       * load() only when the element has already fetched something. Calling it
+       * on an untouched preload="none" video starts the download this card was
+       * written to avoid.
+       */
+      if (changed && video.readyState > 0) {
+        const wasPlaying = !video.paused
+        video.load()
+        if (wasPlaying) void video.play().catch(() => {})
+      }
+    }
+  }
+
+  applyGround(document.documentElement.dataset.ground ?? 'paper')
+  document.addEventListener('beamish:ground', event => {
+    applyGround((event as CustomEvent<string>).detail)
+  })
+
   /*
    * Hover plays, leaving pauses and rewinds. Under reduced motion the video is
    * never started at all. The poster is the whole experience, and it is a

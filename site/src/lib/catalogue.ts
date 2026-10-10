@@ -97,15 +97,37 @@ export function loadPrompts(slug: string): { linked: string; inlined: string } {
   return { linked: read('prompt.md'), inlined: read('prompt.inline.md') }
 }
 
+export type CardMedia = {
+  poster: string | null
+  mp4: string | null
+  webm: string | null
+  /*
+   * The same take against the other ground, where one exists. Only items that
+   * declare `either` have one, and only those need it: an item built for paper
+   * showing a paper video on a dark page is telling the truth about itself,
+   * while an `either` item with one paper take is making a claim its evidence
+   * does not support.
+   */
+  dark: { poster: string | null; mp4: string | null; webm: string | null } | null
+}
+
 /** Which media files actually exist, so a page never renders a broken <video>. */
-export function loadMedia(item: Item) {
+export function loadMedia(item: Item): CardMedia {
   const dir = path.join(ROOT, item.group, item.slug, 'media')
   const at = (name: string) =>
     existsSync(path.join(dir, name)) ? `/media/${item.slug}/${name}` : null
+  const atDark = (name: string) =>
+    existsSync(path.join(dir, 'dark', name)) ? `/media/${item.slug}/dark/${name}` : null
+
+  const dark = atDark('poster.jpg')
+    ? { poster: atDark('poster.jpg'), mp4: atDark('16x9.mp4'), webm: atDark('16x9.webm') }
+    : null
+
   return {
     poster: at('poster.jpg'),
     mp4: at('16x9.mp4'),
-    webm: at('16x9.webm')
+    webm: at('16x9.webm'),
+    dark
   }
 }
 

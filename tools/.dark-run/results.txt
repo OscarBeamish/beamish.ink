@@ -1,0 +1,11 @@
+list has 27 either items
+FAIL  cast-shadow-scene  (see tools/.dark-run/cast-shadow-scene.log)
+OK    circular-text  64s  1917kB
+OK    click-spark  13s  69kB
+OK    count-up-number  13s  161kB
+OK    crosshair-cursor  23s  193kB
+FAIL  decode-text  (see tools/.dark-run/decode-text.log)
+OK    falling-letters  13s  225kB
+OK    gradual-blur  59s  477kB
+OK    guilloche-lines  134s  3569kB
+OK    ink-bleed-text  24s  345kB
