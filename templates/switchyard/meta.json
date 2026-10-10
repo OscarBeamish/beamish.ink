@@ -1,0 +1,22 @@
+{
+  "name": "Switchyard",
+  "slug": "switchyard",
+  "description": "An invented AI gateway, laid out as a bold poster catalogue of notched panels",
+  "intent": "A catalogue that is a poster. Fifty-three inline SVGs and thirty-four controls on one page, with the notch cut into every panel doing the work a border would usually do, which is why the page reads as printed rather than assembled.",
+  "ground": "paper",
+  "uses": [],
+  "source": {
+    "title": "Notched Panel Catalog Page",
+    "author": "Ray Velez",
+    "licence": "MIT",
+    "url": "https://github.com/RayVelez27/instalanding.ai",
+    "changed": "New brand, copy and figures, and a retuned palette"
+  },
+  "record": {
+    "duration": 14,
+    "fps": 24,
+    "posterAt": 4,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

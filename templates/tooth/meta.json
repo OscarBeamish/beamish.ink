@@ -1,0 +1,22 @@
+{
+  "name": "Tooth",
+  "slug": "tooth",
+  "description": "An invented motion and surface system sold as plain CSS, with the page made of the thing it sells",
+  "intent": "Two hundred and sixteen gradients on one page, and a demonstration that has to agree with the thing being demonstrated: the page is built out of the surface system it is selling, so a flaw in the product is a flaw in the page.",
+  "ground": "paper",
+  "uses": [],
+  "source": {
+    "title": "Grain Motion System Page",
+    "author": "Ray Velez",
+    "licence": "MIT",
+    "url": "https://github.com/RayVelez27/instalanding.ai",
+    "changed": "New brand, copy and figures, and a retuned palette"
+  },
+  "record": {
+    "duration": 14,
+    "fps": 24,
+    "posterAt": 4,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

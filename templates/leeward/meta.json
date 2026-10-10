@@ -1,0 +1,22 @@
+{
+  "name": "Leeward",
+  "slug": "leeward",
+  "description": "An invented routing layer on a dark ground, where the hero is a generative wind field",
+  "intent": "The only canvas-driven page in the set: eight canvases carrying a flow field that the routing diagram is drawn into, so the illustration of the idea and the idea are the same thing.",
+  "ground": "dark",
+  "uses": [],
+  "source": {
+    "title": "Wind Field Routing Page",
+    "author": "Ray Velez",
+    "licence": "MIT",
+    "url": "https://github.com/RayVelez27/instalanding.ai",
+    "changed": "New brand, copy and figures, and a retuned palette"
+  },
+  "record": {
+    "duration": 14,
+    "fps": 24,
+    "posterAt": 4,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

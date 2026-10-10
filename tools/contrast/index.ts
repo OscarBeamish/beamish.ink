@@ -70,6 +70,8 @@ type Raw = {
   colour: string
   /** A few words of the text itself, so a reported failure can be found. */
   text: string
+  /** Cumulative CSS opacity, folded into the colour's alpha before scoring. */
+  opacity: number
   /** Backgrounds from the element up to the first opaque one, nearest first. */
   grounds: string[]
   /** True when the ground is painted rather than a colour, so it must be sampled. */
@@ -84,6 +86,15 @@ type Rgba = [number, number, number, number]
 /** A computed colour as four channels in 0..1. Chrome returns `color(srgb …)`
  *  for anything that came out of a `color-mix`, which is most of this library. */
 function parse(value: string): Rgba | null {
+  if (value.startsWith('#')) {
+    const hex = value.slice(1)
+    const wide = hex.length >= 6
+    const at = (i: number) =>
+      wide
+        ? parseInt(hex.slice(i * 2, i * 2 + 2), 16) / 255
+        : parseInt(hex[i]! + hex[i]!, 16) / 255
+    return [at(0), at(1), at(2), 1]
+  }
   const parts = value.match(/[\d.]+/g)
   if (!parts) return null
   const n = parts.map(Number)
@@ -152,6 +163,27 @@ async function collect(page: Page): Promise<Raw[]> {
     const out: Raw[] = []
     let id = 0
 
+    /*
+     * Every colour is put through a canvas before it leaves the page.
+     *
+     * getComputedStyle hands back whatever notation the stylesheet used, and
+     * this library's pages use several: rgb, rgba, color(srgb ...) from
+     * color-mix, and oklch. Parsing each one here means a format nobody
+     * thought of is read as the wrong numbers rather than rejected, and that
+     * is not hypothetical: a page written in oklch had 75 of its 76 text
+     * styles reported as failures, because three oklch components were being
+     * divided by 255.
+     *
+     * So each one is painted onto a one-pixel canvas and read back. That is
+     * the browser's own conversion to sRGB, it works for every notation it can
+     * parse including ones that do not exist yet, and it costs one fill per
+     * distinct colour. Assigning to fillStyle and reading it back is not
+     * enough: Chrome hands oklch() straight back unchanged.
+     */
+    const probe = document.createElement('canvas').getContext('2d', {
+      willReadFrequently: true
+    })!
+
     for (const el of document.querySelectorAll<HTMLElement>('body *')) {
       const style = getComputedStyle(el)
 
@@ -173,10 +205,23 @@ async function collect(page: Page): Promise<Raw[]> {
           painted = true
           break
         }
-        const colour = cs.backgroundColor
-        grounds.push(colour)
-        const alpha = colour.startsWith('rgba') ? Number(colour.split(',')[3]) : 1
-        if (alpha === 1) break
+        /*
+         * Painted here, not later, because the alpha decides whether to stop.
+         *
+         * The test used to be `startsWith('rgba')`, which reads a layer
+         * written as `color(srgb r g b / 0.26)` as opaque. The walk then
+         * stopped on a translucent purple and composited it over white, so
+         * light text on a dark navy panel was scored against a pale ground
+         * and came back at 1.09:1. Every translucent panel on a dark page hit
+         * it.
+         */
+        probe.clearRect(0, 0, 1, 1)
+        probe.fillStyle = cs.backgroundColor
+        probe.fillRect(0, 0, 1, 1)
+        const d = probe.getImageData(0, 0, 1, 1).data
+        const alpha = d[3]! / 255
+        if (alpha > 0) grounds.push(`rgba(${d[0]}, ${d[1]}, ${d[2]}, ${alpha.toFixed(4)})`)
+        if (alpha >= 0.999) break
       }
 
       const classes =
@@ -209,6 +254,22 @@ async function collect(page: Page): Promise<Raw[]> {
        * Without this the checker reports the dim ones nobody can see, and the
        * only way to make it quiet is to change a colour that is not on screen.
        */
+      /*
+       * Opacity counts as well as visibility.
+       *
+       * These pages hide hover tooltips with `opacity: 0` rather than with
+       * display or visibility, so four bar-chart labels came back at 1.00:1
+       * against the bars they sit over: white on white, correctly measured and
+       * completely invisible. Cumulative, because the zero is often on an
+       * ancestor. Partial opacity is not skipped; it is folded into the text's
+       * own alpha further down, because half-opaque text really is harder to
+       * read and should be scored that way.
+       */
+      let opacity = 1
+      for (let n: HTMLElement | null = el; n && n !== document.body; n = n.parentElement) {
+        opacity *= Number(getComputedStyle(n).opacity)
+      }
+
       const box = el.getBoundingClientRect()
       let clipped = false
       for (let n: HTMLElement | null = el.parentElement; n; n = n.parentElement) {
@@ -230,6 +291,7 @@ async function collect(page: Page): Promise<Raw[]> {
       const visible =
         style.visibility !== 'hidden' &&
         style.display !== 'none' &&
+        opacity > 0.02 &&
         box.width > 0 &&
         box.height > 0 &&
         !clipped
@@ -243,6 +305,7 @@ async function collect(page: Page): Promise<Raw[]> {
           weight: Number(style.fontWeight),
           colour: style.color,
           text: (el.textContent ?? '').trim().replace(/\s+/g, ' ').slice(0, 32),
+          opacity,
           grounds,
           painted
         })
@@ -264,10 +327,26 @@ async function collect(page: Page): Promise<Raw[]> {
           weight: Number(cs.fontWeight),
           colour: cs.color,
           text: cs.content.replace(/^"|"$/g, '').slice(0, 32),
+          opacity,
           grounds,
           painted
         })
       }
+    }
+
+    /*
+     * One pass, at the end, so there is exactly one place a colour is turned
+     * into numbers. Painting is deferred to here rather than done inline three
+     * times above, because the loop above is already the part that has to stay
+     * free of helpers.
+     */
+    for (const row of out) {
+      probe.clearRect(0, 0, 1, 1)
+      probe.fillStyle = row.colour
+      probe.fillRect(0, 0, 1, 1)
+      const d = probe.getImageData(0, 0, 1, 1).data
+      const alpha = (d[3]! / 255) * row.opacity
+      row.colour = `rgba(${d[0]}, ${d[1]}, ${d[2]}, ${alpha.toFixed(4)})`
     }
 
     return out
@@ -413,8 +492,18 @@ async function check(
   route: string,
   viewport: (typeof VIEWPORTS)[number]
 ): Promise<number> {
+  /*
+   * Measured with reduced motion, which is the settled page.
+   *
+   * These pages reveal text by animating opacity, and a checker that arrives
+   * mid-reveal measures a frame nobody reads: the eight letters of one button
+   * came back at eight different ratios between 1.58 and 2.68 because the
+   * stagger was still running. Reduced motion is the state the page itself
+   * defines as finished.
+   */
   const page = await browser.newPage({
-    viewport: { width: viewport.width, height: viewport.height }
+    viewport: { width: viewport.width, height: viewport.height },
+    reducedMotion: 'reduce'
   })
   try {
     await page.goto(ORIGIN + route, { waitUntil: 'networkidle', timeout: 30_000 })
@@ -428,7 +517,10 @@ async function check(
      * One line per distinct style, not per element. Forty identical labels is
      * one decision, and reporting it forty times buries the other thirty-nine.
      */
-    const seen = new Map<string, { row: Raw; ratio: number; need: number; sampledGround: boolean }>()
+    const seen = new Map<
+      string,
+      { row: Raw; ratio: number; need: number; sampledGround: boolean; ground: number[] }
+    >()
     for (const row of rows) {
       /*
        * Keyed on the decision rather than on the tag.
@@ -453,25 +545,71 @@ async function check(
       }
 
       const large = row.px >= 24 || (row.weight >= 700 && row.px >= 18.66)
+      let darkest = grounds[0]!
+      for (const g of grounds) if (luminance(g) < luminance(darkest)) darkest = g
       seen.set(key, {
         row,
         ratio: worst,
         need: large ? 3 : 4.5,
-        sampledGround: sampled.has(row.id)
+        sampledGround: sampled.has(row.id),
+        ground: darkest
       })
     }
 
+    /*
+     * Failures are checked for being visible at all before they are reported.
+     *
+     * A page can paint something over its own text. One of these has a
+     * paragraph sitting behind a stack of illustrated rings: it is in the DOM,
+     * it has a box and a colour, and nobody will ever see it. Reporting a
+     * ratio for it asks somebody to fix the legibility of text that is not on
+     * the screen.
+     *
+     * Only failures are checked, because the test needs the element scrolled
+     * into view and that is far too slow to do for every piece of text on the
+     * page. Everything that passes is left alone: a covered element that
+     * passes costs nothing.
+     */
+    const coveredIds = new Set<number>(
+      await page.evaluate(
+        ids =>
+          ids.filter(id => {
+            const el = document.querySelector<HTMLElement>(`[data-contrast-id="${id}"]`)
+            if (!el) return false
+            el.scrollIntoView({ block: 'center', behavior: 'instant' as ScrollBehavior })
+            const r = el.getBoundingClientRect()
+            const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)
+            return top !== null && top !== el && !el.contains(top)
+          }),
+        [...seen.values()]
+          .filter(v => v.ratio < v.need && !(v.row.painted && !v.sampledGround))
+          .map(v => v.row.id)
+      )
+    )
+
     const fails: string[] = []
+    const covered: string[] = []
     const unknown: string[] = []
-    for (const { row, ratio: value, need, sampledGround } of seen.values()) {
+    for (const { row, ratio: value, need, sampledGround, ground } of seen.values()) {
       if (row.painted && !sampledGround) {
         unknown.push(`${row.px}px ${row.sel}`)
         continue
       }
       if (value < need) {
+        if (coveredIds.has(row.id)) {
+          covered.push(`${row.px}px ${row.sel} "${row.text}"`)
+          continue
+        }
         const how = sampledGround ? ' (sampled)' : ''
+        // Which way to move it. Text darker than its ground has to go darker
+        // still, and lighter text has to go lighter; the other direction is
+        // the one that looks reasonable and makes the number worse.
+        const colour = parse(row.colour)!
+        const lit = luminance(over(colour, ground)) > luminance(ground)
+        const way = lit ? 'lighter' : 'darker'
         fails.push(
-          `  ${value.toFixed(2)}:1  needs ${need}  ${row.px}px  ${row.sel}${how}  "${row.text}"`
+          `  ${value.toFixed(2)}:1  needs ${need}  ${row.px}px  ${row.sel}${how}  "${row.text}"` +
+            `  [${way}; on rgb(${ground.map(c => Math.round(c * 255)).join(',')})]`
         )
       }
     }
@@ -482,12 +620,38 @@ async function check(
     if (unknown.length > 0) {
       console.log(`  ${unknown.length} could not be sampled: ${unknown.join(', ')}`)
     }
+    if (covered.length > 0) {
+      console.log(`  ${covered.length} would fail but are painted over, so nobody reads them:`)
+      for (const line of covered.sort()) console.log(`    ${line}`)
+    }
     if (fails.length === 0) {
       console.log('  all pass')
       return 0
     }
     console.log(`  ${fails.length} below threshold:`)
     for (const line of fails.sort()) console.log(line)
+
+    /*
+     * Which colours are responsible, worst first.
+     *
+     * Failures come in families: one token used in thirty places is one
+     * decision and thirty lines of report. Fixing the colour fixes the lot,
+     * and this is the line that says which colour to fix.
+     */
+    const byColour = new Map<string, { n: number; worst: number }>()
+    for (const { row, ratio: value, need, sampledGround } of seen.values()) {
+      if (row.painted && !sampledGround) continue
+      if (value >= need) continue
+      const hit = byColour.get(row.colour) ?? { n: 0, worst: Infinity }
+      hit.n += 1
+      hit.worst = Math.min(hit.worst, value)
+      byColour.set(row.colour, hit)
+    }
+    const families = [...byColour.entries()].sort((a, b) => b[1].n - a[1].n)
+    console.log('  colours responsible:')
+    for (const [colour, { n, worst }] of families) {
+      console.log(`    ${colour.padEnd(28)} ${String(n).padStart(3)} styles, worst ${worst.toFixed(2)}:1`)
+    }
     return fails.length
   } finally {
     await page.close()

@@ -317,18 +317,43 @@ abstraction is wrong. Stop and say so.
 
 ## Licence boundary
 
-Write every implementation from scratch. Concepts are fair game. Where an effect
-is recognisably derived from a specific published demo, credit it in `meta.json`
-with the author's name and a link.
+The rule is different for an item and for a template, and the difference is
+what the reader does with each.
 
-React Bits is MIT plus Commons Clause, not MIT. Read their repo for structure and
-ideas. Never copy a file, a function or a shader from it. The Commons Clause
-would travel with anything taken and attach itself to this library.
+**Items are written from scratch. No exceptions.** An item is pasted into
+somebody's own codebase and lives there among their files, and the promise
+every item prompt makes is that it is their code with nothing to track. A file
+carrying a third-party copyright notice breaks that promise. Concepts are fair
+game; where an effect is recognisably derived from a specific published demo,
+credit it in `meta.json` with the author's name and a link.
 
-Codrops demos are plain MIT, so adapting them with the notice retained would be
-legal. Do not. A file carrying a third-party copyright notice breaks the promise
-every prompt makes, which is that this is the reader's code with nothing to
-track.
+React Bits is MIT plus Commons Clause, not MIT. Read their repo for structure
+and ideas. Never copy a file, a function or a shader from it. The Commons
+Clause would travel with anything taken and attach itself to this library.
+
+**A template may be adapted from somebody else's work under its licence.** A
+template is a whole page taken wholesale rather than a part mixed into existing
+code, so a licence header at the top of it is in the ordinary place and travels
+with the thing it covers. This is a deliberate change from the earlier rule,
+which forbade it on the same "nothing to track" grounds that still apply to
+items.
+
+An adapted template must:
+
+- carry the full licence notice in a comment at the top of its own
+  `index.html`, because the file is handed out on its own and a notice kept
+  anywhere else would not go with it
+- carry `source` in `meta.json`: the work, the author, an SPDX identifier, a
+  URL and one sentence on what changed. The schema rejects a template with
+  neither `source` nor `uses`, because an adapted page with no attribution is
+  the failure that matters: it reads as ours
+- appear in `templates/THIRD-PARTY.md`
+- keep the brief it was built from as `brief.md`, where the author supplied one
+
+Check the licence yourself before adapting anything, and record which one it
+is. MIT and the other permissive ones are fine with the notice retained.
+Anything with a Commons Clause, a non-commercial clause or no licence at all is
+not, however good it looks.
 
 ## Conventions
 

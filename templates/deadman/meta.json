@@ -1,0 +1,22 @@
+{
+  "name": "Deadman",
+  "slug": "deadman",
+  "description": "An invented runbook automation product where every control on the page is a generated keycap",
+  "intent": "One primitive generated in JavaScript, and it is every control on the page. A superellipse walked in code rather than a border-radius, extruded into a key that travels when pressed, with the widths measured off a canvas instead of guessed.",
+  "ground": "paper",
+  "uses": [],
+  "source": {
+    "title": "Squircle Keycap Product Page",
+    "author": "Ray Velez",
+    "licence": "MIT",
+    "url": "https://github.com/RayVelez27/instalanding.ai",
+    "changed": "New brand, copy and figures, and a retuned palette"
+  },
+  "record": {
+    "duration": 14,
+    "fps": 24,
+    "posterAt": 4,
+    "crf": 38,
+    "webmCrf": 48
+  }
+}

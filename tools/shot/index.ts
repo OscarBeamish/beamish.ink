@@ -47,6 +47,24 @@ async function main() {
 
   await page.goto(ORIGIN + path, { waitUntil: 'networkidle' })
   await page.evaluate(() => document.fonts.ready)
+
+  /*
+   * Scroll the whole page before shooting it.
+   *
+   * A full-page screenshot does not load `loading="lazy"` images that were
+   * never in the viewport, so an index of twelve cards came back with the top
+   * four filled in and the rest blank. That reads as eight broken posters and
+   * is in fact a screenshot of a page nobody scrolled.
+   */
+  await page.evaluate(async () => {
+    const step = innerHeight * 0.8
+    for (let y = 0; y < document.body.scrollHeight; y += step) {
+      scrollTo(0, y)
+      await new Promise(r => setTimeout(r, 90))
+    }
+    scrollTo(0, 0)
+  })
+
   await page.waitForTimeout(2600)
 
   const facts = await page.evaluate(() => {

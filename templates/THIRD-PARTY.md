@@ -49,19 +49,39 @@ Source: <https://github.com/RayVelez27/instalanding.ai>
 
 ## What was adapted
 
-| Template | Adapted from | Changed |
-| --- | --- | --- |
-| [`ingot`](./ingot/) | Machine Front Panel Page | Brand, copy and model numbers; palette moved from amber and cyan to sodium and ice; the engraved grey ramp and the rating plate's ink raised until every label passes WCAG AA |
+| Directory | Shown as | Adapted from | Changed |
+| --- | --- | --- | --- |
+| [`bedside`](./bedside/) | Bedside | SmartCare Clinical AI Landing Page | New brand, copy and figures, and a retuned palette |
+| [`deadman`](./deadman/) | Deadman | Squircle Keycap Product Page | New brand, copy and figures, and a retuned palette |
+| [`facet`](./facet/) | Facet | Generative Editorial Product Page | New brand, copy and figures, and a retuned palette |
+| [`ingot`](./ingot/) | Ingot | Machine Front Panel Page | New brand, copy and model numbers, and a palette moved from amber and cyan to sodium and ice |
+| [`leeward`](./leeward/) | Leeward | Wind Field Routing Page | New brand, copy and figures, and a retuned palette |
+| [`loam`](./loam/) | Loam | Clay SaaS Platform Page | New brand, copy and figures, and a retuned palette |
+| [`perigee`](./perigee/) | Perigee | Radiating Rings Hero Page | New brand, copy and figures, and a retuned palette |
+| [`relay`](./relay/) | Relay | Icon-Cut Card Stack Page | New brand, copy and figures, and a retuned palette |
+| [`switchyard`](./switchyard/) | Switchyard | Notched Panel Catalog Page | New brand, copy and figures, and a retuned palette |
+| [`tooth`](./tooth/) | Tooth | Grain Motion System Page | New brand, copy and figures, and a retuned palette |
+
+Every one of them also had its contrast retuned until it passes WCAG AA
+at both widths, which is recorded per page rather than per template
+because it was different work on each: on some it was one token, on
+others it was an accent that had to be split in two because no single
+value clears both a white ground and a dark panel.
 
 ## What was kept, and why it is worth saying
 
 The layout, the structure and every drawn thing are the original author's, and
-they are the reason these pages are here. On `ingot` that means the whole idea
-that the page is the machine's front panel, the plate material, the generated
-turbine, the trigonometric arc gauge, the single integrated load value that
-drives the fan period and the lit ticks and the coil glow and all four
-readouts, and every diagram on the page. None of that is ours and the header on
-the file says so.
+they are the reason these pages are here. Taking `ingot` as the example, that
+means the whole idea that the page is the machine's front panel, the plate
+material, the generated turbine, the trigonometric arc gauge, the single
+integrated load value that drives the fan period and the lit ticks and the coil
+glow and all four readouts, and every diagram on the page. The same is true of
+the other nine in their own terms. None of it is ours, and the header on each
+file says so.
+
+What is ours is the brand, the words, the figures and the palette, plus the
+accessibility work. That is a real but small part of each page and this file
+exists so nobody has to guess which part.
 
 ## The brief
 
@@ -81,5 +101,7 @@ and most of the library uses those, but the self-hosted subsets cover weights
 them at the local file would silently clamp those weights and flatten every
 heading, which is a worse trade than one request.
 
-Any page that pulls a JavaScript library from a CDN is noted in the table above
-when it is added. None do yet.
+Three of them pull GSAP 3.12.5 and ScrollTrigger from cdnjs: `facet`, `leeward`
+and `relay`. Their scroll animation is built on it and replacing that would not
+be a small change. It means those three need the network, and GSAP's own
+licence is worth checking before anything built on them is shipped publicly.
