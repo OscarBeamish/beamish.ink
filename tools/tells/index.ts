@@ -191,7 +191,11 @@ async function collect(page: Page): Promise<Finding[]> {
         for (const span of h.querySelectorAll<HTMLElement>('span, em, b, strong, i')) {
           if (span.children.length > 0) continue
           const t = (span.textContent || '').trim()
-          if (!t || t.length > 24) continue
+          // Two characters at least, for the same reason the caps rule has that
+          // floor: a headline typed on one letter at a time wraps every
+          // character in its own span, and one of those being a different
+          // colour mid-type is a typing effect rather than an accented word.
+          if (!t || t.length < 2 || t.length > 24) continue
           if (getComputedStyle(span).color === base) continue
           accN++
           if (accSamples.length < 4) accSamples.push(`"${t}"`)
@@ -323,7 +327,9 @@ async function collect(page: Page): Promise<Finding[]> {
       })
 
       let dots = 0
-      for (const el of all) {
+      const dotsEarned: string[] = []
+      for (let i = 0; i < all.length; i++) {
+        const el = all[i]!
         if (el.children.length !== 3) continue
         let ok = true
         for (const kid of el.children) {
@@ -332,9 +338,27 @@ async function collect(page: Page): Promise<Finding[]> {
           if (!c.borderRadius.includes('50%') || r.width < 5 || r.width > 16) ok = false
           if (Math.abs(r.width - r.height) > 2) ok = false
         }
-        if (ok) dots++
+        if (!ok) continue
+        /*
+         * Three small circles in a row are a macOS title bar on a page that has
+         * no window, and they are also a chat's typing indicator, which has
+         * been three dots since 2008. This rule could not tell them apart and
+         * did not look at the claim, so a page saying so in its own markup was
+         * still counted. Every other rule here honours it.
+         */
+        if (claimed[i]) {
+          if (dotsEarned.length < 3) dotsEarned.push(`three dots — ${claims[i]}`)
+          continue
+        }
+        dots++
       }
-      found.push({ key: 'window-dots', what: 'fake window dots', count: dots, samples: [], earned: [] })
+      found.push({
+        key: 'window-dots',
+        what: 'fake window dots',
+        count: dots,
+        samples: [],
+        earned: dotsEarned
+      })
 
       const trusted = /trusted by|loved by|used by [0-9]/i.test(text)
       found.push({

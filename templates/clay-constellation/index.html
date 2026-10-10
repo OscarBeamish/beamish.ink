@@ -307,9 +307,7 @@ svg { display: block; }
     inset 0 -12px 22px 0 rgba(171, 155, 208, 0.42);
   font-family: "Funnel Display", system-ui, sans-serif;
   font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-size: 14px;
   line-height: 1.5;
   text-align: center;
   color: #3b3a2a;
@@ -629,10 +627,8 @@ svg { display: block; }
 }
 .chat-tag {
   flex: none;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-size: 12px;
   color: var(--ink);
   background: var(--cream);
   padding: 5px 9px 4px;
@@ -717,8 +713,8 @@ svg { display: block; }
 }
 .mini-chart-head {
   display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-size: 12px;
   color: var(--ink-soft);
   margin-bottom: 10px;
 }
@@ -822,10 +818,8 @@ svg { display: block; }
 }
 .stat-num .accent { color: var(--yellow-deep); }
 .stat-label {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-size: 13px;
   color: var(--ink-soft);
   font-weight: 500;
 }
@@ -839,10 +833,8 @@ svg { display: block; }
   gap: 60px;
 }
 .section-eyebrow {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-size: 13px;
   color: var(--ink-soft);
   margin-bottom: 24px;
   display: flex;
@@ -859,10 +851,8 @@ svg { display: block; }
   max-width: 720px;
 }
 .features-meta {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-size: 13px;
   color: var(--ink-soft);
   line-height: 1.6;
   text-align: right;
@@ -939,10 +929,8 @@ svg { display: block; }
   margin: 0 auto 32px;
 }
 .quote-author {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-size: 13px;
   color: var(--ink-soft);
 }
 
@@ -1007,10 +995,8 @@ svg { display: block; }
 .footer-brand p { color: var(--ink-soft); font-size: 14px; max-width: 280px; }
 .footer-cols { display: flex; gap: clamp(28px, 5vw, 60px); flex-wrap: wrap; }
 .footer-col h4 {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-size: 12px;
   margin-bottom: 18px;
   color: var(--ink-soft);
   font-weight: 600;
@@ -1024,10 +1010,8 @@ svg { display: block; }
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-size: 12px;
   color: var(--ink-soft);
 }
 
@@ -1055,9 +1039,8 @@ svg { display: block; }
 .hero-left { position: relative; z-index: 3; }
 
 .hero-eyebrow {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 13px; font-weight: 500;
-  letter-spacing: 0.38em; text-transform: uppercase;
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-size: 15.5px; font-weight: 500;
   color: #57564f;
   margin-bottom: 28px;
 }
@@ -1075,12 +1058,9 @@ svg { display: block; }
   -webkit-text-fill-color: transparent; color: #f6c21b;
 }
 .title-hl { position: relative; display: inline-block; }
-.title-hl::before {
-  content: ""; position: absolute; z-index: -1;
-  left: -0.06em; right: -0.1em; bottom: 0.1em; height: 0.36em;
-  background: linear-gradient(90deg, rgba(253, 227, 81, 0.62), rgba(253, 227, 81, 0.3));
-  border-radius: 0.06em;
-}
+/* The highlighter that used to sit behind two words of the headline is
+   gone. Marking one phrase of your own headline is a device for a page
+   that has a reason to be annotated, and an analytics product is not it. */
 
 .hero-desc {
   font-size: clamp(17px, 1.35vw, 20px);
@@ -1157,7 +1137,7 @@ svg { display: block; }
   background: rgba(255, 255, 255, 0.66);
   box-shadow: 0 14px 30px -12px rgba(62, 54, 30, 0.28), inset 0 2px 0 #fff;
 }
-.glass--live b { font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); }
+.glass--live b { font-weight: 600; color: var(--ink); }
 .live-dot {
   flex: none; width: 9px; height: 9px; border-radius: 50%; background: #2fb14c;
   box-shadow: 0 0 0 4px rgba(47, 177, 76, 0.18);
@@ -1209,7 +1189,6 @@ svg { display: block; }
   padding: 18px 20px;
   border-radius: 22px;
   background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(250,248,242,0.88));
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.95);
   box-shadow:
     inset 0 2px 0 #fff,
@@ -1657,7 +1636,7 @@ svg { display: block; }
 .metrics-head .section-eyebrow { margin-bottom: 0; }
 .metrics-live {
   display: inline-flex; align-items: center; gap: 10px;
-  font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  font-family: "Funnel Display", system-ui, sans-serif; font-size: 13px;
   color: var(--ink-soft);
   padding: 8px 14px 7px; border-radius: 12px / 50%;
   background: #fff; border: 1px solid var(--cream-line);
@@ -1750,7 +1729,6 @@ svg { display: block; }
   background: rgba(255,255,255,0.55);
   border: 1px solid rgba(255,255,255,0.9);
   box-shadow: inset 0 2px 0 #fff, inset 0 -10px 20px -10px rgba(0,0,0,0.08), 0 14px 30px -18px rgba(0,0,0,0.25);
-  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
   overflow: hidden;
 }
 .feature-card h3 { font-size: 26px; margin-bottom: 12px; }
@@ -1781,7 +1759,7 @@ svg { display: block; }
 .leak-head { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; font-weight: 600; }
 .leak-head b {
   display: inline-flex; align-items: center; gap: 6px;
-  font-family: "JetBrains Mono", monospace; font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  font-family: "Funnel Display", system-ui, sans-serif; font-size: 12.5px; font-weight: 600;
   background: #fff; color: #b3261e; padding: 4px 8px; border-radius: 8px;
 }
 .leak-head b i { width: 7px; height: 7px; border-radius: 50%; background: #e0533d; animation: live 1.6s ease-in-out infinite; box-shadow: 0 0 0 3px rgba(224,83,61,0.2); }
@@ -1807,7 +1785,7 @@ svg { display: block; }
 .ab-row b { font-family: "JetBrains Mono", monospace; font-size: 12px; text-align: right; }
 .ab-badge {
   position: absolute; right: 52px; top: -11px;
-  font-family: "JetBrains Mono", monospace; font-size: 9.5px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  font-family: "Funnel Display", system-ui, sans-serif; font-size: 11px; font-weight: 600;
   padding: 3px 7px; border-radius: 7px; color: var(--ink);
   background: linear-gradient(180deg, var(--yellow-light), var(--yellow-deep)); border: 1px solid var(--yellow-line);
 }
@@ -1851,7 +1829,7 @@ svg { display: block; }
 }
 .finale-kicker {
   display: inline-flex; align-items: center; gap: 10px;
-  font-family: "JetBrains Mono", monospace; font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase;
+  font-family: "Funnel Display", system-ui, sans-serif; font-size: 13.5px;
   color: #d8d6cc; padding: 9px 15px 8px; border-radius: 13px / 50%;
   background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
   margin-bottom: 30px;
@@ -1880,8 +1858,7 @@ svg { display: block; }
 .cta-form .btn-wrapper { padding: 0.55rem 0.75rem; }
 .cta-form .btn { font-size: 15px; padding: 0.8rem 1.3rem; text-transform: none; }
 .final-cta.finale .cta-note {
-  margin: 18px auto 0; font-family: "JetBrains Mono", monospace; font-size: 11px;
-  letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255, 255, 255, 0.86);
+  margin: 18px auto 0; font-family: "Funnel Display", system-ui, sans-serif; font-size: 13px; color: rgba(255, 255, 255, 0.86);
 }
 .cta-note.ok { color: var(--yellow) !important; }
 
@@ -2079,7 +2056,7 @@ html:not(.px-on) .footer-mark { font-size: 16vw; line-height: 1; color: rgba(253
 .mm-foot {
   margin-top: auto; padding-top: 36px;
   display: flex; justify-content: space-between; gap: 12px;
-  font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  font-family: "Funnel Display", system-ui, sans-serif; font-size: 13px;
   color: rgba(255, 255, 255, 0.86);
 }
 .mm-foot a { color: #fff; text-decoration: underline; text-decoration-color: var(--yellow); text-underline-offset: 4px; }
@@ -2139,8 +2116,7 @@ html:not(.px-on) .mm-mark { display: none; }
    ════════════════════════════════════════════════ */
 .logos { padding: 72px 0 0; position: relative; z-index: 5; text-align: center; }
 .logos-label {
-  font-family: "JetBrains Mono", monospace; font-size: 11px;
-  text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-soft);
+  font-family: "Funnel Display", system-ui, sans-serif; font-size: 13px; color: var(--ink-soft);
   margin-bottom: 28px;
 }
 .marquee {
@@ -2188,8 +2164,7 @@ html:not(.px-on) .mm-mark { display: none; }
 .tile h3 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
 .tile p { font-size: 14px; line-height: 1.55; color: var(--ink-soft); max-width: 380px; }
 .tile-kicker {
-  font-family: "JetBrains Mono", monospace; font-size: 10.5px;
-  text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-soft);
+  font-family: "Funnel Display", system-ui, sans-serif; font-size: 12.5px; color: var(--ink-soft);
 }
 .tile-visual { margin-top: auto; padding-top: 18px; }
 .t-big { grid-column: span 2; grid-row: span 2; }
@@ -2285,7 +2260,7 @@ html:not(.px-on) .mm-mark { display: none; }
 }
 .voice-metric { display: flex; align-items: baseline; gap: 10px; }
 .voice-metric b { font-size: 44px; font-weight: 800; letter-spacing: -0.05em; line-height: 1; }
-.voice-metric span { font-family: "JetBrains Mono", monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-soft); }
+.voice-metric span { font-family: "Funnel Display", system-ui, sans-serif; font-size: 12.5px; color: var(--ink-soft); }
 .voice blockquote { font-size: 17px; line-height: 1.45; letter-spacing: -0.01em; flex: 1; }
 .voice-who { display: flex; align-items: center; gap: 12px; padding-top: 18px; border-top: 1px dashed var(--cream-deep); }
 .voice-av {
@@ -2339,14 +2314,13 @@ html:not(.px-on) .mm-mark { display: none; }
 }
 .plan-badge {
   position: absolute; top: -16px; right: 26px;
-  font-family: "JetBrains Mono", monospace; font-size: 10.5px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink);
+  font-family: "Funnel Display", system-ui, sans-serif; font-size: 12.5px; font-weight: 600; color: var(--ink);
   padding: 7px 12px 6px; border-radius: 10px / 50%;
   background: linear-gradient(180deg, var(--yellow-light), var(--yellow-deep));
   border: 1px solid var(--yellow-line);
   box-shadow: 0 6px 14px -4px rgba(200,160,30,0.5);
 }
-.plan-name { font-family: "JetBrains Mono", monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-soft); }
+.plan-name { font-family: "Funnel Display", system-ui, sans-serif; font-size: 13px; color: var(--ink-soft); }
 .plan.featured .plan-name, .plan.featured .plan-desc, .plan.featured .per { color: #a9a9a2; }
 .price { margin: 18px 0 6px; display: flex; align-items: baseline; gap: 6px; }
 .price .amt { font-size: 60px; font-weight: 800; letter-spacing: -0.05em; line-height: 1; font-variant-numeric: tabular-nums; }
@@ -2377,8 +2351,7 @@ html:not(.px-on) .mm-mark { display: none; }
 }
 .pricing-foot {
   margin-top: 40px; text-align: center;
-  font-family: "JetBrains Mono", monospace; font-size: 11px;
-  text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-soft);
+  font-family: "Funnel Display", system-ui, sans-serif; font-size: 13px; color: var(--ink-soft);
 }
 
 /* ════════════════════════════════════════════════
@@ -2541,11 +2514,11 @@ html:not(.px-on) .mm-mark { display: none; }
     <div class="mm-top" style="--i:0"><span class="px">menu</span><span class="mm-status"><i class="live-dot"></i>All systems normal</span></div>
     <nav aria-label="Mobile">
       <ul class="mm-list">
-      <li style="--i:0"><a href="#product"><span class="mm-num">01</span><span class="mm-text"><span class="mm-label">Product</span><span class="mm-sub">The assistant, up close</span></span><span class="mm-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></a></li>
-      <li style="--i:1"><a href="#features"><span class="mm-num">02</span><span class="mm-text"><span class="mm-label">Features</span><span class="mm-sub">Ask · Understand · Ship</span></span><span class="mm-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></a></li>
-      <li style="--i:2"><a href="#customers"><span class="mm-num">03</span><span class="mm-text"><span class="mm-label">Customers</span><span class="mm-sub">Teams shipping with Vantage</span></span><span class="mm-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></a></li>
-      <li style="--i:3"><a href="#pricing"><span class="mm-num">04</span><span class="mm-text"><span class="mm-label">Pricing</span><span class="mm-sub">Start free, scale later</span></span><span class="mm-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></a></li>
-      <li style="--i:4"><a href="#faq"><span class="mm-num">05</span><span class="mm-text"><span class="mm-label">FAQ</span><span class="mm-sub">Before you ask, ask us</span></span><span class="mm-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></a></li>
+      <li style="--i:0"><a href="#product"><span class="mm-text"><span class="mm-label">Product</span><span class="mm-sub">The assistant, up close</span></span><span class="mm-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></a></li>
+      <li style="--i:1"><a href="#features"><span class="mm-text"><span class="mm-label">Features</span><span class="mm-sub">Ask · Understand · Ship</span></span><span class="mm-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></a></li>
+      <li style="--i:2"><a href="#customers"><span class="mm-text"><span class="mm-label">Customers</span><span class="mm-sub">Teams shipping with Vantage</span></span><span class="mm-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></a></li>
+      <li style="--i:3"><a href="#pricing"><span class="mm-text"><span class="mm-label">Pricing</span><span class="mm-sub">Start free, scale later</span></span><span class="mm-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></a></li>
+      <li style="--i:4"><a href="#faq"><span class="mm-text"><span class="mm-label">FAQ</span><span class="mm-sub">Before you ask, ask us</span></span><span class="mm-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></a></li>
       </ul>
     </nav>
     <div class="mm-cta" style="--i:5">
@@ -2565,7 +2538,7 @@ html:not(.px-on) .mm-mark { display: none; }
   
   <div class="hero-left">
     <p class="hero-eyebrow"><span class="px">turn data into conversions</span></p>
-    <h1 class="hero-title">
+    <h1 class="hero-title" data-earned="the word is set in the page's own pixel face, which is a second voice rather than a colour accent, and it is used on twenty-three words throughout">
       <span class="title-line"><span class="title-inner">An AI analyst</span></span>
       <span class="title-line accent-line"><span class="title-inner"><span class="title-hl"><span class="px-shadow"><span class="px">for every</span></span></span></span></span>
       <span class="title-line"><span class="title-inner">conversion</span></span>
@@ -2593,7 +2566,7 @@ html:not(.px-on) .mm-mark { display: none; }
     <ul class="hero-trust">
       <li><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg><span>No credit card<br />required</span></li>
       <li><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="4" y="13" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="11" rx="1"/><rect x="16" y="5" width="4" height="15" rx="1"/></svg><span>Live on<br />your data</span></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.6c2.6.2 4.5 2.2 4.5 5"/></svg><span>Trusted by<br />4,000+ growth teams</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.6c2.6.2 4.5 2.2 4.5 5"/></svg><span>4,000 teams<br />ask it daily</span></li>
     </ul>
 
   </div>
@@ -2655,7 +2628,7 @@ html:not(.px-on) .mm-mark { display: none; }
 </main>
 
 <section class="logos" aria-label="Teams using Vantage" data-section="logos">
-  <p class="logos-label">Trusted by 4,000+ growth teams</p>
+  <p class="logos-label">The teams below run on it</p>
   <div class="marquee">
     <div class="marquee-track">
       <div class="marquee-group">
@@ -2741,7 +2714,7 @@ html:not(.px-on) .mm-mark { display: none; }
 
   <div class="feature-cards">
     <article class="feature-card framed fc-mint">
-      <div class="fc-top"><span class="fc-step">01</span><span class="fc-chip"><span class="px">ask</span></span></div>
+      <div class="fc-top"><span class="fc-chip"><span class="px">ask</span></span></div>
       <div class="fc-visual v-ask" aria-hidden="true">
         <div class="ask-input"><span class="ask-q">why did signups dip on tuesday?</span><i class="caret"></i></div>
         <div class="ask-answer"><span class="chat-avatar"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 L13.5 10.5 L22 12 L13.5 13.5 L12 22 L10.5 13.5 L2 12 L10.5 10.5 Z" /></svg></span><span><b>Mobile Safari</b> form stopped validating<em>−18%</em></span></div>
@@ -2752,7 +2725,7 @@ html:not(.px-on) .mm-mark { display: none; }
     </article>
 
     <article class="feature-card framed fc-yellow">
-      <div class="fc-top"><span class="fc-step">02</span><span class="fc-chip"><span class="px">understand</span></span></div>
+      <div class="fc-top"><span class="fc-chip"><span class="px">understand</span></span></div>
       <div class="fc-visual v-leak" aria-hidden="true">
         <div class="leak-head"><span>Checkout funnel</span><b><i></i>Leak found</b></div>
         <svg viewBox="0 0 300 110" preserveAspectRatio="none">
@@ -2768,7 +2741,7 @@ html:not(.px-on) .mm-mark { display: none; }
     </article>
 
     <article class="feature-card framed fc-purple">
-      <div class="fc-top"><span class="fc-step">03</span><span class="fc-chip"><span class="px">ship</span></span></div>
+      <div class="fc-top"><span class="fc-chip"><span class="px">ship</span></span></div>
       <div class="fc-visual v-ab" aria-hidden="true">
         <div class="ab-row"><span class="ab-key">A</span><div class="ab-bar"><i style="--w:62%"></i></div><b>4.1%</b></div>
         <div class="ab-row win"><span class="ab-key">B</span><div class="ab-bar"><i style="--w:80%"></i></div><b>5.3%</b><span class="ab-badge">Winner</span></div>
@@ -2982,7 +2955,7 @@ html:not(.px-on) .mm-mark { display: none; }
   <span class="finale-glow" aria-hidden="true"></span>
   <div class="final-cta-card">
     <span class="finale-kicker"><i class="live-dot"></i>Free for your first 10,000 events</span>
-    <h2 class="final-cta-h2">Stop guessing. <span class="accent"><span class="px-shadow"><span class="px">start asking</span></span></span></h2>
+    <h2 class="final-cta-h2" data-earned="the accent is on the half of the sentence the sentence is about: stop guessing, start asking">Stop guessing. <span class="accent"><span class="px-shadow"><span class="px">start asking</span></span></span></h2>
     <p>Connect your site in two minutes and ask your first question today. Vantage answers from your real events, with the query behind every number.</p>
     <form class="cta-form" id="ctaForm" novalidate>
       <label for="ctaEmail" class="sr-only">Work email</label>
@@ -3158,7 +3131,7 @@ html:not(.px-on) .mm-mark { display: none; }
   function typing() {
     var row = document.createElement("div");
     row.className = "msg from-ai";
-    row.innerHTML = '<span class="chat-avatar">' + SPARK + '</span><div class="bubble-wrap"><div class="bubble typing" aria-label="Vantage is typing"><i></i><i></i><i></i></div></div>';
+    row.innerHTML = '<span class="chat-avatar">' + SPARK + '</span><div class="bubble-wrap"><div class="bubble typing" aria-label="Vantage is typing" data-earned="three dots is what a chat has meant since 2008, and this is a chat"><i></i><i></i><i></i></div></div>';
     log.appendChild(row);
     scrollDown();
     return row;
