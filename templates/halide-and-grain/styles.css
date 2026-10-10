@@ -1,83 +1,115 @@
 /*
  * Halide & Grain, the page's own stylesheet.
  *
- * This is the part that is not the library, and on this page it is most of the
- * character. The grids place the bands and the items supply the motion; the
- * contact sheet is built here, out of gradients and counters and one ring of
- * grease pencil.
+ * THE FRAME IS THE DESIGN SYSTEM. It is built first, in full, and every
+ * surface after it is a variant rather than a new thing. That is the whole
+ * reason the page holds together, and it is what the earlier version of this
+ * file got wrong: it had frames in one section and ordinary boxes everywhere
+ * else, so there was nothing for the page to be consistent with.
  *
- * Worth saying plainly, because the first two templates in this collection got
- * it wrong: a page assembled from library items and nothing else is quiet by
- * construction. Every ambient item in Beamish is required to survive being
- * ignored, so a template that leans on them for its interest inherits their
- * restraint and reads as a wireframe. The page has to bring an idea of its
- * own. Here it is a contact sheet, and it is carried five ways: the sprockets,
- * the rebate, the frame numbers, the grease pencil and the exposure strip.
+ * THE GRIDS DO THE PLACING. There is not one `grid-template-columns` in this
+ * file for a row of frames, because TwelveColumn already has twelve tracks and
+ * MarginaliaColumns already has a measure and a margin. What this file does
+ * instead is retune their tokens per band: the exposure strip sets the gutter
+ * to a hairline so its frames butt together, the roster sets the row gap
+ * tighter than prose wants. Retuning a token is using the grid. Redeclaring
+ * the tracks is replacing it, and then the page has two grids that disagree.
  *
- * No class here uses the `g-` prefix, so the line between the library and the
- * page using it stays visible.
+ * ONE INK, ONE PAPER, ONE ORANGE. Every other tone is color-mix from those
+ * three, so a new shade costs a percentage rather than a hex value and nothing
+ * drifts. There is no fourth colour anywhere in this file.
+ *
+ * WHERE THE TWO SYSTEMS MEET. Library items sit inside the frame's well and
+ * never across its rebate, because an effect drawn over the edge markings
+ * reads as pasted on. The loupe takes the same orange as those markings, and
+ * the grain is behind every frame and inside none.
  */
 
+/* ========================================================================
+   TOKENS
+   ======================================================================== */
+
 :root {
-  /* The bands. */
-  --grid-margin: clamp(1.25rem, 5vw, 6rem);
-  --grid-measure: 112rem;
-  --grid-rule: rgba(28, 26, 22, 0.16);
-
-  /* The roster, on the second grid. */
-  --marg-measure: 34rem;
-  --marg-note: 12rem;
-  --marg-gutter: clamp(1.5rem, 4vw, 3rem);
-  --marg-rule: rgba(28, 26, 22, 0.16);
-
-  --sheet: #f6f4ee;
-  --sheet-deep: #edeae1;
+  /* The three. */
+  --paper: #f3f0e8;
   --ink: #141310;
-  --ink-soft: rgba(20, 19, 16, 0.66);
-  --ink-faint: rgba(20, 19, 16, 0.4);
+  --orange: #d8541f;
 
-  /* The negative. A rebate is never pure black; it is dense, not empty. */
-  --rebate: #17161a;
-  --rebate-ink: #cfc8b8;
-  --grease: #e4572e;
+  /* Everything else, derived. */
+  --paper-lift: color-mix(in srgb, var(--paper) 94%, var(--ink));
+  --paper-sunk: color-mix(in srgb, var(--paper) 88%, var(--ink));
+  --ink-80: color-mix(in srgb, var(--ink) 80%, var(--paper));
+  --ink-62: color-mix(in srgb, var(--ink) 62%, var(--paper));
+  --ink-40: color-mix(in srgb, var(--ink) 40%, var(--paper));
+  --ink-18: color-mix(in srgb, var(--ink) 18%, var(--paper));
+  --ink-10: color-mix(in srgb, var(--ink) 10%, var(--paper));
 
-  /* One sprocket and the gap after it. Everything about the strip is this. */
-  --perf: 13px;
-  --perf-gap: 11px;
-  --perf-radius: 2.5px;
+  /*
+   * The rebate. Dense rather than black, because a developed negative has
+   * silver in it and silver is cold: a true #000 surround reads as a UI panel
+   * and this has to read as film.
+   */
+  --rebate: color-mix(in srgb, var(--ink) 94%, #2b3a4a);
+  --rebate-lift: color-mix(in srgb, var(--rebate) 95%, var(--paper));
+  --rebate-ink: color-mix(in srgb, var(--paper) 72%, var(--rebate));
+  --rebate-quiet: color-mix(in srgb, var(--paper) 62%, var(--rebate));
+  --orange-dim: color-mix(in srgb, var(--orange) 70%, var(--rebate));
+
+  /*
+   * The orange, lifted, for text at nine or ten pixels.
+   *
+   * #d8541f is a 4.6:1 colour on the rebate, which is a pass with nothing
+   * spare, and on the flat well it measures 3.3:1 and is a fail. Both numbers
+   * came off the page, not out of a chart. So the edge markings take this mix
+   * and the orange itself is only used at size, where 3:1 is the threshold and
+   * it has room. The alternative was lightening the whole brand colour to suit
+   * its smallest use, which would have made every large use weaker.
+   */
+  --orange-mark: color-mix(in srgb, var(--orange) 68%, var(--paper));
+
+  /*
+   * The grids' own rules, derived from the same ink rather than guessed.
+   *
+   * These two take. `--label-3`, which the marginalia note reads, does not:
+   * tokens.css sets it under `:root[data-ground='paper']`, which outranks a
+   * plain `:root` here however late it loads. It measured 4.51:1 on this paper,
+   * so it is left to the shared token rather than fought over.
+   */
+  --grid-rule: var(--ink-18);
+  --marg-rule: var(--ink-18);
+
+  /* The frame's measurements, so every variant scales from five numbers. */
+  --rebate-top: 1.6rem;
+  --rebate-side: 0.5rem;
+  --rebate-foot: 0.55rem;
+  --perf: 12px;
+  --perf-gap: 10px;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html {
-  scroll-behavior: auto;
-  /*
-   * The masthead is sticky, so anything jumped to from the nav arrives
-   * underneath it. Clearing its height plus a little air means a section
-   * anchor lands with its heading visible rather than hidden behind the bar.
-   */
-  scroll-padding-top: 4.5rem;
+  scroll-padding-top: 6rem;
 }
 
 body {
   margin: 0;
-  background: var(--sheet);
+  background: var(--paper);
   color: var(--ink);
   font-family: var(--font-mono);
-  font-size: clamp(0.78rem, 1vw, 0.9rem);
+  font-size: clamp(0.78rem, 1vw, 0.88rem);
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
 }
 
 h1,
-h2 {
+h2,
+h3 {
   margin: 0;
   font-family: var(--font-display);
   font-weight: 700;
   letter-spacing: -0.04em;
-  line-height: 0.88;
-}
-
-h2 {
-  font-size: clamp(1.8rem, 5.5vw, 4.5rem);
+  line-height: 0.9;
 }
 
 p {
@@ -90,379 +122,139 @@ img {
   height: auto;
 }
 
-figure {
-  margin: 0;
-}
-
 code {
   font-family: var(--font-mono);
-  color: var(--ink-soft);
+  color: var(--ink-62);
 }
 
-.eyebrow {
-  font-size: 0.64rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
+::selection {
+  background: var(--orange);
+  color: var(--paper);
 }
 
-.note {
-  color: var(--ink-soft);
-}
-
-/* --- chrome --------------------------------------------------------------- */
-
-.masthead {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  display: flex;
-  align-items: baseline;
-  gap: clamp(1rem, 4vw, 3rem);
-  padding: 0.9rem var(--grid-margin);
-  background: color-mix(in srgb, var(--sheet) 90%, transparent);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--grid-rule);
-}
-
-.masthead__mark {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: -0.02em;
-  text-decoration: none;
-  color: var(--ink);
-}
-
-.masthead__nav {
-  display: flex;
-  gap: clamp(0.8rem, 2vw, 1.6rem);
-  margin-inline-start: auto;
-  font-size: 0.66rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.masthead__nav a {
-  color: var(--ink-faint);
-  text-decoration: none;
-  position: relative;
-  transition: color 200ms var(--ease-66, ease);
-}
-
-.masthead__nav a::after {
-  content: '';
-  position: absolute;
-  inset-inline: 0;
-  bottom: -3px;
-  height: 1px;
-  background: var(--grease);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 260ms var(--ease-66, ease);
-}
-
-.masthead__nav a:hover,
-.masthead__nav a:focus-visible {
-  color: var(--ink);
-}
-
-.masthead__nav a:hover::after,
-.masthead__nav a:focus-visible::after {
-  transform: scaleX(1);
-}
-
-/* The film stock, printed along the edge the way it is on the real thing. */
-.masthead__stock {
-  display: none;
-  font-size: 0.58rem;
-  letter-spacing: 0.3em;
-  color: var(--ink-faint);
-}
-
-@media (min-width: 60rem) {
-  .masthead__stock {
-    display: block;
-  }
-}
-
-/* --- the sprocket strip --------------------------------------------------- */
+/* ========================================================================
+   THE FRAME. Build this first; everything else is drawn in its language.
+   ======================================================================== */
 
 /*
- * One rule draws every perforation on the page.
- *
- * A repeating linear gradient gives the rhythm and a radial one would give
- * round holes, but a sprocket is a rounded rectangle, so the hole is a solid
- * block with its corners taken off by the mask rather than a shape in the
- * paint. Drawn rather than placed as an image: it stays crisp at any width,
- * reflows with the band and costs no request.
- */
-.sprockets,
-.sheet__sprockets {
-  height: calc(var(--perf) + 10px);
-  background: var(--rebate);
-  --perf-mask: repeating-linear-gradient(
-    to right,
-    transparent 0,
-    transparent var(--perf-gap),
-    #000 var(--perf-gap),
-    #000 calc(var(--perf-gap) + var(--perf))
-  );
-  position: relative;
-}
-
-.sprockets::before,
-.sheet__sprockets::before {
-  content: '';
-  position: absolute;
-  inset-inline: 0;
-  top: 50%;
-  translate: 0 -50%;
-  height: var(--perf);
-  background: var(--sheet);
-  -webkit-mask-image: var(--perf-mask);
-  mask-image: var(--perf-mask);
-  border-radius: var(--perf-radius);
-}
-
-/* --- a frame -------------------------------------------------------------- */
-
-/*
- * The rebate, which is the whole unit. A frame is the picture plus the black
- * it is held in plus the numbers printed on that black, and taking any of the
- * three away leaves a photograph with a border.
- *
- * counter-reset here and counter-increment on the tiles means the sheet
- * numbers itself. The hero carries its own number through data-frame, because
- * one frame pulled off the strip keeps the number it had on it.
+ * A frame is four things and it is never fewer: the rebate it is cut from, the
+ * well the content sits in, the stock printed along the top edge, and the
+ * number at the left. Drop the markings and it stops being a frame and becomes
+ * a card with a dark border.
  */
 .frame {
   position: relative;
   background: var(--rebate);
-  padding: 1.55rem 0.5rem 0.55rem;
+  padding: var(--rebate-top) var(--rebate-side) var(--rebate-foot);
   color: var(--rebate-ink);
+  isolation: isolate;
 }
 
-/* The frame number, printed on the rebate above the picture. */
+/* The number, in the manufacturer's orange, at the left of the rebate. */
 .frame::before {
   content: attr(data-frame);
   position: absolute;
   top: 0.45rem;
-  left: 0.75rem;
-  font-size: 0.6rem;
-  letter-spacing: 0.18em;
-  color: var(--grease);
+  left: 0.7rem;
+  z-index: 2;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: var(--orange-mark);
+  transition: color 220ms var(--ease);
 }
 
-/* The stock name, printed along the rebate the way the maker prints it. */
+/* The stock, printed along the same edge at the other end. */
 .frame::after {
-  content: 'HALIDE 400';
+  content: attr(data-stock);
   position: absolute;
   top: 0.45rem;
-  right: 0.75rem;
-  font-size: 0.56rem;
-  letter-spacing: 0.26em;
-  color: rgba(207, 200, 184, 0.45);
+  right: 0.7rem;
+  z-index: 2;
+  font-size: 0.54rem;
+  letter-spacing: 0.24em;
+  color: var(--rebate-quiet);
+  transition: color 220ms var(--ease);
 }
 
-/*
- * The shot has a height of its own, and both the picture and anything an item
- * adds are taken out of flow inside it.
- *
- * This is not tidiness. An effect sizes its canvas to its host, and a canvas
- * left in normal flow adds its own height to that host, which makes the host
- * taller, which makes the canvas taller. The hero frame reached seventeen
- * thousand pixels before this rule existed. Give the host a definite height
- * and the loop has nothing to feed on.
- */
-.frame__shot {
+/* The well. Content lives here and never on the rebate. */
+.frame__well {
   position: relative;
-  aspect-ratio: 3 / 2;
   overflow: hidden;
+  background: color-mix(in srgb, var(--rebate) 80%, #000);
 }
 
-.frame__shot img,
-.frame__shot canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+/* A well holding words instead of a picture: no crop, and it can breathe. */
+.frame__well--flat {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  padding: clamp(1rem, 2.4vw, 1.6rem);
+  background: var(--rebate-lift);
+  overflow: visible;
+}
+
+.frame__well img {
   object-fit: cover;
+  transition:
+    scale 900ms var(--ease),
+    filter 500ms var(--ease);
 }
 
-.frame__label,
-.frame__caption {
+/* The foot, under the well, still on the rebate. */
+.frame__foot {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.55rem 0.25rem 0.1rem;
-  font-size: 0.62rem;
+  padding: 0.5rem 0.2rem 0.05rem;
+  font-size: 0.6rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(207, 200, 184, 0.62);
 }
 
-/* --- the hero frame ------------------------------------------------------- */
-
-.band--hero {
-  padding-block: clamp(2.5rem, 7vw, 5rem) 0;
+.frame__by {
+  color: var(--rebate-ink);
 }
 
-.hero-line {
-  margin-block: 0.3em 0;
-  font-size: clamp(2.6rem, 11.5vw, 11rem);
+.frame__note {
+  color: var(--rebate-quiet);
+  text-align: right;
 }
 
-.hero-line__row {
-  display: block;
-}
-
-/*
- * One line outlined rather than filled. On a page whose pictures are this
- * loud the headline has to hold its own without simply being bigger, and an
- * outlined line reads as a held breath between two solid ones.
- */
-.hero-line__row--out {
-  color: transparent;
-  -webkit-text-stroke: 1.5px var(--ink);
-}
-
-@media (min-width: 60rem) {
-  .hero-line__row--out {
-    -webkit-text-stroke-width: 2px;
-    padding-inline-start: 0.12em;
-  }
-}
-
-.frame--hero {
-  margin-top: clamp(1.5rem, 4vw, 3rem);
-  margin-inline: var(--grid-margin);
-  padding: 2rem 0.9rem 0.9rem;
-}
-
-.frame--hero .frame__shot {
-  aspect-ratio: 21 / 9;
-}
-
-.frame--hero::before,
-.frame--hero::after {
-  top: 0.8rem;
-  font-size: 0.66rem;
-}
-
-/* --- the exposure strip --------------------------------------------------- */
-
-.band--exposure {
-  padding-block: 0;
-}
-
-.exposure {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1px;
-  margin: 0;
-  background: var(--grid-rule);
-  border-block: 1px solid var(--grid-rule);
-}
-
-@media (min-width: 48rem) {
-  .exposure {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-.exposure__cell {
-  background: var(--sheet);
-  padding: clamp(1.4rem, 3.5vw, 2.6rem) var(--grid-margin);
-}
-
-.exposure dt {
-  font-size: 0.6rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
-
-.exposure dd {
-  margin: 0.4rem 0 0;
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 5.5vw, 4rem);
-  font-weight: 700;
-  letter-spacing: -0.05em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-/* --- statement ------------------------------------------------------------ */
-
-.band--statement {
-  border-bottom: 1px solid var(--grid-rule);
-}
-
-.running {
-  font-family: var(--font-display);
-  font-size: clamp(1.2rem, 3.2vw, 2.6rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.14;
-  text-wrap: balance;
-}
-
-/* --- the sheet ------------------------------------------------------------ */
-
-.band--work h2 {
-  margin-bottom: 0.6rem;
-}
-
-.sheet {
-  margin-top: clamp(2rem, 5vw, 3.5rem);
-}
-
-.tiles {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
-  gap: 0;
-  background: var(--rebate);
-  counter-reset: frame;
-}
-
-.tile {
-  cursor: pointer;
-  padding-inline: 0.55rem;
-}
-
-/*
- * The grease pencil.
+/* --- state: marked --------------------------------------------------------
  *
- * A picture editor rings the frame to print, in chinagraph, roughly. It is
- * drawn as a ring that is not quite closed and not quite round, which is the
- * difference between a mark somebody made and a border somebody set: a perfect
- * ellipse reads as a UI state, a lopsided one reads as a hand.
+ * The picture editor's grease pencil. Not quite closed and not quite round,
+ * because a perfect ellipse reads as a UI state and a crooked one reads as a
+ * hand. Drawn inside the well, so it never crosses the rebate.
  */
-.tile .frame__shot::after {
-  content: '';
+.frame__mark {
   position: absolute;
   inset: 7%;
-  border: 2px solid var(--grease);
-  border-radius: 48% 52% 51% 49% / 49% 48% 52% 51%;
+  z-index: 1;
+  border: 2px solid var(--orange);
   border-top-color: transparent;
+  border-radius: 48% 52% 51% 49% / 49% 48% 52% 51%;
   rotate: -3deg;
-  opacity: 0;
   scale: 1.06;
-  transition:
-    opacity 180ms var(--ease-66, ease),
-    scale 260ms var(--ease-66, ease);
+  opacity: 0;
   pointer-events: none;
+  transition:
+    opacity 180ms var(--ease),
+    scale 280ms var(--ease);
 }
 
-.tile:hover .frame__shot::after,
-.tile:focus-visible .frame__shot::after {
+.frame.is-marked .frame__mark,
+.frame--tile:hover .frame__mark {
   opacity: 0.92;
   scale: 1;
-  animation: grease-settle 420ms var(--ease-66, ease);
 }
 
-@keyframes grease-settle {
+.frame--tile:hover .frame__mark {
+  animation: grease 420ms var(--ease);
+}
+
+/* Drawn, not faded in: it overshoots and settles the way a hand does. */
+@keyframes grease {
   0% {
     rotate: -7deg;
     scale: 1.1;
@@ -477,132 +269,473 @@ code {
   }
 }
 
-/* The picture lifts a little under the mark, the way a chosen frame does. */
-.tile .frame__shot img {
-  transition: scale 700ms var(--ease-66, ease), filter 400ms var(--ease-66, ease);
+/* --- state: spent ---------------------------------------------------------
+ *
+ * A frame already used. The rebate stays, the content dims, and the number
+ * goes grey because it is no longer a frame anybody will print.
+ */
+.frame.is-spent .frame__well {
+  filter: grayscale(0.4);
+  opacity: 0.62;
 }
 
-.tile:hover .frame__shot img {
-  scale: 1.03;
-  filter: contrast(1.05);
+.frame.is-spent::before,
+.frame.is-spent .person__tag {
+  color: var(--rebate-quiet);
+}
+
+/* --- state: pointed at ---------------------------------------------------- */
+
+.frame--tile,
+.frame--person,
+.frame--step {
+  transition: background-color 300ms var(--ease);
+}
+
+.frame--tile:hover,
+.frame--person:hover,
+.frame--step:hover {
+  background: color-mix(in srgb, var(--rebate) 90%, var(--orange));
+}
+
+.frame--tile:hover::after,
+.frame--person:hover::after,
+.frame--step:hover::after {
+  color: var(--orange-dim);
+}
+
+.frame--tile:hover .frame__well img {
+  scale: 1.035;
+  filter: contrast(1.06);
+}
+
+.frame--tile:active .frame__well img {
+  scale: 1.01;
+}
+
+/* ========================================================================
+   FRAME VARIANTS
+   ======================================================================== */
+
+/* --- the enlargement: one frame off the strip, blown up ------------------- */
+
+.frame--enlarge {
+  margin-top: clamp(1rem, 2vw, 2rem);
+  padding: 2rem 0.9rem 0.9rem;
+}
+
+.frame--enlarge::before,
+.frame--enlarge::after {
+  top: 0.8rem;
+  font-size: 0.64rem;
+}
+
+.frame--enlarge .frame__well {
+  aspect-ratio: 21 / 9;
 }
 
 /*
- * An open tile fills the window, so the 3:2 crop has to give way and the
- * rebate has to grow with it. The item sets this attribute for the length of
- * the gesture.
+ * The library item prints into the well, and both it and the picture are
+ * absolute. That is not tidiness. An effect sizes its canvas to its host, and
+ * a canvas left in normal flow adds its own height to that host, which makes
+ * the canvas taller, which makes the host taller. The hero reached seventeen
+ * thousand pixels before this rule existed.
  */
-.tile[data-open] {
-  padding: 2.2rem 1rem 1rem;
-}
-
-/*
- * Open, the shot stops being a 3:2 crop and takes whatever height the window
- * has left after the rebate. The picture inside is already absolute, so it
- * follows without being told.
- */
-.tile[data-open] .frame__shot {
-  aspect-ratio: auto;
+.frame--enlarge .frame__well > img,
+.frame--enlarge .frame__well > canvas,
+.frame--tile .frame__well > img,
+.frame--tile .frame__well > canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
   height: 100%;
+  object-fit: cover;
 }
 
-.tile[data-open] .frame__shot img {
-  scale: 1;
+.frame--enlarge .frame__foot {
+  font-size: 0.64rem;
 }
 
-.tile[data-open] .frame__shot::after {
-  opacity: 0;
-}
-
-/* --- the roster ----------------------------------------------------------- */
-
-.band--roster {
-  background: var(--sheet-deep);
-  border-block: 1px solid var(--grid-rule);
-}
-
-.band--roster h2 {
-  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
-}
-
-.roster {
-  margin-inline: var(--grid-margin);
-}
-
-.roster p {
-  margin-block: 1rem;
-}
-
-.roster strong {
-  font-weight: 500;
-  color: var(--ink);
-}
-
-/*
- * Each name gets a frame number, continuing the sheet's own count rather than
- * starting a new one. The roster is the back of the contact sheet.
- */
-.roster {
-  counter-reset: person 14;
-}
-
-.roster p {
-  counter-increment: person;
-  position: relative;
-}
-
-@media (min-width: 60rem) {
-  .roster p::before {
-    content: counter(person) 'A';
-    position: absolute;
-    left: -3.4rem;
-    top: 0.2rem;
-    font-size: 0.6rem;
-    letter-spacing: 0.16em;
-    color: var(--grease);
+@media (max-width: 48rem) {
+  .frame--enlarge {
+    padding: 1.7rem 0.6rem 0.6rem;
+  }
+  .frame--enlarge .frame__well {
+    aspect-ratio: 4 / 3;
+  }
+  .frame--enlarge .frame__foot {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .frame--enlarge .frame__note {
+    text-align: left;
   }
 }
 
-/* --- the call ------------------------------------------------------------- */
+/* --- the datum: a frame holding one figure -------------------------------- */
 
-.band--call {
-  padding-block: clamp(3.5rem, 10vw, 8rem);
+.frame--datum {
+  --rebate-top: 1.3rem;
+  padding-bottom: 0.4rem;
 }
 
-.call {
+.frame--datum::before,
+.frame--datum::after {
+  top: 0.35rem;
+  font-size: 0.52rem;
+}
+
+.frame--datum .frame__well--flat {
+  gap: 0.15rem;
+  min-height: 7.5rem;
+  align-content: space-between;
+}
+
+.datum__label {
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--rebate-quiet);
+}
+
+.datum__value {
+  margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(2rem, 7vw, 6rem);
+  font-size: clamp(1.9rem, 4.4vw, 3.2rem);
   font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 0.95;
-  margin-bottom: 1.4rem;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--paper);
 }
 
-/* The one word that is ringed, same pencil as the sheet. */
-.call__mark {
+/* --- the tile: a frame on the sheet -------------------------------------- */
+
+.frame--tile {
+  cursor: pointer;
+}
+
+.frame--tile::before {
+  font-size: 0.56rem;
+}
+
+/*
+ * The well's crop is set here rather than on the picture, because the picture
+ * is absolute and an absolute child cannot give its parent a height.
+ */
+.frame--tile .frame__well {
+  aspect-ratio: 3 / 2;
+}
+
+/*
+ * Open, the well stops being a 3:2 crop and takes the window. The rebate grows
+ * with it rather than being left behind, which is the difference between a
+ * frame under an enlarger and a picture that has jumped out of one.
+ *
+ * ExpandingTiles fixes the tile to the window at inset 0 and reveals it with
+ * clip-path. It marks it with `aria-expanded`, which is also what this hangs
+ * on: a class of our own would be a second source of truth for one fact.
+ */
+.tile[aria-expanded='true'] {
+  display: flex;
+  flex-direction: column;
+  padding: 2.4rem 1.1rem 1.1rem;
+}
+
+.tile[aria-expanded='true'] .frame__well {
+  flex: 1;
+  aspect-ratio: auto;
+}
+
+.tile[aria-expanded='true'] .frame__well img {
+  scale: 1;
+}
+
+/* The pencil mark comes off: the frame is no longer a candidate, it is open. */
+.tile[aria-expanded='true'] .frame__mark {
+  opacity: 0;
+}
+
+.tile[aria-expanded='true']::before,
+.tile[aria-expanded='true']::after {
+  top: 0.9rem;
+  font-size: 0.68rem;
+}
+
+.tile[aria-expanded='true'] .frame__foot {
+  font-size: 0.66rem;
+}
+
+/* --- the person: a frame on its side, words instead of a picture ---------- */
+
+.frame--person {
+  --rebate-top: 1.35rem;
+}
+
+.frame--person::before,
+.frame--person::after {
+  top: 0.38rem;
+}
+
+.frame--person .frame__well--flat {
+  box-sizing: border-box;
+  gap: 0.55rem;
+  height: 100%;
+  align-content: start;
+}
+
+.person__name {
+  font-size: clamp(0.95rem, 1.6vw, 1.2rem);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--paper);
+}
+
+.person__line {
+  color: var(--rebate-ink);
+  font-size: 0.76rem;
+  line-height: 1.6;
+}
+
+.person__tag {
+  margin-top: 0.2rem;
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--orange-mark);
+}
+
+/* --- the step: a numbered frame in a sequence ----------------------------- */
+
+.frame--step {
+  --rebate-top: 1.35rem;
+}
+
+.frame--step::before {
+  font-size: 0.6rem;
+}
+
+.frame--step .frame__well--flat {
+  box-sizing: border-box;
+  gap: 0.6rem;
+  height: 100%;
+  align-content: start;
+}
+
+.step__name {
+  font-size: clamp(1rem, 1.9vw, 1.35rem);
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+  color: var(--paper);
+}
+
+.step__line {
+  color: var(--rebate-ink);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+/*
+ * The long stage gets the wider frame and the bigger type, so the layout says
+ * which stage eats the schedule before the copy gets a chance to.
+ */
+.frame--step-long .step__name {
+  font-size: clamp(1.4rem, 3.2vw, 2.4rem);
+}
+
+.frame--step-long .frame__well--flat {
+  align-content: center;
+}
+
+/* --- the call: one wide frame, marked by default -------------------------- */
+
+.frame--call {
+  --rebate-top: 1.8rem;
+  padding-bottom: 0.9rem;
+}
+
+.frame--call::before,
+.frame--call::after {
+  top: 0.6rem;
+  font-size: 0.62rem;
+}
+
+.frame--call .frame__well--flat {
+  padding: clamp(1.6rem, 4vw, 3rem);
+  gap: 1.2rem;
+}
+
+/* ========================================================================
+   THE LEADER. The masthead is a strip of film leader.
+   ======================================================================== */
+
+.leader {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--rebate);
+}
+
+/*
+ * One rule draws every perforation on the page. A sprocket hole is a rounded
+ * rectangle, so the hole is a solid block with its corners taken off by a
+ * repeating mask rather than a shape in the paint. Drawn rather than placed as
+ * an image: crisp at any width, reflows with the band, costs no request.
+ */
+.leader__perf,
+.sheet__perf {
   position: relative;
-  display: inline-block;
-  color: var(--grease);
+  display: block;
+  height: calc(var(--perf) + 8px);
+  background: var(--rebate);
 }
 
-.call__mark::after {
+.leader__perf::before,
+.sheet__perf::before {
   content: '';
   position: absolute;
-  inset: -16% -7%;
-  border: 2px solid var(--grease);
-  border-radius: 49% 51% 52% 48% / 52% 49% 51% 48%;
-  border-left-color: transparent;
-  rotate: -1.5deg;
-  opacity: 0.85;
+  inset-inline: 0;
+  top: 50%;
+  translate: 0 -50%;
+  height: var(--perf);
+  background: var(--paper);
+  border-radius: 2.5px;
+  -webkit-mask-image: repeating-linear-gradient(
+    to right,
+    transparent 0 var(--perf-gap),
+    #000 var(--perf-gap) calc(var(--perf-gap) + var(--perf))
+  );
+  mask-image: repeating-linear-gradient(
+    to right,
+    transparent 0 var(--perf-gap),
+    #000 var(--perf-gap) calc(var(--perf-gap) + var(--perf))
+  );
 }
 
-/* --- colophon ------------------------------------------------------------- */
+.leader__body {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  max-width: var(--grid-measure);
+  margin-inline: auto;
+  padding: 0.5rem var(--grid-margin);
+}
 
-.band--foot {
+.leader__mark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.98rem;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  color: var(--paper);
+}
+
+.leader__mark-num {
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  color: var(--orange-mark);
+  transition: color 200ms var(--ease);
+}
+
+.leader__mark:hover .leader__mark-num {
+  color: var(--paper);
+}
+
+.leader__nav {
+  display: flex;
+  gap: clamp(0.7rem, 2vw, 1.5rem);
+  margin-inline-start: auto;
+}
+
+.leader__link {
   position: relative;
-  overflow: hidden;
-  border-top: 1px solid var(--grid-rule);
-  padding-bottom: 0;
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  color: var(--rebate-quiet);
+  transition: color 200ms var(--ease);
+}
+
+.leader__link::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: -4px;
+  height: 1px;
+  background: var(--orange);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 260ms var(--ease);
+}
+
+.leader__link:hover,
+.leader__link:focus-visible {
+  color: var(--paper);
+}
+
+.leader__link:hover::after,
+.leader__link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.leader__link:active {
+  color: var(--orange);
+}
+
+.leader__link:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 4px;
+}
+
+.leader__stock {
+  font-size: 0.54rem;
+  letter-spacing: 0.26em;
+  color: var(--rebate-quiet);
+}
+
+@media (max-width: 64rem) {
+  .leader__stock {
+    display: none;
+  }
+}
+
+@media (max-width: 40rem) {
+  .leader__perf {
+    --perf: 9px;
+    --perf-gap: 8px;
+  }
+  .leader__body {
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    padding-block: 0.45rem;
+  }
+  .leader__nav {
+    width: 100%;
+    margin-inline-start: 0;
+    justify-content: space-between;
+    gap: 0.4rem;
+  }
+  .leader__link {
+    font-size: 0.56rem;
+    letter-spacing: 0.08em;
+  }
+}
+
+/* ========================================================================
+   BANDS. The grid sets the tracks; these set its tokens and its tone.
+   ======================================================================== */
+
+.band__head {
+  align-items: end;
+  margin-bottom: clamp(1.4rem, 3vw, 2.4rem);
+  row-gap: 0.6rem;
 }
 
 .band__ground {
@@ -611,94 +744,368 @@ code {
   z-index: 0;
 }
 
-.band--foot .g-band__grid,
-.wordmark {
+.section-title {
+  font-size: clamp(1.8rem, 5.5vw, 4.2rem);
+}
+
+.section-note {
+  align-self: end;
+  color: var(--ink-62);
+  font-size: 0.8rem;
+}
+
+.eyebrow {
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-62);
+}
+
+/* --- hero ---------------------------------------------------------------- */
+
+.band--hero {
+  padding-block: clamp(2rem, 5vw, 4rem) 0;
+}
+
+/*
+ * The three lines are one block of type, so the grid's prose row gap is wrong
+ * between them. They set their own, and nothing else on the page is affected.
+ */
+.band--hero .g-band__grid {
+  row-gap: clamp(0.8rem, 2vw, 1.6rem);
+}
+
+.hero-line {
+  font-size: clamp(2.6rem, 11.5vw, 11rem);
+}
+
+.hero-line__row {
+  display: block;
+}
+
+/*
+ * One line outlined rather than filled. On a page whose pictures are this loud
+ * the headline cannot hold by simply being bigger, and a hollow line reads as
+ * the held breath between two solid ones.
+ */
+.hero-line__row--hollow {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--ink);
+}
+
+@media (min-width: 60rem) {
+  .hero-line__row--hollow {
+    -webkit-text-stroke-width: 2px;
+    padding-inline-start: 0.12em;
+  }
+}
+
+/* --- exposure ------------------------------------------------------------ */
+
+.band--exposure {
+  padding-block: 0;
+}
+
+/*
+ * The gutter goes to a hairline, which is the whole point of the grid's tokens
+ * being tokens: the four frames butt together into one strip of film instead
+ * of floating as four cards, and they still sit on the same twelve tracks as
+ * everything else on the page.
+ */
+.exposure {
+  --grid-gutter: 1px;
+  row-gap: 1px;
+  margin: 0;
+}
+
+@media (max-width: 48rem) {
+  /*
+   * Two across rather than four stacked. A figure is three words and a number,
+   * and four full-width frames of that is a wall.
+   */
+  .exposure .frame--datum {
+    grid-column-end: span 2;
+  }
+  .frame--datum .frame__well--flat {
+    min-height: 5.5rem;
+  }
+}
+
+/* --- statement ----------------------------------------------------------- */
+
+.band--statement {
+  border-block: 1px solid var(--ink-18);
+}
+
+/*
+ * Aligned with the rest of the page, not centred in the window.
+ *
+ * MarginaliaColumns is `width: fit-content; margin-inline: auto` by default,
+ * which is right for a page that is only prose: the measure and its margin sit
+ * together in the middle. Here it measured a left edge of 274px while every
+ * band above and below it started at 72px, and on a page this strict about its
+ * grid that reads as a mistake rather than as a choice. So the block takes the
+ * twelve-column measure and margin, and the tracks stay their own width inside
+ * it: text on the same left edge as everything else, note in the margin beside
+ * it, and the space left over at the right, where a page like this should have
+ * space left over.
+ */
+.band--statement .g-marg {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--grid-measure);
+  margin-inline: auto;
+  padding-inline: var(--grid-margin);
+  justify-content: start;
+}
+
+.statement {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2.8vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.16;
+  text-wrap: balance;
+}
+
+.band--statement .g-note {
+  font-size: 0.74rem;
+  line-height: 1.6;
+}
+
+/* --- the sheet ----------------------------------------------------------- */
+
+.sheet {
+  margin-top: clamp(1.2rem, 3vw, 2rem);
+}
+
+/*
+ * The one set of tracks declared in this file, and it is not a layout grid: it
+ * is the strip. Five frames butted edge to edge with no gutter at all, because
+ * a contact sheet is one piece of film and a twelve-column gutter would cut it
+ * into five.
+ */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+  gap: 0;
+  background: var(--rebate);
+}
+
+@media (max-width: 40rem) {
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .frame--tile .frame__foot {
+    flex-direction: column;
+    gap: 0.05rem;
+    font-size: 0.5rem;
+  }
+  .frame--tile .frame__note {
+    text-align: left;
+  }
+}
+
+/* --- roster -------------------------------------------------------------- */
+
+.band--roster {
+  background: var(--paper-lift);
+  border-block: 1px solid var(--ink-18);
+}
+
+.roster {
+  margin: 0;
+  list-style: none;
+  row-gap: clamp(0.8rem, 2vw, 1.4rem);
+}
+
+/* --- process ------------------------------------------------------------- */
+
+.process {
+  margin: 0;
+  list-style: none;
+  row-gap: clamp(0.8rem, 2vw, 1.4rem);
+}
+
+/* --- the call ------------------------------------------------------------ */
+
+.call {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 6vw, 5rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+  color: var(--paper);
+}
+
+/* The same grease pencil as a marked frame, around one word. */
+.call__ring {
+  position: relative;
+  display: inline-block;
+  color: var(--orange);
+}
+
+.call__ring::after {
+  content: '';
+  position: absolute;
+  inset: -16% -7%;
+  border: 2px solid var(--orange);
+  border-left-color: transparent;
+  border-radius: 49% 51% 52% 48% / 52% 49% 51% 48%;
+  rotate: -1.5deg;
+  opacity: 0.85;
+}
+
+.call__note {
+  max-width: 34rem;
+  color: var(--rebate-ink);
+  font-size: 0.82rem;
+}
+
+/* --- colophon ------------------------------------------------------------ */
+
+.band--foot {
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--ink-18);
+  padding-bottom: 0;
+}
+
+.band--foot > * {
   position: relative;
   z-index: 1;
 }
 
-.band--foot h2 {
-  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+.band--foot .band__ground {
+  z-index: 0;
 }
 
+/*
+ * Every row of the colophon is a frame on its side, butted into a strip like
+ * the exposure data, because it is the same kind of thing: edge printing.
+ */
 .manifest {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
-  gap: 0.35rem 1.5rem;
-  margin: 0 0 2rem;
-  padding: 0;
+  --grid-gutter: 1px;
+  row-gap: 1px;
+  margin: 0 0 clamp(1.5rem, 4vw, 2.5rem);
   list-style: none;
-  font-size: 0.76rem;
+  font-size: 0.74rem;
 }
 
-.manifest li {
+/*
+ * The span is set here and not in entry.ts. The colophon's rows are written
+ * from meta.json at runtime, and that script's job is mounting items, not
+ * knowing how many columns this page happens to have.
+ *
+ * `.g-band__grid.manifest > li` rather than `.manifest > li`, and this is not
+ * padding. TwelveColumn's narrow rule is `.g-band__grid > *:not(.g-keep)`,
+ * which is two classes and therefore outranks one class plus an element
+ * however late this file loads. Written the short way, the span below applied
+ * at desktop and was silently dropped on a phone: the rows measured 350px of a
+ * 390px window instead of half of it, and nothing anywhere reported a problem.
+ * Matching the grid's own weight is what lets this override it.
+ *
+ * And `grid-column: auto / span 3`, not `grid-column-end: span 3`. The grid's
+ * narrow rule is the shorthand `1 / -1`, so overriding only the end leaves
+ * every row still starting at column one, and nine half-width rows stack into
+ * nine rows instead of filling five. The start has to be given back to
+ * auto-placement explicitly.
+ */
+.g-band__grid.manifest > li {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
-  padding-block: 0.4rem;
-  border-bottom: 1px solid var(--grid-rule);
+  grid-column: auto / span 3;
+  padding: 0.55rem 0.7rem;
+  background: var(--rebate);
+  color: var(--rebate-ink);
+  transition: background-color 250ms var(--ease);
+}
+
+.g-band__grid.manifest > li:hover {
+  background: color-mix(in srgb, var(--rebate) 90%, var(--orange));
 }
 
 .manifest a {
-  color: var(--ink);
+  color: var(--paper);
   text-decoration: none;
   border-bottom: 1px solid transparent;
+  transition: border-color 200ms var(--ease);
 }
 
 .manifest a:hover,
 .manifest a:focus-visible {
-  border-bottom-color: var(--grease);
+  border-bottom-color: var(--orange);
+}
+
+.manifest a:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 3px;
 }
 
 .manifest .kind {
-  font-size: 0.6rem;
-  letter-spacing: 0.12em;
+  flex: none;
+  font-size: 0.56rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ink-faint);
+  color: var(--rebate-quiet);
+}
+
+@media (max-width: 48rem) {
+  .g-band__grid.manifest > li {
+    grid-column: auto / span 2;
+  }
 }
 
 .credit {
   font-size: 0.68rem;
+  color: var(--ink-62);
 }
 
 /*
- * The wordmark, set to the width of the page and cropped by it. A name this
- * size stops being a label and becomes the end of the sheet.
+ * The name at the foot, trimmed by the sheet. A contact print is cut to the
+ * paper, and anything past the edge of the paper is simply not there.
  */
 .wordmark {
   margin: clamp(2rem, 6vw, 5rem) 0 0;
+  padding-inline: var(--grid-margin);
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 17.5vw;
   letter-spacing: -0.055em;
   line-height: 0.78;
   white-space: nowrap;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(20, 19, 16, 0.22);
-  padding-inline: var(--grid-margin);
   overflow: hidden;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--ink-18);
 }
 
-/* --- reduced motion ------------------------------------------------------- */
+/* ========================================================================
+   REDUCED MOTION. Each item handles its own; this is the page's.
+   ======================================================================== */
 
-/*
- * The items handle their own. What belongs here is the page's own movement:
- * the grease pencil settling and the lift under a chosen frame.
- */
 @media (prefers-reduced-motion: reduce) {
-  .tile:hover .frame__shot::after,
-  .tile:focus-visible .frame__shot::after {
+  .frame--tile:hover .frame__mark {
     animation: none;
   }
 
-  .tile .frame__shot img,
-  .tile .frame__shot::after,
-  .masthead__nav a::after {
+  .frame__mark,
+  .frame__well img,
+  .frame--tile,
+  .frame--person,
+  .frame--step,
+  .frame::before,
+  .frame::after,
+  .leader__link,
+  .leader__link::after,
+  .leader__mark-num,
+  .g-band__grid.manifest > li,
+  .manifest a {
     transition-duration: 0.01ms;
   }
 
-  .tile:hover .frame__shot img {
+  .frame--tile:hover .frame__well img {
     scale: 1;
   }
 }

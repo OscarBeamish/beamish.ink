@@ -1,8 +1,8 @@
 {
   "name": "Halide & Grain",
   "slug": "halide-and-grain",
-  "description": "An invented photographic agency on paper, where the work opens full bleed and the grids do the rest",
-  "intent": "The grids under load, which neither other template does: two grid systems on one page, a portfolio whose tiles open to fill the window, and only six photographs, so the layout has to carry the weight that a bigger library of pictures would otherwise hide.",
+  "description": "An invented photographic agency where one primitive, the frame of a negative, is every surface on the page",
+  "intent": "One primitive carrying a whole page. The frame of a negative, with its rebate, its edge printing and its four states, is the masthead, the hero, every figure, every tile, every photographer, every step and every row of the colophon, so there is nothing on the page for the design to be inconsistent with. Underneath it, two grid systems doing the placing: a page this strict about its surfaces is also the page where a grid that drifts is most obvious.",
   "ground": "paper",
   "uses": [
     {

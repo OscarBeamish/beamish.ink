@@ -1,6 +1,6 @@
 You are building **Halide & Grain** from Beamish into this project.
 
-> An invented photographic agency on paper, where the work opens full bleed and the grids do the rest. A whole page, MIT.
+> An invented photographic agency where one primitive, the frame of a negative, is every surface on the page. A whole page, MIT.
 > https://beamish.ink/templates/halide-and-grain
 
 This is a page, not a component. It is one HTML file, one stylesheet and one
