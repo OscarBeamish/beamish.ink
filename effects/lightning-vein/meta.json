@@ -1,0 +1,188 @@
+{
+  "name": "LightningVein",
+  "slug": "lightning-vein",
+  "tier": 1,
+  "description": "A discharge branching across a dark sky, built by recursive displacement and deliberately flashing far slower than the real thing",
+  "category": "backdrops",
+  "ground": "dark",
+  "tags": [
+    "canvas",
+    "backdrop",
+    "lightning",
+    "storm",
+    "dark",
+    "ambient",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "Canvas 2D rather than a shader, because the subject is a path. A branching polyline is a handful of line segments to a canvas and a signed distance field to a fragment shader, which would be hundreds of distance tests per pixel for a shape that is mostly empty space",
+      "The path is built by recursive midpoint displacement: one segment, push the midpoint along its normal, repeat on both halves with half the push. That gives kinks at every scale, which is what a discharge looks like. A wobble applied per step has detail at one scale only and reads as a scribble",
+      "The push is along the segment normal rather than along x. Pushing along x gives a bolt that is only ever ragged left and right, which reads as a flag rather than as electricity",
+      "Branches leave the channel and never rejoin it. They start below the head, because a branch off the very top has nothing above it to have come from",
+      "Flashing is bounded on purpose and this is the one number not to raise. WCAG 2.3.1 is Level A and wants nothing flashing more than three times a second; real lightning flickers far faster. A strike here brightens at most twice and the next is a `period` away, which at the default is two brightenings in nine seconds",
+      "Nothing is random at render time. The strike index comes from `t` by division, the bolt is built from a generator seeded on that index, and the same `t` always gives the same bolt. That is what lets the recorder seek and what closes the loop",
+      "The glow is three strokes of increasing width rather than shadowBlur. shadowBlur on a path of a thousand points is the slowest thing a canvas can be asked to do, and the falloff is indistinguishable",
+      "Built for a dark ground and declared as one. A discharge is light, and on a pale ground there is nothing for it to be brighter than"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.5,
+    "contexts": 0,
+    "notes": [
+      "The path is built once per strike and kept, not rebuilt per frame. Six passes over a growing array is a few thousand points of arithmetic for a shape that does not change while the strike burns",
+      "Most frames draw nothing at all. Between strikes the envelope is under a thousandth and the renderer returns after clearing, so the resting cost of this backdrop is one fill",
+      "Zero WebGL contexts, which is the quiet advantage of doing this in 2D. The one context budget is for the page as a whole, and a storm behind your content does not spend any of it, so a WebGL item elsewhere on the page is unaffected"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/lightning-vein/core.ts",
+      "to": "src/beamish/effects/lightning-vein/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/lightning-vein/adapters/react.tsx",
+      "to": "src/beamish/effects/lightning-vein/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/lightning-vein/adapters/vue.ts",
+      "to": "src/beamish/effects/lightning-vein/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    },
+    {
+      "from": "shared/ground.ts",
+      "to": "src/beamish/shared/ground.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "sky": {
+      "type": "color",
+      "default": "auto",
+      "description": "The sky behind it. `auto` takes it from the page, which is almost always right: the strike should sit in your page rather than bring its own rectangle of night."
+    },
+    "bolt": {
+      "type": "color",
+      "default": "#eaf2ff",
+      "description": "The channel itself. Near white with a little blue in it reads as hot; pure white reads as a drawn line."
+    },
+    "halo": {
+      "type": "color",
+      "default": "#5d7fd4",
+      "description": "The glow around the channel. Cooler and dimmer than the bolt, because air lit from the side scatters blue."
+    },
+    "period": {
+      "type": "number",
+      "default": 9,
+      "min": 3,
+      "max": 60,
+      "step": 0.5,
+      "unit": "s",
+      "description": "Seconds from one strike to the next. Exactly periodic over this, and the lower bound is held well above anything WCAG 2.3.1 would count.",
+      "good": {
+        "min": 7,
+        "max": 25
+      }
+    },
+    "lean": {
+      "type": "number",
+      "default": 0.22,
+      "min": 0,
+      "max": 0.8,
+      "step": 0.01,
+      "description": "How far the strike wanders off vertical overall, as a share of the width. At 0 it falls straight down and looks drawn.",
+      "good": {
+        "min": 0.12,
+        "max": 0.4
+      }
+    },
+    "jitter": {
+      "type": "number",
+      "default": 0.16,
+      "min": 0.02,
+      "max": 0.5,
+      "step": 0.01,
+      "description": "The first displacement, as a share of the width. Every pass after it is half the one before, so this sets the character of the whole path.",
+      "good": {
+        "min": 0.1,
+        "max": 0.26
+      }
+    },
+    "detail": {
+      "type": "number",
+      "default": 6,
+      "min": 3,
+      "max": 8,
+      "step": 1,
+      "description": "How many times the path is subdivided. Six is sixty-four segments. Above seven the extra kinks are smaller than a pixel and cost without showing.",
+      "good": {
+        "min": 5,
+        "max": 7
+      }
+    },
+    "branches": {
+      "type": "number",
+      "default": 5,
+      "min": 0,
+      "max": 14,
+      "step": 1,
+      "description": "Limbs thrown off the main channel. At 0 it is a single stroke, which reads as a crack rather than a discharge.",
+      "good": {
+        "min": 3,
+        "max": 8
+      }
+    },
+    "weight": {
+      "type": "number",
+      "default": 2.2,
+      "min": 0.6,
+      "max": 6,
+      "step": 0.1,
+      "unit": "px",
+      "description": "Width of the main channel. The glow is drawn from this, so raising it thickens everything rather than only the core.",
+      "good": {
+        "min": 1.4,
+        "max": 3.2
+      }
+    },
+    "afterglow": {
+      "type": "number",
+      "default": 1.4,
+      "min": 0,
+      "max": 4,
+      "step": 0.1,
+      "unit": "s",
+      "description": "How long the channel stays faintly lit once the flash is over. This is most of what makes it read as a discharge rather than as a line that was switched off.",
+      "good": {
+        "min": 0.8,
+        "max": 2.4
+      }
+    },
+    "seed": {
+      "type": "number",
+      "default": 11,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "description": "Changes every bolt in the sequence without changing anything else about them."
+    }
+  },
+  "instruction": "it strikes on its own",
+  "oneShot": false,
+  "record": {
+    "duration": 27,
+    "fps": 24,
+    "posterAt": 0.12,
+    "crf": 34,
+    "webmCrf": 46
+  }
+}
