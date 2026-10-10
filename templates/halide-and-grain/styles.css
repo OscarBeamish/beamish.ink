@@ -49,6 +49,12 @@
 
 html {
   scroll-behavior: auto;
+  /*
+   * The masthead is sticky, so anything jumped to from the nav arrives
+   * underneath it. Clearing its height plus a little air means a section
+   * anchor lands with its heading visible rather than hidden behind the bar.
+   */
+  scroll-padding-top: 4.5rem;
 }
 
 body {
@@ -259,13 +265,28 @@ code {
   color: rgba(207, 200, 184, 0.45);
 }
 
+/*
+ * The shot has a height of its own, and both the picture and anything an item
+ * adds are taken out of flow inside it.
+ *
+ * This is not tidiness. An effect sizes its canvas to its host, and a canvas
+ * left in normal flow adds its own height to that host, which makes the host
+ * taller, which makes the canvas taller. The hero frame reached seventeen
+ * thousand pixels before this rule existed. Give the host a definite height
+ * and the loop has nothing to feed on.
+ */
 .frame__shot {
   position: relative;
+  aspect-ratio: 3 / 2;
   overflow: hidden;
 }
 
-.frame__shot img {
-  aspect-ratio: 3 / 2;
+.frame__shot img,
+.frame__shot canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
@@ -319,7 +340,7 @@ code {
   padding: 2rem 0.9rem 0.9rem;
 }
 
-.frame--hero .frame__shot img {
+.frame--hero .frame__shot {
   aspect-ratio: 21 / 9;
 }
 
@@ -475,10 +496,17 @@ code {
   padding: 2.2rem 1rem 1rem;
 }
 
-.tile[data-open] .frame__shot img {
+/*
+ * Open, the shot stops being a 3:2 crop and takes whatever height the window
+ * has left after the rebate. The picture inside is already absolute, so it
+ * follows without being told.
+ */
+.tile[data-open] .frame__shot {
   aspect-ratio: auto;
   height: 100%;
-  object-fit: cover;
+}
+
+.tile[data-open] .frame__shot img {
   scale: 1;
 }
 
