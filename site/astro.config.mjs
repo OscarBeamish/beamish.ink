@@ -59,6 +59,24 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwind()],
+    /*
+     * React's dev JSX runtime, prebundled explicitly.
+     *
+     * Without this the four tier-2 pages threw "jsxDEV is not a function" on
+     * the dev server and nothing else: the build was clean, the islands
+     * mounted correctly in a preview, and only `pnpm sweep`, which crawls dev,
+     * could see it. It is the usual shape of a Vite dep-optimisation problem.
+     * The react plugin pulls jsx-dev-runtime in through a transform rather
+     * than through an import Vite can see while it scans, so when an
+     * unrelated change makes it re-optimise, the runtime can come back as a
+     * chunk that does not export what the compiled pages are calling.
+     *
+     * Naming them makes them part of the first optimise rather than a
+     * discovery part way through.
+     */
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'react/jsx-dev-runtime']
+    },
     resolve: {
       alias: {
         // The site imports the real item sources rather than a copy, so what is

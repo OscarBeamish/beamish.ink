@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en-GB" data-ground="paper">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SquircleKeycap: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: rgb(var(--background-deep));
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        /* The legend is set in whatever face the host element inherits, which
+           is the right behaviour for something pasted into someone else's
+           page and means this one has to say what it wants. */
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+    -->
+    <div id="stage"></div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      // The presses below are scripted, so this page shows the key working
+      // without anybody touching it and the recorded take has presses in it.
+      // A real press on the element is the same kind of event and works too.
+      const handle = window.Beamish.create(document.getElementById('stage'), {
+        pressPath: [
+          { t: 0.8, x: 0.5, y: 0.5 },
+          { t: 2.1, x: 0.5, y: 0.5 },
+          { t: 2.5, x: 0.5, y: 0.5 },
+          { t: 4.2, x: 0.5, y: 0.5 },
+          { t: 6.0, x: 0.5, y: 0.5 }
+        ]
+      })
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      window.__beamish = handle
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
+    </script>
+  </body>
+</html>

@@ -1,0 +1,175 @@
+{
+  "name": "DepthPointCloud",
+  "slug": "depth-point-cloud",
+  "tier": 1,
+  "description": "A photograph taken apart into points and pushed into depth by its own brightness",
+  "category": "surfaces",
+  "ground": "dark",
+  "tags": [
+    "webgl",
+    "three",
+    "points",
+    "photograph",
+    "depth",
+    "3d",
+    "surfaces",
+    "dark",
+    "ambient"
+  ],
+  "peerDependencies": {
+    "three": ">=0.160.0"
+  },
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "There is no depth map, and the item does not pretend otherwise. It reads luminance and treats it as height, which is wrong about the world and right about photographs: a photographer lights the subject and lets the ground fall away, so in most pictures the bright parts really are nearer. A bright sky or a dark subject breaks it, and `relief` is how much you are willing to claim",
+      "Rec. 709 luminance rather than the average of the channels. The eye is far more sensitive to green than to blue, and an average puts a blue sky and a green field at the same height when nobody sees them that way",
+      "Every point keeps the colour of the pixel it came from, which is what keeps the picture readable as it comes apart. A point cloud in one colour is an abstract, and an abstract is a much weaker thing than a photograph you can still recognise",
+      "The picture is read by drawing it into a small canvas at grid resolution and reading that back, so every cell is a proper average. Picking every nth pixel of the full-size image aliases badly, and a photograph is nothing but detail",
+      "The wander is in the vertex shader. Twenty thousand points moved on the CPU is twenty thousand vectors uploaded every frame; moved on the GPU it is one uniform, and the positions never change",
+      "Each point carries a phase, so the cloud does not travel as a sheet, and the displacement is a sine of whole turns per period, so every point is exactly where it started when the loop comes round",
+      "Point size falls off with distance. Without that the far points are as large as the near ones and the whole thing flattens into a texture, which is the usual way this kind of effect fails",
+      "Points are round, cut from the square the hardware gives you. Square points read as a screen door laid over the picture: the grid becomes the subject",
+      "The cloud turns a little either side of square-on rather than rotating. A point cloud seen edge-on is a line and a photograph seen from behind is nothing, so the useful range is small",
+      "Built for a dark ground and declared as one. The points are the picture's own colours against the fill, and on paper the pale half of the photograph disappears into the page",
+      "The <img> may not have decoded when the effect mounts, so the cloud is built on the first frame where the picture is readable rather than once at setup. A cross-origin image taints the canvas and cannot be read back at all, in which case nothing is drawn",
+      "The phase hash is a sine hash of the two grid coordinates, not the index times a constant. Walking the index through a modulus steps through phases in a regular cycle, and since the index runs along each row that cycle lines up with the grid: the first version drew visible vertical stripes across the whole cloud, which is the grid announcing itself",
+      "The default density is as much about the codec as about the picture. A field of tiny high-contrast dots is the worst case a video encoder can be given: at 240 across, the take came out at 57MB against a 3500kB budget, which is sixteen times over and not a thing crf can rescue. Fewer and slightly larger points compress enormously better and, as the recipe already said, read better at card size, so the coarsening was owed anyway"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.8,
+    "contexts": 1,
+    "notes": [
+      "About twenty-two thousand points at the default density, drawn in one call, with the movement done in the vertex shader so nothing is uploaded per frame",
+      "Measured with `pnpm budget` at 1280 by 720: 0.8ms for a draw and a forced flush, which is the cheapest of the four items added with it. Points are cheap; it is the per-pixel shaders elsewhere that cost",
+      "0.399 mean absolute change per frame on a 0 to 255 scale, worst 0.496, against MetaballField at 0.360 and WaterCaustics at 0.222. A field of small bright dots is the hardest case for that measurement, because any movement at all switches whole pixels between a dot and the background rather than shading them. `drift` and `spin` are the two dials and both were brought down twice before this: at drift 0.035 it measured 1.485, which is past the point where a backdrop is something happening",
+      "Cost is the square of `density`. The default is already past the point where more points stop making the picture more legible"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/depth-point-cloud/core.ts",
+      "to": "src/beamish/effects/depth-point-cloud/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/depth-point-cloud/adapters/react.tsx",
+      "to": "src/beamish/effects/depth-point-cloud/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/depth-point-cloud/adapters/vue.ts",
+      "to": "src/beamish/effects/depth-point-cloud/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "background": {
+      "type": "color",
+      "default": "#0a0b0f",
+      "description": "Behind the cloud. Dark, because the points carry the photograph's own colours and a pale fill swallows the pale half of it."
+    },
+    "relief": {
+      "type": "number",
+      "default": 1.15,
+      "min": 0,
+      "max": 4,
+      "step": 0.05,
+      "sensible": [
+        0.6,
+        1.8
+      ],
+      "description": "How far the brightest points stand off the darkest, in scene units where the picture is two wide. This is the claim the item is making about the photograph, and it is a claim: at 0 it is a flat plane of points, and past about 2.5 the bright areas tear away from everything else."
+    },
+    "density": {
+      "type": "number",
+      "default": 150,
+      "min": 40,
+      "max": 400,
+      "step": 10,
+      "sensible": [
+        110,
+        200
+      ],
+      "description": "Points across the picture. The square of this, near enough, is the point count, so it is the whole cost. Below about 100 the picture stops being recognisable, which is the thing worth keeping."
+    },
+    "size": {
+      "type": "number",
+      "default": 0.026,
+      "min": 0.002,
+      "max": 0.06,
+      "step": 0.001,
+      "sensible": [
+        0.014,
+        0.032
+      ],
+      "description": "Point size in scene units, converted to pixels against the viewport height so it looks the same on a phone and a monitor. Large enough to close the gaps and the cloud becomes a solid sheet; small enough to see between them is the point."
+    },
+    "drift": {
+      "type": "number",
+      "default": 0.008,
+      "min": 0,
+      "max": 0.4,
+      "step": 0.005,
+      "sensible": [
+        0.004,
+        0.03
+      ],
+      "description": "How far points wander from where the picture puts them. Very small: this is a photograph breathing, not a particle system. It is also the main thing that decides how busy the item is, and at 0.035 the whole frame changes faster than a backdrop should. Past about 0.1 the image stops being legible and you have confetti."
+    },
+    "spin": {
+      "type": "number",
+      "default": 7,
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "deg",
+      "sensible": [
+        5,
+        16
+      ],
+      "description": "Degrees the cloud turns either side of square-on. Enough to show the picture has thickness, not enough to lose the picture."
+    },
+    "period": {
+      "type": "number",
+      "default": 40,
+      "min": 8,
+      "max": 120,
+      "step": 1,
+      "unit": "s",
+      "sensible": [
+        24,
+        60
+      ],
+      "description": "Seconds for one cycle of the turn and the wander. Both complete whole turns in it, so the loop has no join."
+    },
+    "wash": {
+      "type": "number",
+      "default": 0.25,
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "description": "How far the points are pulled towards `ink`. At 0 you get the photograph's own colours, which is the most legible. At 1 the picture is one colour and reads as data rather than as a photograph, which is occasionally what you want."
+    },
+    "ink": {
+      "type": "color",
+      "default": "#8fd8ff",
+      "description": "The colour points are pulled towards. Only does anything when `wash` is above 0."
+    }
+  },
+  "instruction": "the cloud turns and breathes on its own",
+  "oneShot": false,
+  "record": {
+    "duration": 40,
+    "fps": 24,
+    "posterAt": 14,
+    "crf": 44,
+    "webmCrf": 62
+  }
+}

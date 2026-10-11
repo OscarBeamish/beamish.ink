@@ -1,0 +1,167 @@
+{
+  "name": "ChromeForm",
+  "slug": "chrome-form",
+  "tier": 1,
+  "description": "A turned metal form rotating in a studio built for it to reflect, with no image files to ship",
+  "category": "backdrops",
+  "ground": "dark",
+  "tags": [
+    "webgl",
+    "three",
+    "metal",
+    "chrome",
+    "reflection",
+    "environment",
+    "3d",
+    "backdrops",
+    "dark",
+    "ambient"
+  ],
+  "peerDependencies": {
+    "three": ">=0.160.0"
+  },
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "Most of this item is the room rather than the object. A mirror has no colour and no shading of its own, so chrome in an empty scene looks like grey plastic: there is nothing for it to be a reflection of",
+      "The environment is painted into a canvas at runtime and used as an equirectangular map, so nothing is shipped: no HDR, no cube faces, no image files at all. A dark surround, a brighter floor and a few soft strip lights, which is what a photographer would put round something shiny",
+      "The strips are what say metal. A gradient alone gives a smooth tonal wash that still reads as plastic; what reads as polished is a hard edge between light and dark sliding across a curve. The horizon step in the surround does the same job round the waist",
+      "Lamps are spaced on an irrational step. Evenly spaced lamps put evenly spaced highlights round the object, and evenly spaced highlights read as a pattern printed on it rather than as a room it is standing in",
+      "Prefiltered through PMREM rather than used raw, because otherwise roughness does nothing but darken: a raw map is sampled at one level however rough the surface claims to be, and the blurred levels are what a rough surface needs",
+      "A lathe, not a torus knot. A knot is what every WebGL demo reaches for and says nothing about anything; a revolved profile is how a metal object of this kind is actually made, it gives the long uninterrupted curves that show a reflection off best, and the profile is three numbers rather than a model file",
+      "ACES tone mapping, which is unusual here and is the one case that needs it. A mirror genuinely produces values above one, and clipping a strip light gives a flat white shape with a hard edge where the roll-off should be",
+      "Geometry and environment are rebuilt only when their inputs change, because update() can be called on every frame by a framework re-render and PMREM has no business running at 60Hz",
+      "Built for a dark ground and declared as one. The room is dark so that the strips read as light; on paper the background would have to be pale, and a pale fill behind a dark-roomed mirror looks like a hole cut in the page"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 1.2,
+    "contexts": 1,
+    "notes": [
+      "One lathe mesh of 128 segments and one prefiltered environment, both rebuilt only when their inputs change. The per-frame work is a single draw of about twelve thousand triangles",
+      "Measured with `pnpm budget` at 1280 by 720: 1.2ms for a draw and a forced flush, against TerrainRelief at 1.80 on the same run",
+      "0.035 mean absolute change per frame on a 0 to 255 scale, worst 0.042, against TerrainRelief at 0.450 and DustMotes at 0.016. One of the quietest items here: a single object turning slowly against a flat fill changes very few pixels, which is what a backdrop wants",
+      "PMREM runs once per change of `studio` or `lamps`, not per frame. Animating either of those at 60Hz would be the one way to make this item expensive"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/chrome-form/core.ts",
+      "to": "src/beamish/effects/chrome-form/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/chrome-form/adapters/react.tsx",
+      "to": "src/beamish/effects/chrome-form/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/chrome-form/adapters/vue.ts",
+      "to": "src/beamish/effects/chrome-form/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "background": {
+      "type": "color",
+      "default": "#0c0d10",
+      "description": "The page behind the object. Nothing reflects it, so it is only a fill, but it wants to be close to the dark end of the room or the object reads as cut out and pasted on."
+    },
+    "tint": {
+      "type": "color",
+      "default": "#eef1f4",
+      "description": "The metal. Near white is chrome; warm it towards #e8c89a for brass and cool it for steel. On a fully metallic surface this multiplies the reflection rather than adding a colour of its own, which is why a saturated one looks like coloured glass instead of metal."
+    },
+    "studio": {
+      "type": "color",
+      "default": "#fff6e8",
+      "description": "The strip lights, and therefore the bright part of every reflection. Slightly warm by default, because a neutral white room makes the metal read as grey."
+    },
+    "roughness": {
+      "type": "number",
+      "default": 0.13,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [
+        0.05,
+        0.35
+      ],
+      "description": "How polished. At 0 it is a mirror with the room sharp in it; by about 0.4 the strips have softened into a sheen and it reads as brushed. Past about 0.6 there is nothing left to reflect and it goes to grey."
+    },
+    "lamps": {
+      "type": "number",
+      "default": 3,
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "sensible": [
+        2,
+        4
+      ],
+      "description": "Strip lights round the room. Two is a photographer's key and fill. More than four and the object has highlights everywhere, which flattens it: the dark between the strips is what gives the form its shape."
+    },
+    "height": {
+      "type": "number",
+      "default": 2.6,
+      "min": 0.6,
+      "max": 5,
+      "step": 0.1,
+      "description": "Height of the form in scene units, where the camera frames about four."
+    },
+    "girth": {
+      "type": "number",
+      "default": 0.78,
+      "min": 0.1,
+      "max": 2,
+      "step": 0.02,
+      "description": "Radius at the widest point."
+    },
+    "waist": {
+      "type": "number",
+      "default": 0.42,
+      "min": 0,
+      "max": 0.9,
+      "step": 0.02,
+      "sensible": [
+        0.2,
+        0.6
+      ],
+      "description": "How far the middle pulls in, as a share of girth. At 0 it is a plain capped barrel. The waist is what gives the reflection somewhere to bend sharply, which is the most metal-looking thing on the object."
+    },
+    "tilt": {
+      "type": "number",
+      "default": 14,
+      "min": -45,
+      "max": 45,
+      "step": 1,
+      "unit": "deg",
+      "description": "Degrees the axis leans. A little off vertical is the difference between an object and a diagram of one."
+    },
+    "period": {
+      "type": "number",
+      "default": 36,
+      "min": 8,
+      "max": 180,
+      "step": 1,
+      "unit": "s",
+      "sensible": [
+        24,
+        60
+      ],
+      "description": "Seconds for one full turn. Exactly one turn, so the loop closes with no join."
+    }
+  },
+  "instruction": "it turns on its own",
+  "oneShot": false,
+  "record": {
+    "duration": 36,
+    "fps": 24,
+    "posterAt": 12
+  }
+}

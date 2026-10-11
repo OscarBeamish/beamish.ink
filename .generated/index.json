@@ -647,6 +647,175 @@
     "intro": "Sundial is a still life. Seven matte forms stand on paper, lit by one sun that\nmakes a complete circuit over the loop. The forms never move. The shadows are the\nsubject: they lengthen, swing round, cross each other, and arrive back exactly\nwhere they started.\n\nIt is a real three.js scene. A perspective camera, seven meshes, standard\nmaterials, a directional light with a shadow map, and a dim bounce light standing\nin for light coming back off the paper. Not a full-bleed shader pretending to be\nthree-dimensional.\n\nThe paper is never lit. It is the scene background, and the ground plane is a\n`ShadowMaterial` that draws nothing but the shadow. A lit plane picks up the sun\nat a grazing angle and lands around 85% of its own colour, which on warm paper is\na warm grey. This way the paper comes out the colour you asked for.\n\nThe forms sit in the middle and the sun keeps the edges clear, so there is room\nfor a headline over the top. That is what it is for."
   },
   {
+    "name": "ChromeForm",
+    "slug": "chrome-form",
+    "tier": 1,
+    "description": "A turned metal form rotating in a studio built for it to reflect, with no image files to ship",
+    "category": "backdrops",
+    "tags": [
+      "webgl",
+      "three",
+      "metal",
+      "chrome",
+      "reflection",
+      "environment",
+      "3d",
+      "backdrops",
+      "dark",
+      "ambient"
+    ],
+    "ground": "dark",
+    "peerDependencies": {
+      "three": ">=0.160.0"
+    },
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "Most of this item is the room rather than the object. A mirror has no colour and no shading of its own, so chrome in an empty scene looks like grey plastic: there is nothing for it to be a reflection of",
+        "The environment is painted into a canvas at runtime and used as an equirectangular map, so nothing is shipped: no HDR, no cube faces, no image files at all. A dark surround, a brighter floor and a few soft strip lights, which is what a photographer would put round something shiny",
+        "The strips are what say metal. A gradient alone gives a smooth tonal wash that still reads as plastic; what reads as polished is a hard edge between light and dark sliding across a curve. The horizon step in the surround does the same job round the waist",
+        "Lamps are spaced on an irrational step. Evenly spaced lamps put evenly spaced highlights round the object, and evenly spaced highlights read as a pattern printed on it rather than as a room it is standing in",
+        "Prefiltered through PMREM rather than used raw, because otherwise roughness does nothing but darken: a raw map is sampled at one level however rough the surface claims to be, and the blurred levels are what a rough surface needs",
+        "A lathe, not a torus knot. A knot is what every WebGL demo reaches for and says nothing about anything; a revolved profile is how a metal object of this kind is actually made, it gives the long uninterrupted curves that show a reflection off best, and the profile is three numbers rather than a model file",
+        "ACES tone mapping, which is unusual here and is the one case that needs it. A mirror genuinely produces values above one, and clipping a strip light gives a flat white shape with a hard edge where the roll-off should be",
+        "Geometry and environment are rebuilt only when their inputs change, because update() can be called on every frame by a framework re-render and PMREM has no business running at 60Hz",
+        "Built for a dark ground and declared as one. The room is dark so that the strips read as light; on paper the background would have to be pale, and a pale fill behind a dark-roomed mirror looks like a hole cut in the page"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 1.2,
+      "contexts": 1,
+      "notes": [
+        "One lathe mesh of 128 segments and one prefiltered environment, both rebuilt only when their inputs change. The per-frame work is a single draw of about twelve thousand triangles",
+        "Measured with `pnpm budget` at 1280 by 720: 1.2ms for a draw and a forced flush, against TerrainRelief at 1.80 on the same run",
+        "0.035 mean absolute change per frame on a 0 to 255 scale, worst 0.042, against TerrainRelief at 0.450 and DustMotes at 0.016. One of the quietest items here: a single object turning slowly against a flat fill changes very few pixels, which is what a backdrop wants",
+        "PMREM runs once per change of `studio` or `lamps`, not per frame. Animating either of those at 60Hz would be the one way to make this item expensive"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/chrome-form/core.ts",
+        "to": "src/beamish/effects/chrome-form/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/chrome-form/adapters/react.tsx",
+        "to": "src/beamish/effects/chrome-form/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/chrome-form/adapters/vue.ts",
+        "to": "src/beamish/effects/chrome-form/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "background": {
+        "type": "color",
+        "default": "#0c0d10",
+        "description": "The page behind the object. Nothing reflects it, so it is only a fill, but it wants to be close to the dark end of the room or the object reads as cut out and pasted on."
+      },
+      "tint": {
+        "type": "color",
+        "default": "#eef1f4",
+        "description": "The metal. Near white is chrome; warm it towards #e8c89a for brass and cool it for steel. On a fully metallic surface this multiplies the reflection rather than adding a colour of its own, which is why a saturated one looks like coloured glass instead of metal."
+      },
+      "studio": {
+        "type": "color",
+        "default": "#fff6e8",
+        "description": "The strip lights, and therefore the bright part of every reflection. Slightly warm by default, because a neutral white room makes the metal read as grey."
+      },
+      "roughness": {
+        "type": "number",
+        "default": 0.13,
+        "description": "How polished. At 0 it is a mirror with the room sharp in it; by about 0.4 the strips have softened into a sheen and it reads as brushed. Past about 0.6 there is nothing left to reflect and it goes to grey.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.05,
+          0.35
+        ]
+      },
+      "lamps": {
+        "type": "number",
+        "default": 3,
+        "description": "Strip lights round the room. Two is a photographer's key and fill. More than four and the object has highlights everywhere, which flattens it: the dark between the strips is what gives the form its shape.",
+        "min": 1,
+        "max": 6,
+        "step": 1,
+        "sensible": [
+          2,
+          4
+        ]
+      },
+      "height": {
+        "type": "number",
+        "default": 2.6,
+        "description": "Height of the form in scene units, where the camera frames about four.",
+        "min": 0.6,
+        "max": 5,
+        "step": 0.1
+      },
+      "girth": {
+        "type": "number",
+        "default": 0.78,
+        "description": "Radius at the widest point.",
+        "min": 0.1,
+        "max": 2,
+        "step": 0.02
+      },
+      "waist": {
+        "type": "number",
+        "default": 0.42,
+        "description": "How far the middle pulls in, as a share of girth. At 0 it is a plain capped barrel. The waist is what gives the reflection somewhere to bend sharply, which is the most metal-looking thing on the object.",
+        "min": 0,
+        "max": 0.9,
+        "step": 0.02,
+        "sensible": [
+          0.2,
+          0.6
+        ]
+      },
+      "tilt": {
+        "type": "number",
+        "default": 14,
+        "description": "Degrees the axis leans. A little off vertical is the difference between an object and a diagram of one.",
+        "min": -45,
+        "max": 45,
+        "step": 1,
+        "unit": "deg"
+      },
+      "period": {
+        "type": "number",
+        "default": 36,
+        "description": "Seconds for one full turn. Exactly one turn, so the loop closes with no join.",
+        "min": 8,
+        "max": 180,
+        "step": 1,
+        "unit": "s",
+        "sensible": [
+          24,
+          60
+        ]
+      }
+    },
+    "instruction": "it turns on its own",
+    "oneShot": false,
+    "record": {
+      "duration": 36,
+      "fps": 24,
+      "posterAt": 12
+    },
+    "group": "effects",
+    "intro": "ChromeForm is a turned metal form, rotating, with a studio built for it to\nreflect.\n\nMost of this item is not the object. It is the room.\n\nA mirror has no colour and no shading of its own: everything you see on a\nchrome object is somewhere else in the room. That is why chrome rendered in an\nempty scene looks like grey plastic, and it is the one thing that goes wrong\nwith this kind of effect. So the environment is painted into a canvas at\nruntime and used as an equirectangular map. Nothing is shipped: no HDR file, no\ncube faces, no images at all."
+  },
+  {
     "name": "CircularText",
     "slug": "circular-text",
     "tier": 1,
@@ -1447,6 +1616,183 @@
     },
     "group": "effects",
     "intro": "DecodeText resolves text out of a run of substitute glyphs, one character at a time.\nIt is the effect on the hover of every studio nav bar, and on a good number of\nthe headlines that win awards for being difficult to read.\n\nIt takes an element that already contains text, splits it into characters, and\nswaps the ones that have not landed yet. There is no canvas, no WebGL and no npm\ndependency.\n\nThree things it does that the version written in an afternoon does not.\n\nIt is pure in `t`. The obvious implementation calls `Math.random()` on a timer\nand mutates as it goes, which cannot be seeked, cannot be recorded, and shows\nsomething different every time anybody looks at it. Here the glyph at each\nposition is a hash of the position, the seed and the frame number, so the same\n`t` always gives the same frame.\n\nThe glyphs change on their own cadence rather than once per display frame. At\n120Hz a per-frame swap is a grey blur with no characters in it; at 30 it reads as\ntext being typed by something in a hurry. Fixing the cadence means the effect\nlooks the same on a 60Hz laptop, on a 144Hz monitor, and in a recording of\neither.\n\nNothing moves. Each character is held in a box the width of the letter it will\nbecome, and the substitutes are chosen from the glyphs that fit that box, so a\nline decoding in the middle of a page neither pushes the page about nor collides\nwith itself while it runs.\n\n`destroy()` puts the original text back. The element is left as it was found."
+  },
+  {
+    "name": "DepthPointCloud",
+    "slug": "depth-point-cloud",
+    "tier": 1,
+    "description": "A photograph taken apart into points and pushed into depth by its own brightness",
+    "category": "surfaces",
+    "tags": [
+      "webgl",
+      "three",
+      "points",
+      "photograph",
+      "depth",
+      "3d",
+      "surfaces",
+      "dark",
+      "ambient"
+    ],
+    "ground": "dark",
+    "peerDependencies": {
+      "three": ">=0.160.0"
+    },
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "There is no depth map, and the item does not pretend otherwise. It reads luminance and treats it as height, which is wrong about the world and right about photographs: a photographer lights the subject and lets the ground fall away, so in most pictures the bright parts really are nearer. A bright sky or a dark subject breaks it, and `relief` is how much you are willing to claim",
+        "Rec. 709 luminance rather than the average of the channels. The eye is far more sensitive to green than to blue, and an average puts a blue sky and a green field at the same height when nobody sees them that way",
+        "Every point keeps the colour of the pixel it came from, which is what keeps the picture readable as it comes apart. A point cloud in one colour is an abstract, and an abstract is a much weaker thing than a photograph you can still recognise",
+        "The picture is read by drawing it into a small canvas at grid resolution and reading that back, so every cell is a proper average. Picking every nth pixel of the full-size image aliases badly, and a photograph is nothing but detail",
+        "The wander is in the vertex shader. Twenty thousand points moved on the CPU is twenty thousand vectors uploaded every frame; moved on the GPU it is one uniform, and the positions never change",
+        "Each point carries a phase, so the cloud does not travel as a sheet, and the displacement is a sine of whole turns per period, so every point is exactly where it started when the loop comes round",
+        "Point size falls off with distance. Without that the far points are as large as the near ones and the whole thing flattens into a texture, which is the usual way this kind of effect fails",
+        "Points are round, cut from the square the hardware gives you. Square points read as a screen door laid over the picture: the grid becomes the subject",
+        "The cloud turns a little either side of square-on rather than rotating. A point cloud seen edge-on is a line and a photograph seen from behind is nothing, so the useful range is small",
+        "Built for a dark ground and declared as one. The points are the picture's own colours against the fill, and on paper the pale half of the photograph disappears into the page",
+        "The <img> may not have decoded when the effect mounts, so the cloud is built on the first frame where the picture is readable rather than once at setup. A cross-origin image taints the canvas and cannot be read back at all, in which case nothing is drawn",
+        "The phase hash is a sine hash of the two grid coordinates, not the index times a constant. Walking the index through a modulus steps through phases in a regular cycle, and since the index runs along each row that cycle lines up with the grid: the first version drew visible vertical stripes across the whole cloud, which is the grid announcing itself",
+        "The default density is as much about the codec as about the picture. A field of tiny high-contrast dots is the worst case a video encoder can be given: at 240 across, the take came out at 57MB against a 3500kB budget, which is sixteen times over and not a thing crf can rescue. Fewer and slightly larger points compress enormously better and, as the recipe already said, read better at card size, so the coarsening was owed anyway"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.8,
+      "contexts": 1,
+      "notes": [
+        "About twenty-two thousand points at the default density, drawn in one call, with the movement done in the vertex shader so nothing is uploaded per frame",
+        "Measured with `pnpm budget` at 1280 by 720: 0.8ms for a draw and a forced flush, which is the cheapest of the four items added with it. Points are cheap; it is the per-pixel shaders elsewhere that cost",
+        "0.399 mean absolute change per frame on a 0 to 255 scale, worst 0.496, against MetaballField at 0.360 and WaterCaustics at 0.222. A field of small bright dots is the hardest case for that measurement, because any movement at all switches whole pixels between a dot and the background rather than shading them. `drift` and `spin` are the two dials and both were brought down twice before this: at drift 0.035 it measured 1.485, which is past the point where a backdrop is something happening",
+        "Cost is the square of `density`. The default is already past the point where more points stop making the picture more legible"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/depth-point-cloud/core.ts",
+        "to": "src/beamish/effects/depth-point-cloud/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/depth-point-cloud/adapters/react.tsx",
+        "to": "src/beamish/effects/depth-point-cloud/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/depth-point-cloud/adapters/vue.ts",
+        "to": "src/beamish/effects/depth-point-cloud/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "background": {
+        "type": "color",
+        "default": "#0a0b0f",
+        "description": "Behind the cloud. Dark, because the points carry the photograph's own colours and a pale fill swallows the pale half of it."
+      },
+      "relief": {
+        "type": "number",
+        "default": 1.15,
+        "description": "How far the brightest points stand off the darkest, in scene units where the picture is two wide. This is the claim the item is making about the photograph, and it is a claim: at 0 it is a flat plane of points, and past about 2.5 the bright areas tear away from everything else.",
+        "min": 0,
+        "max": 4,
+        "step": 0.05,
+        "sensible": [
+          0.6,
+          1.8
+        ]
+      },
+      "density": {
+        "type": "number",
+        "default": 150,
+        "description": "Points across the picture. The square of this, near enough, is the point count, so it is the whole cost. Below about 100 the picture stops being recognisable, which is the thing worth keeping.",
+        "min": 40,
+        "max": 400,
+        "step": 10,
+        "sensible": [
+          110,
+          200
+        ]
+      },
+      "size": {
+        "type": "number",
+        "default": 0.026,
+        "description": "Point size in scene units, converted to pixels against the viewport height so it looks the same on a phone and a monitor. Large enough to close the gaps and the cloud becomes a solid sheet; small enough to see between them is the point.",
+        "min": 0.002,
+        "max": 0.06,
+        "step": 0.001,
+        "sensible": [
+          0.014,
+          0.032
+        ]
+      },
+      "drift": {
+        "type": "number",
+        "default": 0.008,
+        "description": "How far points wander from where the picture puts them. Very small: this is a photograph breathing, not a particle system. It is also the main thing that decides how busy the item is, and at 0.035 the whole frame changes faster than a backdrop should. Past about 0.1 the image stops being legible and you have confetti.",
+        "min": 0,
+        "max": 0.4,
+        "step": 0.005,
+        "sensible": [
+          0.004,
+          0.03
+        ]
+      },
+      "spin": {
+        "type": "number",
+        "default": 7,
+        "description": "Degrees the cloud turns either side of square-on. Enough to show the picture has thickness, not enough to lose the picture.",
+        "min": 0,
+        "max": 60,
+        "step": 1,
+        "unit": "deg",
+        "sensible": [
+          5,
+          16
+        ]
+      },
+      "period": {
+        "type": "number",
+        "default": 40,
+        "description": "Seconds for one cycle of the turn and the wander. Both complete whole turns in it, so the loop has no join.",
+        "min": 8,
+        "max": 120,
+        "step": 1,
+        "unit": "s",
+        "sensible": [
+          24,
+          60
+        ]
+      },
+      "wash": {
+        "type": "number",
+        "default": 0.25,
+        "description": "How far the points are pulled towards `ink`. At 0 you get the photograph's own colours, which is the most legible. At 1 the picture is one colour and reads as data rather than as a photograph, which is occasionally what you want.",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "ink": {
+        "type": "color",
+        "default": "#8fd8ff",
+        "description": "The colour points are pulled towards. Only does anything when `wash` is above 0."
+      }
+    },
+    "instruction": "the cloud turns and breathes on its own",
+    "oneShot": false,
+    "record": {
+      "duration": 40,
+      "fps": 24,
+      "posterAt": 14,
+      "crf": 44,
+      "webmCrf": 62
+    },
+    "group": "effects",
+    "intro": "DepthPointCloud takes a photograph apart into points and pushes it into the\nthird dimension using its own brightness.\n\nThere is no depth map, and the item does not pretend there is. A photograph\ndoes not carry one. This reads luminance and treats it as height, which is\nwrong about the world and right about pictures: a photographer lights the\nsubject and lets the ground fall away, so in most photographs the bright parts\nreally are the near ones. Where that is false, which is a bright sky or a dark\nsubject, it fails interestingly rather than wrongly.\n\n`relief` is how much you are willing to claim.\n\nEvery point keeps the colour of the pixel it came from, and that is the whole\ntrick. A point cloud in a single colour is an abstract; a photograph you can\nstill recognise while it comes apart is a much stronger thing."
   },
   {
     "name": "DustMotes",
@@ -8900,6 +9246,190 @@
     },
     "group": "effects",
     "intro": "A card under a desk lamp, with the cursor as the lamp.\n\nThe usual version of this puts a bright radial glow on a dark card and calls it a\nspotlight. That is a light source sitting on the surface, which is not what a\nlamp does to paper. Paper is matte: it scatters. Move a lamp across a card and\nwhat you see is a broad, low-contrast lift across the face, a hard bright line on\nwhichever edge is turned toward the light, and the far side falling away into\nshade.\n\nAll three are here, and the third one is the one that makes it work. The first\nversion of this lifted the face and nothing else, which is what the physics says\nand what nothing in a light room can actually see: a near-white card lifted a few\npercent is indistinguishable from a near-white card. What you read when something\nis lit is the **gradient** across it, and half of that gradient is the dark half.\n\nThe edge matters too. A glow with no lit edge reads as something emitting light,\nand a card does not emit anything.\n\nNo canvas and no WebGL. One added span whose background and box-shadow are\nrepainted from the pointer position."
+  },
+  {
+    "name": "SquircleKeycap",
+    "slug": "squircle-keycap",
+    "tier": 1,
+    "description": "A key drawn as a superellipse and extruded, which travels when you press it",
+    "category": "surfaces",
+    "tags": [
+      "canvas",
+      "2d",
+      "squircle",
+      "superellipse",
+      "keycap",
+      "button",
+      "surfaces",
+      "paper",
+      "interactive",
+      "no-dependencies"
+    ],
+    "ground": "paper",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "The shape is the point. A border-radius is a rectangle with circular arcs stuck on the corners, and the join between the straight edge and the arc is continuous in position and direction but not in curvature: it jumps from zero to one over the radius, instantly. A superellipse has no join at all, because it is one equation the whole way round",
+        "Walked as a path rather than approximated, so the exponent is a real control: 2 is an ellipse, 4 is the shape everybody means, and by 12 it is a rectangle with a suggestion of a corner. No value of border-radius lands on any of them",
+        "The exponent is applied to the absolute value of the cosine and the sign put back, because a fractional power of a negative number is not a number and the left half of the shape would simply not be drawn",
+        "The travel is a closed form of the time since the press, so renderAtTime is pure in t. A key is state between frames by nature, which is the one thing this library will not have: the resolution is to keep the list of presses rather than the position and work the displacement out from the clock. Seeking backwards unpresses the key, which a spring integrated frame by frame can never do",
+        "An attack and a decay, not a spring. A keycap does not oscillate: it goes down against a stop, fast and ending abruptly, and comes back on a rubber dome, slower and settling without overshoot",
+        "The side is drawn as its own extrusion rather than as a drop shadow, which is the difference between a key and a sticker. It is also what makes the travel legible: the side gets shorter as the key goes down, and that is the part anyone actually reads",
+        "The top is dished rather than domed. A keycap is concave so a fingertip sits in it, and what reports that is a soft dark edge at the top of the face, not a highlight in the middle",
+        "A press anywhere on the element counts rather than only inside the drawn shape. A click two pixels outside the edge is a click the reader believes they made",
+        "2D rather than WebGL. A key is something you want several of on a page, and the budget is one WebGL context",
+        "It is a drawing of a control, not a control. There is no role, no focus and no keyboard handling, because a canvas cannot carry them. Put it behind a real button if it is going to do something"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.5,
+      "contexts": 0,
+      "notes": [
+        "Two filled paths of a hundred and twenty points, a clipped gradient and one glyph"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/squircle-keycap/core.ts",
+        "to": "src/beamish/effects/squircle-keycap/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/squircle-keycap/adapters/react.tsx",
+        "to": "src/beamish/effects/squircle-keycap/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/squircle-keycap/adapters/vue.ts",
+        "to": "src/beamish/effects/squircle-keycap/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "plate": {
+        "type": "color",
+        "default": "#efece3",
+        "description": "The surface the key sits on. Slightly darker than the cap, because a key is lighter than the thing it is set into and that difference is most of what says it stands up."
+      },
+      "cap": {
+        "type": "color",
+        "default": "#fbfaf6",
+        "description": "The top of the key."
+      },
+      "side": {
+        "type": "color",
+        "default": "#d6d1c4",
+        "description": "The sides, which are what makes it a solid rather than a sticker. It wants to be a clear step darker than the cap: this is a facet turned away from the light, not a shadow."
+      },
+      "ink": {
+        "type": "color",
+        "default": "#2b2a26",
+        "description": "The legend, and the contact shadow under the key."
+      },
+      "legend": {
+        "type": "string",
+        "default": "K",
+        "description": "What is printed on the key. One or two characters: it is set at under a third of the key's width, and a word at that size is a label on a key rather than a key."
+      },
+      "corner": {
+        "type": "number",
+        "default": 4.2,
+        "description": "The superellipse exponent. 2 is an ellipse, 4 is the shape everybody means by a squircle, and by 12 it is a rectangle with a hint of a corner. The useful range is narrow and the difference inside it is the whole item.",
+        "min": 2,
+        "max": 16,
+        "step": 0.1,
+        "sensible": [
+          3,
+          6
+        ]
+      },
+      "size": {
+        "type": "number",
+        "default": 0.56,
+        "description": "How much of the shorter side of the element the key takes up.",
+        "min": 0.15,
+        "max": 0.9,
+        "step": 0.01
+      },
+      "depth": {
+        "type": "number",
+        "default": 0.16,
+        "description": "How tall the key stands, as a share of its width. This is the thing the press has to eat into, so a flat key has nowhere to travel and reads as a flicker.",
+        "min": 0.02,
+        "max": 0.4,
+        "step": 0.01,
+        "sensible": [
+          0.1,
+          0.24
+        ]
+      },
+      "travel": {
+        "type": "number",
+        "default": 0.62,
+        "description": "How far down it goes when pressed, as a share of its height. At 1 it bottoms out flush with the plate, which reads as broken rather than as pressed.",
+        "min": 0.1,
+        "max": 1,
+        "step": 0.02,
+        "sensible": [
+          0.5,
+          0.8
+        ]
+      },
+      "snap": {
+        "type": "number",
+        "default": 0.13,
+        "description": "Seconds the key takes to come back up. The way down is fixed and fast, because that is a key hitting a stop; this is the rubber dome, and it is the only half with any character in it.",
+        "min": 0.03,
+        "max": 0.6,
+        "step": 0.01,
+        "sensible": [
+          0.08,
+          0.2
+        ]
+      }
+    },
+    "instruction": "press the key",
+    "oneShot": false,
+    "presses": [
+      {
+        "t": 0.8,
+        "x": 0.5,
+        "y": 0.5
+      },
+      {
+        "t": 2.1,
+        "x": 0.5,
+        "y": 0.5
+      },
+      {
+        "t": 2.5,
+        "x": 0.5,
+        "y": 0.5
+      },
+      {
+        "t": 4.2,
+        "x": 0.5,
+        "y": 0.5
+      },
+      {
+        "t": 6,
+        "x": 0.5,
+        "y": 0.5
+      }
+    ],
+    "record": {
+      "duration": 8,
+      "fps": 30,
+      "posterAt": 2.2
+    },
+    "group": "effects",
+    "intro": "SquircleKeycap is a key you can press: a superellipse, extruded, that travels\nwhen you push it and comes back on a rubber dome."
   },
   {
     "name": "StippleField",

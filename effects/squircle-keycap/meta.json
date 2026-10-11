@@ -1,0 +1,150 @@
+{
+  "name": "SquircleKeycap",
+  "slug": "squircle-keycap",
+  "tier": 1,
+  "description": "A key drawn as a superellipse and extruded, which travels when you press it",
+  "category": "surfaces",
+  "ground": "paper",
+  "tags": [
+    "canvas",
+    "2d",
+    "squircle",
+    "superellipse",
+    "keycap",
+    "button",
+    "surfaces",
+    "paper",
+    "interactive",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "none",
+    "notes": [
+      "The shape is the point. A border-radius is a rectangle with circular arcs stuck on the corners, and the join between the straight edge and the arc is continuous in position and direction but not in curvature: it jumps from zero to one over the radius, instantly. A superellipse has no join at all, because it is one equation the whole way round",
+      "Walked as a path rather than approximated, so the exponent is a real control: 2 is an ellipse, 4 is the shape everybody means, and by 12 it is a rectangle with a suggestion of a corner. No value of border-radius lands on any of them",
+      "The exponent is applied to the absolute value of the cosine and the sign put back, because a fractional power of a negative number is not a number and the left half of the shape would simply not be drawn",
+      "The travel is a closed form of the time since the press, so renderAtTime is pure in t. A key is state between frames by nature, which is the one thing this library will not have: the resolution is to keep the list of presses rather than the position and work the displacement out from the clock. Seeking backwards unpresses the key, which a spring integrated frame by frame can never do",
+      "An attack and a decay, not a spring. A keycap does not oscillate: it goes down against a stop, fast and ending abruptly, and comes back on a rubber dome, slower and settling without overshoot",
+      "The side is drawn as its own extrusion rather than as a drop shadow, which is the difference between a key and a sticker. It is also what makes the travel legible: the side gets shorter as the key goes down, and that is the part anyone actually reads",
+      "The top is dished rather than domed. A keycap is concave so a fingertip sits in it, and what reports that is a soft dark edge at the top of the face, not a highlight in the middle",
+      "A press anywhere on the element counts rather than only inside the drawn shape. A click two pixels outside the edge is a click the reader believes they made",
+      "2D rather than WebGL. A key is something you want several of on a page, and the budget is one WebGL context",
+      "It is a drawing of a control, not a control. There is no role, no focus and no keyboard handling, because a canvas cannot carry them. Put it behind a real button if it is going to do something"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.5,
+    "contexts": 0,
+    "notes": [
+      "Two filled paths of a hundred and twenty points, a clipped gradient and one glyph"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/squircle-keycap/core.ts",
+      "to": "src/beamish/effects/squircle-keycap/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/squircle-keycap/adapters/react.tsx",
+      "to": "src/beamish/effects/squircle-keycap/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/squircle-keycap/adapters/vue.ts",
+      "to": "src/beamish/effects/squircle-keycap/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "plate": {
+      "type": "color",
+      "default": "#efece3",
+      "description": "The surface the key sits on. Slightly darker than the cap, because a key is lighter than the thing it is set into and that difference is most of what says it stands up."
+    },
+    "cap": {
+      "type": "color",
+      "default": "#fbfaf6",
+      "description": "The top of the key."
+    },
+    "side": {
+      "type": "color",
+      "default": "#d6d1c4",
+      "description": "The sides, which are what makes it a solid rather than a sticker. It wants to be a clear step darker than the cap: this is a facet turned away from the light, not a shadow."
+    },
+    "ink": {
+      "type": "color",
+      "default": "#2b2a26",
+      "description": "The legend, and the contact shadow under the key."
+    },
+    "legend": {
+      "type": "string",
+      "default": "K",
+      "description": "What is printed on the key. One or two characters: it is set at under a third of the key's width, and a word at that size is a label on a key rather than a key."
+    },
+    "corner": {
+      "type": "number",
+      "default": 4.2,
+      "min": 2,
+      "max": 16,
+      "step": 0.1,
+      "sensible": [3, 6],
+      "description": "The superellipse exponent. 2 is an ellipse, 4 is the shape everybody means by a squircle, and by 12 it is a rectangle with a hint of a corner. The useful range is narrow and the difference inside it is the whole item."
+    },
+    "size": {
+      "type": "number",
+      "default": 0.56,
+      "min": 0.15,
+      "max": 0.9,
+      "step": 0.01,
+      "description": "How much of the shorter side of the element the key takes up."
+    },
+    "depth": {
+      "type": "number",
+      "default": 0.16,
+      "min": 0.02,
+      "max": 0.4,
+      "step": 0.01,
+      "sensible": [0.1, 0.24],
+      "description": "How tall the key stands, as a share of its width. This is the thing the press has to eat into, so a flat key has nowhere to travel and reads as a flicker."
+    },
+    "travel": {
+      "type": "number",
+      "default": 0.62,
+      "min": 0.1,
+      "max": 1,
+      "step": 0.02,
+      "sensible": [0.5, 0.8],
+      "description": "How far down it goes when pressed, as a share of its height. At 1 it bottoms out flush with the plate, which reads as broken rather than as pressed."
+    },
+    "snap": {
+      "type": "number",
+      "default": 0.13,
+      "min": 0.03,
+      "max": 0.6,
+      "step": 0.01,
+      "sensible": [0.08, 0.2],
+      "description": "Seconds the key takes to come back up. The way down is fixed and fast, because that is a key hitting a stop; this is the rubber dome, and it is the only half with any character in it."
+    }
+  },
+  "instruction": "press the key",
+  "oneShot": false,
+  "presses": [
+    { "t": 0.8, "x": 0.5, "y": 0.5 },
+    { "t": 2.1, "x": 0.5, "y": 0.5 },
+    { "t": 2.5, "x": 0.5, "y": 0.5 },
+    { "t": 4.2, "x": 0.5, "y": 0.5 },
+    { "t": 6.0, "x": 0.5, "y": 0.5 }
+  ],
+  "record": {
+    "duration": 8,
+    "fps": 30,
+    "posterAt": 2.2
+  }
+}

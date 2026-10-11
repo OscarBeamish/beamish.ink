@@ -306,11 +306,22 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'wind-field': () => import('@items/effects/wind-field/core'),
     'water-caustics': () => import('@items/effects/water-caustics/core'),
     'metaball-field': () => import('@items/effects/metaball-field/core'),
+    'chrome-form': () => import('@items/effects/chrome-form/core'),
+    'depth-point-cloud': () => import('@items/effects/depth-point-cloud/core'),
     'ember-rise': () => import('@items/effects/ember-rise/core'),
     'highlighter-mark': () => import('@items/effects/highlighter-mark/core'),
     'iris-reveal': () => import('@items/effects/iris-reveal/core'),
     'panel-gauge': () => import('@items/effects/panel-gauge/core'),
-    tooth: () => import('@items/effects/paper-grain/core'),
+    'squircle-keycap': () => import('@items/effects/squircle-keycap/core'),
+    /*
+     * Keyed by slug, like every other line here, which this one was not.
+     * It said `tooth`, which is what the item was called before it shipped as
+     * PaperGrain, and the lookup is EFFECTS[slug]: the key never matched, so
+     * the panel on /effects/paper-grain mounted nothing and said nothing about
+     * it. Exactly the failure AGENTS.md describes, arrived at by renaming
+     * rather than by forgetting.
+     */
+    'paper-grain': () => import('@items/effects/paper-grain/core'),
     'scroll-marquee': () => import('@items/effects/scroll-marquee/core'),
     'aurora-curtain': () => import('@items/effects/aurora-curtain/core'),
     'prism-spectrum': () => import('@items/effects/prism-spectrum/core'),
@@ -371,6 +382,12 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       '<img class="demo-plate-fill" src="/plates/relight-image/plate.jpg" alt="A grass headland falling away to the sea, with fog lying along the cliff" />',
     'ascii-image':
       '<img class="demo-plate-fill" src="/plates/ascii-image/plate.jpg" alt="A grass headland falling away to the sea, with fog lying along the cliff" />',
+    /*
+     * DepthPointCloud reads the picture and never shows it, like AsciiImage.
+     * The <img> is the input, so it is in the markup and hidden by the item.
+     */
+    'depth-point-cloud':
+      '<img class="demo-plate-fill" src="/plates/depth-point-cloud/plate.jpg" alt="A grass headland falling away to the sea, with fog lying along the cliff" />',
     /*
      * The glass is drawn by the canvas; the plate on it is real markup above.
      * WebGL cannot hold text that can be focused, selected, translated or read
@@ -589,6 +606,9 @@ const tweakable = tier === 1 ? Object.entries(options) : []
      * showed a photograph, which is exactly what the item exists not to do.
      */
     'ascii-image',
+    /* Same shape as AsciiImage: the <img> is what it samples, not the thing on
+       show, so it mounts on the stage and must not be centred as content. */
+    'depth-point-cloud',
     'scroll-slideshow',
     'scroll-warp-image',
     'halftone-reveal',
