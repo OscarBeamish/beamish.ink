@@ -98,9 +98,10 @@ const notes = [
   'The status code is the item. A page that looks like an error and answers 200 is a soft 404, and the crawler is told the address is fine: the dead link stays in the index and keeps being served to people. This site did exactly that until this file existed, because a static host with no 404.html falls back to the homepage',
   'An illustration with a clever line and no exits is decoration rather than a page. The links here are the item and the rest is packaging, which is the right way round and the opposite of how these are usually built',
   'It says whether the address ever existed, where it can tell. A changelog and a redirect table already know; the 404 is simply the place that knowledge finally gets read',
-  'Nothing moves. Every other item here earns its motion, and this is the one page where the reader is in a hurry and did not choose to be',
+  'It moves once, on arrival, and then stops. Every other item here earns its motion over a period; this one has a single thing to say and says it, because the reader is in a hurry and did not choose to be here',
+  'The movement is the correction rather than a flourish. Where the address nearly matches something real, DecodeText resolves the one you typed into the one you meant and that becomes the link, so the apology and the fix are the same gesture. Where nothing is close it resolves back into what you typed, which is the honest answer and still tells you the page tried',
   'It works with no JavaScript, because a failing deploy is a common reason to be here at all. The nearest matches need script; the three walls do not',
-  'No canvas, no context, no loop. The only item in this catalogue whose frame budget is a fact rather than a measurement'
+  'No canvas and no context. The cost is one short run of DecodeText, which is 0.4ms on its own page and happens once, so the only honest way to write the frame budget is the one it is written as'
 ]
 ---
 
@@ -136,7 +137,7 @@ const notes = [
                 cascade against whatever sets the page's text alignment. An
                 inline declaration is the one thing that cannot lose. */}
             <div style="text-align: center">
-              <p class="text-l3 text-[0.7rem] tracking-[0.1em] uppercase">Requested</p>
+              <p class="text-l3 text-[0.7rem] tracking-[0.1em] uppercase" data-eyebrow>Requested</p>
               <p
                 class="text-l1 mt-3 text-[clamp(0.95rem,3.2vw,1.6rem)] break-all"
                 style="font-family: var(--font-mono, ui-monospace, monospace)"
@@ -220,7 +221,7 @@ const notes = [
         </div>
         <div>
           <dt class="tag">Frame budget</dt>
-          <dd class="text-l2 mt-1 ml-0">0 ms &middot; 0 contexts</dd>
+          <dd class="text-l2 mt-1 ml-0">0.4 ms once &middot; 0 contexts</dd>
         </div>
         <div>
           <dt class="tag">Pinned to</dt>
@@ -237,7 +238,7 @@ const notes = [
 
 <script>
   /*
-   * The address that failed, and the pages it nearly was.
+   * The address that failed, and the one you meant.
    *
    * Edit distance rather than a substring test, because the mistakes people
    * actually make are a dropped letter, a doubled one and a swapped pair, and
@@ -245,6 +246,8 @@ const notes = [
    * length so that a genuinely unrelated address offers nothing rather than
    * offering its best guess at random, which is worse than silence.
    */
+  import { createDecodeText } from '@items/effects/decode-text/core'
+
   const distance = (a: string, b: string): number => {
     const rows = a.length + 1
     const cols = b.length + 1
@@ -263,6 +266,33 @@ const notes = [
     return previous[cols - 1]!
   }
 
+  /*
+   * The correction, performed.
+   *
+   * The element is set to the address you should have typed and then decoded
+   * into it, so what the reader watches is their own typo being resolved. The
+   * glyph set is the alphabet a URL is made of rather than the library's
+   * default of capitals and symbols, because a path cycling through { } and %
+   * reads as a crash and this is already a page about something going wrong.
+   *
+   * steady: true holds every character in the width of the letter it is going
+   * to become, so a long address does not reflow the panel while it lands.
+   */
+  const resolveInto = (el: HTMLElement, text: string) => {
+    el.textContent = text
+    const run = createDecodeText(el, {
+      glyphs: 'abcdefghijklmnopqrstuvwxyz0123456789-/',
+      stagger: 28,
+      hold: 90,
+      dim: 0.4,
+      steady: true,
+      seed: 7
+    })
+    run.renderAtTime(0)
+    run.start()
+    window.setTimeout(() => run.stop(), 28 * text.length + 400)
+  }
+
   const bind = () => {
     const panel = document.querySelector<HTMLElement>('[data-notfound]')
     if (!panel || panel.dataset['notfoundBound'] === '') return
@@ -270,6 +300,7 @@ const notes = [
 
     const path = location.pathname.replace(/\/+$/, '') || '/'
     const target = panel.querySelector<HTMLElement>('[data-path]')
+    const verdict = panel.querySelector<HTMLElement>('[data-verdict]')
     if (target) target.textContent = path
 
     let known: { href: string; name: string }[] = []
@@ -280,39 +311,76 @@ const notes = [
     }
 
     const asked = path.split('/').filter(Boolean).pop() ?? ''
-    if (asked.length < 3) return
+    if (!target || asked.length < 3) return
 
     const limit = Math.max(2, Math.floor(asked.length / 3))
     const near = known
-      .map(entry => ({
-        ...entry,
-        d: distance(asked, entry.href.split('/').pop() ?? '')
-      }))
+      .map(entry => ({ ...entry, d: distance(asked, entry.href.split('/').pop() ?? '') }))
       .filter(entry => entry.d <= limit)
       .sort((a, b) => a.d - b.d)
       .slice(0, 3)
 
-    if (near.length === 0) return
+    /*
+     * Reduced motion gets the same answer without the performance. The point
+     * of the decode is to show the correction happening; the correction
+     * itself is the information, and it survives being stated plainly.
+     */
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches
+    const best = near[0]
 
-    const list = panel.querySelector<HTMLElement>('[data-nearest]')
-    const verdict = panel.querySelector<HTMLElement>('[data-verdict]')
-    if (verdict) {
-      verdict.textContent =
-        near.length === 1 ? 'There is nothing at it. This is close:' : 'There is nothing at it. These are close:'
-    }
-    if (!list) return
+    window.setTimeout(
+      () => {
+        if (best) {
+          if (still) target.textContent = best.href
+          else resolveInto(target, best.href)
 
-    list.classList.remove('hidden')
-    list.classList.add('flex')
-    for (const entry of near) {
-      const li = document.createElement('li')
-      const a = document.createElement('a')
-      a.href = entry.href
-      a.textContent = entry.name
-      a.className = 'demo-control'
-      li.appendChild(a)
-      list.appendChild(li)
-    }
+          /*
+           * The label has to move with the address. It said Requested, and
+           * once the line has resolved into the correction that is no longer
+           * what is under it.
+           *
+           * The address you actually typed moves into the line below rather
+           * than being thrown away. It is the thing you are trying to work
+           * out, and a page that silently replaces it has answered a question
+           * you did not ask.
+           */
+          const eyebrow = panel.querySelector<HTMLElement>('[data-eyebrow]')
+          if (eyebrow) eyebrow.textContent = 'Nearest'
+          if (verdict) verdict.textContent = `There is nothing at ${path}.`
+        } else {
+          /*
+           * Nothing close enough to offer. It resolves back into what was
+           * typed, which is the honest answer: the page looked, and this is
+           * still the address you asked for.
+           */
+          if (!still) resolveInto(target, path)
+          if (verdict) verdict.textContent = 'There is nothing at it, and nothing close to it.'
+        }
+
+        /*
+         * Every match, including the one the line resolved into. The decoded
+         * address is display: it is not focusable and a screen reader has no
+         * reason to treat it as a destination, so the real way out is a
+         * control that behaves like one.
+         */
+        const rest = near
+        if (rest.length === 0) return
+        const list = panel.querySelector<HTMLElement>('[data-nearest]')
+        if (!list) return
+        list.classList.remove('hidden')
+        list.classList.add('flex')
+        for (const entry of rest) {
+          const li = document.createElement('li')
+          const a = document.createElement('a')
+          a.href = entry.href
+          a.textContent = entry.name
+          a.className = 'demo-control'
+          li.appendChild(a)
+          list.appendChild(li)
+        }
+      },
+      still ? 0 : 650
+    )
   }
 
   document.addEventListener('astro:page-load', bind)
