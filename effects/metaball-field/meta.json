@@ -1,0 +1,183 @@
+{
+  "name": "MetaballField",
+  "slug": "metaball-field",
+  "tier": 1,
+  "description": "Blobs that merge and part, raymarched from a distance field rather than modelled",
+  "category": "backdrops",
+  "ground": "dark",
+  "tags": [
+    "webgl",
+    "shader",
+    "raymarching",
+    "metaballs",
+    "sdf",
+    "3d",
+    "backdrops",
+    "dark",
+    "ambient",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "There is no geometry. The scene is a function that answers how far the nearest surface is, and the picture is made by stepping a ray forward by exactly that much. That is why the blobs can merge at all: two meshes cannot flow into one another without somebody rebuilding the mesh, while two distance fields merge by taking the smaller of the two",
+      "The softening of that minimum is the whole item. A plain min gives two spheres that interpenetrate with a visible crease; blending over a band leaves a fillet, and the neck and pinch it produces are what read as liquid",
+      "The ray skips straight to a bounding sphere around the swarm and a ray that misses it is abandoned on the spot. On a backdrop most of the frame is empty, and without this every one of those pixels runs the full march to find nothing",
+      "The march breaks on a hit rather than running to the step count. Sphere tracing converges quickly once it is close, so a typical hit costs a dozen steps where the ceiling is fifty",
+      "Normals come from the tetrahedron trick, four samples rather than the six a central difference would take. On a surface this smooth there is nothing to see in the difference",
+      "Blob paths are circles with whole numbers of turns per period, so the loop closes exactly and nothing is integrated between frames",
+      "Built for a dark ground and declared as one. The blobs are lit against the page, and on paper the background fill would have to become the page colour, at which point the rim light has nothing to separate it from",
+      "The hit threshold grows with distance, because a pixel does. A ray is a cone and the patch of world one pixel covers widens along it, so a constant epsilon fails exactly the rays that graze a silhouette: the march crawls towards a surface it never formally reaches and draws a thin dark splinter along the edge of a lobe. Twice the step count only made it smaller; scaling the threshold takes it to a hairline for nothing",
+      "The march steps three quarters of what the field reports, because a smooth minimum is not a true lower bound on the distance: it rounds the join outwards, so near a fillet the value overestimates how far there is to go"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 1.1,
+    "contexts": 1,
+    "notes": [
+      "The most expensive shape of item here, because a raymarcher pays per pixel for every step and every blob, and yet it measures cheap: 1.1ms for a draw and a forced flush at 1280 by 720, against WaterCaustics at 1.00 and DustMotes at 1.20 on the same run. The bounding sphere is why. Most of a backdrop is empty, and a ray that misses the swarm is finished in a few instructions rather than fifty steps",
+      "0.360 mean absolute change per frame on a 0 to 255 scale, worst 0.448, against WaterCaustics at 0.222 and DustMotes at 0.016. Large smooth shapes moving slowly, so it reads calmer than the figure suggests, but it is not a quiet item. `period` is the dial and the change is close to linear in it",
+      "Cost is linear in `count` and in the steps actually taken, which is well under `detail` for most rays"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/metaball-field/core.ts",
+      "to": "src/beamish/effects/metaball-field/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/metaball-field/adapters/react.tsx",
+      "to": "src/beamish/effects/metaball-field/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/metaball-field/adapters/vue.ts",
+      "to": "src/beamish/effects/metaball-field/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "background": {
+      "type": "color",
+      "default": "#0d0f14",
+      "description": "Behind the blobs. Nothing is drawn there, so it is a flat fill, and it is also what the body colour is mixed towards in shadow."
+    },
+    "body": {
+      "type": "color",
+      "default": "#1d4f63",
+      "description": "The body, seen where a surface faces the camera. Keep it close to the background in value: the shape is carried by the rim and the highlight, and a body that is much lighter flattens both."
+    },
+    "light": {
+      "type": "color",
+      "default": "#f0b67f",
+      "description": "The light, seen in the rim and the highlight. Warm against a cool body is what gives the surface somewhere to turn through."
+    },
+    "count": {
+      "type": "number",
+      "default": 7,
+      "min": 1,
+      "max": 9,
+      "step": 1,
+      "sensible": [
+        4,
+        7
+      ],
+      "description": "How many blobs. Along with detail, this is the cost: the distance function asks about every one of them at every step of every ray."
+    },
+    "radius": {
+      "type": "number",
+      "default": 0.42,
+      "min": 0.1,
+      "max": 1.2,
+      "step": 0.02,
+      "sensible": [
+        0.35,
+        0.6
+      ],
+      "description": "Blob radius in scene units, where the swarm is about two units across. Large enough and they never part, which loses the thing worth watching."
+    },
+    "blend": {
+      "type": "number",
+      "default": 0.6,
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05,
+      "sensible": [
+        0.3,
+        0.8
+      ],
+      "description": "Width of the fillet where two blobs meet. At 0 they interpenetrate with a visible crease and read as two balls at the same address. Past about 1 they are one lump that never separates."
+    },
+    "orbit": {
+      "type": "number",
+      "default": 1.0,
+      "min": 0,
+      "max": 1.6,
+      "step": 0.02,
+      "sensible": [
+        0.5,
+        1
+      ],
+      "description": "How far the blobs travel from the centre. This and radius together decide whether they ever actually part."
+    },
+    "detail": {
+      "type": "number",
+      "default": 48,
+      "min": 8,
+      "max": 96,
+      "step": 4,
+      "sensible": [
+        32,
+        64
+      ],
+      "description": "Ceiling on raymarching steps. The thin necks between separating blobs are the first thing to go when this is low, and they are the part worth keeping. Most rays finish well short of the ceiling."
+    },
+    "shine": {
+      "type": "number",
+      "default": 0.55,
+      "min": 0,
+      "max": 2,
+      "step": 0.05,
+      "sensible": [
+        0.3,
+        0.9
+      ],
+      "description": "How hard the highlight is. At 0 the surface is matte and reads as clay rather than as liquid."
+    },
+    "period": {
+      "type": "number",
+      "default": 40,
+      "min": 8,
+      "max": 120,
+      "step": 1,
+      "unit": "s",
+      "sensible": [
+        24,
+        60
+      ],
+      "description": "Seconds for one cycle. Every blob travels a whole number of turns in it, so they are all exactly where they started and the loop has no join."
+    },
+    "seed": {
+      "type": "number",
+      "default": 2,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "description": "Seed for the orbits and phases. Two of these side by side want two seeds."
+    }
+  },
+  "instruction": "the blobs move on their own",
+  "oneShot": false,
+  "record": {
+    "duration": 40,
+    "fps": 24,
+    "posterAt": 14
+  }
+}

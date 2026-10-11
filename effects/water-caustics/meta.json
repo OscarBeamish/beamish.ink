@@ -1,0 +1,178 @@
+{
+  "name": "WaterCaustics",
+  "slug": "water-caustics",
+  "tier": 1,
+  "description": "The net of focused light on the floor of a pool, worked out from a wavy surface rather than drawn",
+  "category": "backdrops",
+  "ground": "dark",
+  "tags": [
+    "webgl",
+    "shader",
+    "caustics",
+    "water",
+    "light",
+    "optics",
+    "backdrops",
+    "dark",
+    "ambient",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "Nothing here draws a caustic. There is a height field and one step of optics: a ray through a surface of height h lands at p + d * grad(h) on a floor at depth d, and the brightness is one over the determinant of that mapping's Jacobian, which is the factor the area changed by. The filaments are where that determinant passes through zero and the mapping folds",
+      "Built that way so the caustics behave rather than merely look right. Deepen the water and they spread and brighten, because a longer throw focuses harder. Flatten the waves and they fade rather than thin. They close into cells because the zero set of a determinant is a closed curve, which is the part a hand-drawn version never gets",
+      "Eighteen waves, not six, and that is the whole difference between this and a plaid. A sum of a few plane waves is quasi-periodic however the directions and weights are chosen, so the caustics lay themselves out on a lattice: six gave columns, and reweighting them only changed which way the columns ran. Twenty-odd modes across a decade of wavelength is the smallest thing that stops reading as a pattern",
+      "The curvature is summed in quadrature, not plainly. Waves at independent phases add as the root of their number, so dividing by the plain sum flattens the surface as modes are added. Going from six waves to eighteen that way took the curvature down by about half and the caustics disappeared into an almost black frame, which reads as a broken shader rather than as the normalisation it was",
+      "Wave speeds follow deep-water dispersion, as the root of the wavelength, rounded to whole turns per period. Without it every mode drifts at one speed and the result reads as a moving photograph of water rather than as water. The rounding bends the dispersion by an amount nobody can see and removes a join everybody would",
+      "The Hessian is analytic. A wave contributes -k^2 (u (x) u) sin(phase), so the second derivative is one sine per wave with no finite differencing, which at this scale would be dominated by the sampling rather than by the surface",
+      "Filament width is measured against how fast the determinant is changing, with fwidth, so a line is the same number of pixels wide anywhere in the frame and at any resolution. A constant threshold gives hairlines where the field is slow and slabs where it is fast",
+      "The brightness is not normalised to a peak. Light is conserved, so a patch squeezed to a tenth of its area is ten times as bright, and tone-mapping that with 1 - exp(-x) is what makes the tight folds blow out. An early version divided by the softening width instead, which capped every filament at the same brightness and produced a contour map: even outlines with nothing bright inside them",
+      "The three channels focus at three depths, because water disperses and the short wavelengths bend further. That is the colour at the edge of a filament. At 0.22 it was three separate rings of red, green and blue and the thing read as a topographic map; the useful range is a few hundredths",
+      "Built for a dark ground and declared as one. Light added to deep water is the whole idea, and added light on paper is invisible"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 1.1,
+    "contexts": 1,
+    "notes": [
+      "One full-screen triangle and eighteen sines. The cost is linear in `waves` and nothing else in the shader loops",
+      "Measured with `pnpm budget` at 1280 by 720: 1.1ms for a draw and a forced flush, against MeshGradient at 1.10 and MarbledPaper at 2.40 on the same run",
+      "0.230 mean absolute change per frame on a 0 to 255 scale, worst 0.244, against MarbledPaper at 0.166 and WindField at 0.104. The liveliest backdrop in the set and deliberately so: a caustic that does not shimmer is a photograph of one. `period` is the dial if that is too much, and the change is very close to linear in it"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/water-caustics/core.ts",
+      "to": "src/beamish/effects/water-caustics/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/water-caustics/adapters/react.tsx",
+      "to": "src/beamish/effects/water-caustics/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/water-caustics/adapters/vue.ts",
+      "to": "src/beamish/effects/water-caustics/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "water": {
+      "type": "color",
+      "default": "#0b1a22",
+      "description": "The water, which is what the floor looks like where no light is focused on it. Deep and desaturated: it is what the filaments are bright against, and a pale one leaves them nowhere to go."
+    },
+    "light": {
+      "type": "color",
+      "default": "#9fe4f5",
+      "description": "The light added where the surface focuses it. Added rather than mixed, so the brightest cores overexpose towards white the way more light does, instead of desaturating towards this colour."
+    },
+    "scale": {
+      "type": "number",
+      "default": 1.9,
+      "min": 0.4,
+      "max": 8,
+      "step": 0.1,
+      "sensible": [1.4, 3],
+      "description": "Waves across the short side of the frame, for the longest wave. Low is a lazy pool at dusk and high is a chop. The rest of the spectrum is built up from this, so it sets the size of the whole web."
+    },
+    "depth": {
+      "type": "number",
+      "default": 1.5,
+      "min": 0,
+      "max": 4,
+      "step": 0.05,
+      "sensible": [1, 2.2],
+      "description": "How hard the surface focuses, which is the throw from the surface to the floor. At 0 nothing is focused and the floor is flat water. Below about 0.8 the determinant never reaches zero, so there are no filaments at all, only a mottle. Past about 3 it folds everywhere and the web breaks into noise, which is also what a real pool does in a chop."
+    },
+    "waves": {
+      "type": "number",
+      "default": 18,
+      "min": 3,
+      "max": 24,
+      "step": 1,
+      "sensible": [12, 24],
+      "description": "Modes in the surface, spread geometrically over about a decade of wavelength. This is the one that decides whether it reads as water. Below about ten the sum is quasi-periodic and the caustics arrange themselves on a visible lattice however the rest is tuned. It is also the whole cost of the shader."
+    },
+    "thickness": {
+      "type": "number",
+      "default": 1.6,
+      "min": 0.3,
+      "max": 8,
+      "step": 0.1,
+      "sensible": [1, 3],
+      "description": "Filament width in pixels, measured against the rate the determinant is changing, so it means the same thing anywhere in the frame and at any resolution."
+    },
+    "exposure": {
+      "type": "number",
+      "default": 0.04,
+      "min": 0.005,
+      "max": 0.3,
+      "step": 0.005,
+      "sensible": [0.02, 0.08],
+      "description": "How much light there is. The optics hand back an unbounded brightness and this is where it meets a screen that stops at white, so it sets how much of the web blows out rather than how bright the dim parts are."
+    },
+    "contrast": {
+      "type": "number",
+      "default": 1.35,
+      "min": 0.5,
+      "max": 4,
+      "step": 0.05,
+      "sensible": [1, 2],
+      "description": "Pulls the dim half down without touching the blown-out cores. The difference between light through a metre of water and light through a centimetre. Raise it to put text over this."
+    },
+    "dispersion": {
+      "type": "number",
+      "default": 0.03,
+      "min": 0,
+      "max": 0.25,
+      "step": 0.005,
+      "sensible": [0.01, 0.06],
+      "description": "Difference in focal depth between red and blue, as a share of depth. At 0 the net is monochrome. Keep it small: by about 0.2 the three channels have separated into their own rings and the thing reads as a topographic map rather than as light."
+    },
+    "period": {
+      "type": "number",
+      "default": 36,
+      "min": 8,
+      "max": 120,
+      "step": 1,
+      "unit": "s",
+      "sensible": [28, 60],
+      "description": "Seconds for one cycle. Every mode completes a whole number of turns in it, so the surface is exactly where it started and the loop has no join. This is also the dial for how busy the item is, and the change per frame is very close to linear in it."
+    },
+    "heading": {
+      "type": "number",
+      "default": 18,
+      "min": 0,
+      "max": 360,
+      "step": 1,
+      "unit": "deg",
+      "description": "Which way the waves run. The directions fan out from here by the golden angle, so turning this turns the whole surface rather than rearranging it."
+    },
+    "seed": {
+      "type": "number",
+      "default": 4,
+      "min": 0,
+      "max": 9999,
+      "step": 1,
+      "description": "Seed for the wave directions and phases. Two of these side by side want two seeds, or they are the same pool twice."
+    }
+  },
+  "instruction": "the surface moves on its own",
+  "oneShot": false,
+  "record": {
+    "duration": 36,
+    "fps": 24,
+    "posterAt": 12,
+    "crf": 38,
+    "webmCrf": 50
+  }
+}

@@ -5258,6 +5258,191 @@
     "intro": "The soft flowing colour field that sits behind half the software marketing on\nthe web, and behind Stripe's home page in particular.\n\nIt is worth being precise about what that effect is, because the usual\ndescription is wrong in a way that matters. It is not a CSS gradient with more\nstops, and it is not a blurred photograph of some blobs. The original is a plane\ncut into a grid of a few hundred vertices, each pushed around by layered noise,\nwith three or four colour layers blended over each other by more noise.\n\nThree ingredients, and this has all three:\n\n**Layered waves.** Several octaves, each finer and weaker than the last. That is\nwhat gives the field its sense of scale: broad shapes with detail inside them,\nrather than one smooth blob or one busy texture.\n\n**A domain warp.** The field is read at a position pushed sideways by another\nfield, which is what bends the bands around each other. At `warp` 0 you get\nparallel stripes, and parallel stripes are the single thing that gives away most\nattempts at this effect.\n\n**Shading from the slope.** This is the one most copies leave out. On the\noriginal the mesh is displaced, so the light follows the displacement; here the\nsame derivative that would have moved a vertex lights the result instead. Set\n`relief` to 0 and the whole thing flattens into wallpaper. It is the difference\nbetween a surface being folded and a picture being blurred."
   },
   {
+    "name": "MetaballField",
+    "slug": "metaball-field",
+    "tier": 1,
+    "description": "Blobs that merge and part, raymarched from a distance field rather than modelled",
+    "category": "backdrops",
+    "tags": [
+      "webgl",
+      "shader",
+      "raymarching",
+      "metaballs",
+      "sdf",
+      "3d",
+      "backdrops",
+      "dark",
+      "ambient",
+      "no-dependencies"
+    ],
+    "ground": "dark",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "There is no geometry. The scene is a function that answers how far the nearest surface is, and the picture is made by stepping a ray forward by exactly that much. That is why the blobs can merge at all: two meshes cannot flow into one another without somebody rebuilding the mesh, while two distance fields merge by taking the smaller of the two",
+        "The softening of that minimum is the whole item. A plain min gives two spheres that interpenetrate with a visible crease; blending over a band leaves a fillet, and the neck and pinch it produces are what read as liquid",
+        "The ray skips straight to a bounding sphere around the swarm and a ray that misses it is abandoned on the spot. On a backdrop most of the frame is empty, and without this every one of those pixels runs the full march to find nothing",
+        "The march breaks on a hit rather than running to the step count. Sphere tracing converges quickly once it is close, so a typical hit costs a dozen steps where the ceiling is fifty",
+        "Normals come from the tetrahedron trick, four samples rather than the six a central difference would take. On a surface this smooth there is nothing to see in the difference",
+        "Blob paths are circles with whole numbers of turns per period, so the loop closes exactly and nothing is integrated between frames",
+        "Built for a dark ground and declared as one. The blobs are lit against the page, and on paper the background fill would have to become the page colour, at which point the rim light has nothing to separate it from",
+        "The hit threshold grows with distance, because a pixel does. A ray is a cone and the patch of world one pixel covers widens along it, so a constant epsilon fails exactly the rays that graze a silhouette: the march crawls towards a surface it never formally reaches and draws a thin dark splinter along the edge of a lobe. Twice the step count only made it smaller; scaling the threshold takes it to a hairline for nothing",
+        "The march steps three quarters of what the field reports, because a smooth minimum is not a true lower bound on the distance: it rounds the join outwards, so near a fillet the value overestimates how far there is to go"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 1.1,
+      "contexts": 1,
+      "notes": [
+        "The most expensive shape of item here, because a raymarcher pays per pixel for every step and every blob, and yet it measures cheap: 1.1ms for a draw and a forced flush at 1280 by 720, against WaterCaustics at 1.00 and DustMotes at 1.20 on the same run. The bounding sphere is why. Most of a backdrop is empty, and a ray that misses the swarm is finished in a few instructions rather than fifty steps",
+        "0.360 mean absolute change per frame on a 0 to 255 scale, worst 0.448, against WaterCaustics at 0.222 and DustMotes at 0.016. Large smooth shapes moving slowly, so it reads calmer than the figure suggests, but it is not a quiet item. `period` is the dial and the change is close to linear in it",
+        "Cost is linear in `count` and in the steps actually taken, which is well under `detail` for most rays"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/metaball-field/core.ts",
+        "to": "src/beamish/effects/metaball-field/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/metaball-field/adapters/react.tsx",
+        "to": "src/beamish/effects/metaball-field/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/metaball-field/adapters/vue.ts",
+        "to": "src/beamish/effects/metaball-field/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "background": {
+        "type": "color",
+        "default": "#0d0f14",
+        "description": "Behind the blobs. Nothing is drawn there, so it is a flat fill, and it is also what the body colour is mixed towards in shadow."
+      },
+      "body": {
+        "type": "color",
+        "default": "#1d4f63",
+        "description": "The body, seen where a surface faces the camera. Keep it close to the background in value: the shape is carried by the rim and the highlight, and a body that is much lighter flattens both."
+      },
+      "light": {
+        "type": "color",
+        "default": "#f0b67f",
+        "description": "The light, seen in the rim and the highlight. Warm against a cool body is what gives the surface somewhere to turn through."
+      },
+      "count": {
+        "type": "number",
+        "default": 7,
+        "description": "How many blobs. Along with detail, this is the cost: the distance function asks about every one of them at every step of every ray.",
+        "min": 1,
+        "max": 9,
+        "step": 1,
+        "sensible": [
+          4,
+          7
+        ]
+      },
+      "radius": {
+        "type": "number",
+        "default": 0.42,
+        "description": "Blob radius in scene units, where the swarm is about two units across. Large enough and they never part, which loses the thing worth watching.",
+        "min": 0.1,
+        "max": 1.2,
+        "step": 0.02,
+        "sensible": [
+          0.35,
+          0.6
+        ]
+      },
+      "blend": {
+        "type": "number",
+        "default": 0.6,
+        "description": "Width of the fillet where two blobs meet. At 0 they interpenetrate with a visible crease and read as two balls at the same address. Past about 1 they are one lump that never separates.",
+        "min": 0,
+        "max": 1.5,
+        "step": 0.05,
+        "sensible": [
+          0.3,
+          0.8
+        ]
+      },
+      "orbit": {
+        "type": "number",
+        "default": 1,
+        "description": "How far the blobs travel from the centre. This and radius together decide whether they ever actually part.",
+        "min": 0,
+        "max": 1.6,
+        "step": 0.02,
+        "sensible": [
+          0.5,
+          1
+        ]
+      },
+      "detail": {
+        "type": "number",
+        "default": 48,
+        "description": "Ceiling on raymarching steps. The thin necks between separating blobs are the first thing to go when this is low, and they are the part worth keeping. Most rays finish well short of the ceiling.",
+        "min": 8,
+        "max": 96,
+        "step": 4,
+        "sensible": [
+          32,
+          64
+        ]
+      },
+      "shine": {
+        "type": "number",
+        "default": 0.55,
+        "description": "How hard the highlight is. At 0 the surface is matte and reads as clay rather than as liquid.",
+        "min": 0,
+        "max": 2,
+        "step": 0.05,
+        "sensible": [
+          0.3,
+          0.9
+        ]
+      },
+      "period": {
+        "type": "number",
+        "default": 40,
+        "description": "Seconds for one cycle. Every blob travels a whole number of turns in it, so they are all exactly where they started and the loop has no join.",
+        "min": 8,
+        "max": 120,
+        "step": 1,
+        "unit": "s",
+        "sensible": [
+          24,
+          60
+        ]
+      },
+      "seed": {
+        "type": "number",
+        "default": 2,
+        "description": "Seed for the orbits and phases. Two of these side by side want two seeds.",
+        "min": 0,
+        "max": 9999,
+        "step": 1
+      }
+    },
+    "instruction": "the blobs move on their own",
+    "oneShot": false,
+    "record": {
+      "duration": 40,
+      "fps": 24,
+      "posterAt": 14
+    },
+    "group": "effects",
+    "intro": "MetaballField is a handful of blobs that merge and part, raymarched.\n\nThere is no geometry in it. The scene is a function: hand it a point in space\nand it returns the distance to the nearest surface. The picture is made by\nwalking a ray forward by whatever that function says is safe, over and over,\nuntil it arrives at something. That is sphere tracing.\n\nIt is done this way because of what it buys. Two meshes cannot flow into one\nanother without somebody rebuilding the mesh; two distance fields merge by\ntaking the smaller of the two, which is one line. Soften that minimum and the\njoin becomes a fillet, and the neck and pinch you get out of it are the whole\nreason this reads as something liquid rather than as spheres parked in the same\nplace.\n\n`blend` is that softening. At 0 the blobs interpenetrate with a visible crease\nwhere they cross and the illusion is gone."
+  },
+  {
     "name": "MisprintText",
     "slug": "misprint-text",
     "tier": 1,
@@ -10046,6 +10231,210 @@
     },
     "group": "effects",
     "intro": "VariableWeightText makes type put on weight under the cursor. The hand presses,\nthe letters take more ink, and the line stays exactly where it was.\n\nThat last clause is the whole item, and it is why most versions of this only\never appear on a single centred word.\n\nA variable font's weight axis changes the **advance width** of every glyph it\ntouches. Go from 400 to 700 and the letters get wider, so a line whose letters\nare individually weighted reflows continuously as the cursor crosses it:\ncharacters shuffle sideways, the line end breathes, and anything laid out after\nit moves too.\n\nSo each character is measured once at the heaviest value the axis will ever\nreach, which is the widest it can ever be, and held in a box that wide with the\nletter centred in it. One measuring pass, and after it nothing moves again. It\nis the difference between an effect you can put on a paragraph and one you can\nput on a word.\n\nTwo smaller things. The falloff has a shoulder rather than being linear, because\npressure does not fall off in a straight line from a nib and a linear ramp reads\nas a triangle of bold sliding along the line. And the axis is a setting rather\nthan a constant: weight is the obvious one, but a width or slant axis works the\nsame way and only the strings change."
+  },
+  {
+    "name": "WaterCaustics",
+    "slug": "water-caustics",
+    "tier": 1,
+    "description": "The net of focused light on the floor of a pool, worked out from a wavy surface rather than drawn",
+    "category": "backdrops",
+    "tags": [
+      "webgl",
+      "shader",
+      "caustics",
+      "water",
+      "light",
+      "optics",
+      "backdrops",
+      "dark",
+      "ambient",
+      "no-dependencies"
+    ],
+    "ground": "dark",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "Nothing here draws a caustic. There is a height field and one step of optics: a ray through a surface of height h lands at p + d * grad(h) on a floor at depth d, and the brightness is one over the determinant of that mapping's Jacobian, which is the factor the area changed by. The filaments are where that determinant passes through zero and the mapping folds",
+        "Built that way so the caustics behave rather than merely look right. Deepen the water and they spread and brighten, because a longer throw focuses harder. Flatten the waves and they fade rather than thin. They close into cells because the zero set of a determinant is a closed curve, which is the part a hand-drawn version never gets",
+        "Eighteen waves, not six, and that is the whole difference between this and a plaid. A sum of a few plane waves is quasi-periodic however the directions and weights are chosen, so the caustics lay themselves out on a lattice: six gave columns, and reweighting them only changed which way the columns ran. Twenty-odd modes across a decade of wavelength is the smallest thing that stops reading as a pattern",
+        "The curvature is summed in quadrature, not plainly. Waves at independent phases add as the root of their number, so dividing by the plain sum flattens the surface as modes are added. Going from six waves to eighteen that way took the curvature down by about half and the caustics disappeared into an almost black frame, which reads as a broken shader rather than as the normalisation it was",
+        "Wave speeds follow deep-water dispersion, as the root of the wavelength, rounded to whole turns per period. Without it every mode drifts at one speed and the result reads as a moving photograph of water rather than as water. The rounding bends the dispersion by an amount nobody can see and removes a join everybody would",
+        "The Hessian is analytic. A wave contributes -k^2 (u (x) u) sin(phase), so the second derivative is one sine per wave with no finite differencing, which at this scale would be dominated by the sampling rather than by the surface",
+        "Filament width is measured against how fast the determinant is changing, with fwidth, so a line is the same number of pixels wide anywhere in the frame and at any resolution. A constant threshold gives hairlines where the field is slow and slabs where it is fast",
+        "The brightness is not normalised to a peak. Light is conserved, so a patch squeezed to a tenth of its area is ten times as bright, and tone-mapping that with 1 - exp(-x) is what makes the tight folds blow out. An early version divided by the softening width instead, which capped every filament at the same brightness and produced a contour map: even outlines with nothing bright inside them",
+        "The three channels focus at three depths, because water disperses and the short wavelengths bend further. That is the colour at the edge of a filament. At 0.22 it was three separate rings of red, green and blue and the thing read as a topographic map; the useful range is a few hundredths",
+        "Built for a dark ground and declared as one. Light added to deep water is the whole idea, and added light on paper is invisible"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 1.1,
+      "contexts": 1,
+      "notes": [
+        "One full-screen triangle and eighteen sines. The cost is linear in `waves` and nothing else in the shader loops",
+        "Measured with `pnpm budget` at 1280 by 720: 1.1ms for a draw and a forced flush, against MeshGradient at 1.10 and MarbledPaper at 2.40 on the same run",
+        "0.230 mean absolute change per frame on a 0 to 255 scale, worst 0.244, against MarbledPaper at 0.166 and WindField at 0.104. The liveliest backdrop in the set and deliberately so: a caustic that does not shimmer is a photograph of one. `period` is the dial if that is too much, and the change is very close to linear in it"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/water-caustics/core.ts",
+        "to": "src/beamish/effects/water-caustics/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/water-caustics/adapters/react.tsx",
+        "to": "src/beamish/effects/water-caustics/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/water-caustics/adapters/vue.ts",
+        "to": "src/beamish/effects/water-caustics/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "water": {
+        "type": "color",
+        "default": "#0b1a22",
+        "description": "The water, which is what the floor looks like where no light is focused on it. Deep and desaturated: it is what the filaments are bright against, and a pale one leaves them nowhere to go."
+      },
+      "light": {
+        "type": "color",
+        "default": "#9fe4f5",
+        "description": "The light added where the surface focuses it. Added rather than mixed, so the brightest cores overexpose towards white the way more light does, instead of desaturating towards this colour."
+      },
+      "scale": {
+        "type": "number",
+        "default": 1.9,
+        "description": "Waves across the short side of the frame, for the longest wave. Low is a lazy pool at dusk and high is a chop. The rest of the spectrum is built up from this, so it sets the size of the whole web.",
+        "min": 0.4,
+        "max": 8,
+        "step": 0.1,
+        "sensible": [
+          1.4,
+          3
+        ]
+      },
+      "depth": {
+        "type": "number",
+        "default": 1.5,
+        "description": "How hard the surface focuses, which is the throw from the surface to the floor. At 0 nothing is focused and the floor is flat water. Below about 0.8 the determinant never reaches zero, so there are no filaments at all, only a mottle. Past about 3 it folds everywhere and the web breaks into noise, which is also what a real pool does in a chop.",
+        "min": 0,
+        "max": 4,
+        "step": 0.05,
+        "sensible": [
+          1,
+          2.2
+        ]
+      },
+      "waves": {
+        "type": "number",
+        "default": 18,
+        "description": "Modes in the surface, spread geometrically over about a decade of wavelength. This is the one that decides whether it reads as water. Below about ten the sum is quasi-periodic and the caustics arrange themselves on a visible lattice however the rest is tuned. It is also the whole cost of the shader.",
+        "min": 3,
+        "max": 24,
+        "step": 1,
+        "sensible": [
+          12,
+          24
+        ]
+      },
+      "thickness": {
+        "type": "number",
+        "default": 1.6,
+        "description": "Filament width in pixels, measured against the rate the determinant is changing, so it means the same thing anywhere in the frame and at any resolution.",
+        "min": 0.3,
+        "max": 8,
+        "step": 0.1,
+        "sensible": [
+          1,
+          3
+        ]
+      },
+      "exposure": {
+        "type": "number",
+        "default": 0.04,
+        "description": "How much light there is. The optics hand back an unbounded brightness and this is where it meets a screen that stops at white, so it sets how much of the web blows out rather than how bright the dim parts are.",
+        "min": 0.005,
+        "max": 0.3,
+        "step": 0.005,
+        "sensible": [
+          0.02,
+          0.08
+        ]
+      },
+      "contrast": {
+        "type": "number",
+        "default": 1.35,
+        "description": "Pulls the dim half down without touching the blown-out cores. The difference between light through a metre of water and light through a centimetre. Raise it to put text over this.",
+        "min": 0.5,
+        "max": 4,
+        "step": 0.05,
+        "sensible": [
+          1,
+          2
+        ]
+      },
+      "dispersion": {
+        "type": "number",
+        "default": 0.03,
+        "description": "Difference in focal depth between red and blue, as a share of depth. At 0 the net is monochrome. Keep it small: by about 0.2 the three channels have separated into their own rings and the thing reads as a topographic map rather than as light.",
+        "min": 0,
+        "max": 0.25,
+        "step": 0.005,
+        "sensible": [
+          0.01,
+          0.06
+        ]
+      },
+      "period": {
+        "type": "number",
+        "default": 36,
+        "description": "Seconds for one cycle. Every mode completes a whole number of turns in it, so the surface is exactly where it started and the loop has no join. This is also the dial for how busy the item is, and the change per frame is very close to linear in it.",
+        "min": 8,
+        "max": 120,
+        "step": 1,
+        "unit": "s",
+        "sensible": [
+          28,
+          60
+        ]
+      },
+      "heading": {
+        "type": "number",
+        "default": 18,
+        "description": "Which way the waves run. The directions fan out from here by the golden angle, so turning this turns the whole surface rather than rearranging it.",
+        "min": 0,
+        "max": 360,
+        "step": 1,
+        "unit": "deg"
+      },
+      "seed": {
+        "type": "number",
+        "default": 4,
+        "description": "Seed for the wave directions and phases. Two of these side by side want two seeds, or they are the same pool twice.",
+        "min": 0,
+        "max": 9999,
+        "step": 1
+      }
+    },
+    "instruction": "the surface moves on its own",
+    "oneShot": false,
+    "record": {
+      "duration": 36,
+      "fps": 24,
+      "posterAt": 12,
+      "crf": 38,
+      "webmCrf": 50
+    },
+    "group": "effects",
+    "intro": "WaterCaustics is the bright net of light on the floor of a swimming pool,\nworked out rather than drawn.\n\nNothing in the shader draws a caustic line, and nothing knows where one is.\nThere is a wavy water surface and a floor some distance below it. Where the\nsurface happens to be concave it acts as a lens, squeezes a patch of light into\na smaller patch of floor, and the brightness there is however much the patch\nshrank by. The net is what is left when you plot that."
   },
   {
     "name": "WindField",
