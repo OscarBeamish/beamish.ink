@@ -42,8 +42,20 @@ const templates = loadTemplates()
  * about which template to meet first. They did.
  */
 const SHOWN_TEMPLATES = templates.slice(0, 3).map(template => template.slug)
-/* A three.js scene, a shader backdrop and a text effect: the three kinds. */
-const SHOWN_ITEMS = ['pointer-lit-busts', 'mesh-gradient', 'split-flap-text']
+/*
+ * The front of the effects wall, for the same reason as the templates above.
+ *
+ * This named three slugs of its own, one of each kind: a three.js scene, a
+ * shader backdrop and a text effect. That was a reasonable pick and it is a
+ * second opinion about a question the wall now answers, so it goes.
+ *
+ * The consequence is worth saying out loud rather than discovering: the top
+ * of the effects wall is five backdrops, so the front door now shows three
+ * backdrops instead of one of each kind. The shelf is more coherent and less
+ * representative. If that is the wrong trade, the fix is to change the order
+ * of the wall rather than to pick again here.
+ */
+const SHOWN_ITEMS = items.slice(0, 3).map(item => item.slug)
 /* The plainest, the strictest and the one that is obviously a layout. */
 const SHOWN_GRIDS = ['twelve-column', 'baseline-grid', 'marginalia-columns']
 

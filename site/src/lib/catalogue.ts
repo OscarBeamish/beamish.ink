@@ -84,7 +84,26 @@ export function loadCatalogue(): Item[] {
   if (!existsSync(indexPath)) {
     throw new Error('.generated/index.json is missing. Run `pnpm generate` first')
   }
-  return JSON.parse(readFileSync(indexPath, 'utf8')) as Item[]
+  const items = JSON.parse(readFileSync(indexPath, 'utf8')) as Item[]
+
+  /*
+   * A slug in WALL_ORDER that no longer exists sorts nothing and says
+   * nothing, which is the same symptom as a rename nobody noticed. Said out
+   * loud, the way an invalid meta.json is.
+   */
+  const have = new Set(items.map(item => item.slug))
+  const missing = WALL_ORDER.filter(slug => !have.has(slug))
+  if (missing.length > 0) {
+    throw new Error(`catalogue: WALL_ORDER names ${missing.join(', ')}, which do not exist`)
+  }
+
+  const last = WALL_ORDER.length
+  return items.sort((a, b) => {
+    const section = (CATEGORY_RANK.get(a.category) ?? 99) - (CATEGORY_RANK.get(b.category) ?? 99)
+    if (section !== 0) return section
+    const rank = (WALL_RANK.get(a.slug) ?? last) - (WALL_RANK.get(b.slug) ?? last)
+    return rank !== 0 ? rank : a.slug.localeCompare(b.slug)
+  })
 }
 
 /** Both prompt variants for an item, with the pin already substituted. */
@@ -139,3 +158,110 @@ export const CATEGORY_ORDER = [
   'surfaces',
   'navigation'
 ] as const
+
+/*
+ * The order of the wall, chosen rather than sorted.
+ *
+ * It was alphabetical, which is not an order so much as the absence of one:
+ * AsciiImage led the surfaces because of its first letter, and the first
+ * thing anybody saw of the library was whatever happened to start with an A.
+ *
+ * Grouped by CATEGORY_ORDER and ranked inside each group, and the ranking is
+ * a judgement made by looking at the posters as a contact sheet rather than
+ * at the items one at a time. A wall is read as a wall: what earns the top of
+ * a section is a card that survives being two inches wide, which is not the
+ * same quality as being a good effect. PaperGrain is a fine item and a nearly
+ * blank rectangle at card size, so it goes last among the backdrops and loses
+ * nothing by it.
+ *
+ * The first five backdrops are set deliberately and are the first five things
+ * anybody sees of this library.
+ *
+ * An item not named here falls to the end of its own category, alphabetically,
+ * so adding one never breaks the build. It does mean a new item arrives at the
+ * bottom of its section until somebody decides where it belongs, which is the
+ * right default: a position on this wall is a claim about the item.
+ */
+export const WALL_ORDER: string[] = [
+  // Backdrops
+  'mesh-gradient',
+  'water-caustics',
+  'stipple-field',
+  'halftone-backdrop',
+  'metaball-field',
+  'prism-spectrum',
+  'wind-field',
+  'chrome-form',
+  'terrain-relief',
+  'marbled-paper',
+  'moire-screens',
+  'cast-shadow-scene',
+  'lightning-vein',
+  'aurora-curtain',
+  'guilloche-lines',
+  'woven-threads',
+  'light-shafts',
+  'translucent-sheets',
+  'dust-motes',
+  'paper-grain',
+
+  // Reveals
+  'halftone-reveal',
+  'iris-reveal',
+  'masked-heading',
+  'gradual-blur',
+  'scroll-reveal-rows',
+
+  // Pointer
+  'pointer-lit-busts',
+  'pointer-ripple-grid',
+  'pointer-filings',
+  'crosshair-cursor',
+  'click-spark',
+  'variable-weight-text',
+  'magnetic-button',
+  'pointer-smoke',
+
+  // Type
+  'split-fountain-text',
+  'highlighter-mark',
+  'split-flap-text',
+  'stroke-text',
+  'misprint-text',
+  'rotating-words',
+  'circular-text',
+  'embossed-text',
+  'odometer-number',
+  'count-up-number',
+  'decode-text',
+  'scramble-text',
+  'typewriter-text',
+  'scroll-marquee',
+  'ink-bleed-text',
+  'falling-letters',
+
+  // Surfaces
+  'halftone-magnifier',
+  'glass-search-bar',
+  'panel-gauge',
+  'relight-image',
+  'image-gallery-lightbox',
+  'depth-point-cloud',
+  'scroll-warp-image',
+  'scroll-slideshow',
+  'squircle-keycap',
+  'card-stack',
+  'ascii-image',
+  'spotlight-card',
+  'tilt-card',
+  'ember-rise',
+
+  // Navigation
+  'glass-nav',
+  'expanding-tiles',
+  'fullscreen-menu',
+  'sheen-button'
+]
+
+const CATEGORY_RANK = new Map(CATEGORY_ORDER.map((category, i) => [category, i]))
+const WALL_RANK = new Map(WALL_ORDER.map((slug, i) => [slug, i]))
