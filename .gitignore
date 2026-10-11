@@ -40,3 +40,14 @@ tools/tests/fixtures/*.bundle.js
 # got committed by a careless `git add -A` before this existed.
 tools/.dark-run/
 tools/.tmp-*
+
+# Reference material. Screenshots of other people's sites, kept locally for
+# comparison while something was being built, and no business travelling with
+# a library that people clone. Fifteen megabytes of React Bits was in here.
+reference/
+
+# Scratch at the root. `.*.mjs` and `.*.py` were already ignored; these two
+# escaped because they were committed before the rule existed, and the rule
+# did not cover images at all.
+.*.jpg
+.*.png
