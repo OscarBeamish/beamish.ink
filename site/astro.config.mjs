@@ -75,7 +75,21 @@ export default defineConfig({
      * discovery part way through.
      */
     optimizeDeps: {
-      include: ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'react/jsx-dev-runtime']
+      /*
+       * three is here for the same reason and with a sharper symptom. Item
+       * cores are imported through @fs/ paths outside the site, which Vite's
+       * dependency scanner does not crawl, so three is always discovered late:
+       * the first page that wants it triggers a re-optimise, every module
+       * holding the previous hash gets a 504 Outdated Optimize Dep, and what
+       * that looks like is a demo panel that mounts nothing on exactly the
+       * three.js items. Naming it makes it part of the first pass.
+       *
+       * Caught by counting canvases rather than by looking: ChromeForm and
+       * DepthPointCloud rendered an empty panel and said nothing, which is the
+       * failure AGENTS.md describes and the method it prescribes for finding
+       * it.
+       */
+      include: ['three']
     },
     resolve: {
       alias: {
