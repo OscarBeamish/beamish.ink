@@ -1,0 +1,319 @@
+---
+/*
+ * The 404, written as a catalogue entry.
+ *
+ * Two jobs. The first is unglamorous and was the reason to build it: this site
+ * had no 404.html at all, so Cloudflare Pages fell back to index.html for
+ * every unmatched address and answered 200 with the homepage. That is a soft
+ * 404, and it means every dead link on the site looks alive to a crawler.
+ * Building this file is what makes the host answer 404.
+ *
+ * The second is that a 404 is the one page every reader arrives at already
+ * annoyed, and the catalogue has a format for explaining a thing it is proud
+ * of. Applying that format, straight-faced, to a page that does not exist is
+ * the only joke this site is in a position to make. Everything below is the
+ * item page's own furniture: the same heading, the same panel, the same prompt
+ * button, the same options list, the same table of facts. None of it is a
+ * parody of the format. It is the format, with nothing in it.
+ *
+ * The rule the research is unanimous on: an illustration with a clever line
+ * and no exits is decoration rather than a page. So the exits are the item.
+ * `nearest` is a real option with a real effect, the panel fills with whatever
+ * the address nearly matched, and the three walls are plain links that work
+ * with no script at all.
+ */
+import Base from '../layouts/Base.astro'
+import PromptButtons from '../components/PromptButtons.astro'
+import { loadCatalogue, PIN } from '../lib/catalogue'
+import { loadGrids } from '../lib/grids'
+import { loadTemplates } from '../lib/templates'
+import prompt from '../lib/not-found-prompt.md?raw'
+
+/*
+ * Every address this site has, handed to the page so it can tell somebody
+ * which one they nearly typed. Built here rather than fetched, because a 404
+ * that needs a request to be useful is a 404 that is useless when the thing
+ * that broke was the network.
+ */
+const known = [
+  ...loadCatalogue().map(item => ({ href: `/${item.group}/${item.slug}`, name: item.name })),
+  ...loadGrids().map(grid => ({ href: `/grids/${grid.slug}`, name: grid.name })),
+  ...loadTemplates().map(t => ({ href: `/templates/${t.slug}`, name: t.name }))
+]
+
+/*
+ * Written as an item's meta.json would be, because that is the joke, and
+ * every figure in it is true. The frame budget really is zero: there is no
+ * canvas, no context and no loop, which makes this the only item on the site
+ * whose performance is a fact rather than a measurement.
+ */
+const options: [string, { default: string; range?: string; description: string }][] = [
+  [
+    'path',
+    {
+      default: 'the address you asked for',
+      description:
+        'Read from the URL at runtime, so it is different for everybody and there is no sensible default. It is also the only part of this page that varies, which tells you something about how much is here.'
+    }
+  ],
+  [
+    'contents',
+    {
+      default: 'empty',
+      description:
+        'What is at that address. Not configurable, and the one option in this catalogue with no useful range.'
+    }
+  ],
+  [
+    'nearest',
+    {
+      default: '3',
+      range: '0 to 3',
+      description:
+        'How many real pages to offer instead, matched against the address by edit distance. At 0 this item is decoration rather than a page, which is the failure almost every creative 404 ships with.'
+    }
+  ],
+  [
+    'candour',
+    {
+      default: '1',
+      range: '0 to 1',
+      description:
+        'Whether to say plainly what happened. At 0 you get an apology, an illustration and a cartoon astronaut, and the reader still does not know whether the thing moved or whether you broke it.'
+    }
+  ],
+  [
+    'status',
+    {
+      default: '404',
+      range: '404 · 200',
+      description:
+        'The code the host answers with. At 200 the page is a soft 404: it looks like an error and tells every crawler the address is fine, so the dead link stays in the index and keeps being handed out. This site answered 200 until this page existed.'
+    }
+  ]
+]
+
+const notes = [
+  'A 404 is the one page on a site that nobody designs and everybody eventually sees, which is an odd way round for the only page whose reader is already annoyed',
+  'The status code is the item. A page that looks like an error and answers 200 is a soft 404, and the crawler is told the address is fine: the dead link stays in the index and keeps being served to people. This site did exactly that until this file existed, because a static host with no 404.html falls back to the homepage',
+  'An illustration with a clever line and no exits is decoration rather than a page. The links here are the item and the rest is packaging, which is the right way round and the opposite of how these are usually built',
+  'It says whether the address ever existed, where it can tell. A changelog and a redirect table already know; the 404 is simply the place that knowledge finally gets read',
+  'Nothing moves. Every other item here earns its motion, and this is the one page where the reader is in a hurry and did not choose to be',
+  'It works with no JavaScript, because a failing deploy is a common reason to be here at all. The nearest matches need script; the three walls do not',
+  'No canvas, no context, no loop. The only item in this catalogue whose frame budget is a fact rather than a measurement'
+]
+---
+
+<Base
+  title="PageNotFound: Beamish"
+  description="The absence of a page, rendered at the address you asked for"
+>
+  <article class="item pt-32 pb-8 md:pt-40">
+    <header>
+      <h1 class="text-[clamp(2.2rem,6vw,3.8rem)] leading-[0.95]">PageNotFound</h1>
+      <p class="text-l2 mt-5 text-[1rem]">
+        The absence of a page, rendered at the address you asked for.
+      </p>
+    </header>
+
+    {/*
+      The panel, built to the same measurements as a real one: the same border,
+      the same 16 by 9, the same instruction line underneath. What is in it is
+      the address that failed and the pages it nearly was.
+    */}
+    <div class="item__wide mt-10">
+      <figure class="m-0">
+        <div
+          class="border-line bg-be relative overflow-hidden rounded-[2px] border"
+          style="aspect-ratio: 16 / 9"
+          data-notfound
+          data-known={JSON.stringify(known)}
+        >
+          <div class="absolute inset-0 grid place-items-center px-6">
+            {/* Centred inline rather than by a utility. place-items-center
+                shrink-wraps this block to its widest line, so the centring has
+                to happen inside it, and the utility was not winning the
+                cascade against whatever sets the page's text alignment. An
+                inline declaration is the one thing that cannot lose. */}
+            <div style="text-align: center">
+              <p class="text-l3 text-[0.7rem] tracking-[0.1em] uppercase">Requested</p>
+              <p
+                class="text-l1 mt-3 text-[clamp(0.95rem,3.2vw,1.6rem)] break-all"
+                style="font-family: var(--font-mono, ui-monospace, monospace)"
+                data-path
+              >
+                this address
+              </p>
+              <p class="text-l2 mt-6 text-[0.85rem]" data-verdict>
+                There is nothing at it.
+              </p>
+
+              {/* Filled in by the script when the address nearly matched something. */}
+              <ul
+                class="mt-5 hidden gap-2"
+                style="width: 100%; flex-wrap: wrap; justify-content: center"
+                data-nearest
+              ></ul>
+            </div>
+          </div>
+        </div>
+      </figure>
+      <p class="text-l3 mt-3 text-[0.7rem] tracking-[0.08em] uppercase">
+        &#8627; nothing here, which is the whole of it
+      </p>
+    </div>
+
+    <div class="mt-10">
+      <PromptButtons slug="page-not-found" linked={prompt} />
+    </div>
+
+    {/*
+      The exits, and they are not a footnote. They are plain links in the
+      markup so they survive a reader with no script, which is a likelier
+      visitor here than anywhere else on the site.
+    */}
+    <section class="mt-16">
+      <h2 class="border-line border-b pb-3 text-[1.05rem]">Where you were probably going</h2>
+      <ul class="mt-4 grid gap-2 text-[0.95rem] sm:grid-cols-3">
+        <li class="border-line border-t pt-3"><a href="/effects">Effects and components</a></li>
+        <li class="border-line border-t pt-3"><a href="/grids">Grids</a></li>
+        <li class="border-line border-t pt-3"><a href="/templates">Templates</a></li>
+      </ul>
+    </section>
+
+    <section class="mt-16">
+      <h2 class="border-line border-b pb-3 text-[1.05rem]">Options</h2>
+      <dl class="mt-2">
+        {
+          options.map(([name, spec]) => (
+            <div class="border-line border-b py-4">
+              <dt class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <code class="text-l1 text-[0.85rem]">{name}</code>
+                <span class="tag">{spec.default}</span>
+              </dt>
+              <dd class="mt-2 ml-0">
+                {spec.range && <p class="text-l3 text-[0.75rem]">{spec.range}</p>}
+                <p class="text-l2 mt-1 text-[0.85rem]">{spec.description}</p>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <section class="mt-16">
+      <h2 class="border-line border-b pb-3 text-[1.05rem]">What it needs</h2>
+      <dl class="mt-4 grid gap-4 text-[0.85rem] sm:grid-cols-2">
+        <div>
+          <dt class="tag">Category</dt>
+          <dd class="text-l2 mt-1 ml-0">
+            <a href="/effects#navigation">Navigation</a>, an effect
+          </dd>
+        </div>
+        <div>
+          <dt class="tag">Dependencies</dt>
+          <dd class="text-l2 mt-1 ml-0">None at all</dd>
+        </div>
+        <div>
+          <dt class="tag">Browser</dt>
+          <dd class="text-l2 mt-1 ml-0">No WebGL</dd>
+        </div>
+        <div>
+          <dt class="tag">Frame budget</dt>
+          <dd class="text-l2 mt-1 ml-0">0 ms &middot; 0 contexts</dd>
+        </div>
+        <div>
+          <dt class="tag">Pinned to</dt>
+          <dd class="text-l2 mt-1 ml-0">{PIN}</dd>
+        </div>
+      </dl>
+
+      <ul class="text-l2 mt-8 grid gap-2 text-[0.85rem]">
+        {notes.map(note => <li class="border-line border-t pt-2">{note}</li>)}
+      </ul>
+    </section>
+  </article>
+</Base>
+
+<script>
+  /*
+   * The address that failed, and the pages it nearly was.
+   *
+   * Edit distance rather than a substring test, because the mistakes people
+   * actually make are a dropped letter, a doubled one and a swapped pair, and
+   * a substring test catches none of those. Capped at a third of the slug's
+   * length so that a genuinely unrelated address offers nothing rather than
+   * offering its best guess at random, which is worse than silence.
+   */
+  const distance = (a: string, b: string): number => {
+    const rows = a.length + 1
+    const cols = b.length + 1
+    let previous = Array.from({ length: cols }, (_, i) => i)
+    for (let i = 1; i < rows; i += 1) {
+      const current = [i]
+      for (let j = 1; j < cols; j += 1) {
+        current[j] = Math.min(
+          previous[j]! + 1,
+          current[j - 1]! + 1,
+          previous[j - 1]! + (a[i - 1] === b[j - 1] ? 0 : 1)
+        )
+      }
+      previous = current
+    }
+    return previous[cols - 1]!
+  }
+
+  const bind = () => {
+    const panel = document.querySelector<HTMLElement>('[data-notfound]')
+    if (!panel || panel.dataset['notfoundBound'] === '') return
+    panel.dataset['notfoundBound'] = ''
+
+    const path = location.pathname.replace(/\/+$/, '') || '/'
+    const target = panel.querySelector<HTMLElement>('[data-path]')
+    if (target) target.textContent = path
+
+    let known: { href: string; name: string }[] = []
+    try {
+      known = JSON.parse(panel.dataset['known'] ?? '[]')
+    } catch {
+      /* Nothing to suggest. The walls below are still there. */
+    }
+
+    const asked = path.split('/').filter(Boolean).pop() ?? ''
+    if (asked.length < 3) return
+
+    const limit = Math.max(2, Math.floor(asked.length / 3))
+    const near = known
+      .map(entry => ({
+        ...entry,
+        d: distance(asked, entry.href.split('/').pop() ?? '')
+      }))
+      .filter(entry => entry.d <= limit)
+      .sort((a, b) => a.d - b.d)
+      .slice(0, 3)
+
+    if (near.length === 0) return
+
+    const list = panel.querySelector<HTMLElement>('[data-nearest]')
+    const verdict = panel.querySelector<HTMLElement>('[data-verdict]')
+    if (verdict) {
+      verdict.textContent =
+        near.length === 1 ? 'There is nothing at it. This is close:' : 'There is nothing at it. These are close:'
+    }
+    if (!list) return
+
+    list.classList.remove('hidden')
+    list.classList.add('flex')
+    for (const entry of near) {
+      const li = document.createElement('li')
+      const a = document.createElement('a')
+      a.href = entry.href
+      a.textContent = entry.name
+      a.className = 'demo-control'
+      li.appendChild(a)
+      list.appendChild(li)
+    }
+  }
+
+  document.addEventListener('astro:page-load', bind)
+</script>

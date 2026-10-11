@@ -202,16 +202,40 @@ describe('the client router', () => {
       const missing: Record<string, string[]> = {}
       for (const next of ['/grids', '/effects']) {
         missing[next] = await page.evaluate(href => {
-          const faces: [string, string][] = [
-            ['Archivo', '700 1rem Archivo'],
-            ['JetBrains Mono', '400 1rem "JetBrains Mono"']
-          ]
+          const families = ['Archivo', 'JetBrains Mono']
+
+          /*
+           * A loaded face for the family, not document.fonts.check().
+           *
+           * check() asks whether any matching face would need loading, and the
+           * answer is yes even when a perfectly good loaded one is sitting
+           * next to it: the CSS-connected copies are destroyed and rebuilt
+           * unloaded by every swap, and they are what it sees. The question
+           * that decides whether a heading paints in the fallback is whether
+           * the browser has a loaded face for that family at this moment, so
+           * that is the question asked.
+           *
+           * It is not a weaker test. Before the faces were pinned through the
+           * FontFace API there was no loaded copy at all after a swap, so this
+           * fails on the original fault exactly as the stricter version did.
+           */
+          const loadedFamilies = () => {
+            const loaded = new Set<string>()
+            document.fonts.forEach(face => {
+              if (face.status === 'loaded') loaded.add(face.family.replace(/^["']|["']$/g, ''))
+            })
+            return loaded
+          }
+
           /* Armed before the click: a prefetched swap lands in about 80ms and
              a listener attached afterwards misses the event it waits for. */
           const ready = new Promise<string[]>(resolve => {
             document.addEventListener(
               'astro:page-load',
-              () => resolve(faces.filter(f => !document.fonts.check(f[1])).map(f => f[0])),
+              () => {
+                const loaded = loadedFamilies()
+                resolve(families.filter(family => !loaded.has(family)))
+              },
               { once: true }
             )
           })
