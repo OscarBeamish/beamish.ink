@@ -31,7 +31,21 @@
  * and they are checked by tools/tests rather than trusted.
  */
 
-:root[data-ground='paper'] {
+/*
+ * A ground can also be scoped to part of a page.
+ *
+ * The two blocks below match `:root[data-ground=...]`, which is the normal
+ * case: a page picks a ground and everything on it follows. They also match
+ * `[data-ground-scope=...]` at any depth, so a region can carry the other
+ * palette without the page changing.
+ *
+ * A separate attribute rather than widening `data-ground` to any element.
+ * `data-ground` is already on things that are not meant to re-scope anything
+ * (every demo panel carries the item's declared ground as data), and widening
+ * it would have silently re-coloured all of them.
+ */
+:root[data-ground='paper'],
+[data-ground-scope='paper'] {
   --label: 0, 0, 0; /* pure, strongest text only */
   --label-d: 54, 54, 48; /* desaturated, every alpha step below */
   --background-deep: 251, 250, 244; /* warm paper */
@@ -54,7 +68,8 @@
   --label-4: rgba(var(--label-d), 0.16); /* 1.33:1, NEVER text */
 }
 
-:root[data-ground='dark'] {
+:root[data-ground='dark'],
+[data-ground-scope='dark'] {
   --label: 255, 255, 255; /* pure, strongest text only */
   --label-d: 226, 231, 240; /* desaturated, every alpha step below */
   --background-deep: 13, 14, 17; /* near black, never #000 */

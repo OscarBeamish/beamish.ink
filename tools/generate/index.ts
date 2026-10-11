@@ -75,7 +75,13 @@ export async function loadItems(): Promise<Item[]> {
     const base = path.join(ROOT, group)
     if (!existsSync(base)) continue
     for (const entry of await readdir(base, { withFileTypes: true })) {
-      if (!entry.isDirectory()) continue
+      /*
+       * Underscore means parked. The grids and templates loaders further down
+       * this file already skip those; this one did not, which made the
+       * convention two thirds true and meant a work in progress under
+       * effects/ broke the build rather than sitting out of it.
+       */
+      if (!entry.isDirectory() || entry.name.startsWith('_')) continue
       const dir = path.join(base, entry.name)
       const metaPath = path.join(dir, 'meta.json')
       if (!existsSync(metaPath)) continue

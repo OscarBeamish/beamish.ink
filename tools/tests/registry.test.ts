@@ -31,7 +31,11 @@ function tierOneSlugs(): string[] {
   const dir = path.join(ROOT, 'effects')
   const slugs: string[] = []
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue
+    /* Underscore means parked, and every other scanner in the repo skips it:
+       generate, build-items and the site's loaders all do. A test that did
+       not would be the one thing standing between a work in progress and a
+       green tree. */
+    if (!entry.isDirectory() || entry.name.startsWith('_')) continue
     const meta = path.join(dir, entry.name, 'meta.json')
     if (!existsSync(meta)) continue
     const parsed = JSON.parse(readFileSync(meta, 'utf8')) as { slug: string; tier: number }

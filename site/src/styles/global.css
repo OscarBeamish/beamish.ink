@@ -249,6 +249,274 @@
     color: var(--label-1);
   }
 
+  /* ── The looks ────────────────────────────────────────────────────
+   * Six compositions a backdrop can be judged behind. None of them paints
+   * a ground: every surface here is translucent or absent, because a
+   * composition with an opaque background has hidden the thing it exists
+   * to demonstrate.
+   *
+   * Sized in cqw/cqh against the panel rather than the viewport, so a look
+   * holds its proportions whether it is in a 16:9 demo panel or a phone.
+   */
+  .demo-looks {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .demo-looks[hidden],
+  .demo-look[hidden] {
+    display: none;
+  }
+
+  .demo-look {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: clamp(1.25rem, 4%, 3rem);
+    color: var(--label-1);
+  }
+
+  /*
+   * A scrim under the copy, across the bottom third only, so the backdrop is
+   * still the thing being looked at. Paper rather than black: the panel takes
+   * the item's declared ground, and a black scrim on a paper item is a second
+   * design decision nobody asked for.
+   */
+  .demo-look::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--background-elevated) 88%, transparent) 0%,
+      color-mix(in srgb, var(--background-elevated) 55%, transparent) 26%,
+      transparent 58%
+    );
+  }
+
+  .demo-look > * {
+    position: relative;
+  }
+
+  .demo-look__title {
+    margin: 0;
+    max-width: 16ch;
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 5.2cqw, 4rem);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+  }
+
+  .demo-look__title--sm {
+    font-size: clamp(1.2rem, 3.4cqw, 2.4rem);
+    max-width: 18ch;
+  }
+
+  .demo-look__line {
+    margin: 0;
+    max-width: 38ch;
+    font-size: clamp(0.75rem, 1.5cqw, 1rem);
+    line-height: 1.45;
+  }
+
+  .demo-look__kicker {
+    margin: 0;
+    font-size: clamp(0.55rem, 1.1cqw, 0.7rem);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--label-3);
+  }
+
+  .demo-look__row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .demo-look__pill {
+    border: 1px solid var(--label-1);
+    border-radius: 100px;
+    padding: 0.35rem 0.85rem;
+    font-size: clamp(0.58rem, 1.1cqw, 0.72rem);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .demo-look__pill--solid {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: rgb(var(--background-deep));
+  }
+
+  /* ── Column: body copy on one side, the hardest read over movement ── */
+  .demo-look--column {
+    justify-content: center;
+  }
+
+  .demo-look--column::before {
+    background: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--background-elevated) 90%, transparent) 0%,
+      color-mix(in srgb, var(--background-elevated) 70%, transparent) 38%,
+      transparent 62%
+    );
+  }
+
+  .demo-look__col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    width: min(46%, 34ch);
+  }
+
+  .demo-look__body {
+    margin: 0;
+    font-size: clamp(0.62rem, 1.25cqw, 0.9rem);
+    line-height: 1.5;
+    color: var(--label-2);
+  }
+
+  /* ── Cards: the way a backdrop usually ends up being used ────────── */
+  .demo-look--cards {
+    justify-content: center;
+  }
+
+  /* No scrim. The cards are the scrim, which is the point of the case. */
+  .demo-look--cards::before {
+    background: none;
+  }
+
+  .demo-look__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(0.5rem, 1.6cqw, 1rem);
+    width: 100%;
+  }
+
+  .demo-look__card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: clamp(0.7rem, 2cqw, 1.4rem);
+    border: 1px solid color-mix(in srgb, var(--label-1) 18%, transparent);
+    border-radius: 4px;
+    /* Translucent, so the backdrop runs under the cards rather than being
+       covered by them. A solid card would make this look pass every time. */
+    background: color-mix(in srgb, var(--background-elevated) 62%, transparent);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  .demo-look__card--wide {
+    grid-column: 1 / -1;
+  }
+
+  .demo-look__cardtitle {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(0.85rem, 2.1cqw, 1.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  /* ── Wordmark: the backdrop shows through the counters ───────────── */
+  .demo-look--wordmark {
+    justify-content: center;
+    align-items: center;
+  }
+
+  .demo-look--wordmark::before {
+    background: none;
+  }
+
+  .demo-look__word {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 14cqw, 11rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  /* ── Frame: chrome at the edges, the middle left to the backdrop ─── */
+  .demo-look--frame {
+    justify-content: space-between;
+    padding: clamp(0.7rem, 2.4%, 1.6rem);
+  }
+
+  .demo-look--frame::before {
+    background: none;
+  }
+
+  .demo-look__bar,
+  .demo-look__feet {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.6rem, 2.4cqw, 2rem);
+    font-size: clamp(0.55rem, 1.1cqw, 0.72rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--label-1);
+    /* The one place a scrim is wrong: chrome sits on the thing, so it gets a
+       shadow rather than a panel. */
+    text-shadow: 0 1px 6px color-mix(in srgb, var(--background-deep) 80%, transparent);
+  }
+
+  .demo-look__bar {
+    padding-bottom: clamp(0.4rem, 1.2cqh, 0.8rem);
+    border-bottom: 1px solid color-mix(in srgb, var(--label-1) 22%, transparent);
+  }
+
+  .demo-look__feet {
+    padding-top: clamp(0.4rem, 1.2cqh, 0.8rem);
+    border-top: 1px solid color-mix(in srgb, var(--label-1) 22%, transparent);
+    justify-content: space-between;
+  }
+
+  /* ── The picker ───────────────────────────────────────────────────
+   * A row of names rather than a dropdown: six is few enough to show, and
+   * the whole point is comparing them quickly.
+   */
+  .demo-picker {
+    position: absolute;
+    left: 0.75rem;
+    bottom: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    max-width: calc(100% - 1.5rem);
+  }
+
+  .demo-picker[hidden] {
+    display: none;
+  }
+
+  /* A hairline between choosing the composition and choosing its ground:
+     two different questions in one row. */
+  .demo-picker__split {
+    align-self: stretch;
+    width: 1px;
+    margin-inline: 0.25rem;
+    background: var(--label-4);
+  }
+
+  /*
+   * The selected name is inverted from the script, not from here.
+   *
+   * A rule for it lived at this spot and did not work: `color` applied and
+   * `background` did not, at any specificity, which is the signature of a
+   * later cascade layer rather than a more specific selector. Utilities sit
+   * in a layer after this one, so a declaration here loses to one there
+   * whatever it is worth, and loses silently. An inline style is the only
+   * thing that outranks a layer.
+   */
+
+
   /* Glass has to have something behind it, so the panel supplies a picture. */
   /*
    * The panel's own controls: Pause, Replay, Controls, Bare.
