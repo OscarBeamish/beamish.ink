@@ -32,8 +32,16 @@ const items = loadCatalogue()
 const grids = loadGrids()
 const templates = loadTemplates()
 
-/* A dark machine, a page made of type, and a soft product interface. */
-const SHOWN_TEMPLATES = ['machine-panel', 'editorial-portfolio', 'clay-surfaces']
+/*
+ * The front of the templates wall, not a second pick.
+ *
+ * This used to name three slugs itself, for variety: a dark machine, a page
+ * made of type and a soft product interface. That was a judgement about which
+ * templates matter most, and the wall now carries the same judgement in
+ * WALL_FRONT, so keeping both meant the front door and the wall could disagree
+ * about which template to meet first. They did.
+ */
+const SHOWN_TEMPLATES = templates.slice(0, 3).map(template => template.slug)
 /* A three.js scene, a shader backdrop and a text effect: the three kinds. */
 const SHOWN_ITEMS = ['pointer-lit-busts', 'mesh-gradient', 'split-flap-text']
 /* The plainest, the strictest and the one that is obviously a layout. */

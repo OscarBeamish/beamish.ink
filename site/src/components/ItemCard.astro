@@ -35,6 +35,7 @@ const dark = media.dark ?? null
   href={href}
   class="item-card group border-line bg-be flex h-full flex-col overflow-hidden rounded-[2px] border no-underline"
   data-card
+  data-scramble-host
 >
   <div class="relative aspect-video overflow-hidden">
     {
@@ -81,7 +82,13 @@ const dark = media.dark ?? null
   </div>
 
   <div class="border-line flex items-baseline justify-between gap-3 border-t px-4 py-3">
-    <span class="text-l1 text-[0.95rem]">{name}</span>
+    {/*
+      The name decodes on hover, the same DecodeText the nav labels use, and
+      triggered by the card rather than by the name: the strip it sits in is
+      two lines tall at the bottom of a poster, so pointing at the words
+      themselves is not how anybody arrives at a card.
+    */}
+    <span class="text-l1 text-[0.95rem]" data-scramble>{name}</span>
     <span class="tag">{label}</span>
   </div>
   <p class="item-card__note text-l3 px-4 pb-4 text-[0.78rem] leading-snug">{description}</p>

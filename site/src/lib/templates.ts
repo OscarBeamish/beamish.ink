@@ -22,6 +22,39 @@ const GENERATED = path.join(ROOT, '.generated')
 
 export type Template = TemplateMeta
 
+/*
+ * The front of the wall, chosen rather than sorted.
+ *
+ * Alphabetical order put ClayConstellation and ClaySurfaces in the first two
+ * slots because of the letter they start with, which is not a reason. These
+ * eight are the ones worth meeting first, in this order, and everything after
+ * them stays alphabetical: a named order is a judgement that has to be
+ * maintained, and there is no judgement to express about the twelfth card.
+ *
+ * It lives in the loader rather than in the page so the wall and the front
+ * door agree. A reader who sees a different first template on each is being
+ * told the order means nothing.
+ */
+const WALL_FRONT = [
+  'editorial-portfolio',
+  'glossy-orbs',
+  'holographic-ticket',
+  'refracted-glass',
+  'squircle-keycaps',
+  'wind-field-routing',
+  'icon-cut-cards',
+  'highlighter-markup'
+]
+
+function byWallOrder(a: Template, b: Template) {
+  const at = WALL_FRONT.indexOf(a.slug)
+  const bt = WALL_FRONT.indexOf(b.slug)
+  if (at !== -1 && bt !== -1) return at - bt
+  if (at !== -1) return -1
+  if (bt !== -1) return 1
+  return a.slug.localeCompare(b.slug)
+}
+
 export function loadTemplates(): Template[] {
   if (!existsSync(TEMPLATES)) return []
   const out: Template[] = []
@@ -42,7 +75,17 @@ export function loadTemplates(): Template[] {
     }
     out.push(parsed.data)
   }
-  return out.sort((a, b) => a.slug.localeCompare(b.slug))
+  /*
+   * A slug in WALL_FRONT that no longer exists would sort to the back of the
+   * list silently, which is the same symptom as a rename nobody noticed. Said
+   * out loud instead, the way an invalid meta.json is.
+   */
+  const missing = WALL_FRONT.filter(slug => !out.some(template => template.slug === slug))
+  if (missing.length > 0) {
+    throw new Error(`templates: WALL_FRONT names ${missing.join(', ')}, which do not exist`)
+  }
+
+  return out.sort(byWallOrder)
 }
 
 /** Which media exist, so a card never renders a broken video. */

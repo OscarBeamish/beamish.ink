@@ -334,7 +334,15 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
         let decode: ReturnType<typeof createDecodeText> | null = null
         let running = false
 
-        el.addEventListener('pointerenter', () => {
+        /*
+         * The label decodes; something else may be what you point at. A card's
+         * title sits in a strip at the bottom of a poster, and a reader hovers
+         * the card, not the eleven characters of its name. The host is the
+         * element that listens, and for a nav link it is the link itself.
+         */
+        const host = el.closest<HTMLElement>('[data-scramble-host]') ?? el
+
+        const run = () => {
           // Read live rather than at load, so changing the setting with the page
           // open takes effect without a reload.
           if (running || reduced.matches) return
@@ -348,7 +356,15 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
             decode?.stop()
             running = false
           }, STAGGER * characters + 250)
-        })
+        }
+
+        host.addEventListener('pointerenter', run)
+        /*
+         * And on focus, or every one of these is a still label to anybody
+         * navigating by keyboard. focusin rather than focus because the host
+         * can be the card and the thing that takes focus is the card's link.
+         */
+        host.addEventListener('focusin', run)
       }
   }
 
