@@ -191,13 +191,13 @@ const total = items.length + grids.length + templates.length
     now lands on the shelves rather than on the wall, which is the correct
     destination for it: the wall has its own URL.
   */}
-  <section id="catalogue" class="spine gap-y-5 pb-24">
+  <section id="catalogue" class="spine gap-x-[0.35rem] gap-y-[0.35rem] pb-24">
     {
       shelves.map((shelf, index) => (
         <Fragment>
           <div
             class:list={[
-              'border-line col-span-12 flex scroll-mt-24 items-baseline justify-between gap-6 border-b pb-3',
+              'border-line col-span-12 mb-2 flex scroll-mt-24 items-baseline justify-between gap-6 border-b pb-3',
               index > 0 && 'mt-14'
             ]}
           >

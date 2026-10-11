@@ -1708,58 +1708,6 @@
  */
 .item-card {
   position: relative;
-  /* So the note can size its box off the card rather than off the viewport.
-     Two cards the same width want the same box whichever breakpoint put them
-     there, and the grid reaches the same column width from either side of one. */
-  container-type: inline-size;
-}
-
-/*
- * The note under a card is a hook rather than documentation, and the cards are
- * a wall. A description running to a fourth line beside one that stops at three
- * leaves the row with a ragged bottom edge, and which descriptions do that
- * changes with the width: at three columns most of them take three lines, and
- * at the width just before the grid drops to two, most take four and a few take
- * five.
- *
- * So the box is four lines, always, whether the text fills them or not. `lh` is
- * the line box itself, so it stays exact if the leading changes. The few that
- * run longer are clipped; the full description is on the item's own page, which
- * is where somebody reading rather than browsing has already gone.
- */
-.item-card__note {
-  /*
-   * The prefixed trio and not the standard `line-clamp`. Declaring both makes
-   * the browser take the modern path, which computes the display back to
-   * flow-root and leaves nothing clamped at all: measured, the long notes still
-   * ran to their fifth line with the property sitting there doing nothing.
-   */
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4;
-  overflow: hidden;
-  /*
-   * content-box so the four lines are four lines. Everything else here is
-   * border-box, under which a min-height of 4lh is four lines minus whatever
-   * padding is on the element, and the bottom padding of a card is most of a
-   * line on its own.
-   */
-  box-sizing: content-box;
-  min-height: 4lh;
-}
-
-/*
- * Measured rather than guessed. Across every width the grid produces, a card
- * wider than about 320px never takes more than three lines, and a card narrower
- * than about 300px takes up to four. The box follows the card, so the wall is
- * flush at every width without reserving a line nobody uses: at the widest the
- * old fixed four left two blank lines under every description.
- */
-@container (min-width: 310px) {
-  .item-card__note {
-    -webkit-line-clamp: 3;
-    min-height: 3lh;
-  }
 }
 
 .item-card::before {

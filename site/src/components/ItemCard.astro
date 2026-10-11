@@ -27,17 +27,23 @@ type Props = {
   media: Shot & { dark?: Shot | null }
 }
 
-const { href, name, description, label, media } = Astro.props
+/*
+ * `description` is accepted and not rendered. The walls all pass it and the
+ * detail pages all use it; dropping it from the props would mean editing four
+ * call sites to delete a line each, and putting it back later would mean
+ * editing them again.
+ */
+const { href, name, label, media } = Astro.props
 const dark = media.dark ?? null
 ---
 
 <a
   href={href}
-  class="item-card group border-line bg-be flex h-full flex-col overflow-hidden rounded-[2px] border no-underline"
+  class="item-card group flex h-full flex-col no-underline"
   data-card
   data-scramble-host
 >
-  <div class="relative aspect-video overflow-hidden">
+  <div class="relative aspect-video overflow-hidden rounded-[2px]">
     {
       media.poster ? (
         <img
@@ -81,17 +87,19 @@ const dark = media.dark ?? null
     }
   </div>
 
-  <div class="border-line flex items-baseline justify-between gap-3 border-t px-4 py-3">
-    {/*
-      The name decodes on hover, the same DecodeText the nav labels use, and
-      triggered by the card rather than by the name: the strip it sits in is
-      two lines tall at the bottom of a poster, so pointing at the words
-      themselves is not how anybody arrives at a card.
-    */}
-    <span class="text-l1 text-[0.95rem]" data-scramble>{name}</span>
+  {/*
+    A caption under the poster rather than a panel welded to it. The card used
+    to be a bordered box with a filled strip along the bottom and a note under
+    that, which made a wall of them read as a wall of boxes: what a reader is
+    scanning is the pictures, and every border and fill was a line drawn
+    between one picture and the next. The name decodes on hover, triggered by
+    the card rather than by the name, because two words under a poster are not
+    how anybody arrives at a card.
+  */}
+  <div class="flex items-baseline justify-between gap-3 pt-[0.35rem]">
+    <span class="text-l1 text-[0.82rem]" data-scramble>{name}</span>
     <span class="tag">{label}</span>
   </div>
-  <p class="item-card__note text-l3 px-4 pb-4 text-[0.78rem] leading-snug">{description}</p>
 </a>
 
 <script>

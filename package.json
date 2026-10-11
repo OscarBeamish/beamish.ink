@@ -20,6 +20,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "review": "tsx tools/review/index.ts",
     "poke": "tsx tools/poke/index.ts",
+    "scrollspeed": "tsx tools/scrollspeed.ts",
     "sweep": "tsx tools/sweep/index.ts",
     "contrast": "tsx tools/contrast/index.ts",
     "tells": "tsx tools/tells/index.ts",
