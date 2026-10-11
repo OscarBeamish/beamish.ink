@@ -11,6 +11,7 @@
  */
 
 import { spawn } from 'node:child_process'
+import { connect } from 'node:net'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -25,13 +26,41 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 export const PORT = 4321
 export const ORIGIN = `http://127.0.0.1:${PORT}`
 
-export async function alive(): Promise<boolean> {
+export async function alive(ms = 900): Promise<boolean> {
   try {
-    const response = await fetch(ORIGIN, { signal: AbortSignal.timeout(900) })
+    const response = await fetch(ORIGIN, { signal: AbortSignal.timeout(ms) })
     return response.ok
   } catch {
     return false
   }
+}
+
+/*
+ * Is anything holding the port, answering or not.
+ *
+ * alive() asks a different question: whether a server replies to an HTTP
+ * request inside 900ms. A dev server part way through compiling a page does
+ * not, and the gap between those two questions is what filled this machine
+ * with orphaned servers. A tool polled, got no answer in time, concluded the
+ * port was free and started another one, which took the next port up and
+ * stayed there. Thirteen in an afternoon, 14.7GB between them, and the renderer
+ * crashes they caused were read as site bugs for about two hours.
+ *
+ * A TCP connect cannot be slow in that way. Either something is listening or
+ * nothing is.
+ */
+export function portHeld(): Promise<boolean> {
+  return new Promise(resolve => {
+    const socket = connect({ port: PORT, host: '127.0.0.1' })
+    const done = (held: boolean) => {
+      socket.destroy()
+      resolve(held)
+    }
+    socket.setTimeout(1500)
+    socket.once('connect', () => done(true))
+    socket.once('timeout', () => done(false))
+    socket.once('error', () => done(false))
+  })
 }
 
 /*
@@ -41,6 +70,28 @@ export async function alive(): Promise<boolean> {
  */
 export async function ensureServer(): Promise<'reused' | 'started'> {
   if (await alive()) return 'reused'
+
+  /*
+   * Held but not answering: somebody else's server is booting or busy. Wait
+   * for it rather than starting a rival. Starting one here is what orphans
+   * them, and an orphan is invisible: it answers 200 on a port no tool asks
+   * about and shows up only as a gigabyte in Task Manager.
+   */
+  if (await portHeld()) {
+    const waitUntil = Date.now() + 40_000
+    while (Date.now() < waitUntil) {
+      if (await alive(3000)) return 'reused'
+      await new Promise(resolve => setTimeout(resolve, 400))
+    }
+    throw new Error(
+      [
+        `something is holding ${PORT} and not answering HTTP.`,
+        'Stop it before running this again. In PowerShell:',
+        "  Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" |",
+        "    Where-Object { $_.CommandLine -like '*astro*' } | Stop-Process -Force"
+      ].join('\n')
+    )
+  }
 
   const child = spawn(
     process.execPath,

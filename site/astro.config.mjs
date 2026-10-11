@@ -60,6 +60,21 @@ export default defineConfig({
   vite: {
     plugins: [tailwind()],
     /*
+     * Fail rather than drift.
+     *
+     * Astro's default is to take the next free port when the one it was asked
+     * for is busy, and that default cost this machine 14.7GB twice. The
+     * measuring tools poll 127.0.0.1:4321 to decide whether a server is
+     * already up; a server busy compiling answers slowly, the poll times out,
+     * the tool starts another one, and that one quietly binds 4322 and lives
+     * forever on a port nothing will ever ask about. Thirteen of them had
+     * stacked up by this afternoon, and seventeen the first time.
+     *
+     * With strictPort the loser of that race exits immediately, which is the
+     * behaviour the tools were written assuming they had.
+     */
+    server: { strictPort: true },
+    /*
      * React's dev JSX runtime, prebundled explicitly.
      *
      * Without this the four tier-2 pages threw "jsxDEV is not a function" on
