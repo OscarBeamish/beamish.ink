@@ -60,7 +60,13 @@ async function main() {
   })
   console.log('\n  effect              pixels    GPU median    worst    at 60Hz')
   for (const slug of list) {
-    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
+    /* GPUTIME_DPR to measure the display somebody actually has. Windows at
+       125 or 150 per cent reports 1.25 or 1.5, and cost goes with the square
+       of it: an effect that is comfortable at 1 can be over budget at 1.5. */
+    const page = await browser.newPage({
+      viewport: { width: 1440, height: 900 },
+      deviceScaleFactor: Number(process.env['GPUTIME_DPR'] ?? 1)
+    })
     await page.goto(`${urlFor(`effects/${slug}/demo.html`)}?record=1`, { waitUntil: 'load' })
     await page.waitForTimeout(2000)
     const r = (await page.evaluate(MEASURE)) as {

@@ -414,7 +414,21 @@ export function mount<O extends BaseOptions>(
 
   function tick(stamp: number) {
     if (!running) return
-    const dt = Math.min(stamp - lastStamp, 100) / 1000 // clamp tab-switch spikes
+    /*
+     * Clamped at both ends.
+     *
+     * The top end is the tab-switch spike this always guarded against. The
+     * bottom end is that a rAF timestamp is the moment the frame began, which
+     * can be EARLIER than the performance.now() start() took a moment before:
+     * the subtraction is then negative, Math.min keeps it, and the effect's
+     * clock runs backwards. Measured on WindField, elapsed began at -0.1088
+     * and four frames were rendered at a negative t before it climbed past
+     * zero. A shader handed a smaller t than last frame draws an earlier
+     * picture, which is a visible jump backwards on every start, and start
+     * runs again every time the panel scrolls into view or the tab is
+     * returned to.
+     */
+    const dt = Math.min(Math.max(stamp - lastStamp, 0), 100) / 1000
     elapsed += dt
     lastStamp = stamp
     sampleScroll(dt)

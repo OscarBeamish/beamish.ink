@@ -92,7 +92,30 @@ export const windFieldDefaults: WindFieldOptions = {
   contrast: 0.46,
   seed: 11,
   period: 24,
-  maxDpr: 1.5,
+  /*
+   * 1, not the usual 2 and no longer 1.5.
+   *
+   * This is the most expensive shader on the site by a wide margin: fifty-six
+   * noise samples a pixel, each of them four hashes. Measured with
+   * `pnpm gputime`, which asks the GPU rather than timing the draw call, it
+   * costs 1.23ms a frame at a pixel ratio of 1 where MeshGradient costs 0.07
+   * and AuroraCurtain 0.10.
+   *
+   * Cost goes with the square of the ratio, and a Windows display at 150 per
+   * cent reports 1.5. At 1.5 the same shader took 4.03ms with a worst frame
+   * of 5.10, against the 6.06ms a 165Hz display gives you for everything:
+   * two thirds to five sixths of the whole frame budget spent on one
+   * backdrop. Over that line the browser stops delivering a new frame every
+   * refresh and starts repeating and reordering the ones it has, and what
+   * that looks like from the other side of the screen is a field that
+   * flickers between two positions while plainly still moving. It was
+   * reported in exactly those words.
+   *
+   * The thing it draws is noise at a cell of about two pixels. The second
+   * sub-pixel was already being paid for and not seen, which is what the 1.5
+   * was about; the first one is the same argument carried to its end.
+   */
+  maxDpr: 1,
   reducedMotionTime: 0
 }
 
