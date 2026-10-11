@@ -5,9 +5,64 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
-## Unreleased
+## v0.13.0, 11 October 2026
 
 ### Added
+
+- Templates. Nineteen whole pages, each one a single index.html with its CSS,
+  its SVG and its script in it, and a prompt that hands over the file rather
+  than a part to mix into your own. Most are adapted from Ray Velez's
+  instalanding.ai under its MIT licence, which is a deliberate change from the
+  rule for items: a template is taken wholesale, so a notice at the top of the
+  file is in the ordinary place and travels with the thing it covers. Each one
+  says whose work it was, on its page and in its prompt.
+
+- WaterCaustics (backdrops): the net of light on a pool floor, worked out
+  rather than drawn. Nothing in the shader draws a caustic or knows where one
+  is: there is a wavy surface and one step of optics, and the filaments are
+  where the refractive mapping folds. It took eighteen waves to stop it reading
+  as a lattice, because a sum of a few plane waves is quasi-periodic however
+  the directions are chosen.
+
+- MetaballField (backdrops): blobs that merge and part, raymarched from a
+  distance field. Two meshes cannot flow into one another without somebody
+  rebuilding the mesh; two distance fields merge by taking the smaller of the
+  two, and softening that minimum is what leaves the neck.
+
+- ChromeForm (backdrops): a turned metal form rotating in a studio built for it
+  to reflect. Most of the item is the room, because a mirror has no colour of
+  its own and chrome in an empty scene is grey plastic. The room is painted
+  into a canvas at runtime, so no HDR file ships.
+
+- DepthPointCloud (surfaces): a photograph taken apart into points and pushed
+  into depth by its own brightness. There is no depth map and it does not
+  pretend there is: luminance as height is wrong about the world and right
+  about photographs, because a photographer lights the subject and lets the
+  ground fall away.
+
+- SquircleKeycap (surfaces): a key you can press, drawn as a superellipse. A
+  border-radius is a rectangle with arcs stuck on the corners and the curvature
+  jumps from zero to one over the radius; a superellipse is one equation the
+  whole way round. The travel is a closed form of the time since each press, so
+  seeking backwards unpresses the key.
+
+- PanelGauge (surfaces): a moving-coil gauge with a scale that lights to the
+  reading. A panel meter sweeps about 250 degrees from the lower left because
+  that is where its stops are, and the reading hunts by a fraction of a
+  division because what it is measuring is not still either.
+
+- WindField (backdrops): a flow field combed into streamlines by line integral
+  convolution. The step length has to be about one noise cell: longer and the
+  field is static, shorter and it smears, which it did for two commits.
+
+- EmberRise (backdrops): embers lifting off the bottom edge and cooling as they
+  go, with the colour coming from the temperature rather than from a gradient.
+
+- HighlighterMark (reveals): a marker stroke laid over text, with the overlap
+  at the ends darker because that is what a second pass of the same ink does.
+
+- IrisReveal (reveals): a lens iris opening on whatever is behind it, with the
+  blades meeting at a point rather than a polygon.
 
 Ten more, and the same approach: each entry says what the usual implementation
 gets wrong, because that is the part worth paying for.
@@ -24,10 +79,6 @@ gets wrong, because that is the part worth paying for.
   in the shader drawing a fringe. The anti-aliasing is load-bearing rather than
   polish: an aliased screen beats with the pixel grid, so the fringes would be
   the screens interfering with your monitor.
-
-- RegistrationMarks (backdrops): the marks outside the trim with the plates
-  drifting. Quietest backdrop here after PaperGrain at 0.023 change per frame,
-  and the middle of the frame is bare paper.
 
 - WovenThreads (backdrops): cloth, where the interlacing is one comparison per
   crossing. Two sets of lines crossing is a grid; changing that comparison from
@@ -122,6 +173,59 @@ implementation gets wrong, because that is the part worth paying for.
 
 ### Changed
 
+- The site navigates without reloading. Astro's ClientRouter, and four things
+  that assumed a full load had to be told otherwise: the demo panels released
+  their WebGL contexts on pagehide, which does not fire on a swap, so every
+  item page visited kept its context until the browser force-lost the oldest;
+  the stored ground was overwritten by the static default on every click; the
+  copy prompt button, the card hover states and the scramble binding wired
+  themselves once per real load, so on every page after the first they were
+  controls that did nothing; and the scroll stayed where it was. Navigations
+  measure 26 to 83ms on the built site.
+
+- The fonts no longer flash on navigation. The declarations moved out of the
+  bundled CSS into a static stylesheet with a fixed href, because the router
+  keeps a stylesheet that exists on the next page and dev serves the site's CSS
+  as inline style blocks that fail that test. A re-appended @font-face is a new
+  face in the unloaded state, so swap painted the fallback under every heading.
+
+- The nineteen templates went through a pass for the things that make a page
+  read as AI-made, which turned out to be the second-order ones rather than the
+  obvious ones: the set already avoided centred heroes and emoji icons and was
+  full of tracked caps mono labels, decorative 01/02/03, one accented headline
+  word and Tailwind's indigo. Kept where the subject earns it, stripped where
+  it is chrome. Indigo-band pixels went from 2496 to 27, caps labels from 442
+  to about 60, decorative numbering from 96 to 7, gradient headline text from
+  515 to 44. AGENTS.md and the generated template prompt both say which devices
+  are spent now.
+
+- The templates wall has a chosen order rather than an alphabetical one, and
+  the front door takes its three from the front of it rather than naming its
+  own, so the two cannot disagree about which template matters.
+
+- Card titles decode on hover, the same DecodeText the nav uses, triggered by
+  the card rather than by the words. Both now also fire on focus.
+
+- The favicon is the black mark on a white plate, matching the .ico and the
+  apple icon, which were already that. The SVG was the mark on transparent and
+  a browser prefers the SVG, so the tab got the one that disappears against
+  dark browser chrome.
+
+- Prefetch is on sight rather than on hover. Worth nothing on localhost and the
+  difference between about 200ms and about a second at a 150ms round trip, for
+  a reader who tabs to a link or taps one.
+
+- three is named in optimizeDeps. Item cores are imported through @fs/ paths
+  that Vite's scanner does not crawl, so a package only they use is always
+  discovered late, and the re-optimise that follows invalidates everything
+  prebundled.
+
+- Four tools: `pnpm budget` for mean change per frame and draw cost, `pnpm
+  frame <slug> <t>` for a named moment of an item, `pnpm navcheck` for what a
+  client-side navigation costs and whether the fonts survive it, and `pnpm
+  tells` for the AI-design tells, which reports rather than gates because
+  several of them are legitimate.
+
 - `record.posterQuality` joins `crf` and `webmCrf`, so an item that is
   pathological for a codec can turn down its poster too. ffmpeg's `-q:v 6` was
   hardcoded, which is right for anything with redundancy in it and extravagant
@@ -158,6 +262,33 @@ implementation gets wrong, because that is the part worth paying for.
 
 ### Fixed
 
+- PaperGrain's demo panel had been mounting nothing. The registry is keyed by
+  slug and its entry said `tooth`, the name the item had before it shipped, so
+  the lookup never matched. No error, no empty state, nothing in the console.
+  There are two tests now, one static and one that loads the page and requires
+  a canvas with a real width in it.
+
+- WindField was a smudge rather than line integral convolution. The noise cells
+  were 7px and the walk stepped 7px, so consecutive samples landed in the same
+  cell, nothing cancelled, and it shipped that way for two commits.
+
+- CardStack brought a new card in on top instead of showing the one underneath.
+  The file's own comment said the card keeps its place until it is clear of the
+  pile and the arithmetic did not.
+
+- CrosshairCursor was alive only inside the button column, because the panel
+  centres its content and the item hides itself outside the element it is
+  mounted on. FallingLetters measured itself at 96px wide and fell out of the
+  bottom. AsciiImage sampled a photograph that had not decoded and drew one
+  glyph everywhere. All three are the same fault in the panel.
+
+- The contrast checker reported this site's own nav at 1.05:1. It is white with
+  mix-blend-mode difference, so the rendered colour is a function of what is
+  behind it per pixel and the arithmetic genuinely cannot score it. Blended
+  text is reported as unsampleable now rather than failing, because two items
+  had already been "fixed" into genuinely failing states off the back of a
+  false positive like it.
+
 - The prompts for the ten effects that have no canvas told the agent reading
   them that the canvas fills its host. They now say what those effects actually
   take, which is an element with its content already in it.
@@ -168,6 +299,9 @@ implementation gets wrong, because that is the part worth paying for.
   which is why the recordings looked right and the site did not.
 
 ### Removed
+
+- WatermarkSheet and PointerFoilSheen. Prompts pinned to v0.12.0 and earlier
+  still work, because they fetch from their own tag.
 
 - GlassModal. Two attempts at a glass dialog and neither earned its place: the
   CSS one is a blur with a white border, which is what CSS glass is, and the

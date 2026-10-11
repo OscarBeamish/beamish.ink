@@ -61,6 +61,41 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
       document.addEventListener('astro:before-swap', function (event) {
         applyGround(event.newDocument.documentElement)
       })
+
+      /*
+       * The two faces again, this time as objects the document owns.
+       *
+       * The pair declared in /fonts.css are CSS-connected: they belong to that
+       * stylesheet, and the router's swap disconnects and reconnects it, which
+       * throws them away and makes new unloaded ones. These do not belong to a
+       * stylesheet, so nothing the router does to the head touches them, and a
+       * loaded face in document.fonts is enough for the text to be painted in
+       * it whatever happened to the CSS copy.
+       *
+       * Loaded rather than merely added, because adding an unloaded face is
+       * the same race in a different place. They come from cache after the
+       * first page, so this costs nothing on any navigation.
+       */
+      try {
+        var faces = [
+          ['Archivo', '/fonts/archivo-latin.woff2'],
+          ['JetBrains Mono', '/fonts/jetbrains-mono-latin.woff2']
+        ]
+        faces.forEach(function (entry) {
+          var face = new FontFace(entry[0], "url('" + entry[1] + "') format('woff2')", {
+            weight: '400 700',
+            style: 'normal',
+            display: 'swap'
+          })
+          face.load().then(function (loaded) {
+            document.fonts.add(loaded)
+          }, function () {
+            /* The CSS copy is still there; this is belt and braces. */
+          })
+        })
+      } catch (error) {
+        /* No FontFace constructor is no worse than before it existed. */
+      }
     </script>
     <link rel="canonical" href={canonical.href} />
     <title>{title}</title>
@@ -109,17 +144,25 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
       every page, which they are: they are in the layout, not in a page.
     */}
     {/*
-      The faces are declared in a static stylesheet rather than in global.css.
+      The faces are declared in a static stylesheet rather than in global.css,
+      so there is one href that is the same string in dev and in a build. That
+      is necessary and, on its own, it is not sufficient.
 
-      The router keeps a stylesheet that exists on the next page. A build has
-      one hashed CSS file with the same href everywhere, so that held already;
-      dev serves the same CSS as inline <style> blocks, which fail that test
-      and get re-appended on every navigation, and a re-appended @font-face is
-      a new face: unloaded, so swap paints the fallback and every heading
-      flashes. A file in public/ has the same href in both, so both keep it.
+      A CSS-connected FontFace belongs to the stylesheet that declared it. The
+      router keeps this link element, and the same node still ends up
+      disconnected and reconnected across a swap, which destroys those faces
+      and builds new ones in the unloaded state. Measured: the link is the same
+      node afterwards and both FontFace objects are new. transition:persist on
+      it changes nothing, because persist is for elements in the body.
 
-      Measured at astro:page-load on the second page, before and after:
-      dev went from both faces NOT READY to both ready, which is the flash.
+      They reload from cache almost at once, which is why this looked fixed:
+      under any slack at all they are ready by the time the page is shown. Put
+      the machine under load and they are not, and font-display: swap paints
+      the fallback under every heading on the site.
+
+      So the faces are also added through the FontFace API below, which makes a
+      copy that is not CSS-connected and therefore belongs to the document
+      rather than to a stylesheet. Those survive every swap, loaded.
     */}
     <link rel="stylesheet" href="/fonts.css" />
 
