@@ -2,104 +2,129 @@
 /*
  * What a backdrop looks like with a page on it.
  *
- * A backdrop shown on its own answers the wrong question. The one people ask
- * first is what it would look like behind something, and for a long time this
- * panel answered it with a single sample headline: better than nothing, and
- * it only ever tested one case. A field that is calm enough for a headline in
- * the bottom corner can still be unusable behind a column of body copy, a
- * grid of cards, or a word set across the whole frame.
+ * Six compositions, chosen to fail differently rather than to look different,
+ * and every one of them framed like a real page: a nav across the top and
+ * labels along the bottom. That framing is most of the point. A headline
+ * floating in the middle of a panel reads as a caption on a picture; the same
+ * headline under a nav bar and over a footer reads as a site, which is the
+ * thing anybody looking at a backdrop is actually trying to picture.
  *
- * So there are six, and they are chosen to fail differently rather than to
- * look different. Bare is the backdrop by itself. Hero puts type in the
- * middle, where most backdrops are busiest. Column puts a real measure of
- * body copy on one side, which is the hardest thing to read over movement.
- * Cards cover half the frame in translucent panels, which is how a backdrop
- * usually ends up being used and the case where a loud one survives. Wordmark
- * sets one word across the full width, so the backdrop shows through the
- * counters of the letters. Frame puts chrome at the edges and leaves the
- * middle empty, which is the only one that asks the backdrop to be the
- * subject.
+ * None of them paints a ground. Every surface is translucent or absent,
+ * because a composition with an opaque background has hidden the thing it
+ * exists to demonstrate. The scrims are the exception and are not a cheat: a
+ * scrim under copy is what you would do on the real page, since a backdrop
+ * calm enough to need none anywhere is a backdrop with nothing in it.
  *
- * None of them paints a ground. Every panel here is either translucent or
- * absent, because a composition with an opaque background is a composition
- * that has hidden the thing it is demonstrating. The scrims are the exception
- * and they are not a cheat: a scrim under copy is what you would do on the
- * real page, since a backdrop calm enough to need none anywhere is a backdrop
- * with nothing in it.
- *
- * The copy is this site's own. Filler is its own kind of lie about how
- * something reads.
+ * Everything is sized in cqw against the panel, so a look holds its
+ * proportions in a 16:9 demo and on a phone.
  */
+
+/* The chrome every look wears. Written once here rather than five times. */
+const NAV = ['Work', 'Studio', 'Journal']
+/* The studio's own voice, not this site's. An earlier version put MIT and
+   "Nothing to install" along the bottom, which is Beamish talking: the point
+   of the frame is that it belongs to somebody else's page. */
+const FEET = ['Onda Studio', 'Lisbon and remote', 'hi@onda.studio']
 ---
 
-{/*
-  All six are in the markup and hidden, rather than built on demand. They are
-  a few hundred bytes of static HTML, the panel is already mounted, and
-  building them on first press would put a layout pass in the middle of an
-  interaction that is meant to be instant.
-*/}
 <div class="demo-looks" data-looks data-ground-scope="dark" hidden aria-hidden="true">
-  <div class="demo-look" data-look="hero" hidden>
-    <p class="demo-look__title">A headline sits here</p>
+  {/*
+    One chrome layer for all of them, so switching composition changes the
+    composition and not the frame around it. That steadiness is what makes
+    the six comparable: anything that moved between them would read as part
+    of the difference.
+  */}
+  <div class="demo-chrome" data-chrome hidden>
+    <div class="demo-chrome__nav">
+      <span class="demo-chrome__brand"><i aria-hidden="true"></i>Onda</span>
+      <span class="demo-chrome__links">
+        {NAV.map(item => <span>{item}</span>)}
+      </span>
+      <span class="demo-chrome__cta">Let’s talk</span>
+    </div>
+    <div class="demo-chrome__feet">
+      {FEET.map(item => <span>{item}</span>)}
+    </div>
+  </div>
+
+  {/* Hero: type in the middle, where most backdrops are busiest. */}
+  <div class="demo-look demo-look--hero" data-look="hero" hidden>
+    <p class="demo-look__kicker">Creative studio</p>
+    <h3 class="demo-look__display">
+      Design that<br /><em>bends the light</em>
+    </h3>
     <p class="demo-look__line">
-      And a line of supporting copy under it, about the length a real one runs,
-      so the backdrop can be judged behind text rather than on its own.
+      A studio that specialises in colour, depth and calm interactive motion.
     </p>
     <div class="demo-look__row">
-      <span class="demo-look__pill demo-look__pill--solid">Copy prompt</span>
-      <span class="demo-look__pill">How it works</span>
+      <span class="demo-look__pill demo-look__pill--solid">Let’s talk</span>
+      <span class="demo-look__pill">Our works</span>
     </div>
   </div>
 
-  <div class="demo-look demo-look--column" data-look="column" hidden>
-    <div class="demo-look__col">
-      <p class="demo-look__kicker">Backdrops</p>
-      <p class="demo-look__title demo-look__title--sm">Ambient scenes that sit behind your content</p>
-      <p class="demo-look__body">
-        A backdrop has to survive being ignored. Movement at the edge of vision
-        pulls a reader off a headline, which is the one thing a background must
-        not do, so an ambient effect wants a long period and a short distance.
-      </p>
-      <p class="demo-look__body">
-        Period and distance are two different questions, and an effect worth
-        pasting gives you a control for each of them rather than one dial
-        marked speed.
-      </p>
+  {/* Split: a hairline down the middle, copy on one side only. */}
+  <div class="demo-look demo-look--split" data-look="split" hidden>
+    <div class="demo-look__half">
+      <h3 class="demo-look__display demo-look__display--left">
+        A deep dive into your <em>living</em> surface
+      </h3>
+      <div class="demo-look__row">
+        <span class="demo-look__pill demo-look__pill--solid">Chat with us</span>
+        <span class="demo-look__pill">Our works</span>
+      </div>
     </div>
+    <div class="demo-look__rule" aria-hidden="true"></div>
   </div>
 
-  <div class="demo-look demo-look--cards" data-look="cards" hidden>
+  {/* Bento: translucent panels over half the frame. */}
+  <div class="demo-look demo-look--bento" data-look="bento" hidden>
     <div class="demo-look__grid">
-      <div class="demo-look__card">
-        <p class="demo-look__kicker">Tier one</p>
-        <p class="demo-look__cardtitle">Framework free</p>
+      <div class="demo-look__card demo-look__card--tall">
+        <p class="demo-look__kicker">Experience</p>
+        <div class="demo-look__rows">
+          <span><b>2023–now</b> Scene systems</span>
+          <span><b>2020–2023</b> Lead visual craft</span>
+          <span><b>2017–2020</b> Brand design</span>
+        </div>
       </div>
       <div class="demo-look__card">
-        <p class="demo-look__kicker">Contexts</p>
-        <p class="demo-look__cardtitle">One at a time</p>
+        <p class="demo-look__kicker">Testimonial</p>
+        <p class="demo-look__quote">“It elevated our brand with a level of polish that exceeded every expectation.”</p>
+      </div>
+      <div class="demo-look__card">
+        <p class="demo-look__kicker">Rendered</p>
+        <p class="demo-look__stat">10M+</p>
       </div>
       <div class="demo-look__card demo-look__card--wide">
-        <p class="demo-look__kicker">The promise</p>
-        <p class="demo-look__cardtitle">Paste the prompt, keep the code</p>
+        <p class="demo-look__kicker">Contact</p>
+        <p class="demo-look__cardtitle">hi@onda.studio</p>
       </div>
     </div>
   </div>
 
+  {/* Wordmark: one word full width, the backdrop through the counters. */}
   <div class="demo-look demo-look--wordmark" data-look="wordmark" hidden>
-    <p class="demo-look__word">BEAMISH</p>
+    <p class="demo-look__word">ONDA</p>
+    <p class="demo-look__line demo-look__line--centre">
+      Step into a world where ideas are crafted into visual symphonies.
+    </p>
   </div>
 
-  <div class="demo-look demo-look--frame" data-look="frame" hidden>
-    <div class="demo-look__bar">
-      <span>Beamish.ink</span>
-      <span>Effects</span>
-      <span>Grids</span>
-      <span>Templates</span>
-    </div>
-    <div class="demo-look__feet">
-      <span>MIT</span>
-      <span>No build step</span>
-      <span>Nothing to install</span>
+  {/* Figures: the case where a backdrop sits under a band of numbers. */}
+  <div class="demo-look demo-look--figures" data-look="figures" hidden>
+    <div class="demo-look__band">
+      <div>
+        <p class="demo-look__stat">148</p>
+        <p class="demo-look__kicker">Projects shipped</p>
+      </div>
+      <div>
+        <p class="demo-look__stat">12<span>yrs</span></p>
+        <p class="demo-look__kicker">In the studio</p>
+      </div>
+      <div>
+        <p class="demo-look__stat">9</p>
+        <p class="demo-look__kicker">Awards</p>
+      </div>
     </div>
   </div>
 </div>

@@ -144,50 +144,62 @@ const tweakable = tier === 1 ? Object.entries(options) : []
 
     {
       inUse && (
-        <>
-          <DemoLooks />
-          {/* The picker, revealed by the Behind type control. Off by default:
-              a backdrop should be seen as a backdrop first, and what a page
-              does to it is the second question. */}
-          <div class="demo-picker" data-picker hidden>
-            <button type="button" class="demo-control" data-look-pick="bare" aria-pressed="true">
-              Bare
-            </button>
-            <button type="button" class="demo-control" data-look-pick="hero" aria-pressed="false">
-              Hero
-            </button>
-            <button type="button" class="demo-control" data-look-pick="column" aria-pressed="false">
-              Column
-            </button>
-            <button type="button" class="demo-control" data-look-pick="cards" aria-pressed="false">
-              Cards
-            </button>
-            <button type="button" class="demo-control" data-look-pick="wordmark" aria-pressed="false">
-              Wordmark
-            </button>
-            <button type="button" class="demo-control" data-look-pick="frame" aria-pressed="false">
-              Frame
-            </button>
-            {/*
-              The composition's own ground, which is not the item's.
-              A backdrop declared for a dark page can still be the thing a
-              light panel sits on, and that is a real question about the
-              backdrop rather than about the page: pale copy over it and dark
-              copy over it fail in different places.
-            */}
-            <span class="demo-picker__split" aria-hidden="true"></span>
-            <button type="button" class="demo-control" data-look-ground="dark" aria-pressed="true">
-              Dark
-            </button>
-            <button type="button" class="demo-control" data-look-ground="paper" aria-pressed="false">
-              Light
-            </button>
-          </div>
-        </>
+        <DemoLooks />
       )
     }
 
-    <div class="absolute right-3 bottom-3 flex gap-2">
+  </div>
+
+  {/*
+    The controls sit under the panel rather than on it.
+    
+    They were absolutely positioned in the bottom corner, over the effect,
+    which is the one place on this page where nothing of ours belongs: the
+    panel is the item, and chrome on top of it is chrome in the photograph.
+    It also fought the compositions, whose own footer row had to carry
+    padding to dodge a button that was not part of the design.
+  */}
+  <div class="demo-bar">
+    <div class="demo-bar__left">
+      {/* The picker, revealed by the Behind type control. Off by default:
+          a backdrop should be seen as a backdrop first, and what a page
+          does to it is the second question. */}
+      <div class="demo-picker" data-picker hidden>
+        <button type="button" class="demo-control" data-look-pick="bare" aria-pressed="true">
+          Bare
+        </button>
+        <button type="button" class="demo-control" data-look-pick="hero" aria-pressed="false">
+          Hero
+        </button>
+        <button type="button" class="demo-control" data-look-pick="split" aria-pressed="false">
+          Split
+        </button>
+        <button type="button" class="demo-control" data-look-pick="bento" aria-pressed="false">
+          Bento
+        </button>
+        <button type="button" class="demo-control" data-look-pick="wordmark" aria-pressed="false">
+          Wordmark
+        </button>
+        <button type="button" class="demo-control" data-look-pick="figures" aria-pressed="false">
+          Figures
+        </button>
+        {/*
+          The composition's own ground, which is not the item's.
+          A backdrop declared for a dark page can still be the thing a
+          light panel sits on, and that is a real question about the
+          backdrop rather than about the page: pale copy over it and dark
+          copy over it fail in different places.
+        */}
+        <span class="demo-picker__split" aria-hidden="true"></span>
+        <button type="button" class="demo-control" data-look-ground="dark" aria-pressed="true">
+          Dark
+        </button>
+        <button type="button" class="demo-control" data-look-ground="paper" aria-pressed="false">
+          Light
+        </button>
+      </div>
+    </div>
+    <div class="demo-bar__right">
       {
         inUse && (
           <button
@@ -670,6 +682,13 @@ const tweakable = tier === 1 ? Object.entries(options) : []
    */
   const mountPanels = async () => {
   for (const panel of document.querySelectorAll<HTMLElement>('[data-demo]')) {
+    /*
+     * The controls live in a bar under the panel now, so anything that is
+     * not the effect itself is looked up from the figure rather than from
+     * the panel. The looks layer stays inside the panel, because it has to
+     * sit over the effect.
+     */
+    const root = panel.closest('figure') ?? panel
     const slug = panel.dataset['slug'] ?? ''
     const tier = panel.dataset['tier'] === '2' ? 2 : 1
     const stage = panel.querySelector<HTMLElement>('[data-stage]')
@@ -748,7 +767,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     // in, because the document never goes away.
     if (handle) live.push(handle)
 
-    const toggle = panel.querySelector<HTMLButtonElement>('[data-toggle]')
+    const toggle = root.querySelector<HTMLButtonElement>('[data-toggle]')
     toggle?.addEventListener('click', () => {
       const paused = toggle.getAttribute('aria-pressed') === 'true'
       if (paused) handle?.start()
@@ -768,8 +787,8 @@ const tweakable = tier === 1 ? Object.entries(options) : []
      * looking at and is the opposite of it.
      */
     const looks = panel.querySelector<HTMLElement>('[data-looks]')
-    const picker = panel.querySelector<HTMLElement>('[data-picker]')
-    const useToggle = panel.querySelector<HTMLButtonElement>('[data-use-toggle]')
+    const picker = root.querySelector<HTMLElement>('[data-picker]')
+    const useToggle = root.querySelector<HTMLButtonElement>('[data-use-toggle]')
 
     const showLook = (name: string) => {
       for (const look of looks?.querySelectorAll<HTMLElement>('[data-look]') ?? []) {
@@ -778,6 +797,15 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       /* Bare is the absence of a look rather than a look that draws nothing,
          so the whole layer goes with it and the backdrop is untouched. */
       looks?.toggleAttribute('hidden', name === 'bare')
+      /*
+       * The nav and footer come with every composition, because that framing
+       * is most of what makes a composition read as a page rather than as a
+       * caption on a picture. One layer for all five, so switching look
+       * changes the look and not the frame around it.
+       */
+      looks
+        ?.querySelector<HTMLElement>('[data-chrome]')
+        ?.toggleAttribute('hidden', name === 'bare')
       for (const button of picker?.querySelectorAll<HTMLButtonElement>('[data-look-pick]') ?? []) {
         const on = button.dataset['lookPick'] === name
         button.setAttribute('aria-pressed', String(on))
@@ -831,7 +859,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
        page the author of the item had in mind. */
     showGround(panel.dataset['ground'] === 'paper' ? 'paper' : 'dark')
 
-    const replay = panel.querySelector<HTMLButtonElement>('[data-replay]')
+    const replay = root.querySelector<HTMLButtonElement>('[data-replay]')
     replay?.addEventListener('click', () => {
       handle?.stop()
       // start() does not rewind. A one-shot that has already finished would

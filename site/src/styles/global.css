@@ -250,85 +250,157 @@
   }
 
   /* ── The looks ────────────────────────────────────────────────────
-   * Six compositions a backdrop can be judged behind. None of them paints
-   * a ground: every surface here is translucent or absent, because a
-   * composition with an opaque background has hidden the thing it exists
-   * to demonstrate.
-   *
-   * Sized in cqw/cqh against the panel rather than the viewport, so a look
-   * holds its proportions whether it is in a 16:9 demo panel or a phone.
+   * Six compositions a backdrop can be judged behind, each framed like a
+   * real page. Sized in cqw against the panel, so they hold at any size.
    */
   .demo-looks {
     position: absolute;
     inset: 0;
     pointer-events: none;
+    color: var(--label-1);
+    container-type: inline-size;
   }
 
   .demo-looks[hidden],
-  .demo-look[hidden] {
+  .demo-look[hidden],
+  .demo-chrome[hidden] {
     display: none;
   }
 
+  /* ── The chrome every look wears ─────────────────────────────────
+   * A headline floating in the middle of a panel reads as a caption on a
+   * picture. The same headline under a nav bar and over a footer reads as a
+   * site, which is what anybody looking at a backdrop is trying to picture.
+   * One chrome layer for all six, so switching composition changes the
+   * composition and not the frame: anything that moved between them would
+   * read as part of the difference.
+   */
+  .demo-chrome {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(0.6rem, 2.4cqw, 1.6rem) clamp(0.8rem, 3cqw, 2rem);
+    font-size: clamp(0.5rem, 1.05cqw, 0.72rem);
+    letter-spacing: 0.02em;
+    z-index: 2;
+    /* Chrome sits on the thing rather than in a panel, so it gets a shadow
+       instead of a scrim. */
+    /* rgb() around the token, not the token on its own. --background-deep is
+       a comma-separated triplet, so color-mix() with the bare var() is an
+       invalid colour and the whole declaration is dropped with no warning:
+       every scrim in this block was dead and the cards had no background. */
+    text-shadow: 0 1px 8px color-mix(in srgb, rgb(var(--background-deep)) 85%, transparent);
+  }
+
+  .demo-chrome__nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.6rem, 2.6cqw, 2.2rem);
+  }
+
+  .demo-chrome__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+
+  .demo-chrome__brand i {
+    width: 0.78em;
+    height: 0.78em;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+  }
+
+  .demo-chrome__links {
+    display: flex;
+    gap: clamp(0.6rem, 2cqw, 1.6rem);
+    opacity: 0.82;
+  }
+
+  .demo-chrome__cta {
+    margin-left: auto;
+    padding: 0.42em 1em;
+    border: 1px solid color-mix(in srgb, var(--label-1) 45%, transparent);
+    border-radius: 100px;
+  }
+
+  .demo-chrome__feet {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    opacity: 0.7;
+    /* Clear of the picker, which lives in the bottom-left corner. */
+    padding-bottom: clamp(1.4rem, 4cqw, 2.4rem);
+  }
+
+  /* ── The composition layer ───────────────────────────────────────── */
   .demo-look {
     position: absolute;
     inset: 0;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    padding: clamp(1.25rem, 4%, 3rem);
-    color: var(--label-1);
-  }
-
-  /*
-   * A scrim under the copy, across the bottom third only, so the backdrop is
-   * still the thing being looked at. Paper rather than black: the panel takes
-   * the item's declared ground, and a black scrim on a paper item is a second
-   * design decision nobody asked for.
-   */
-  .demo-look::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to top,
-      color-mix(in srgb, var(--background-elevated) 88%, transparent) 0%,
-      color-mix(in srgb, var(--background-elevated) 55%, transparent) 26%,
-      transparent 58%
-    );
+    padding: clamp(2.4rem, 9cqw, 6rem) clamp(0.8rem, 3cqw, 2rem) clamp(2.6rem, 8cqw, 5rem);
+    z-index: 1;
   }
 
   .demo-look > * {
     position: relative;
   }
 
-  .demo-look__title {
+  /* The display face, big and tight. The body mono this site is set in is the
+     wrong voice for a headline pretending to be somebody else's landing page. */
+  .demo-look__display {
     margin: 0;
-    max-width: 16ch;
     font-family: var(--font-display);
-    font-size: clamp(1.6rem, 5.2cqw, 4rem);
-    line-height: 0.98;
-    letter-spacing: -0.025em;
+    font-weight: 600;
+    font-size: clamp(1.4rem, 6.4cqw, 4.6rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
   }
 
-  .demo-look__title--sm {
-    font-size: clamp(1.2rem, 3.4cqw, 2.4rem);
-    max-width: 18ch;
+  /* The second clause drops back. It is the one typographic move all six of
+     these compositions make, and it is what stops a two-line headline reading
+     as two sentences. */
+  .demo-look__display em {
+    font-style: normal;
+    opacity: 0.52;
   }
 
-  .demo-look__line {
-    margin: 0;
-    max-width: 38ch;
-    font-size: clamp(0.75rem, 1.5cqw, 1rem);
-    line-height: 1.45;
+  .demo-look__display--left {
+    text-transform: uppercase;
+    /* Smaller than the centred hero. Caps at the hero size ran a short
+       headline six lines deep and pushed the buttons off the panel. */
+    font-size: clamp(0.95rem, 3.2cqw, 2.3rem);
+    letter-spacing: -0.015em;
+    line-height: 1.12;
   }
 
   .demo-look__kicker {
     margin: 0;
-    font-size: clamp(0.55rem, 1.1cqw, 0.7rem);
-    letter-spacing: 0.12em;
+    font-size: clamp(0.48rem, 0.98cqw, 0.68rem);
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--label-3);
+    opacity: 0.62;
+  }
+
+  .demo-look__line {
+    margin: 0;
+    max-width: 42ch;
+    font-size: clamp(0.6rem, 1.3cqw, 0.92rem);
+    line-height: 1.5;
+    opacity: 0.8;
+  }
+
+  .demo-look__line--centre {
+    max-width: 34ch;
+    margin-inline: auto;
+    text-align: center;
   }
 
   .demo-look__row {
@@ -338,158 +410,240 @@
   }
 
   .demo-look__pill {
-    border: 1px solid var(--label-1);
+    border: 1px solid color-mix(in srgb, var(--label-1) 45%, transparent);
     border-radius: 100px;
-    padding: 0.35rem 0.85rem;
-    font-size: clamp(0.58rem, 1.1cqw, 0.72rem);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    padding: 0.5em 1.3em;
+    font-size: clamp(0.52rem, 1.05cqw, 0.74rem);
   }
 
   .demo-look__pill--solid {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: var(--label-1);
+    border-color: var(--label-1);
     color: rgb(var(--background-deep));
   }
 
-  /* ── Column: body copy on one side, the hardest read over movement ── */
-  .demo-look--column {
+  /* ── Hero ────────────────────────────────────────────────────────── */
+  .demo-look--hero {
+    align-items: center;
     justify-content: center;
+    text-align: center;
+    gap: clamp(0.5rem, 1.6cqw, 1.1rem);
   }
 
-  .demo-look--column::before {
-    background: linear-gradient(
-      to right,
-      color-mix(in srgb, var(--background-elevated) 90%, transparent) 0%,
-      color-mix(in srgb, var(--background-elevated) 70%, transparent) 38%,
-      transparent 62%
+  .demo-look--hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      62% 54% at 50% 52%,
+      color-mix(in srgb, rgb(var(--background-deep)) 72%, transparent) 0%,
+      transparent 72%
     );
   }
 
-  .demo-look__col {
+  /* ── Split ───────────────────────────────────────────────────────── */
+  .demo-look--split {
+    justify-content: center;
+    gap: clamp(0.8rem, 2.4cqw, 1.6rem);
+  }
+
+  .demo-look--split::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to right,
+      color-mix(in srgb, rgb(var(--background-deep)) 86%, transparent) 0%,
+      color-mix(in srgb, rgb(var(--background-deep)) 62%, transparent) 42%,
+      transparent 56%
+    );
+  }
+
+  .demo-look__half {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
-    width: min(46%, 34ch);
+    gap: clamp(0.7rem, 2.2cqw, 1.5rem);
+    width: min(52%, 40ch);
   }
 
-  .demo-look__body {
-    margin: 0;
-    font-size: clamp(0.62rem, 1.25cqw, 0.9rem);
-    line-height: 1.5;
-    color: var(--label-2);
+  .demo-look__rule {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 52%;
+    width: 1px;
+    background: color-mix(in srgb, var(--label-1) 22%, transparent);
   }
 
-  /* ── Cards: the way a backdrop usually ends up being used ────────── */
-  .demo-look--cards {
+  /* ── Bento ───────────────────────────────────────────────────────── */
+  .demo-look--bento {
     justify-content: center;
-  }
-
-  /* No scrim. The cards are the scrim, which is the point of the case. */
-  .demo-look--cards::before {
-    background: none;
   }
 
   .demo-look__grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(0.5rem, 1.6cqw, 1rem);
+    grid-template-columns: 1.15fr 1fr 1fr;
+    gap: clamp(0.35rem, 1.1cqw, 0.75rem);
     width: 100%;
   }
 
   .demo-look__card {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
-    padding: clamp(0.7rem, 2cqw, 1.4rem);
-    border: 1px solid color-mix(in srgb, var(--label-1) 18%, transparent);
-    border-radius: 4px;
-    /* Translucent, so the backdrop runs under the cards rather than being
-       covered by them. A solid card would make this look pass every time. */
-    background: color-mix(in srgb, var(--background-elevated) 62%, transparent);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    gap: clamp(0.3rem, 0.9cqw, 0.6rem);
+    padding: clamp(0.55rem, 1.7cqw, 1.2rem);
+    border: 1px solid color-mix(in srgb, var(--label-1) 16%, transparent);
+    border-radius: 5px;
+    /* Translucent, so the backdrop runs under the panels rather than being
+       covered. A solid card would make this look pass every time. */
+    /* Readable, and still clearly a panel with something behind it. A card
+       opaque enough to be comfortable has hidden the thing it is here to
+       demonstrate, so this sits at the point where the backdrop's colour
+       still comes through the panel. */
+    background: color-mix(in srgb, rgb(var(--background-deep)) 66%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(7px);
+  }
+
+  .demo-look__card--tall {
+    grid-row: span 2;
   }
 
   .demo-look__card--wide {
-    grid-column: 1 / -1;
+    grid-column: span 2;
+  }
+
+  .demo-look__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35em;
+    font-size: clamp(0.46rem, 0.95cqw, 0.66rem);
+    opacity: 0.95;
+  }
+
+  .demo-look__rows span {
+    display: flex;
+    gap: 0.6em;
+    padding-top: 0.35em;
+    border-top: 1px solid color-mix(in srgb, var(--label-1) 12%, transparent);
+  }
+
+  .demo-look__rows b {
+    font-weight: 500;
+    opacity: 0.68;
+  }
+
+  .demo-look__quote {
+    margin: 0;
+    font-size: clamp(0.5rem, 1.05cqw, 0.72rem);
+    line-height: 1.45;
+    opacity: 0.88;
   }
 
   .demo-look__cardtitle {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(0.85rem, 2.1cqw, 1.5rem);
-    line-height: 1.05;
+    font-size: clamp(0.72rem, 1.7cqw, 1.2rem);
     letter-spacing: -0.02em;
   }
 
-  /* ── Wordmark: the backdrop shows through the counters ───────────── */
-  .demo-look--wordmark {
-    justify-content: center;
-    align-items: center;
+  .demo-look__stat {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 3.4cqw, 2.6rem);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.03em;
   }
 
-  .demo-look--wordmark::before {
-    background: none;
+  .demo-look__stat span {
+    font-size: 0.42em;
+    opacity: 0.6;
+  }
+
+  /* ── Wordmark ────────────────────────────────────────────────────── */
+  .demo-look--wordmark {
+    align-items: center;
+    justify-content: center;
+    gap: clamp(0.5rem, 1.8cqw, 1.2rem);
   }
 
   .demo-look__word {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(2rem, 14cqw, 11rem);
-    font-weight: 700;
-    letter-spacing: -0.04em;
-    line-height: 1;
+    font-size: clamp(2.2rem, 17cqw, 13rem);
+    font-weight: 600;
+    /* Letterspaced wide, which is the whole move: the backdrop is seen
+       between the letters as much as through them. */
+    letter-spacing: 0.14em;
+    text-indent: 0.14em;
+    line-height: 0.92;
     white-space: nowrap;
   }
 
-  /* ── Frame: chrome at the edges, the middle left to the backdrop ─── */
-  .demo-look--frame {
-    justify-content: space-between;
-    padding: clamp(0.7rem, 2.4%, 1.6rem);
+  /* ── Figures ─────────────────────────────────────────────────────── */
+  .demo-look--figures {
+    justify-content: flex-end;
   }
 
-  .demo-look--frame::before {
-    background: none;
-  }
-
-  .demo-look__bar,
-  .demo-look__feet {
-    display: flex;
-    align-items: center;
-    gap: clamp(0.6rem, 2.4cqw, 2rem);
-    font-size: clamp(0.55rem, 1.1cqw, 0.72rem);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--label-1);
-    /* The one place a scrim is wrong: chrome sits on the thing, so it gets a
-       shadow rather than a panel. */
-    text-shadow: 0 1px 6px color-mix(in srgb, var(--background-deep) 80%, transparent);
-  }
-
-  .demo-look__bar {
-    padding-bottom: clamp(0.4rem, 1.2cqh, 0.8rem);
-    border-bottom: 1px solid color-mix(in srgb, var(--label-1) 22%, transparent);
-  }
-
-  .demo-look__feet {
-    padding-top: clamp(0.4rem, 1.2cqh, 0.8rem);
-    border-top: 1px solid color-mix(in srgb, var(--label-1) 22%, transparent);
-    justify-content: space-between;
-  }
-
-  /* ── The picker ───────────────────────────────────────────────────
-   * A row of names rather than a dropdown: six is few enough to show, and
-   * the whole point is comparing them quickly.
-   */
-  .demo-picker {
+  .demo-look--figures::before {
+    content: '';
     position: absolute;
-    left: 0.75rem;
-    bottom: 0.75rem;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, rgb(var(--background-deep)) 84%, transparent) 0%,
+      transparent 46%
+    );
+  }
+
+  .demo-look__band {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(0.6rem, 2.4cqw, 2rem);
+    padding-top: clamp(0.5rem, 1.6cqw, 1.1rem);
+    border-top: 1px solid color-mix(in srgb, var(--label-1) 22%, transparent);
+    margin-bottom: clamp(1.2rem, 3.4cqw, 2rem);
+  }
+
+  .demo-look__band > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+  }
+
+  /* ── The bar under the panel ──────────────────────────────────────
+   * Controls belong below the item, not on top of it. The panel is the
+   * thing being shown, and a button floating in its corner is chrome in
+   * the photograph. It also fought the compositions, whose own footer row
+   * had to carry padding to dodge a button that was not part of the design.
+   */
+  .demo-bar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.6rem;
+  }
+
+  .demo-bar__left,
+  .demo-bar__right {
     display: flex;
     flex-wrap: wrap;
     gap: 0.3rem;
-    max-width: calc(100% - 1.5rem);
+  }
+
+  .demo-bar__right {
+    margin-left: auto;
+  }
+
+  /* A row of names rather than a dropdown: six is few enough to show, and
+     the whole point is comparing them quickly. */
+  .demo-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
   }
 
   .demo-picker[hidden] {
@@ -506,16 +660,13 @@
   }
 
   /*
-   * The selected name is inverted from the script, not from here.
-   *
-   * A rule for it lived at this spot and did not work: `color` applied and
-   * `background` did not, at any specificity, which is the signature of a
-   * later cascade layer rather than a more specific selector. Utilities sit
-   * in a layer after this one, so a declaration here loses to one there
-   * whatever it is worth, and loses silently. An inline style is the only
-   * thing that outranks a layer.
+   * The selected name is inverted from the script, not from here. A rule for
+   * it did not work: `color` applied and `background` did not, at every
+   * specificity, which is the signature of a later cascade layer rather than
+   * a more specific selector. Utilities sit in a layer after this one, so a
+   * declaration here loses to one there whatever it is worth, and loses
+   * silently. An inline style is the only thing that outranks a layer.
    */
-
 
   /* Glass has to have something behind it, so the panel supplies a picture. */
   /*
