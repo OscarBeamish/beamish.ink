@@ -477,6 +477,125 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
       }
 
       document.addEventListener('astro:page-load', bindToggle)
+
+      /*
+       * A diagnostic that reads itself out on the page, at /?probe=1.
+       *
+       * It lives here rather than in a component of its own because Astro
+       * hoists script tags at compile time and will not run one nested in a
+       * conditional expression, which is how the first attempt failed
+       * silently. It exists at all because asking somebody to paste a snippet
+       * into DevTools failed three times running, and not through any fault
+       * of theirs: the console takes the previous output along with the
+       * paste, so a one-liner copied out of a chat window arrives with a
+       * renderer string on line three and reports a syntax error where the
+       * measurement should have been. Worse, two separate pastes are two
+       * separate moments, and comparing a buffer size from one against a box
+       * size from the other produced a confident diagnosis of a mismatch that
+       * did not exist. One run, one snapshot, no copying.
+       *
+       * import.meta.env.DEV is a compile-time constant, so this whole block
+       * is eliminated from a build.
+       */
+      if (import.meta.env.DEV) {
+        const probe = async () => {
+          if (!new URLSearchParams(location.search).has('probe')) return
+          const canvas =
+            document.querySelector('[data-stage] canvas') || document.querySelector('canvas')
+
+          const panel = document.createElement('div')
+          panel.id = 'beamish-probe'
+          panel.style.cssText =
+            'position:fixed;right:12px;bottom:12px;z-index:2147483647;max-width:min(92vw,470px);' +
+            'padding:10px 12px;border-radius:6px;background:#101014;color:#e8e8e4;' +
+            'font:12px/1.45 ui-monospace,monospace;white-space:pre-wrap;word-break:break-all;' +
+            'box-shadow:0 10px 40px rgba(0,0,0,.5)'
+          panel.textContent = 'Beamish probe: measuring…'
+          document.body.appendChild(panel)
+          if (!canvas) { panel.textContent = 'Beamish probe: no canvas on this page'; return }
+
+          const gl = canvas.getContext('webgl2') || canvas.getContext('webgl')
+          const proto = Object.getPrototypeOf(gl)
+          const realU = proto.uniform1f
+          const realD = proto.drawArrays
+          const locs = new Map()
+          const times = [], gaps = [], px = [], geom = []
+          let draws = 0, frames = 0, lastT
+
+          proto.uniform1f = function (l, v) {
+            if (l) {
+              if (!locs.has(l)) locs.set(l, locs.size)
+              if (locs.get(l) === 1) lastT = v
+            }
+            return realU.call(this, l, v)
+          }
+          proto.drawArrays = function () {
+            draws++
+            const r = realD.apply(this, arguments)
+            if (typeof lastT === 'number') times.push(lastT)
+            return r
+          }
+
+          let last = performance.now()
+          await new Promise(done => {
+            const step = () => {
+              const now = performance.now()
+              gaps.push(now - last)
+              last = now
+              /* Full precision. Rounding here is what would hide a sub-pixel
+                 jitter, which is the one thing reading the buffer cannot see. */
+              const r = canvas.getBoundingClientRect()
+              const cs = getComputedStyle(canvas)
+              geom.push([r.x, r.y, r.width, r.height, cs.transform, cs.opacity].join('|'))
+              try {
+                const b = new Uint8Array(4)
+                gl.readPixels((canvas.width / 2) | 0, (canvas.height / 2) | 0, 1, 1,
+                  gl.RGBA, gl.UNSIGNED_BYTE, b)
+                px.push(b[0] + ',' + b[1] + ',' + b[2])
+              } catch (e) { /* context gone; the counts below will say so */ }
+              if (++frames < 150) requestAnimationFrame(step)
+              else done(null)
+            }
+            requestAnimationFrame(step)
+          })
+
+          proto.uniform1f = realU
+          proto.drawArrays = realD
+
+          const mid = xs => [...xs].sort((a, b) => a - b)[xs.length >> 1]
+          const steps = times.slice(1).map((t, i) => t - times[i])
+          let alternating = 0
+          for (let i = 2; i < px.length; i++) {
+            if (px[i] === px[i - 2] && px[i] !== px[i - 1]) alternating++
+          }
+          const states = [...new Set(geom)]
+          let boxChanges = 0
+          for (let i = 1; i < geom.length; i++) if (geom[i] !== geom[i - 1]) boxChanges++
+          const dbg = gl.getExtension('WEBGL_debug_renderer_info')
+
+          const text = JSON.stringify({
+            dpr: devicePixelRatio,
+            buffer: canvas.width + 'x' + canvas.height,
+            boxStates: states.length,
+            boxChanges,
+            box: states.slice(0, 3),
+            refreshHz: Math.round(1000 / mid(gaps)),
+            worstGapMs: Math.round(Math.max.apply(null, gaps)),
+            drawsPerFrame: Number((draws / frames).toFixed(2)),
+            clockBackwards: steps.filter(d => d <= 0).length,
+            clockBiggestStep: Number(Math.max.apply(null, steps.map(Math.abs)).toFixed(4)),
+            distinctPixels: new Set(px).size + '/' + px.length,
+            alternating,
+            renderer: dbg
+              ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)).slice(0, 44)
+              : 'masked'
+          }, null, 1)
+          panel.textContent = text
+          console.log('BEAMISH PROBE', text)
+        }
+        /* After the panel has mounted and the effect has settled. */
+        document.addEventListener('astro:page-load', () => setTimeout(probe, 2500))
+      }
     </script>
   </body>
 </html>
