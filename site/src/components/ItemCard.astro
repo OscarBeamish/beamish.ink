@@ -1,7 +1,7 @@
 ---
 /*
- * A card on the wall. Poster by default, video on hover, and never a live
- * context. The index page cannot host live demos and stay inside the browser's
+ * A card on the wall. Poster by default, video while it is on screen, and
+ * never a live context. The index page cannot host live demos and stay inside the browser's
  * WebGL budget. See DemoPanel.astro.
  *
  * It takes the five things a card shows rather than a catalogue entry, because
@@ -64,8 +64,10 @@ const dark = media.dark ?? null
     }
     {
       /*
-       * preload="none": twelve cards each preloading a megabyte of video would
-       * cost more than the page. It loads on first hover and not before.
+       * preload="none": sixty-seven cards each preloading a megabyte would
+       * cost more than the page several times over. The observer in the
+       * script lifts this to "auto" when the card comes within 600px of the
+       * viewport, so a reader pays for the wall they actually scrolled.
        */
       (media.webm || media.mp4) && (
         <video
@@ -173,49 +175,143 @@ const dark = media.dark ?? null
   })
 
   /*
-   * Hover plays, leaving pauses and rewinds. Under reduced motion the video is
-   * never started at all. The poster is the whole experience, and it is a
-   * composed frame rather than a blank.
+   * A card plays while it is on screen.
+   *
+   * It used to play on hover, which meant a wall of sixty-seven moving items
+   * looked like a wall of sixty-seven stills until you touched one, and on a
+   * phone it never moved at all: there is no hover there, and the walls are
+   * the main thing this site is.
+   *
+   * What hover was buying was bandwidth, and an IntersectionObserver buys the
+   * same thing more precisely. Nothing is fetched until a card is close to the
+   * viewport, and a reader who never scrolls past the first row has still paid
+   * for one row. The difference from preload="none" plus hover is that a
+   * reader who does scroll pays for what they actually looked at, which is the
+   * bargain worth making.
+   *
+   * Under reduced motion nothing is ever started. WCAG 2.2.2 is Level A and
+   * these loop forever, so the poster is the whole experience for that reader,
+   * and it is a composed frame rather than a blank.
    */
   const reduced = matchMedia('(prefers-reduced-motion: reduce)')
 
   /*
-   * Hover and focus playback, bound per page and once per card for the same
-   * reason: the cards in the incoming document carry no listeners.
+   * Two margins, deliberately different, and both measured rather than picked.
+   *
+   * The loading ring runs a little ahead of the viewport so the swap from
+   * poster to video is not a visible pop halfway up the screen. It started at
+   * 600px, which pulled 6.6MB of video before the reader had scrolled at all:
+   * at 1440 wide that ring is five rows of a three column wall. 200px is two
+   * and a bit, and costs 3.4MB on the first screen for the same 17.6MB over
+   * the whole sixty-seven. Run `pnpm wallcost /effects` after changing it.
+   *
+   * The playing ring is the viewport itself, so nothing off screen is being
+   * decoded. Four decoders at the bottom of the wall rather than sixty-seven
+   * is the difference between this and an autoplay wall that melts a laptop.
    */
+  const LOAD_RING = '200px 0px'
+  const PLAY_RING = '0px'
+
+  let loader: IntersectionObserver | null = null
+  let player: IntersectionObserver | null = null
+
   const bindCards = () => {
-  for (const card of document.querySelectorAll<HTMLElement>('[data-card]')) {
-    if (card.dataset['cardBound'] === '') continue
-    card.dataset['cardBound'] = ''
-    const video = card.querySelector<HTMLVideoElement>('[data-video]')
-    if (!video) continue
+    loader?.disconnect()
+    player?.disconnect()
 
-    const play = () => {
-      if (reduced.matches) return
-      video.play().then(
-        () => {
-          video.style.opacity = '1'
-        },
-        () => {
-          // Autoplay can still be refused. Leave the poster showing.
+    /*
+     * Video waits for the page.
+     *
+     * Without this the first screen's videos are fetched alongside the
+     * posters, the CSS and the fonts, and they are twenty times the size of
+     * any of them. The posters are what the reader sees first and the videos
+     * are what they see a moment later, so the videos queue behind. An idle
+     * callback rather than a timer, because the point is to be out of the way
+     * of the page's own work rather than to wait a particular length of time.
+     */
+    const whenIdle =
+      'requestIdleCallback' in window
+        ? (run: () => void) => requestIdleCallback(run, { timeout: 2000 })
+        : (run: () => void) => setTimeout(run, 400)
+
+    /*
+     * preload="none" is in the markup and stays there, so a card that is never
+     * approached costs one poster. This is what lifts it, once, per card.
+     */
+    loader = new IntersectionObserver(
+      entries => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue
+          const video = entry.target.querySelector<HTMLVideoElement>('[data-video]')
+          if (video && video.preload === 'none') {
+            video.preload = 'auto'
+            video.load()
+          }
+          loader?.unobserve(entry.target)
         }
-      )
-    }
+      },
+      { rootMargin: LOAD_RING }
+    )
 
-    const stop = () => {
-      video.style.opacity = '0'
-      video.pause()
-      video.currentTime = 0
-    }
+    player = new IntersectionObserver(
+      entries => {
+        for (const entry of entries) {
+          const video = entry.target.querySelector<HTMLVideoElement>('[data-video]')
+          if (!video) continue
 
-    card.addEventListener('pointerenter', play)
-    card.addEventListener('pointerleave', stop)
-    // Keyboard users get the same thing on focus, or the card is a still image
-    // to everyone who does not use a mouse.
-    card.addEventListener('focus', play)
-    card.addEventListener('blur', stop)
+          if (entry.isIntersecting && !reduced.matches) {
+            void video.play().then(
+              () => {
+                video.style.opacity = '1'
+              },
+              () => {
+                /* Refused, or interrupted by the pause below on a fast scroll.
+                   Either way the poster is still there and still correct. */
+              }
+            )
+          } else {
+            video.pause()
+            /*
+             * Paused where it is, not rewound. A card scrolled off and back
+             * carries on, which is what a reader moving up and down a wall
+             * expects; rewinding made every card restart in step and the wall
+             * pulse. The poster stays hidden for the same reason.
+             */
+          }
+        }
+      },
+      /* A sliver counts as on screen. Threshold zero and a card is playing
+         while one pixel of it is under the fold, which is where a reader is
+         about to look. */
+      { rootMargin: PLAY_RING, threshold: 0 }
+    )
+
+    const cards = [...document.querySelectorAll<HTMLElement>('[data-card]')].filter(card =>
+      card.querySelector('[data-video]')
+    )
+    for (const card of cards) player.observe(card)
+    whenIdle(() => {
+      for (const card of cards) loader?.observe(card)
+    })
   }
-  }
 
+  /*
+   * Rebound per page rather than kept across one. The observers hold element
+   * references, and the cards in a document the router has swapped out are
+   * gone: observing the old ones keeps them alive and leaves the new ones
+   * still.
+   */
   document.addEventListener('astro:page-load', bindCards)
+
+  /*
+   * A reader who turns reduced motion on mid-visit gets a still wall, without
+   * reloading. The reverse starts everything on screen on the next tick.
+   */
+  reduced.addEventListener('change', () => {
+    if (!reduced.matches) return bindCards()
+    for (const video of document.querySelectorAll<HTMLVideoElement>('[data-video]')) {
+      video.pause()
+      video.style.opacity = '0'
+    }
+  })
 </script>
