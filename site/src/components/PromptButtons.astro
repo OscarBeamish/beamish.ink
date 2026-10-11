@@ -64,7 +64,19 @@ const embed = (text: string) => JSON.stringify(text).replaceAll('</', '<\\/')
 <script>
   const RESET_AFTER = 2200
 
+  /*
+   * Bound per page. The client router swaps the document without reloading, so
+   * a handler attached at load belongs to buttons that are no longer in the
+   * page: Copy prompt is the one control this whole site exists to offer, and
+   * it would have gone dead on every navigation after the first.
+   *
+   * The dataset flag is for a button that survives a swap, which should not
+   * end up with the handler on it twice.
+   */
+  const bind = () => {
   document.querySelectorAll<HTMLElement>('.prompt-buttons').forEach(root => {
+    if (root.dataset['promptBound'] === '') return
+    root.dataset['promptBound'] = ''
     const read = (kind: string) => {
       const node = root.querySelector<HTMLScriptElement>(`script[data-prompt="${kind}"]`)
       return node ? (JSON.parse(node.textContent ?? '""') as string) : ''
@@ -96,4 +108,7 @@ const embed = (text: string) => JSON.stringify(text).replaceAll('</', '<\\/')
       })
     })
   })
+  }
+
+  document.addEventListener('astro:page-load', bind)
 </script>

@@ -595,6 +595,31 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'glass-search-bar'
   ])
 
+  /*
+   * Every handle this page has mounted.
+   *
+   * The budget is one live WebGL context and the client router never unloads
+   * the document, so `pagehide` does not fire between pages: without releasing
+   * these before the swap, every item page you visited would keep its context
+   * until the browser force-lost the oldest and panels started coming up
+   * blank. This is the list that gets emptied in astro:before-swap below.
+   */
+  const live: { destroy(): void }[] = []
+
+  /*
+   * Mounting runs again after every client-side navigation.
+   *
+   * Astro executes a module script once per full load and not again on a swap,
+   * so everything in here has to be called from astro:page-load rather than
+   * run at the top level. The panels in the new document have never been
+   * touched; the ones in the old document are already gone.
+   *
+   * async because the body awaits each item's dynamic import. That was a
+   * top-level await before this wrapper existed, which a module allows and a
+   * plain arrow function does not: without the keyword the whole script fails
+   * to transform and every panel on the site mounts nothing.
+   */
+  const mountPanels = async () => {
   for (const panel of document.querySelectorAll<HTMLElement>('[data-demo]')) {
     const slug = panel.dataset['slug'] ?? ''
     const tier = panel.dataset['tier'] === '2' ? 2 : 1
@@ -669,9 +694,10 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       handle = effect
     }
 
-    // One live context per page, released the moment the page goes away, so
-    // navigating between item pages cannot accumulate contexts.
-    addEventListener('pagehide', () => handle?.destroy(), { once: true })
+    // Registered for release, both on a real unload and before a client-side
+    // swap. See `live` above: pagehide alone is not enough once the router is
+    // in, because the document never goes away.
+    if (handle) live.push(handle)
 
     const toggle = panel.querySelector<HTMLButtonElement>('[data-toggle]')
     toggle?.addEventListener('click', () => {
@@ -913,4 +939,24 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       })
     }
   }
+  }
+
+  const release = () => {
+    for (const handle of live.splice(0)) handle.destroy()
+  }
+
+  /*
+   * Before the swap, not after: the outgoing document is still in the page at
+   * this point, so a context released here is released while its canvas still
+   * exists. After the swap the canvas has gone and the context goes with it,
+   * which the browser gets to eventually and on its own schedule.
+   */
+  document.addEventListener('astro:before-swap', release)
+  addEventListener('pagehide', release)
+
+  /*
+   * astro:page-load fires on the first load as well as after every swap, so
+   * this is the only call site: there is no separate bootstrap.
+   */
+  document.addEventListener('astro:page-load', mountPanels)
 </script>

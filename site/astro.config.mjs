@@ -22,6 +22,34 @@ export default defineConfig({
    */
   server: { port: 4488 },
   /*
+   * Prefetch on sight rather than on hover.
+   *
+   * ClientRouter turns prefetching on by default, but the default strategy is
+   * 'hover': the fetch starts when the pointer arrives, so a reader who tabs
+   * to a nav link, or taps one, waits for the round trip they were meant to
+   * have been spared. The nav is in view on every page, so 'viewport' has it
+   * in the cache before anyone reaches for it.
+   *
+   * What this is worth, measured on the built site with `pnpm navcheck`:
+   *
+   *   on localhost            nothing. 45ms hovered, 47ms cold, either
+   *                           strategy. The next page's HTML arrives in about
+   *                           a millisecond, so early and late are the same.
+   *   at 150ms RTT            a prefetched swap lands in about 200ms and one
+   *                           that was not in about a second.
+   *
+   * So the setting buys the difference between those two for a reader who
+   * never hovers, and nothing at all for anybody testing it locally. That is
+   * also why the numbers that were written here before are gone: they were
+   * taken against a dev server wearing the preview port, by a tool that lost a
+   * race whenever a swap was fast, which is to say they were measuring the
+   * wrong thing twice.
+   *
+   * The cost is the prefetching itself. Astro caps it: a wall of 67 links
+   * prefetched 11 of them, not 67.
+   */
+  prefetch: { prefetchAll: true, defaultStrategy: 'viewport' },
+  /*
    * PointerTrail became PointerSmoke. Prompts already pasted are unaffected,
    * because each one fetches from the tag it was generated against, but a link
    * to the old page should still land somewhere.

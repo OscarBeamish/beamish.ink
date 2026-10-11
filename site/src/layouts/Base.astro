@@ -1,4 +1,5 @@
 ---
+import { ClientRouter } from 'astro:transitions'
 import '../styles/global.css'
 
 type Props = {
@@ -36,14 +37,30 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
       an afterthought.
     -->
     <script is:inline>
-      try {
-        var chosen = localStorage.getItem('beamish-ground')
-        if (chosen === 'dark' || chosen === 'paper') {
-          document.documentElement.dataset.ground = chosen
+      var applyGround = function (root) {
+        try {
+          var chosen = localStorage.getItem('beamish-ground')
+          if (chosen === 'dark' || chosen === 'paper') {
+            root.dataset.ground = chosen
+          }
+        } catch (error) {
+          /* Private windows throw on localStorage. The default stands. */
         }
-      } catch (error) {
-        /* Private windows throw on localStorage. The default stands. */
       }
+      applyGround(document.documentElement)
+
+      /*
+       * And again on every swap, onto the document that is arriving.
+       *
+       * The router copies the incoming <html> element's attributes over the
+       * live one, and every page is built carrying the static default. Without
+       * this, somebody who chose dark gets paper the moment they click
+       * anything, which is the same failure the inline script above exists to
+       * prevent on first load, one navigation later.
+       */
+      document.addEventListener('astro:before-swap', function (event) {
+        applyGround(event.newDocument.documentElement)
+      })
     </script>
     <link rel="canonical" href={canonical.href} />
     <title>{title}</title>
@@ -67,21 +84,52 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
       Both faces, not one.
  
       Only the mono was preloaded, and the headings are set in the display face.
-      Both are declared font-display: block, so an unpreloaded face means the
-      title is invisible until it arrives and then pops in at full size. The
-      mono got a head start and the thing people actually look at did not.
+      Both are declared font-display: swap, so an unpreloaded face means the
+      title is painted in the fallback and then reflows to the real one at full
+      size. The mono got a head start and the thing people look at did not.
 
       A preload is the only way the browser learns about a font before it has
       parsed the CSS and worked out that something on the page needs it.
       crossorigin is not optional here: fonts are fetched anonymously, and a
       preload without it is a second, separate request rather than a head start.
     */}
+    {/*
+      transition:persist on a preload, which looks odd and is the point.
+
+      The router keeps a stylesheet that exists on the next page and replaces
+      everything else in the head. A preload link is not a stylesheet, so both
+      of these were being torn out and put back on every single navigation, and
+      a re-inserted preload is a new fetch for a file the browser already has.
+
+      Verified on the built site with `NAVCHECK_REQUESTS=on pnpm navcheck`:
+      two font files fetched in total across a four-page walk, none of them
+      after the first page.
+
+      Persisting them says these two elements are the same two elements on
+      every page, which they are: they are in the layout, not in a page.
+    */}
+    {/*
+      The faces are declared in a static stylesheet rather than in global.css.
+
+      The router keeps a stylesheet that exists on the next page. A build has
+      one hashed CSS file with the same href everywhere, so that held already;
+      dev serves the same CSS as inline <style> blocks, which fail that test
+      and get re-appended on every navigation, and a re-appended @font-face is
+      a new face: unloaded, so swap paints the fallback and every heading
+      flashes. A file in public/ has the same href in both, so both keep it.
+
+      Measured at astro:page-load on the second page, before and after:
+      dev went from both faces NOT READY to both ready, which is the flash.
+    */}
+    <link rel="stylesheet" href="/fonts.css" />
+
     <link
       rel="preload"
       href="/fonts/archivo-latin.woff2"
       as="font"
       type="font/woff2"
       crossorigin
+      transition:persist
     />
     <link
       rel="preload"
@@ -89,7 +137,27 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
       as="font"
       type="font/woff2"
       crossorigin
+      transition:persist
     />
+
+    {/*
+      Client-side navigation: the next page is fetched and swapped in rather
+      than the browser throwing the document away and starting again.
+
+      Three things in this site assume a full load and had to be told
+      otherwise. The demo panels release their WebGL contexts on `pagehide`,
+      which never fires now, so they release on `astro:before-swap` instead and
+      the one-context budget still holds. The scripts below run once per real
+      load and not again on a swap, so anything that has to happen per page
+      hangs off `astro:page-load`. And `data-ground` lives on <html>, which the
+      incoming document carries at its static default, so it is put back from
+      the stored choice before the swap lands rather than flashing paper at
+      somebody who chose dark.
+
+      Reduced motion is handled by the router itself: it swaps without the
+      cross-fade when the preference is set.
+    */}
+    <ClientRouter />
   </head>
 
   <body class="min-h-dvh">
@@ -211,6 +279,22 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
           requestAnimationFrame(raf)
         }
         requestAnimationFrame(raf)
+
+        /*
+         * Lenis is created once and kept. It binds to the window rather than
+         * to anything in the document, so it survives a swap and must not be
+         * built again: a second instance would drive the same scroll from its
+         * own frame loop and the page would fight itself.
+         *
+         * What it does need is telling that the page changed. The router
+         * restores scroll position itself, and Lenis holds its own idea of
+         * where it is, so without this a navigation lands at the top of the
+         * document with Lenis still easing towards wherever you were on the
+         * last one.
+         */
+        document.addEventListener('astro:after-swap', () => {
+          lenis.scrollTo(0, { immediate: true })
+        })
       }
     </script>
 
@@ -236,7 +320,16 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
       const STAGGER = 45
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
 
+  /*
+   * Bound on every page rather than once at load, because the router replaces
+   * the header along with everything else and the new labels have no listener
+   * on them. The dataset flag is what stops a label that survived a swap from
+   * being bound twice and running two decodes over each other.
+   */
+  const bindScramble = () => {
       for (const el of document.querySelectorAll<HTMLElement>('[data-scramble]')) {
+        if (el.dataset['scrambleBound'] === '') continue
+        el.dataset['scrambleBound'] = ''
         const characters = (el.textContent ?? '').trim().length
         let decode: ReturnType<typeof createDecodeText> | null = null
         let running = false
@@ -257,6 +350,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
           }, STAGGER * characters + 250)
         })
       }
+  }
+
+  document.addEventListener('astro:page-load', bindScramble)
     </script>
 
     <script>
@@ -278,6 +374,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
        * script in the head, so nothing here has to fix a flash.
        */
       const root = document.documentElement
+
+      /*
+       * Found and bound per page. The button in the header of the document
+       * that arrives is a different element from the one that left, so the
+       * listener does not come with it, and the label has to be set again to
+       * match whatever ground is actually in force.
+       */
+      const bindToggle = () => {
       const toggle = document.querySelector<HTMLButtonElement>('[data-ground-toggle]')
       const label = toggle?.querySelector<HTMLElement>('[data-ground-label]')
 
@@ -290,6 +394,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
       }
 
       show(root.dataset.ground ?? 'paper')
+
+      if (toggle?.dataset['groundBound'] === '') return
+      if (toggle) toggle.dataset['groundBound'] = ''
 
       toggle?.addEventListener('click', () => {
         const next = root.dataset.ground === 'dark' ? 'paper' : 'dark'
@@ -308,6 +415,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
          */
         document.dispatchEvent(new CustomEvent('beamish:ground', { detail: next }))
       })
+      }
+
+      document.addEventListener('astro:page-load', bindToggle)
     </script>
   </body>
 </html>

@@ -4,21 +4,10 @@
    demo.html are provably the same. Never redeclare them here. */
 @import '../../../shared/tokens.css';
 
-@font-face {
-  font-family: 'JetBrains Mono';
-  src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2');
-  font-weight: 400 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Archivo';
-  src: url('/fonts/archivo-latin.woff2') format('woff2');
-  font-weight: 400 700;
-  font-style: normal;
-  font-display: swap;
-}
+/* The @font-face rules are not here. They are in site/public/fonts.css, linked
+   by the layout, because this file is inline <style> in dev and a re-appended
+   @font-face flashes every heading on every navigation. That file says why at
+   length; do not move them back without reading it. */
 
 /*
  * Tailwind v4 reads utilities off these. Everything an item ships must inherit

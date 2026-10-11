@@ -1,0 +1,49 @@
+/*
+ * The two faces, declared in a file of their own, served from public/ with a
+ * fixed href rather than bundled into the site's CSS.
+ *
+ * This looks like a thing to tidy away into global.css. It was in global.css,
+ * and it is here because of what the router does to a head.
+ *
+ * ClientRouter keeps a stylesheet that is present on the next page and
+ * replaces everything else. In a build that is fine: the whole site's CSS is
+ * one hashed file with the same href on every page, so it is kept and these
+ * rules are never re-evaluated. In dev, Vite serves the same CSS as inline
+ * <style data-vite-dev-id> blocks, which are not stylesheets by that test and
+ * carry no transition:persist, so they are torn out and re-appended on every
+ * navigation. Re-appending an @font-face rule gives you a new FontFace: the
+ * face goes back to unloaded, font-display: swap paints the fallback, and
+ * every heading on the site flashes on every click.
+ *
+ * Measured, built site against dev server, at the moment astro:page-load
+ * fires on the second page:
+ *
+ *   built   document.fonts.status loaded,  both faces ready,  0 faces loading
+ *   dev     document.fonts.status loading, both NOT READY,    1 event per nav
+ *
+ * A file in public/ is copied out verbatim and linked by a path that is the
+ * same string on every page in both, so the router keeps it in both, and dev
+ * stops lying about something production does correctly. The cost is one extra
+ * request for about half a kilobyte, against the fonts themselves being
+ * preloaded in the layout anyway.
+ *
+ * It is not processed by Vite, so the URLs below are absolute and must stay
+ * that way. shared/fonts.css is the standalone demos' copy of the same thing
+ * and is deliberately separate: a demo.html has no site and no router.
+ */
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Archivo';
+  src: url('/fonts/archivo-latin.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}

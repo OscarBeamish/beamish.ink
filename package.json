@@ -25,6 +25,7 @@
     "tells": "tsx tools/tells/index.ts",
     "budget": "tsx tools/budget/index.ts",
     "frame": "tsx tools/frame/index.ts",
+    "navcheck": "tsx tools/navcheck.ts",
     "shot": "tsx tools/shot/index.ts",
     "check": "pnpm typecheck && pnpm generate:check && pnpm test && pnpm build && pnpm review",
     "social": "tsx tools/social/index.ts",

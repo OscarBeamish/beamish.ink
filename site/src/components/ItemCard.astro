@@ -141,7 +141,18 @@ const dark = media.dark ?? null
     }
   }
 
-  applyGround(document.documentElement.dataset.ground ?? 'paper')
+  /*
+   * Per page, because the cards on a wall the router has just swapped in have
+   * never been touched: their posters are whatever the build wrote, which is
+   * the paper take, and a reader on dark would see every card revert.
+   *
+   * The ground listener stays at the top level. It is on `document`, which
+   * survives a swap, and binding it again per page would run applyGround once
+   * per navigation for every page ever visited.
+   */
+  document.addEventListener('astro:page-load', () =>
+    applyGround(document.documentElement.dataset.ground ?? 'paper')
+  )
   document.addEventListener('beamish:ground', event => {
     applyGround((event as CustomEvent<string>).detail)
   })
@@ -153,7 +164,14 @@ const dark = media.dark ?? null
    */
   const reduced = matchMedia('(prefers-reduced-motion: reduce)')
 
+  /*
+   * Hover and focus playback, bound per page and once per card for the same
+   * reason: the cards in the incoming document carry no listeners.
+   */
+  const bindCards = () => {
   for (const card of document.querySelectorAll<HTMLElement>('[data-card]')) {
+    if (card.dataset['cardBound'] === '') continue
+    card.dataset['cardBound'] = ''
     const video = card.querySelector<HTMLVideoElement>('[data-video]')
     if (!video) continue
 
@@ -182,4 +200,7 @@ const dark = media.dark ?? null
     card.addEventListener('focus', play)
     card.addEventListener('blur', stop)
   }
+  }
+
+  document.addEventListener('astro:page-load', bindCards)
 </script>
