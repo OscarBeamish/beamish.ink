@@ -21,6 +21,7 @@
     "review": "tsx tools/review/index.ts",
     "poke": "tsx tools/poke/index.ts",
     "scrollspeed": "tsx tools/scrollspeed.ts",
+    "navplay": "tsx tools/navplay.ts",
     "wallcost": "tsx tools/wallcost.ts",
     "sweep": "tsx tools/sweep/index.ts",
     "contrast": "tsx tools/contrast/index.ts",

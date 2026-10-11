@@ -215,6 +215,38 @@ const dark = media.dark ?? null
   let loader: IntersectionObserver | null = null
   let player: IntersectionObserver | null = null
 
+  /*
+   * Which cards are on screen right now.
+   *
+   * Playing is not a single event, it is a condition that two independent
+   * things have to be true for: the card is in view, and the video has data.
+   * They arrive in either order. The first version treated it as an event and
+   * called play() the moment a card came into view, which on a first screen
+   * is before the loader has given the element a source: the promise rejects,
+   * the rejection is swallowed, and nothing ever asks again. Measured with
+   * `pnpm navplay`, that was nought of three playing on a fresh load and
+   * nought of six after clicking to the next wall.
+   *
+   * So the condition is recorded here and start() is called from both sides:
+   * from the observer when the card arrives, and from canplay when the data
+   * does. Whichever is second is the one that works.
+   */
+  const onScreen = new WeakSet<HTMLVideoElement>()
+  const watched = new WeakSet<HTMLVideoElement>()
+
+  const start = (video: HTMLVideoElement) => {
+    if (reduced.matches || !onScreen.has(video)) return
+    void video.play().then(
+      () => {
+        video.style.opacity = '1'
+      },
+      () => {
+        /* No data yet, or interrupted by a pause on a fast scroll. canplay
+           will come back for the first; the second is already correct. */
+      }
+    )
+  }
+
   const bindCards = () => {
     loader?.disconnect()
     player?.disconnect()
@@ -259,17 +291,11 @@ const dark = media.dark ?? null
           const video = entry.target.querySelector<HTMLVideoElement>('[data-video]')
           if (!video) continue
 
-          if (entry.isIntersecting && !reduced.matches) {
-            void video.play().then(
-              () => {
-                video.style.opacity = '1'
-              },
-              () => {
-                /* Refused, or interrupted by the pause below on a fast scroll.
-                   Either way the poster is still there and still correct. */
-              }
-            )
+          if (entry.isIntersecting) {
+            onScreen.add(video)
+            start(video)
           } else {
+            onScreen.delete(video)
             video.pause()
             /*
              * Paused where it is, not rewound. A card scrolled off and back
@@ -289,7 +315,19 @@ const dark = media.dark ?? null
     const cards = [...document.querySelectorAll<HTMLElement>('[data-card]')].filter(card =>
       card.querySelector('[data-video]')
     )
-    for (const card of cards) player.observe(card)
+    for (const card of cards) {
+      player.observe(card)
+      /*
+       * The other half of the condition, once per element. The listener
+       * outlives a rebind, which is why it is guarded: a card that survives
+       * a swap must not collect one of these per navigation.
+       */
+      const video = card.querySelector<HTMLVideoElement>('[data-video]')
+      if (video && !watched.has(video)) {
+        watched.add(video)
+        video.addEventListener('canplay', () => start(video))
+      }
+    }
     whenIdle(() => {
       for (const card of cards) loader?.observe(card)
     })
