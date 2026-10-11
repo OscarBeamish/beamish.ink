@@ -100,6 +100,34 @@ export default defineConfig({
       }
     },
     server: {
+      /*
+       * What the watcher is allowed to care about.
+       *
+       * fs.allow opens the whole repo to the dev server, which it has to:
+       * effects/, components/ and shared/ all live above the site root. The
+       * side effect is that the file watcher follows all of it, and most of
+       * what it finds is not source and never changes while anybody is
+       * working.
+       *
+       * The dev server fell over twice with EMFILE, too many open files, and
+       * these are the two reasons. site/dist is twelve hundred files that are
+       * deleted and rewritten wholesale by every `pnpm build`, so a build
+       * during a dev session is a watcher storm with no useful outcome. The
+       * media directories are six hundred video and poster files, about a
+       * hundred megabytes, which change only when the recorder runs and are
+       * served as plain static files when they do.
+       *
+       * .generated stays watched on purpose: `pnpm generate` rewrites the
+       * prompts and the page should pick that up without a restart.
+       */
+      watch: {
+        ignored: [
+          '**/dist/**',
+          '**/media/**',
+          '**/tools/recorder/.frames/**',
+          '**/tools/review/.shots/**'
+        ]
+      },
       fs: {
         // effects/, components/ and shared/ all live above the site root.
         allow: [repo]
