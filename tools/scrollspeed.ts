@@ -8,7 +8,12 @@
  *
  * Peak rather than average, because the driver eases: it is slow at the top,
  * slow at the turn and fastest halfway down each leg, and the fast part is the
- * part that reads as a blur. For a cubic in-out the peak is twice the mean.
+ * part that reads as a blur.
+ *
+ * It drives the page's own renderAtTime and reads scrollY back rather than
+ * recomputing the driver's arithmetic. An earlier version did the arithmetic
+ * here, and when the driver changed it went on reporting the old numbers with
+ * complete confidence.
  *
  *   pnpm scrollspeed                 # every template
  *   pnpm scrollspeed editorial-portfolio
@@ -46,19 +51,49 @@ async function main() {
       fs.readFileSync(path.join(ROOT, 'templates', slug, 'meta.json'), 'utf8')
     )
     const secs = meta.record?.duration ?? 14
-    await page.goto(urlFor(`templates/${slug}/index.html`), { waitUntil: 'load' })
+    await page.goto(`${urlFor(`templates/${slug}/index.html`)}?record=1&span=${secs}`, {
+      waitUntil: 'load'
+    })
     await page.waitForTimeout(1400)
-    const box = await page.evaluate(() => ({
-      height: document.body.scrollHeight,
-      view: innerHeight
-    }))
-    const reach = Math.max(box.height - box.view, 0)
-    /* Out and back inside the duration, so each leg gets half. */
-    const peak = (reach / (secs / 2)) * 2
-    rows.push([slug, peak])
+
+    /*
+     * Driven rather than modelled.
+     *
+     * The first version recomputed the driver's own arithmetic here, and when
+     * the driver changed it went on reporting the old numbers with complete
+     * confidence. renderAtTime is pure in t and the recorder calls it exactly
+     * this way, so stepping it and reading scrollY back is the same scroll the
+     * take will have, whatever the driver decides to do next.
+     */
+    const measured = await page.evaluate(
+      async ([span, steps]) => {
+        const driver = (window as never as { __beamish?: { renderAtTime(t: number): void } })
+          .__beamish
+        if (!driver) return null
+        const ys: number[] = []
+        for (let i = 0; i <= steps!; i++) {
+          driver.renderAtTime((i / steps!) * span!)
+          /* A frame between samples, so a page with reveals has grown the way
+             it will have grown for the recorder. */
+          await new Promise(r => requestAnimationFrame(() => r(null)))
+          ys.push(scrollY)
+        }
+        let peak = 0
+        const dt = span! / steps!
+        for (let i = 1; i < ys.length; i++) peak = Math.max(peak, Math.abs(ys[i]! - ys[i - 1]!) / dt)
+        return { peak, reach: Math.max(...ys), height: document.body.scrollHeight }
+      },
+      [secs, 160] as const
+    )
+    if (!measured) {
+      console.log(`  ${slug.padEnd(24)} no scroll driver on the page`)
+      continue
+    }
+    rows.push([slug, measured.peak])
     console.log(
-      `  ${slug.padEnd(24)} ${String(box.height).padStart(6)}  ${String(reach).padStart(6)}  ` +
-        `${String(secs).padStart(4)}  ${String(Math.round(peak)).padStart(8)}`
+      `  ${slug.padEnd(24)} ${String(measured.height).padStart(6)}  ` +
+        `${String(Math.round(measured.reach)).padStart(6)}  ` +
+        `${String(secs).padStart(4)}  ${String(Math.round(measured.peak)).padStart(8)}`
     )
   }
   await browser.close()
