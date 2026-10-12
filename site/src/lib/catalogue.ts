@@ -120,33 +120,26 @@ export type CardMedia = {
   poster: string | null
   mp4: string | null
   webm: string | null
-  /*
-   * The same take against the other ground, where one exists. Only items that
-   * declare `either` have one, and only those need it: an item built for paper
-   * showing a paper video on a dark page is telling the truth about itself,
-   * while an `either` item with one paper take is making a claim its evidence
-   * does not support.
-   */
-  dark: { poster: string | null; mp4: string | null; webm: string | null } | null
 }
 
-/** Which media files actually exist, so a page never renders a broken <video>. */
+/**
+ * Which media files actually exist, so a page never renders a broken <video>.
+ *
+ * One take per item. There used to be a second against the other ground,
+ * which the cards swapped to when the theme toggle moved; that behaviour is
+ * gone, because a toggle that turns a third of the wall into different
+ * effects is not what a theme toggle is for. Nothing read the second take
+ * after that, so loading it was building a path for a file no page asked for.
+ */
 export function loadMedia(item: Item): CardMedia {
   const dir = path.join(ROOT, item.group, item.slug, 'media')
   const at = (name: string) =>
     existsSync(path.join(dir, name)) ? `/media/${item.slug}/${name}` : null
-  const atDark = (name: string) =>
-    existsSync(path.join(dir, 'dark', name)) ? `/media/${item.slug}/dark/${name}` : null
-
-  const dark = atDark('poster.jpg')
-    ? { poster: atDark('poster.jpg'), mp4: atDark('16x9.mp4'), webm: atDark('16x9.webm') }
-    : null
 
   return {
     poster: at('poster.jpg'),
     mp4: at('16x9.mp4'),
-    webm: at('16x9.webm'),
-    dark
+    webm: at('16x9.webm')
   }
 }
 

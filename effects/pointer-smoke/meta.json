@@ -12,7 +12,7 @@
     "trail",
     "no-dependencies"
   ],
-  "ground": "either",
+  "ground": "paper",
   "peerDependencies": {},
   "browser": {
     "webgl": "webgl2",

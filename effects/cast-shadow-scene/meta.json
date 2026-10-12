@@ -14,7 +14,7 @@
     "hero",
     "ambient"
   ],
-  "ground": "either",
+  "ground": "paper",
   "peerDependencies": {
     "three": ">=0.160.0"
   },

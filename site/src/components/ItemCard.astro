@@ -17,12 +17,8 @@ type Props = {
   name: string
   description: string
   label: string
-  /*
-   * The one take this card shows. `dark` is accepted and ignored: items that
-   * declare `either` still record a second take and the walls still pass it,
-   * but a card no longer switches between them. See the note on the script.
-   */
-  media: Shot & { dark?: Shot | null }
+  /* The one take this card shows. See the note on the script below. */
+  media: Shot
 }
 
 /*

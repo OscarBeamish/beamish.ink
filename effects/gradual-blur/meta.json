@@ -4,7 +4,7 @@
   "tier": 1,
   "description": "A band at the edge of a scrolling area where the content goes progressively out of focus, built from stacked blurs because a masked one does not ramp",
   "category": "reveals",
-  "ground": "either",
+  "ground": "paper",
   "tags": [
     "blur",
     "edge",

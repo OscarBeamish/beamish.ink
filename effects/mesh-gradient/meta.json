@@ -4,7 +4,7 @@
   "tier": 1,
   "description": "The soft flowing colour field behind half the software marketing on the web, lit by its own slope",
   "category": "backdrops",
-  "ground": "either",
+  "ground": "paper",
   "tags": [
     "webgl",
     "shader",

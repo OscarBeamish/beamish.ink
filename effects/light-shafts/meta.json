@@ -4,7 +4,7 @@
   "tier": 1,
   "description": "Light coming through something and falling across the frame in bands, with the shadow edges going soft as they travel",
   "category": "backdrops",
-  "ground": "either",
+  "ground": "paper",
   "tags": [
     "webgl",
     "shader",

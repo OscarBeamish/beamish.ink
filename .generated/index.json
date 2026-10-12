@@ -493,7 +493,7 @@
       "hero",
       "ambient"
     ],
-    "ground": "either",
+    "ground": "paper",
     "peerDependencies": {
       "three": ">=0.160.0"
     },
@@ -3142,7 +3142,7 @@
       "dom",
       "no-dependencies"
     ],
-    "ground": "either",
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "none",
@@ -3293,7 +3293,7 @@
       "ambient",
       "no-dependencies"
     ],
-    "ground": "either",
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -4616,7 +4616,7 @@
       "ambient",
       "no-dependencies"
     ],
-    "ground": "either",
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -5478,7 +5478,7 @@
       "ambient",
       "no-dependencies"
     ],
-    "ground": "either",
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -6844,7 +6844,7 @@
       "physics",
       "no-dependencies"
     ],
-    "ground": "either",
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -7183,7 +7183,7 @@
       "paper",
       "hero"
     ],
-    "ground": "either",
+    "ground": "paper",
     "peerDependencies": {
       "three": ">=0.160.0"
     },
@@ -7475,7 +7475,7 @@
       "trail",
       "no-dependencies"
     ],
-    "ground": "either",
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -9681,7 +9681,7 @@
       "backdrop",
       "no-dependencies"
     ],
-    "ground": "either",
+    "ground": "paper",
     "peerDependencies": {},
     "browser": {
       "webgl": "webgl2",
@@ -10037,7 +10037,7 @@
       "paper",
       "hero"
     ],
-    "ground": "either",
+    "ground": "paper",
     "peerDependencies": {
       "three": ">=0.160.0"
     },
