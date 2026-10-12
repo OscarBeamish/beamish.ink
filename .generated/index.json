@@ -2232,6 +2232,209 @@
     "intro": "DepthPointCloud takes a photograph apart into points and pushes it into the\nthird dimension using its own brightness.\n\nThere is no depth map, and the item does not pretend there is. A photograph\ndoes not carry one. This reads luminance and treats it as height, which is\nwrong about the world and right about pictures: a photographer lights the\nsubject and lets the ground fall away, so in most photographs the bright parts\nreally are the near ones. Where that is false, which is a bright sky or a dark\nsubject, it fails interestingly rather than wrongly.\n\n`relief` is how much you are willing to claim.\n\nEvery point keeps the colour of the pixel it came from, and that is the whole\ntrick. A point cloud in a single colour is an abstract; a photograph you can\nstill recognise while it comes apart is a much stronger thing."
   },
   {
+    "name": "DitherImage",
+    "slug": "dither-image",
+    "tier": 1,
+    "description": "A photograph reduced to two tones by error diffusion, which is the kind of dither a shader cannot do",
+    "category": "surfaces",
+    "tags": [
+      "canvas",
+      "image",
+      "dither",
+      "halftone",
+      "one-bit",
+      "retro",
+      "no-webgl",
+      "no-dependencies"
+    ],
+    "ground": "paper",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "Every dithering effect on the web is an ordered dither: a fixed matrix of thresholds compared against the picture one pixel at a time. It is the only kind a fragment shader can do, because a fragment shader has to answer for one pixel without knowing anything about its neighbours",
+        "Error diffusion is the other kind and the one that looks like something. Quantise a pixel, work out how much tone you threw away, hand that error to the pixels you have not reached yet. It is why a dithered Macintosh picture has grain that follows the subject instead of a crosshatch laid over it, and it is strictly sequential, so there is no way to put it on a GPU",
+        "It runs on the CPU every frame, and what makes that affordable is that it runs on a coarse grid. The look is coarse anyway: a Macintosh screen was 512 by 342 for the whole desktop. At a six-pixel dot a panel is about two hundred dots across, and a serpentine pass over that is a small fraction of a frame",
+        "Do not dither in linear light. A trap, and the first version here fell into it. The argument for linear is good as far as it goes: a half-and-half field of black and white dots averages in the eye to half the light, and light adds linearly. But a mid grey is 128, which is 0.50 encoded and 0.22 linear, so dithering in linear lays down 22 per cent white dots where the photograph says 50 per cent grey, and most of the frame goes solid. The flaw is that a photograph is not a scene: it has already been tone-mapped for a display, and undoing its encoding undoes the tone mapping with it. The quantity to preserve is the one the picture is stored in, which is why every implementation since 1976 works on the bytes as they come",
+        "Atkinson throws a quarter of the error away. Floyd and Steinberg pass all of it over four neighbours; Atkinson passes six eighths over six, and the missing two eighths is not an oversight. Losing error pulls flat areas towards whichever tone they were nearest, so highlights go clean white and shadows go clean black, which is the whole reason the Macintosh look reads as contrasty rather than as a field of grey speckle",
+        "Scan alternate rows backwards. Always going left to right drags the error one way, and in a smooth gradient that comes out as diagonal streaks running down and to the right. A serpentine scan cancels the drag, and the kernel is mirrored with it so a backwards row pushes its error the way it is travelling",
+        "The source is sampled through a canvas the size of the grid, so the browser's own downscaler does the averaging. Taking one source pixel per dot aliases badly and a picture of foliage comes back as noise rather than as tone",
+        "Scaled up with image smoothing off. With it on the browser interpolates the two tones back into the greys the dither existed to avoid, and the result is a slightly noisy photograph",
+        "Animated error diffusion boils. The error propagates, so lifting the exposure by a hair flips one pixel, which changes what every pixel after it inherits, and whole runs of grain reorganise at once. Fast it looks like static, which is why the swell is small and the period is long",
+        "A 2D canvas, so this is the one image item that costs nothing against the sixteen-million-pixel WebGL budget and can sit on a page beside a shader without competing with it",
+        "The <img> stays in the document, hidden. Its alt text is the accessible version of the picture and a page whose script never runs still shows the photograph"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 2,
+      "contexts": 0,
+      "notes": [
+        "Measured in the page at 1280 by 720: 2.0ms per frame at a five-pixel dot, which is a grid of 256 by 144. The default is six, which is a third less. The heaviest thing in the library is PointerRippleGrid at 7, so this is mid-range, and it is spent on the CPU rather than the GPU",
+        "It started at 3.5ms. Two things took it down. The kernel was an array of triples and was destructured six times per cell, which at a quarter of a million cells a second was most of the cost; it is a flat Float32Array read three at a time now. And the output was written four bytes at a time into the ImageData, where for one bit there are only two possible words, so they are worked out once and chosen between through a 32-bit view",
+        "The source is resampled only when the grid changes, not per frame. Redoing the drawImage and getImageData every frame would be the expensive part and the answer would be the same",
+        "Cost goes with the square of 1/dot. At dot 2 it is nine times the work of dot 6, and that is the number to reach for if a page feels heavy",
+        "The plate context asks for willReadFrequently, which keeps it where putImageData is cheap. It also changes which downscaler the browser uses for the source, so the grain lands differently; the tone is the same to within a per cent in every band of the frame, which was measured rather than assumed"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/dither-image/core.ts",
+        "to": "src/beamish/effects/dither-image/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/dither-image/adapters/react.tsx",
+        "to": "src/beamish/effects/dither-image/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/dither-image/adapters/vue.ts",
+        "to": "src/beamish/effects/dither-image/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "dot": {
+        "type": "number",
+        "default": 6,
+        "description": "Size of one dot, in CSS pixels. The resolution of the whole thing: at 2 it is a photograph with texture in it, at 6 the subject is clear and the grain is the subject too, and by 14 it is a pattern and the subject is a rumour. The work goes with the square of this, so it is also the performance control, and it is what a video codec cares about most: a full-frame one-bit dither that boils is close to the worst content a codec can be handed.",
+        "min": 1,
+        "max": 20,
+        "step": 1,
+        "unit": "px",
+        "sensible": [
+          3,
+          8
+        ]
+      },
+      "mode": {
+        "type": "enum",
+        "default": "atkinson",
+        "description": "Which dither. `atkinson` throws away a quarter of the error, which cleans the highlights and the shadows and is the Macintosh look. `floyd` keeps all of it, which holds more midtone and reads greyer and flatter. `ordered` is the Bayer matrix, the only kind a shader can do, and it is here to be switched to once: notice that it sits over the picture rather than in it.",
+        "values": [
+          "atkinson",
+          "floyd",
+          "ordered"
+        ]
+      },
+      "levels": {
+        "type": "number",
+        "default": 2,
+        "description": "How many tones. 2 is one bit and it is the whole point. Past about 4 there is enough tone that the dither stops doing any work and you have a posterised photograph, which is a different and much less interesting thing.",
+        "min": 2,
+        "max": 8,
+        "step": 1,
+        "sensible": [
+          2,
+          4
+        ]
+      },
+      "ink": {
+        "type": "color",
+        "default": "#16141c",
+        "description": "The dark tone. A soft near-black rather than a true one: a screen printed in true black against true white reads as a screenshot of a bitmap rather than as something on a page."
+      },
+      "paper": {
+        "type": "color",
+        "default": "#f4f1e6",
+        "description": "The light tone. Set this and the ink the other way round for the terminal version, which is green on black and which everybody else ships."
+      },
+      "exposure": {
+        "type": "number",
+        "default": 1.05,
+        "description": "Multiplies the tone before quantising. The main tone control. It works on the picture as stored rather than on reconstructed light, which is deliberate and is explained in the notes, and it means this behaves like an ordinary brightness rather than like a stop of exposure.",
+        "min": 0.2,
+        "max": 3,
+        "step": 0.05,
+        "sensible": [
+          0.8,
+          1.6
+        ]
+      },
+      "contrast": {
+        "type": "number",
+        "default": 1.15,
+        "description": "Pushes tone away from the midpoint before quantising. A photograph with a narrow range gives a picture that is all one grain size, and this is what opens it out. Past about 2.5 the midtones are gone and you have a stencil.",
+        "min": 0.2,
+        "max": 4,
+        "step": 0.05,
+        "sensible": [
+          0.9,
+          1.8
+        ]
+      },
+      "swell": {
+        "type": "number",
+        "default": 0.05,
+        "description": "How far the exposure swells over the period. Small. Animated error diffusion boils, because the error propagates and one flipped pixel changes everything downstream of it, so whole runs of grain reorganise at once. At 0.3 it is static. At 0 it holds still and the item draws one frame and stops.",
+        "min": 0,
+        "max": 0.5,
+        "step": 0.01,
+        "sensible": [
+          0.03,
+          0.12
+        ]
+      },
+      "period": {
+        "type": "number",
+        "default": 6,
+        "description": "Seconds for one swell. The loop closes exactly on it. Long, for the same reason the swell is small: slow, the boil reads as film grain on a plate that is breathing, which is the one kind of motion this technique is any good at.",
+        "min": 2,
+        "max": 60,
+        "step": 1,
+        "unit": "s",
+        "sensible": [
+          8,
+          24
+        ]
+      },
+      "serpentine": {
+        "type": "boolean",
+        "default": true,
+        "description": "Scan alternate rows backwards. Always going left to right drags the error one way and a smooth gradient comes out with diagonal streaks running down and to the right. Turn it off once on a sky: the streaks are not subtle, and they are the reason this option exists rather than being hard-coded."
+      },
+      "reducedMotionTime": {
+        "type": "number",
+        "default": 0,
+        "description": "The single frame shown when the user prefers reduced motion. Any time works here: the swell is the only thing that moves and the picture is the point, so this is just a choice of exposure.",
+        "min": 0,
+        "max": 60,
+        "step": 0.5,
+        "unit": "s"
+      },
+      "maxDpr": {
+        "type": "number",
+        "default": 2,
+        "description": "Device pixel ratio ceiling. It changes how crisply a dot's edges land on the display, not how many dots there are: the grid is measured in CSS pixels so the picture is the same picture on any screen.",
+        "min": 1,
+        "max": 3,
+        "step": 0.5
+      }
+    },
+    "instruction": "switch mode to ordered to see what a shader can manage",
+    "oneShot": false,
+    "record": {
+      "duration": 6,
+      "fps": 30,
+      "posterAt": 2,
+      "crf": 42,
+      "webmCrf": 58,
+      "posterQuality": 10
+    },
+    "credit": {
+      "what": "Error diffusion and its kernels are from the printing and computer-graphics literature: Floyd and Steinberg's 1976 paper, and Bill Atkinson's variant written for the Macintosh. The observation that it cannot be a fragment shader, and what to do about that, are this item's own",
+      "author": "Robert Floyd and Louis Steinberg",
+      "url": "https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering"
+    },
+    "group": "effects",
+    "intro": "DitherImage reduces a photograph to two tones by **error diffusion**, which is\nthe kind of dither a shader cannot do.\n\nEvery dithering effect on the web is an *ordered* dither: a fixed matrix of\nthresholds, usually Bayer's, compared against the picture one pixel at a time.\nThat is not a stylistic choice, it is the only kind a fragment shader can do. A\nfragment shader has to answer for one pixel without knowing anything about its\nneighbours, and ordered dithering is the only dither with that property.\n\nError diffusion is the other kind, and it is the one that looks like something.\nQuantise a pixel, work out how much tone you threw away, and hand that error to\nthe pixels you have not reached yet. The grain then **follows the subject**\nrather than lying across it as a crosshatch. It is also strictly sequential:\nevery pixel depends on the ones before it, so there is no way to write it\nper-pixel and no way to put it on a GPU.\n\nSwitch `mode` to `ordered` once. The difference is not subtle and it is the\nwhole argument for this item existing."
+  },
+  {
     "name": "DustMotes",
     "slug": "dust-motes",
     "tier": 1,

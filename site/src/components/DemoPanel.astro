@@ -405,6 +405,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'ascii-image': () => import('@items/effects/ascii-image/core'),
     'crt-screen': () => import('@items/effects/crt-screen/core'),
     'glass-shatter': () => import('@items/effects/glass-shatter/core'),
+    'dither-image': () => import('@items/effects/dither-image/core'),
     'card-stack': () => import('@items/effects/card-stack/core'),
     'glass-search-bar': () => import('@items/effects/glass-search-bar/core')
   }
@@ -452,6 +453,8 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       '<img class="demo-plate-fill" src="/plates/crt-screen/plate.jpg" alt="A crowd walking down a Tokyo street at night under stacked lit signs" />',
     'glass-shatter':
       '<img class="demo-plate-fill" src="/plates/glass-shatter/plate.jpg" alt="A ring of stones on a bright green hillside, the sun coming up behind the ridge" />',
+    'dither-image':
+      '<img class="demo-plate-fill" src="/plates/dither-image/plate.jpg" alt="A grass headland falling away to the sea, with fog lying along the cliff" />',
     /*
      * DepthPointCloud reads the picture and never shows it, like AsciiImage.
      * The <img> is the input, so it is in the markup and hidden by the item.
@@ -694,6 +697,10 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     /* And again: the <img> is the picture behind the glass, not the thing on
        show, and the cracks have to reach the edges of the stage. */
     'glass-shatter',
+    /* Same again, and the only one of them that takes no WebGL context: the
+       dither is a 2D canvas. The <img> is still the input rather than the
+       thing on show. */
+    'dither-image',
     /* Same shape as AsciiImage: the <img> is what it samples, not the thing on
        show, so it mounts on the stage and must not be centred as content. */
     'depth-point-cloud',
