@@ -139,7 +139,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `auto` | any CSS hex | Paper colour. Set this to your own background or the panel will not sit in the page. |
+| `paper` | color | `#f6f3ea` | any CSS hex | The stock the inks are printed on. An explicit colour rather than `auto`, which adopts the page's own background and is the right default for almost every other item here. A halftone is ink on paper: the dots are a partial covering that lets the stock through, so on a near-black ground there is nothing for them to be a partial covering of and two saturated inks come out muddy. Pass `auto` if you do want it to take the page it is dropped on. |
 | `inkA` | color | `#1a2a8c` | any CSS hex | First plate. A desaturated near-black reads as ink; pure black reads as a hole. |
 | `inkB` | color | `#e5007a` | any CSS hex | Second plate. This is where the colour lives, so change this one first. |
 | `scale` | number | `1.6` | 0.3 to 6 (looks right between 1.2 and 3) | Size of the ink shapes. Lower is broader and calmer. |

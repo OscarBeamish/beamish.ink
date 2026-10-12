@@ -52,7 +52,19 @@ export type HalftoneBackdropOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const halftoneBackdropDefaults: HalftoneBackdropOptions = {
-  paper: 'auto',
+  /*
+   * An explicit stock rather than `auto`.
+   *
+   * `auto` adopts the page's own background, which is the right default for
+   * almost every item here and the wrong one for this. A halftone is ink
+   * printed on paper: the dots are a partial covering that lets the stock
+   * through, so on a near-black ground there is nothing for them to be a
+   * partial covering OF and two saturated inks come out muddy. The item
+   * declares `ground: paper` in meta.json, and this is that declaration
+   * honoured rather than deferred to whatever it is dropped on. Pass `auto`
+   * if you do want it to adopt the page.
+   */
+  paper: '#f6f3ea',
   inkA: '#1a2a8c',
   inkB: '#e5007a',
   scale: 1.6,

@@ -55,8 +55,8 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "auto",
-      "description": "Paper colour. Set this to your own background or the panel will not sit in the page."
+      "default": "#f6f3ea",
+      "description": "The stock the inks are printed on. An explicit colour rather than `auto`, which adopts the page's own background and is the right default for almost every other item here. A halftone is ink on paper: the dots are a partial covering that lets the stock through, so on a near-black ground there is nothing for them to be a partial covering of and two saturated inks come out muddy. Pass `auto` if you do want it to take the page it is dropped on."
     },
     "inkA": {
       "type": "color",
