@@ -72,29 +72,32 @@
 [data-ground-scope='dark'] {
   --label: 255, 255, 255; /* pure, strongest text only */
   --label-d: 226, 231, 240; /* desaturated, every alpha step below */
-  --background-deep: 13, 14, 17; /* near black, never #000 */
-  --background-elevated: #16181d; /* panels, demo surrounds */
-  --line: rgba(var(--label-d), 0.14); /* 1.39:1, dividers only */
-  --control-line: rgba(var(--label-d), 0.62); /* 6.39:1, pressable edges */
+  --background-deep: 6, 5, 7; /* near black, never #000 */
+  /* Lifted off the ground by about the same step it always was. The ground
+     went from 13,14,17 to 6,5,7, and a panel that stayed at #16181d would be
+     reading as a much brighter grey against it than it was chosen to be. */
+  --background-elevated: #0f0e13; /* panels, demo surrounds */
+  --line: rgba(var(--label-d), 0.14); /* 1.33:1, dividers only */
+  --control-line: rgba(var(--label-d), 0.62); /* 6.45:1, pressable edges */
   /*
    * A brighter accent than paper's. The paper orange is chosen to carry white
    * text on top of it; on near black it is the text, and at that job it is too
    * dark to pass.
    */
-  --accent: #ff7a3d; /* 7.45:1 as text */
+  --accent: #ff7a3d; /* 7.85:1 as text */
   /*
    * The ground, not white. White on this orange is 2.59:1 and fails, which is
    * the trap in carrying a paper accent across: there the accent is a surface
    * that holds white text, here it is the text.
    */
-  --accent-ink: rgb(var(--background-deep)); /* on the accent: 7.45:1 */
+  --accent-ink: rgb(var(--background-deep)); /* on the accent: 7.85:1 */
   --selection-bg: #ff7a3d;
   --selection-ink: rgb(var(--background-deep));
 
-  --label-1: rgba(var(--label), 1); /* 19.30:1 */
-  --label-2: rgba(var(--label-d), 0.86); /* 11.57:1 */
-  --label-3: rgba(var(--label-d), 0.72); /* 8.31:1 */
-  --label-4: rgba(var(--label-d), 0.22); /* 1.80:1, NEVER text */
+  --label-1: rgba(var(--label), 1); /* 20.34:1 */
+  --label-2: rgba(var(--label-d), 0.86); /* 12.04:1 */
+  --label-3: rgba(var(--label-d), 0.72); /* 8.51:1 */
+  --label-4: rgba(var(--label-d), 0.22); /* 1.71:1, NEVER text */
 }
 
 /* Ground-independent. Nothing here has a colour. */

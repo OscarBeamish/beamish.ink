@@ -110,9 +110,9 @@ export type MetaballFieldOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const metaballFieldDefaults: MetaballFieldOptions = {
-  background: '#0d0f14',
-  body: '#1d4f63',
-  light: '#f0b67f',
+  background: '#06060f',
+  body: '#2f45d8',
+  light: '#ff9a4a',
   count: 7,
   radius: 0.42,
   blend: 0.6,
@@ -1296,9 +1296,9 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `background` | color | `#0d0f14` | any CSS hex | Behind the blobs. Nothing is drawn there, so it is a flat fill, and it is also what the body colour is mixed towards in shadow. |
-| `body` | color | `#1d4f63` | any CSS hex | The body, seen where a surface faces the camera. Keep it close to the background in value: the shape is carried by the rim and the highlight, and a body that is much lighter flattens both. |
-| `light` | color | `#f0b67f` | any CSS hex | The light, seen in the rim and the highlight. Warm against a cool body is what gives the surface somewhere to turn through. |
+| `background` | color | `#06060f` | any CSS hex | Behind the blobs. Nothing is drawn there, so it is a flat fill, and it is also what the body colour is mixed towards in shadow. |
+| `body` | color | `#2f45d8` | any CSS hex | The body, seen where a surface faces the camera. Keep it close to the background in value: the shape is carried by the rim and the highlight, and a body that is much lighter flattens both. |
+| `light` | color | `#ff9a4a` | any CSS hex | The light, seen in the rim and the highlight. Warm against a cool body is what gives the surface somewhere to turn through. |
 | `count` | number | `7` | 1 to 9 (looks right between 4 and 7) | How many blobs. Along with detail, this is the cost: the distance function asks about every one of them at every step of every ray. |
 | `radius` | number | `0.42` | 0.1 to 1.2 (looks right between 0.35 and 0.6) | Blob radius in scene units, where the swarm is about two units across. Large enough and they never part, which loses the thing worth watching. |
 | `blend` | number | `0.6` | 0 to 1.5 (looks right between 0.3 and 0.8) | Width of the fillet where two blobs meet. At 0 they interpenetrate with a visible crease and read as two balls at the same address. Past about 1 they are one lump that never separates. |

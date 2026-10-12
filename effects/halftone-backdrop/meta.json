@@ -60,12 +60,12 @@
     },
     "inkA": {
       "type": "color",
-      "default": "#5d5a52",
+      "default": "#1a2a8c",
       "description": "First plate. A desaturated near-black reads as ink; pure black reads as a hole."
     },
     "inkB": {
       "type": "color",
-      "default": "#c44400",
+      "default": "#e5007a",
       "description": "Second plate. This is where the colour lives, so change this one first."
     },
     "scale": {
@@ -130,7 +130,7 @@
     },
     "coverage": {
       "type": "number",
-      "default": 0.14,
+      "default": 0.2,
       "min": 0.1,
       "max": 0.9,
       "step": 0.01,

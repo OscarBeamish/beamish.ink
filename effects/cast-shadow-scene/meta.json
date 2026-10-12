@@ -69,7 +69,7 @@
     },
     "accent": {
       "type": "color",
-      "default": "light-dark(#c44400, #ff7a3d)",
+      "default": "light-dark(#5b17c9, #b07aff)",
       "description": "One form carries colour. This is the obvious place to put your own brand colour. A light-dark() pair picks by the ground it lands on."
     },
     "elevation": {

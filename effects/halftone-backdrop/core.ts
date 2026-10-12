@@ -53,14 +53,14 @@ export type HalftoneBackdropOptions = BaseOptions & {
  */
 export const halftoneBackdropDefaults: HalftoneBackdropOptions = {
   paper: 'auto',
-  inkA: '#5d5a52',
-  inkB: '#c44400',
+  inkA: '#1a2a8c',
+  inkB: '#e5007a',
   scale: 1.6,
   screen: 16,
   angleA: 15,
   angleB: 75,
   drift: 5,
-  coverage: 0.14,
+  coverage: 0.2,
   grain: 0.35,
   period: 30,
   reducedMotionTime: 1.4

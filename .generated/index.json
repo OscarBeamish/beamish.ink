@@ -548,7 +548,7 @@
       },
       "accent": {
         "type": "color",
-        "default": "light-dark(#c44400, #ff7a3d)",
+        "default": "light-dark(#5b17c9, #b07aff)",
         "description": "One form carries colour. This is the obvious place to put your own brand colour. A light-dark() pair picks by the ground it lands on."
       },
       "elevation": {
@@ -717,17 +717,17 @@
     "options": {
       "background": {
         "type": "color",
-        "default": "#0c0d10",
+        "default": "#07070f",
         "description": "The page behind the object. Nothing reflects it, so it is only a fill, but it wants to be close to the dark end of the room or the object reads as cut out and pasted on."
       },
       "tint": {
         "type": "color",
-        "default": "#eef1f4",
+        "default": "#a9c7ff",
         "description": "The metal. Near white is chrome; warm it towards #e8c89a for brass and cool it for steel. On a fully metallic surface this multiplies the reflection rather than adding a colour of its own, which is why a saturated one looks like coloured glass instead of metal."
       },
       "studio": {
         "type": "color",
-        "default": "#fff6e8",
+        "default": "#ffb27a",
         "description": "The strip lights, and therefore the bright part of every reflection. Slightly warm by default, because a neutral white room makes the metal read as grey."
       },
       "roughness": {
@@ -3539,12 +3539,12 @@
       },
       "inkA": {
         "type": "color",
-        "default": "#5d5a52",
+        "default": "#1a2a8c",
         "description": "First plate. A desaturated near-black reads as ink; pure black reads as a hole."
       },
       "inkB": {
         "type": "color",
-        "default": "#c44400",
+        "default": "#e5007a",
         "description": "Second plate. This is where the colour lives, so change this one first."
       },
       "scale": {
@@ -3609,7 +3609,7 @@
       },
       "coverage": {
         "type": "number",
-        "default": 0.14,
+        "default": 0.2,
         "description": "Ink density. Past 0.7 the plates flood and the paper stops showing through.",
         "min": 0.1,
         "max": 0.9,
@@ -5671,17 +5671,17 @@
     "options": {
       "background": {
         "type": "color",
-        "default": "#0d0f14",
+        "default": "#06060f",
         "description": "Behind the blobs. Nothing is drawn there, so it is a flat fill, and it is also what the body colour is mixed towards in shadow."
       },
       "body": {
         "type": "color",
-        "default": "#1d4f63",
+        "default": "#2f45d8",
         "description": "The body, seen where a surface faces the camera. Keep it close to the background in value: the shape is carried by the rim and the highlight, and a body that is much lighter flattens both."
       },
       "light": {
         "type": "color",
-        "default": "#f0b67f",
+        "default": "#ff9a4a",
         "description": "The light, seen in the rim and the highlight. Warm against a cool body is what gives the surface somewhere to turn through."
       },
       "count": {

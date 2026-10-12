@@ -71,9 +71,9 @@ export type MetaballFieldOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const metaballFieldDefaults: MetaballFieldOptions = {
-  background: '#0d0f14',
-  body: '#1d4f63',
-  light: '#f0b67f',
+  background: '#06060f',
+  body: '#2f45d8',
+  light: '#ff9a4a',
   count: 7,
   radius: 0.42,
   blend: 0.6,

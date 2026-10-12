@@ -66,9 +66,9 @@ export type ChromeFormOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const chromeFormDefaults: ChromeFormOptions = {
-  background: '#0c0d10',
-  tint: '#eef1f4',
-  studio: '#fff6e8',
+  background: '#07070f',
+  tint: '#a9c7ff',
+  studio: '#ffb27a',
   roughness: 0.13,
   lamps: 3,
   height: 2.6,

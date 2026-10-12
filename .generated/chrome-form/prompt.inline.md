@@ -105,9 +105,9 @@ export type ChromeFormOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const chromeFormDefaults: ChromeFormOptions = {
-  background: '#0c0d10',
-  tint: '#eef1f4',
-  studio: '#fff6e8',
+  background: '#07070f',
+  tint: '#a9c7ff',
+  studio: '#ffb27a',
   roughness: 0.13,
   lamps: 3,
   height: 2.6,
@@ -1151,9 +1151,9 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `background` | color | `#0c0d10` | any CSS hex | The page behind the object. Nothing reflects it, so it is only a fill, but it wants to be close to the dark end of the room or the object reads as cut out and pasted on. |
-| `tint` | color | `#eef1f4` | any CSS hex | The metal. Near white is chrome; warm it towards #e8c89a for brass and cool it for steel. On a fully metallic surface this multiplies the reflection rather than adding a colour of its own, which is why a saturated one looks like coloured glass instead of metal. |
-| `studio` | color | `#fff6e8` | any CSS hex | The strip lights, and therefore the bright part of every reflection. Slightly warm by default, because a neutral white room makes the metal read as grey. |
+| `background` | color | `#07070f` | any CSS hex | The page behind the object. Nothing reflects it, so it is only a fill, but it wants to be close to the dark end of the room or the object reads as cut out and pasted on. |
+| `tint` | color | `#a9c7ff` | any CSS hex | The metal. Near white is chrome; warm it towards #e8c89a for brass and cool it for steel. On a fully metallic surface this multiplies the reflection rather than adding a colour of its own, which is why a saturated one looks like coloured glass instead of metal. |
+| `studio` | color | `#ffb27a` | any CSS hex | The strip lights, and therefore the bright part of every reflection. Slightly warm by default, because a neutral white room makes the metal read as grey. |
 | `roughness` | number | `0.13` | 0 to 1 (looks right between 0.05 and 0.35) | How polished. At 0 it is a mirror with the room sharp in it; by about 0.4 the strips have softened into a sheen and it reads as brushed. Past about 0.6 there is nothing left to reflect and it goes to grey. |
 | `lamps` | number | `3` | 1 to 6 (looks right between 2 and 4) | Strip lights round the room. Two is a photographer's key and fill. More than four and the object has highlights everywhere, which flattens it: the dark between the strips is what gives the form its shape. |
 | `height` | number | `2.6` | 0.6 to 5 | Height of the form in scene units, where the camera frames about four. |

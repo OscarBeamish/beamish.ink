@@ -69,17 +69,17 @@
   "options": {
     "background": {
       "type": "color",
-      "default": "#0c0d10",
+      "default": "#07070f",
       "description": "The page behind the object. Nothing reflects it, so it is only a fill, but it wants to be close to the dark end of the room or the object reads as cut out and pasted on."
     },
     "tint": {
       "type": "color",
-      "default": "#eef1f4",
+      "default": "#a9c7ff",
       "description": "The metal. Near white is chrome; warm it towards #e8c89a for brass and cool it for steel. On a fully metallic surface this multiplies the reflection rather than adding a colour of its own, which is why a saturated one looks like coloured glass instead of metal."
     },
     "studio": {
       "type": "color",
-      "default": "#fff6e8",
+      "default": "#ffb27a",
       "description": "The strip lights, and therefore the bright part of every reflection. Slightly warm by default, because a neutral white room makes the metal read as grey."
     },
     "roughness": {

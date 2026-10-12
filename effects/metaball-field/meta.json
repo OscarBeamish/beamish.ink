@@ -66,17 +66,17 @@
   "options": {
     "background": {
       "type": "color",
-      "default": "#0d0f14",
+      "default": "#06060f",
       "description": "Behind the blobs. Nothing is drawn there, so it is a flat fill, and it is also what the body colour is mixed towards in shadow."
     },
     "body": {
       "type": "color",
-      "default": "#1d4f63",
+      "default": "#2f45d8",
       "description": "The body, seen where a surface faces the camera. Keep it close to the background in value: the shape is carried by the rim and the highlight, and a body that is much lighter flattens both."
     },
     "light": {
       "type": "color",
-      "default": "#f0b67f",
+      "default": "#ff9a4a",
       "description": "The light, seen in the rim and the highlight. Warm against a cool body is what gives the surface somewhere to turn through."
     },
     "count": {

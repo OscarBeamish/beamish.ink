@@ -41,7 +41,7 @@ export type CastShadowSceneOptions = BaseOptions & {
 export const castShadowSceneDefaults: CastShadowSceneOptions = {
   paper: 'auto',
   stone: 'light-dark(#f5f2e9, #272b33)',
-  accent: 'light-dark(#c44400, #ff7a3d)',
+  accent: 'light-dark(#5b17c9, #b07aff)',
   elevation: 24,
   softness: 0.68,
   shadow: 0.26,

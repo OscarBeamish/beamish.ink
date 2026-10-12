@@ -140,14 +140,14 @@ as the second argument to the create function; anything omitted takes its defaul
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
 | `paper` | color | `auto` | any CSS hex | Paper colour. Set this to your own background or the panel will not sit in the page. |
-| `inkA` | color | `#5d5a52` | any CSS hex | First plate. A desaturated near-black reads as ink; pure black reads as a hole. |
-| `inkB` | color | `#c44400` | any CSS hex | Second plate. This is where the colour lives, so change this one first. |
+| `inkA` | color | `#1a2a8c` | any CSS hex | First plate. A desaturated near-black reads as ink; pure black reads as a hole. |
+| `inkB` | color | `#e5007a` | any CSS hex | Second plate. This is where the colour lives, so change this one first. |
 | `scale` | number | `1.6` | 0.3 to 6 (looks right between 1.2 and 3) | Size of the ink shapes. Lower is broader and calmer. |
 | `screen` | number | `16` | 2 to 40 dots / 100px (looks right between 5 and 14) | Halftone frequency. Above about 20 the screen stops reading as a screen and starts reading as noise. |
 | `angleA` | number | `15` | 0 to 180 deg | Screen angle of the first plate. |
 | `angleB` | number | `75` | 0 to 180 deg (looks right between 45 and 105) | Screen angle of the second plate. Keep it at least 30 degrees from angleA. Closer than that and the two screens beat against each other. |
 | `drift` | number | `5` | 0 to 30 px (looks right between 4 and 12) | Registration error: how far the plates slide apart over a loop. Zero is a clean print and much duller. |
-| `coverage` | number | `0.14` | 0.1 to 0.9 (looks right between 0.35 and 0.6) | Ink density. Past 0.7 the plates flood and the paper stops showing through. |
+| `coverage` | number | `0.2` | 0.1 to 0.9 (looks right between 0.35 and 0.6) | Ink density. Past 0.7 the plates flood and the paper stops showing through. |
 | `grain` | number | `0.35` | 0 to 1 | Paper tooth. Static by design. Animated grain flickers, and a flicker this fine is what WCAG 2.3.1 exists to prevent. |
 | `period` | number | `30` | 2 to 120 s (looks right between 5 and 25) | Seconds for one full loop. The animation is exactly periodic over this. Slow on purpose: the plates should drift apart over half a minute, which reads as a press settling rather than as something happening. |
 | `reducedMotionTime` | number | `1.4` | 0 to 120 s | The single frame shown when the user prefers reduced motion. Pick one that composes rather than the frame at zero. |
