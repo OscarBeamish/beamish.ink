@@ -1,0 +1,169 @@
+{
+  "name": "VoronoiCells",
+  "slug": "voronoi-cells",
+  "tier": 1,
+  "description": "The plane divided by which scattered point is nearest, with the sites drifting so every border moves with them",
+  "category": "backdrops",
+  "ground": "dark",
+  "tags": [
+    "webgl",
+    "shader",
+    "backdrop",
+    "voronoi",
+    "cellular",
+    "pattern",
+    "ambient",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "Nine cells is the whole search. Each site is jittered inside its own lattice cell and capped so it can never leave, so the nearest site to a pixel is in that pixel cell or one of the eight around it: nine hashes and nine distances, no list, no sorting and no texture.",
+      "The borders come from the second nearest site. Halfway between two sites the two distances are equal, so their difference goes to zero at the boundary, which is a usable distance to the edge for nothing. It is slightly wrong where three cells meet, by an amount nobody has noticed.",
+      "The wobble radius is capped just under a half. A site that crosses into its neighbour cell breaks the assumption the three by three search rests on, and the field tears along the lattice."
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.2,
+    "contexts": 1,
+    "notes": [
+      "Nine hashes, nine distances and a smoothstep per pixel, with no loop over anything but the fixed three by three. Measured with pnpm gputime, which asks the GPU rather than timing the draw call."
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/voronoi-cells/core.ts",
+      "to": "src/beamish/effects/voronoi-cells/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/voronoi-cells/adapters/react.tsx",
+      "to": "src/beamish/effects/voronoi-cells/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/voronoi-cells/adapters/vue.ts",
+      "to": "src/beamish/effects/voronoi-cells/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "near": {
+      "type": "color",
+      "default": "#2440d8",
+      "description": "Cell colour at the near end of the ramp."
+    },
+    "mid": {
+      "type": "color",
+      "default": "#fc02dd",
+      "description": "Cell colour through the middle. Between two colours a ramp gives one hue and a tint of it; passing through a third is what makes a field of flat cells read as lit from somewhere."
+    },
+    "far": {
+      "type": "color",
+      "default": "#ffc2f0",
+      "description": "Cell colour at the far end."
+    },
+    "edge": {
+      "type": "color",
+      "default": "#06040c",
+      "description": "The borders between cells. Near-black with a little of the cell hue still in it, because a true black line across a saturated cell reads as a gap rather than as an edge."
+    },
+    "cells": {
+      "type": "number",
+      "default": 7,
+      "min": 2,
+      "max": 30,
+      "step": 1,
+      "sensible": [
+        5,
+        12
+      ],
+      "description": "Cells across the short edge. Few and large reads as stained glass; past about twenty the borders are closer together than the cells are wide and it becomes a texture."
+    },
+    "wobble": {
+      "type": "number",
+      "default": 0.34,
+      "min": 0,
+      "max": 0.49,
+      "step": 0.01,
+      "sensible": [
+        0.2,
+        0.42
+      ],
+      "description": "How far each site drifts from the middle of its own cell, in cell widths. Capped just under a half on purpose: a site that crosses into its neighbour cell breaks the nine-cell search and the field tears along the lattice. At 0 nothing moves, which costs nothing to draw and is a legitimate way to use it."
+    },
+    "thickness": {
+      "type": "number",
+      "default": 0.055,
+      "min": 0,
+      "max": 0.3,
+      "step": 0.005,
+      "sensible": [
+        0.02,
+        0.1
+      ],
+      "description": "Border width, in lattice units. At 0 there are no borders and the cells are held apart by colour alone, which is quieter and entirely usable."
+    },
+    "softness": {
+      "type": "number",
+      "default": 0.18,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Softness of the border, on top of the one pixel of antialiasing that is always there. A little helps more here than on a straight line, because a Voronoi border meets its neighbours at angles that are never the same twice."
+    },
+    "depth": {
+      "type": "number",
+      "default": 0.22,
+      "min": 0,
+      "max": 0.6,
+      "step": 0.01,
+      "sensible": [
+        0.1,
+        0.35
+      ],
+      "description": "How much a cell darkens away from its own site. Just enough that a large cell does not read as a flat sticker; past about 0.4 it is a gradient competing with the borders for attention."
+    },
+    "seed": {
+      "type": "number",
+      "default": 4,
+      "min": 0,
+      "max": 999,
+      "step": 1,
+      "description": "Where every site sits and which cell takes which colour. Every value is a different field and none is better than another."
+    },
+    "period": {
+      "type": "number",
+      "default": 24,
+      "min": 6,
+      "max": 90,
+      "step": 1,
+      "unit": "s",
+      "sensible": [
+        16,
+        40
+      ],
+      "description": "Seconds for one circuit of the sites. The loop closes exactly on it, because each site completes a whole turn of its own small circle in that time."
+    }
+  },
+  "instruction": "the sites drift and every border moves with them",
+  "oneShot": false,
+  "credit": {
+    "what": "The parameter set and the pair of colours. Their Voronoi names two cell colours, a border, a scale, a seed and an edge intensity and softness, which is the right set, and the blue and magenta are theirs: far enough apart in hue to separate every cell from its neighbours without either reading as a highlight. The tessellation is Georgy Voronoy from 1908. The code here is this repo own.",
+    "author": "Shader Effects Inc.",
+    "url": "https://github.com/shader-effects-inc/shaders"
+  },
+  "record": {
+    "duration": 24,
+    "fps": 20,
+    "posterAt": 7,
+    "crf": 36,
+    "webmCrf": 48
+  }
+}
