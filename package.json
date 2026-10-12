@@ -29,6 +29,8 @@
     "tells": "tsx tools/tells/index.ts",
     "budget": "tsx tools/budget/index.ts",
     "drift": "tsx tools/drift.ts",
+    "stagnation": "tsx tools/stagnation.ts",
+    "strobe": "tsx tools/strobe.ts",
     "fps": "tsx tools/fps.ts",
     "frame": "tsx tools/frame/index.ts",
     "navcheck": "tsx tools/navcheck.ts",
