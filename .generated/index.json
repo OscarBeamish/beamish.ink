@@ -1461,6 +1461,262 @@
     "intro": "CrosshairCursor draws a pair of hairlines across a panel and four corner\nbrackets where they meet, following the pointer. A viewfinder rather than a\ncursor.\n\nThe part that makes it worth building, rather than two divs tracking a mouse, is\nwhat happens when it passes over something you can press: the brackets leave the\ncursor and square up around that element instead. It stops being a decoration on\nthe pointer and becomes a statement about the page, which is the whole idea of a\nreticle. Nothing locks on to empty space.\n\nThree decisions worth knowing about.\n\n**What counts as a target is a CSS selector, not a guess.** Anything that sniffs\nfor clickability gets it wrong in both directions: it misses the div somebody\nwired a handler to, and it locks on to every link in a paragraph of running\ntext.\n\n**The lock comes from a hit test at the pointer, not from a listener.** A\nscripted path moves no real pointer and fires no events, so an effect that\nlocked on only for a live cursor would record as a reticle that never finds\nanything. The test is skipped while the pointer is still, because it flushes\nlayout and the answer cannot have changed.\n\n**The brackets take a target faster than the crosshair follows the hand.** A\nreticle that drifts lazily into place has not locked on to anything. The snap is\nthe feedback."
   },
   {
+    "name": "CrtScreen",
+    "slug": "crt-screen",
+    "tier": 1,
+    "description": "A picture shown on a tube rather than on a panel: the glass bows, the phosphors sit in columns and the beam overshoots",
+    "category": "surfaces",
+    "tags": [
+      "webgl",
+      "shader",
+      "image",
+      "crt",
+      "scanlines",
+      "retro",
+      "filter",
+      "no-dependencies"
+    ],
+    "ground": "dark",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "Scanlines drawn over a flat image read as an image with stripes on it. The thing that makes a picture read as a cathode ray tube is a short list that has to be there together, and most of it is not the scanlines",
+        "The glass is curved. The picture bows outward, straight lines near the edge bend and the corners pull in. Without this nothing else helps: a rectangle with stripes is a rectangle. The bezel is whatever falls outside the bent picture, which is why it is in the shader rather than in CSS",
+        "The phosphors are in columns. A tube has an aperture grille, red green and blue side by side, which is why a white area in a photograph of a CRT is never white up close. The scanlines are the rows and the grille is the columns, and it is the columns that stop the rows reading as a venetian blind",
+        "The grille is measured in device pixels rather than CSS ones. It is a physical thing on the glass, so it should get finer on a denser display rather than staying the same size in points",
+        "The grille is lifted towards white rather than multiplied straight, and by a long way. Multiplied in at full strength it sends two thirds of every cell to black, and at three device pixels a cell is below the size at which a stripe can be drawn cleanly, so on a page scaling the canvas what reaches the eye is coloured noise rather than a grille. `mask` is that lift, and at 1 you get the macro view",
+        "The beam overshoots, so a bright area bleeds into its neighbours. Three taps across the grille, not a blur: the grille is about to throw away most of the horizontal detail anyway, so a wider and more expensive kernel buys nothing visible",
+        "The channels do not land on each other. Red and blue are pulled either side of green along the radius, by an amount that grows towards the corners, because that is where the deflection coils are working hardest",
+        "The scanlines are counted down the glass rather than measured in the picture, so they stay put when the image changes. Fixed to the screen, which is what they are",
+        "Only the rolling bar moves. Animating the scanlines or the grille turns the whole thing into a pattern sliding over a photograph, which is the usual mistake",
+        "The <img> stays in the document, hidden. Its alt text is the accessible version of the picture and a page whose script never runs still shows the photograph"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.3,
+      "contexts": 1,
+      "notes": [
+        "Five samples of the source per pixel: three for the convergence split and two for the overshoot. Everything else is arithmetic on the result",
+        "Nothing is allocated per frame and the texture is uploaded once",
+        "The bar is the only thing that moves, so the item is drawing a near-identical frame most of the time. The runtime stops the loop once the element is off screen, which is where the saving is"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/crt-screen/core.ts",
+        "to": "src/beamish/effects/crt-screen/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/crt-screen/adapters/react.tsx",
+        "to": "src/beamish/effects/crt-screen/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/crt-screen/adapters/vue.ts",
+        "to": "src/beamish/effects/crt-screen/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "curve": {
+        "type": "number",
+        "default": 0.12,
+        "description": "How much the glass bows the picture. The one that does the most work: at 0 you have a flat image with stripes on it and nothing below will rescue it, and by 0.35 it is a fish-eye rather than a tube. 0.12 is about a late consumer set, where the curve is obvious at the corners and unremarkable in the middle.",
+        "min": 0,
+        "max": 0.5,
+        "step": 0.01,
+        "sensible": [
+          0.06,
+          0.2
+        ]
+      },
+      "grille": {
+        "type": "number",
+        "default": 3,
+        "description": "Width of one phosphor cell in device pixels, so three subpixels fit across it. 0 turns the grille off, which is worth doing once to see how much of the effect is the columns rather than the rows. This is the pitch; `mask` is how strongly it shows. Above about 6 the stripes stop being a texture and become the subject.",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "unit": "px",
+        "sensible": [
+          2,
+          5
+        ]
+      },
+      "mask": {
+        "type": "number",
+        "default": 0.55,
+        "description": "How strongly the grille shows, from a tint over the picture to the macro view. At 1 the stripes are drawn at full strength, which sends two thirds of every cell to black; at three device pixels a cell is below the size at which a stripe can be drawn cleanly, so on a page that is scaling the canvas what reaches the eye is not a grille but coloured noise. 0.55 is what a tube looks like from the sofa. Set it to 1 once and look at it an inch from the screen.",
+        "min": 0,
+        "max": 1,
+        "step": 0.05,
+        "sensible": [
+          0.4,
+          0.7
+        ]
+      },
+      "scanline": {
+        "type": "number",
+        "default": 0.38,
+        "description": "How dark the gaps between rows go. The number everybody reaches for first and the one that matters least: past about 0.6 the picture is half black and you are looking at a blind.",
+        "min": 0,
+        "max": 1,
+        "step": 0.05,
+        "sensible": [
+          0.2,
+          0.5
+        ]
+      },
+      "scanCount": {
+        "type": "number",
+        "default": 200,
+        "description": "How many lines down the glass. This is a count of lines on a screen, not a frequency in the picture, so it stays put when the image changes. Broadcast was 576 visible lines in Europe and 480 in America; 200 is well under either on purpose, because at a real line count on a dense display the rows fall below a pixel and alias into a moire.",
+        "min": 60,
+        "max": 1200,
+        "step": 10,
+        "sensible": [
+          140,
+          320
+        ]
+      },
+      "bloom": {
+        "type": "number",
+        "default": 0.32,
+        "description": "How far a bright area bleeds into its neighbours. Only the parts of the picture above a threshold spill, which is why this reads as a beam overshooting rather than as the whole image going soft.",
+        "min": 0,
+        "max": 2,
+        "step": 0.05,
+        "sensible": [
+          0.2,
+          0.6
+        ]
+      },
+      "converge": {
+        "type": "number",
+        "default": 1.1,
+        "description": "How far red and blue miss each other at the corners, in roughly thousandths of the frame. Small numbers only. Convergence error is something you notice on white type at the edge of the screen and nowhere else, and a set this badly out would have gone back to the shop.",
+        "min": 0,
+        "max": 5,
+        "step": 0.1,
+        "sensible": [
+          0.6,
+          1.8
+        ]
+      },
+      "vignette": {
+        "type": "number",
+        "default": 0.5,
+        "description": "How dim the edges of the tube go. It is doing two jobs: a tube really is dimmer at the edges, and it also hides the corners where the curvature is working hardest and the picture is most stretched.",
+        "min": 0,
+        "max": 1,
+        "step": 0.05,
+        "sensible": [
+          0.3,
+          0.7
+        ]
+      },
+      "roll": {
+        "type": "number",
+        "default": 0.1,
+        "description": "How strongly the bar rolling down the glass shows. 0 removes it and makes the whole item a still, which is the right setting behind text. Keep it low: this is a set very slightly out of step with the mains, not a set that is broken.",
+        "min": 0,
+        "max": 1,
+        "step": 0.05,
+        "sensible": [
+          0.05,
+          0.25
+        ]
+      },
+      "brightness": {
+        "type": "number",
+        "default": 1.05,
+        "description": "Applied before the grille and the scanlines take their share, which is why it sits above 1. The rows and the columns together remove roughly a quarter of the light at the default mask, so a picture passed through at 1.0 comes out a little darker than it went in. Raise it with `mask`, not on its own.",
+        "min": 0.2,
+        "max": 3,
+        "step": 0.05,
+        "sensible": [
+          0.9,
+          1.4
+        ]
+      },
+      "contrast": {
+        "type": "number",
+        "default": 0.12,
+        "description": "Pushed away from the midtone before the grille, for the same reason as brightness. A tube crushes its shadows, and a little of this is what separates the lit parts of the picture from the glow the grille leaves in the black.",
+        "min": -0.5,
+        "max": 1.5,
+        "step": 0.02,
+        "sensible": [
+          0,
+          0.4
+        ]
+      },
+      "tint": {
+        "type": "color",
+        "default": "#ffeedd",
+        "description": "The cast of the tube, multiplied over the picture. Warm on purpose: a phosphor is not neutral, and a tube that renders white as white reads as a flat panel doing an impression. Cool it towards #ddeeff for a monitor rather than a television."
+      },
+      "bezel": {
+        "type": "color",
+        "default": "#07070a",
+        "description": "Whatever falls outside the curved glass. Near-black rather than black, so it sits against the page instead of punching a hole in it. If it reads as a visible frame, the curve is too high rather than this being too light."
+      },
+      "period": {
+        "type": "number",
+        "default": 6,
+        "description": "Seconds for one pass of the bar down the glass. The loop closes exactly on it, so the last frame is the first frame. Longer is calmer and almost always better: at 2 it is a strobe.",
+        "min": 1,
+        "max": 30,
+        "step": 1,
+        "unit": "s",
+        "sensible": [
+          4,
+          12
+        ]
+      },
+      "maxDpr": {
+        "type": "number",
+        "default": 2,
+        "description": "Device pixel ratio ceiling. The grille is measured in device pixels, so this changes how fine the stripes are as well as what it costs to draw them.",
+        "min": 1,
+        "max": 3,
+        "step": 0.5
+      },
+      "reducedMotionTime": {
+        "type": "number",
+        "default": 1.5,
+        "description": "The single frame shown when the user prefers reduced motion. Anything works: the bar is the only thing that moves, and the tube is the point.",
+        "min": 0,
+        "max": 30,
+        "step": 0.1,
+        "unit": "s"
+      }
+    },
+    "instruction": "the bar is the only thing moving. turn curve to 0 to see how much of this is the glass",
+    "oneShot": false,
+    "record": {
+      "duration": 6,
+      "fps": 30,
+      "posterAt": 2.2,
+      "crf": 30,
+      "posterQuality": 10
+    },
+    "credit": {
+      "what": "The parameter set for a CRT filter, from the Shader Effects library. Curvature is not in theirs and is added here because it is the one that matters most",
+      "author": "Shader Effects Inc.",
+      "url": "https://github.com/shader-effects-inc/shaders"
+    },
+    "group": "effects",
+    "intro": "CrtScreen puts a picture on a tube instead of on a panel.\n\nAlmost every version of this is scanlines: a dark stripe every other row, drawn\nover the image, done. It never works, and the reason is easy to state. A flat\nrectangle with horizontal stripes on it is a flat rectangle with horizontal\nstripes on it. Nothing about stripes says cathode ray tube.\n\nWhat says cathode ray tube is a short list of things that have to be there\ntogether, and most of them are not the scanlines.\n\n**The glass is curved.** The picture bows outward, straight lines near the edges\nbend, and the corners pull in. This is the one that does the work. Set `curve`\nto 0 and every other setting here stops helping; set it to 0.12 and the item is\nmost of the way there before the grille has drawn a single stripe.\n\n**The phosphors are in columns.** A tube has an aperture grille: red, green and\nblue stripes side by side, which is why a white area in a photograph of a CRT is\nnever white when you get close to it. The scanlines are the rows. The grille is\nthe columns. It is the columns that stop the rows reading as a venetian blind,\nand you can check that by setting `grille: 0` and watching the thing collapse\nback into an image with stripes on it.\n\n**The beam overshoots.** A bright area bleeds into what is next to it, because\nthe electron beam does not stop where the signal does.\n\n**The channels do not land on each other.** Convergence is never perfect, so red\nand blue sit a fraction either side of green, and the error grows towards the\ncorners because that is where the deflection coils are working hardest.\n\n**The tube is dim at the edges, and a bar rolls down it**, from the signal and\nthe mains being very slightly out of step.\n\nThe bezel is drawn in the shader rather than in CSS, because the bezel is\ndefined as whatever falls outside the bent picture. A CSS frame cannot know\nwhere that is."
+  },
+  {
     "name": "DecodeText",
     "slug": "decode-text",
     "tier": 1,

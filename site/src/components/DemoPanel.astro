@@ -383,6 +383,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'halftone-magnifier': () => import('@items/effects/halftone-magnifier/core'),
     'relight-image': () => import('@items/effects/relight-image/core'),
     'ascii-image': () => import('@items/effects/ascii-image/core'),
+    'crt-screen': () => import('@items/effects/crt-screen/core'),
     'card-stack': () => import('@items/effects/card-stack/core'),
     'glass-search-bar': () => import('@items/effects/glass-search-bar/core')
   }
@@ -426,6 +427,8 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       '<img class="demo-plate-fill" src="/plates/relight-image/plate.jpg" alt="A grass headland falling away to the sea, with fog lying along the cliff" />',
     'ascii-image':
       '<img class="demo-plate-fill" src="/plates/ascii-image/plate.jpg" alt="A grass headland falling away to the sea, with fog lying along the cliff" />',
+    'crt-screen':
+      '<img class="demo-plate-fill" src="/plates/crt-screen/plate.jpg" alt="A crowd walking down a Tokyo street at night under stacked lit signs" />',
     /*
      * DepthPointCloud reads the picture and never shows it, like AsciiImage.
      * The <img> is the input, so it is in the markup and hidden by the item.
@@ -650,6 +653,10 @@ const tweakable = tier === 1 ? Object.entries(options) : []
      * showed a photograph, which is exactly what the item exists not to do.
      */
     'ascii-image',
+    /* Same shape again: the <img> is the signal going into the tube rather
+       than the thing on show, and the bezel the shader draws has to reach the
+       edges of the stage or it reads as a picture with a border. */
+    'crt-screen',
     /* Same shape as AsciiImage: the <img> is what it samples, not the thing on
        show, so it mounts on the stage and must not be centred as content. */
     'depth-point-cloud',
