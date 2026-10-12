@@ -638,6 +638,110 @@
     margin-left: auto;
   }
 
+  /*
+   * Fullscreen: the effect edge to edge, and one button to get out of it.
+   *
+   * The figure is still what goes fullscreen rather than the panel, because
+   * the handle, the controls and the pause button all live in it and
+   * fullscreening the panel alone would leave them on a page nobody can see.
+   * But the figure stops behaving like a figure: the panel is taken out of
+   * flow and pinned to all four edges, and everything else is either hidden
+   * or floated on top of it.
+   *
+   * The panel carries an inline `aspect-ratio: 16 / 9` that cannot be
+   * overridden from a stylesheet without !important. It does not need to be.
+   * A box pinned on all four sides has a definite width and a definite
+   * height, and a box with both ignores its own aspect-ratio.
+   */
+  figure:fullscreen {
+    display: block;
+    margin: 0;
+    padding: 0;
+    background: rgb(var(--background-deep));
+  }
+
+  figure:fullscreen > [data-demo] {
+    position: fixed;
+    inset: 0;
+    /*
+     * Both of these are needed and `inset: 0` is not enough on its own. For an
+     * out-of-flow box with a height of auto, Chrome resolves the aspect-ratio
+     * in preference to the top and bottom offsets, so the panel came out
+     * 1280 by 720 pinned inside a 1280 by 800 screen with eighty pixels of
+     * page showing under it. Stating the height makes it definite, and a box
+     * with a definite width and height ignores its ratio.
+     */
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+  }
+
+  /*
+   * What is left of the bar, floated in the corner.
+   *
+   * Everything that is about the page rather than about the effect goes: the
+   * caption, the controls, the composition picker, and the replay button on a
+   * one-shot. What stays is the way out, and the pause button on an ambient
+   * effect, which is not negotiable: WCAG 2.2.2 is Level A and it describes
+   * every background in this library. Escape also leaves, but leaving is not
+   * pausing.
+   */
+  figure:fullscreen .demo-bar {
+    position: fixed;
+    right: clamp(0.75rem, 2vmin, 1.5rem);
+    bottom: clamp(0.75rem, 2vmin, 1.5rem);
+    left: auto;
+    z-index: 2;
+    margin: 0;
+    width: auto;
+    /*
+     * Stacked and right-aligned rather than the page's single row. The picker
+     * is six names wide and the buttons sit beside it; on one line in a
+     * corner that is most of the width of the screen, and the row wrapped
+     * with the picker under the buttons, which puts the thing you choose
+     * below the thing that reveals it.
+     */
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.3rem;
+  }
+
+  figure:fullscreen .demo-bar__left,
+  figure:fullscreen .demo-bar__right {
+    justify-content: flex-end;
+  }
+
+  /*
+   * The caption is hidden from the script instead of from here. It carries
+   * Tailwind's `flex` utility, and utilities sit in a later cascade layer than
+   * this file, so `display: none` written here loses to it silently however
+   * specific the selector is. That has caught this repo before.
+   */
+  /*
+   * What goes: the numeric controls, which are a form and want a page, and
+   * replay on a one-shot. What stays: the way out, the pause button on an
+   * ambient effect, and the layouts, which is the one thing here you would
+   * actually want at this size. Seeing what a backdrop does under a headline
+   * is the question the picker exists for, and it is a better question on a
+   * whole screen than in a 600 pixel panel.
+   */
+  figure:fullscreen .controls,
+  figure:fullscreen [data-controls-toggle],
+  figure:fullscreen [data-replay] {
+    display: none;
+  }
+
+  /*
+   * Solid rather than the outlined button the page uses. The bar is over the
+   * effect now instead of under it, and an outlined control on a photograph
+   * is a control you cannot read.
+   */
+  figure:fullscreen .demo-control {
+    background: rgb(var(--background-deep));
+    border-color: var(--control-line);
+  }
+
   /* A row of names rather than a dropdown: six is few enough to show, and
      the whole point is comparing them quickly. */
   .demo-picker {

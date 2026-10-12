@@ -161,7 +161,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
   */}
   <div class="demo-bar">
     <div class="demo-bar__left">
-      {/* The picker, revealed by the Behind type control. Off by default:
+      {/* The picker, revealed by the Layouts control. Off by default:
           a backdrop should be seen as a backdrop first, and what a page
           does to it is the second question. */}
       <div class="demo-picker" data-picker hidden>
@@ -208,10 +208,29 @@ const tweakable = tier === 1 ? Object.entries(options) : []
             data-use-toggle
             aria-pressed="false"
           >
-            Behind type
+            Layouts
           </button>
         )
       }
+      {/*
+        Fullscreen, on the figure rather than on the panel, so the bar goes
+        with it. Fullscreen the panel alone and the pause control is left
+        behind on a page nobody can see, which for an ambient effect is a
+        WCAG 2.2.2 failure dressed up as a feature.
+
+        Hidden until the script has checked the API is there: iOS Safari has
+        no requestFullscreen for an arbitrary element, and a button that does
+        nothing is worse than no button.
+      */}
+      <button
+        type="button"
+        class="demo-control"
+        data-fullscreen
+        aria-pressed="false"
+        hidden
+      >
+        Fullscreen
+      </button>
       {
         tweakable.length > 0 && (
           <button
@@ -797,6 +816,42 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     // in, because the document never goes away.
     if (handle) live.push(handle)
 
+    /*
+     * Fullscreen.
+     *
+     * The target is the figure, so the controls come too. The canvas follows
+     * because the runtime watches its host with a ResizeObserver, which is
+     * the same path a window resize takes: nothing here has to tell the
+     * effect that its box changed.
+     *
+     * The label is driven off the `fullscreenchange` event rather than set
+     * when the button is clicked, because Escape and F11 leave fullscreen
+     * without going through the button, and a label set optimistically says
+     * "Exit fullscreen" on a page that is not in it.
+     */
+    const full = root.querySelector<HTMLButtonElement>('[data-fullscreen]')
+    if (full && typeof root.requestFullscreen === 'function') {
+      full.hidden = false
+      full.addEventListener('click', () => {
+        if (document.fullscreenElement === root) void document.exitFullscreen()
+        else void root.requestFullscreen().catch(() => {})
+      })
+      /*
+       * The caption is set from here rather than from the stylesheet. It
+       * carries Tailwind's `flex` utility, and utilities sit in a later
+       * cascade layer than global.css, so a `display: none` written there
+       * loses to it silently whatever its specificity. An inline style is the
+       * one thing that beats a utility.
+       */
+      const caption = root.querySelector<HTMLElement>('figcaption')
+      document.addEventListener('fullscreenchange', () => {
+        const on = document.fullscreenElement === root
+        full.setAttribute('aria-pressed', String(on))
+        full.textContent = on ? 'Exit fullscreen' : 'Fullscreen'
+        if (caption) caption.style.display = on ? 'none' : ''
+      })
+    }
+
     const toggle = root.querySelector<HTMLButtonElement>('[data-toggle]')
     toggle?.addEventListener('click', () => {
       const paused = toggle.getAttribute('aria-pressed') === 'true'
@@ -807,14 +862,19 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     })
 
     /*
-     * Behind type: the control reveals the picker, and the picker chooses
-     * which composition sits over the backdrop.
+     * Layouts: the control reveals the picker, and the picker chooses which
+     * composition sits over the backdrop.
      *
-     * The label stays "Behind type" in both states rather than flipping to
-     * "Bare" the way the old two-state toggle did. A toggle label should name
-     * what is on offer, not what is currently true: flipped, it said "Bare"
-     * while showing a headline, which reads as a description of what you are
-     * looking at and is the opposite of it.
+     * It was called "Behind type", which is a fragment with no verb in it: it
+     * could as easily mean "put this behind type" as "show me what is behind
+     * the type", and it only parsed at all if you already knew what it did.
+     * The picker it opens is a row of named layouts, so the label names them.
+     *
+     * The label is the same in both states rather than flipping to "Bare" the
+     * way the first two-state version did. A toggle label should name what is
+     * on offer, not what is currently true: flipped, it said "Bare" while
+     * showing a headline, which reads as a description of what you are looking
+     * at and is the opposite of it.
      */
     const looks = panel.querySelector<HTMLElement>('[data-looks]')
     const picker = root.querySelector<HTMLElement>('[data-picker]')
