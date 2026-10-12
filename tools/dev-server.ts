@@ -10,7 +10,7 @@
  * being used when somebody noticed.
  */
 
-import { spawn } from 'node:child_process'
+import { spawn, execFileSync } from 'node:child_process'
 import { connect } from 'node:net'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -91,6 +91,34 @@ export async function ensureServer(): Promise<'reused' | 'started'> {
         "    Where-Object { $_.CommandLine -like '*astro*' } | Stop-Process -Force"
       ].join('\n')
     )
+  }
+
+  /*
+   * The sync these tools were skipping.
+   *
+   * site/package.json runs scripts/sync-public.mjs as a `predev` hook, which
+   * copies each item's media/ into site/public/media/ where the site actually
+   * serves it from. Starting astro.js directly, which is what this does and
+   * has to do to control the port, runs the binary rather than the script, so
+   * npm's hook never fires. Every server these tools have ever started has
+   * therefore served whatever media happened to be in public/ from the last
+   * time somebody ran `pnpm dev` by hand.
+   *
+   * That is invisible until an item is recorded or re-recorded, and then it
+   * is very visible: the page is right, the card is right, and the video is
+   * the old one or missing entirely. It read as a broken route twice before
+   * anybody thought to look at the hook.
+   *
+   * Synchronous and before the spawn, because the first request can arrive
+   * within a second of the server coming up.
+   */
+  try {
+    execFileSync(process.execPath, [path.join(ROOT, 'site', 'scripts', 'sync-public.mjs')], {
+      cwd: path.join(ROOT, 'site'),
+      stdio: 'ignore'
+    })
+  } catch {
+    /* A sync that fails is worth a stale video, not a dead tool. */
   }
 
   const child = spawn(

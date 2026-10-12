@@ -58,7 +58,38 @@ export default defineConfig({
     '/effects/pointer-trail': '/effects/pointer-smoke'
   },
   vite: {
-    plugins: [tailwind()],
+    plugins: [
+      tailwind(),
+      /*
+       * Pick up a new item without restarting the dev server.
+       *
+       * The catalogue reads .generated/index.json with readFileSync, which is
+       * deliberate: it is a build artefact rather than a module, and importing
+       * JSON from above the site root is its own argument. The cost is that
+       * Vite has no idea the module depends on the file, so adding an item and
+       * running `pnpm generate` changed nothing until the server was killed
+       * and started again. That caught somebody twice in one session, and both
+       * times it looked exactly like the new page having a broken route: a 404
+       * on a page that exists.
+       *
+       * The watcher already sees .generated; only the invalidation was
+       * missing. Invalidate rather than restart, because `pnpm generate` runs
+       * many times an hour while items are being worked on and a process
+       * restart each time would cost more than it saves.
+       */
+      {
+        name: 'beamish:generated',
+        enforce: 'post',
+        handleHotUpdate({ file, server }) {
+          /* No regex and no escape: the separator differs by platform and a
+             plain substring test does not care which one this is. */
+          if (!file.includes('.generated')) return
+          server.moduleGraph.invalidateAll()
+          server.hot.send({ type: 'full-reload', path: '*' })
+          return []
+        }
+      }
+    ],
     /*
      * Fail rather than drift.
      *
