@@ -268,6 +268,24 @@ export function mount<O extends BaseOptions>(
     canvas.style.width = '100%'
     canvas.style.height = '100%'
     /*
+     * Its own compositor layer, so the page cannot resample it.
+     *
+     * A canvas whose box lands on a half pixel has to be resampled to the
+     * device grid, and which way it snaps is the compositor's business rather
+     * than ours. Snapping one way on one frame and the other way on the next
+     * moves the whole picture by a pixel, which is a flicker between two
+     * positions that leaves no trace anywhere: the drawing buffer is perfect,
+     * the clock is smooth, the box never changes and every number comes back
+     * clean. It was reported on a canvas sitting at x = 683.5, and the same
+     * effect at x = 123.5 on another machine was steady.
+     *
+     * translateZ(0) rather than will-change, because will-change is a hint
+     * the browser is free to drop and this needs to be a promise. The cost is
+     * one layer per live effect, and there is only ever one.
+     */
+    canvas.style.transform = 'translateZ(0)'
+    canvas.style.backfaceVisibility = 'hidden'
+    /*
      * Hidden until the first frame is in it.
      *
      * A WebGL canvas with `alpha: false` starts opaque black, and it is in the
