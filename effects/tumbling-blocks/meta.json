@@ -1,0 +1,174 @@
+{
+  "name": "TumblingBlocks",
+  "slug": "tumbling-blocks",
+  "tier": 1,
+  "description": "A rhombille tiling lit as stacked cubes, with the light going round rather than the geometry moving",
+  "category": "backdrops",
+  "ground": "dark",
+  "tags": [
+    "webgl",
+    "shader",
+    "backdrop",
+    "rhombille",
+    "isometric",
+    "tiling",
+    "geometric",
+    "ambient",
+    "no-dependencies"
+  ],
+  "peerDependencies": {},
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "The three internal edges of a hexagon are rays from its centre, not lines through it. A line at one of those angles also passes through the opposite vertex, so measuring distance to lines draws six spokes and splits each rhombus into two triangles. Behind the ray the nearest point on it is the centre, so the distance there is the length.",
+      "A hexagonal lattice is two rectangular lattices offset by half a cell, so the nearest centre is found by measuring against both and keeping the closer. No trigonometry and no loop.",
+      "fwidth measures one pixel in lattice units, which keeps the line the same weight at every cell count and every rotation."
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 0.2,
+    "contexts": 1,
+    "notes": [
+      "One hash, one atan, a three-step loop over the spokes and a smoothstep per pixel. Measured with pnpm gputime rather than by timing the draw call."
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/tumbling-blocks/core.ts",
+      "to": "src/beamish/effects/tumbling-blocks/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/tumbling-blocks/adapters/react.tsx",
+      "to": "src/beamish/effects/tumbling-blocks/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/tumbling-blocks/adapters/vue.ts",
+      "to": "src/beamish/effects/tumbling-blocks/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "near": {
+      "type": "color",
+      "default": "#7c5cff",
+      "description": "The lighter cube colour, and the one a cube starts from."
+    },
+    "far": {
+      "type": "color",
+      "default": "#ff5c9d",
+      "description": "The other cube colour, mixed in per cube so the wall is not one tone. The variation is in hue only: see `relief`."
+    },
+    "line": {
+      "type": "color",
+      "default": "#0b0a18",
+      "description": "The lattice lines, between cubes and across each one. A near-black with some of the cube hue still in it, because a true black line over a coloured face reads as a gap rather than as an edge."
+    },
+    "cells": {
+      "type": "number",
+      "default": 7,
+      "min": 2,
+      "max": 24,
+      "step": 1,
+      "sensible": [
+        5,
+        12
+      ],
+      "description": "Cubes across the short edge. Few and large reads as architecture; past about fifteen the faces are too small to carry their own shading and the illusion goes with them."
+    },
+    "rotation": {
+      "type": "number",
+      "default": 0,
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "description": "Rotation of the lattice in degrees. Only sixty are worth having: a rhombille is unchanged by a third of a turn, and the three faces simply exchange roles."
+    },
+    "thickness": {
+      "type": "number",
+      "default": 0.04,
+      "min": 0,
+      "max": 0.2,
+      "step": 0.005,
+      "sensible": [
+        0.02,
+        0.08
+      ],
+      "description": "Line width in lattice units. At 0 there are no lines and the cubes are held apart by their shading alone, which works and is quieter."
+    },
+    "softness": {
+      "type": "number",
+      "default": 0.05,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "description": "Softness of the line edge, on top of the one pixel of antialiasing that is always there."
+    },
+    "variation": {
+      "type": "number",
+      "default": 0.28,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [
+        0.3,
+        0.7
+      ],
+      "description": "How far the cube colour wanders from cube to cube. Kept low on purpose. The variation is in hue and the shading is identical on every cube, because agreement about where the light is coming from is the only thing telling the eye these are solids; push this up and a dark-hued cube's lit face ends up darker than a light-hued one's shadowed face, which is enough to flatten the whole wall into a pattern of diamonds."
+    },
+    "relief": {
+      "type": "number",
+      "default": 0.85,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [
+        0.6,
+        1
+      ],
+      "description": "How far the three faces separate in tone. This is the illusion and almost nothing else is: at 0 the faces match, the solids flatten, and what is left is a pattern of diamonds. The shading is identical on every cube in the field on purpose, because agreement about where the light is coming from is the only thing telling the eye these are solids."
+    },
+    "seed": {
+      "type": "number",
+      "default": 5,
+      "min": 0,
+      "max": 999,
+      "step": 1,
+      "description": "Which cubes take which colour. Changes nothing else."
+    },
+    "period": {
+      "type": "number",
+      "default": 16,
+      "min": 6,
+      "max": 60,
+      "step": 1,
+      "unit": "s",
+      "sensible": [
+        12,
+        30
+      ],
+      "description": "Seconds for one turn of the light. The loop closes exactly on it, because a whole turn of the light is the same light."
+    }
+  },
+  "instruction": "the light goes round the blocks",
+  "oneShot": false,
+  "credit": {
+    "what": "The parameter set, and the choice of a rhombille tiling read as cubes. Their IsometricCubes names cells, thickness, rotation, softness and a per-cube colour variation, which is the right set. The tiling is a rhombille and the illusion is older than photography. The code here is this repo's own.",
+    "author": "Shader Effects Inc.",
+    "url": "https://github.com/shader-effects-inc/shaders"
+  },
+  "record": {
+    "duration": 16,
+    "fps": 20,
+    "posterAt": 4,
+    "crf": 34,
+    "webmCrf": 46,
+    "posterQuality": 6
+  }
+}
