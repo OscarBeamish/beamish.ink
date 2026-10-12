@@ -1135,6 +1135,60 @@
 }
 
 @layer components {
+  /*
+   * The panel centres DOM content in a content-sized track, which is right for
+   * a card or a heading and wrong here: it left the plate a 510px block in the
+   * middle of a 1167px panel, so most of the frame had no blocks in it and the
+   * one thing the item is about was happening in a quarter of the picture. The
+   * plate has to be the panel.
+   */
+  [data-slug='block-dissolve'] [data-stage][data-content] {
+    padding: 0;
+    place-items: stretch;
+    align-content: stretch;
+  }
+
+  /*
+   * The plate BlockDissolve uncovers. It carries its own colour rather than
+   * taking the panel's, because the item has none: it clips, and a clip over a
+   * flat ground cannot show which blocks have arrived.
+   */
+  .demo-blocks {
+    display: grid;
+    align-content: center;
+    gap: 0.6rem;
+    height: 100%;
+    padding: 0 clamp(1rem, 5cqw, 3rem);
+    box-sizing: border-box;
+    background:
+      radial-gradient(110% 85% at 12% 12%, #e0491f 0%, transparent 56%),
+      radial-gradient(100% 90% at 88% 84%, #1f49e0 0%, transparent 58%),
+      radial-gradient(80% 70% at 62% 20%, #d8a21f 0%, transparent 50%),
+      #2b2638;
+    color: #f6f4ee;
+  }
+
+  .demo-blocks__head {
+    margin: 0;
+    max-width: 15ch;
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 4.4cqw, 2.9rem);
+    font-weight: 700;
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+  }
+
+  .demo-blocks__note {
+    margin: 0;
+    max-width: 44ch;
+    font-family: var(--font-mono);
+    font-size: clamp(0.7rem, 1.4cqw, 0.9rem);
+    line-height: 1.65;
+    color: #e6e1d2;
+  }
+}
+
+@layer components {
   /* The sheet SplitFountainText inks. Everything in here takes its colour from
      one gradient on the container, which is the whole point of the item. */
   .demo-fountain {

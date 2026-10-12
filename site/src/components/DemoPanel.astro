@@ -355,6 +355,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'ember-rise': () => import('@items/effects/ember-rise/core'),
     'highlighter-mark': () => import('@items/effects/highlighter-mark/core'),
     'iris-reveal': () => import('@items/effects/iris-reveal/core'),
+    'block-dissolve': () => import('@items/effects/block-dissolve/core'),
     'panel-gauge': () => import('@items/effects/panel-gauge/core'),
     'squircle-keycap': () => import('@items/effects/squircle-keycap/core'),
     /*
@@ -520,6 +521,17 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'iris-reveal': `<div class="demo-iris">
       <p class="demo-iris__head">Seven blades, not a circle</p>
       <p class="demo-iris__note">A diaphragm is a ring of overlapping plates, so the hole they leave has as many sides as there are blades, and it turns as it opens.</p>
+    </div>`,
+    /*
+     * The dissolve clips whatever it is mounted on, and unlike the iris it has
+     * to be given area rather than only type. The argument it is making is
+     * about where the uncovered blocks are, and on a flat panel uncovered and
+     * not uncovered look identical: a clump in one corner is invisible and the
+     * whole point goes with it. Hence the plate.
+     */
+    'block-dissolve': `<div class="demo-blocks">
+      <p class="demo-blocks__head">A shuffle is not an order</p>
+      <p class="demo-blocks__note">Shuffle the blocks and they clump: a patch arrives together in one corner and a hole the same size lingers in the other. Each block here is the best of twelve candidates, furthest from the ones already taken.</p>
     </div>`,
     /* The ring fills the box it is given, so the box is the size control. */
     'circular-text': `<div class="demo-seal">Printed and bound in England</div>`,

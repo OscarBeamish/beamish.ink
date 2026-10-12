@@ -335,6 +335,187 @@
     "intro": "The northern lights, on a night sky.\n\nThis is the first item in the library built for a dark ground rather than for\nwarm paper, and it declares that in its meta so the site shows it on one. Paper\nis the house style here, not a rule about what may exist, and an aurora on paper\nwould be a worse aurora for no reason.\n\nIt is not a rainbow gradient with noise on it, and that is most of why those\nread as wallpaper. An aurora is emission, and every part of its shape follows\nfrom that.\n\n**It hangs in vertical rays.** Electrons spiral down the magnetic field lines,\nwhich are near vertical at those latitudes, and light up the gas along the way.\nThe striation is the single most recognisable thing about an aurora, and an\neffect without it is a coloured cloud.\n\n**The bottom edge is sharp and the top is not.** The electrons stop where the\nair finally gets thick enough, an abrupt floor at around 100km, and thin out\nupwards over hundreds of kilometres. So the foot is a hard line and the top has\nno edge at all: it runs out.\n\n**The colour is altitude.** Atomic oxygen gives the green line at 557.7nm low\ndown, and the red line at 630nm higher up, where collisions are rare enough to\nlet the slower transition finish. Green at the foot running to red at the top,\nnever the other way round and never a hue cycle.\n\n**It folds along its length.** You are looking at a sheet edge on, so a fold\nreads as a bright rib rather than as a wave passing through."
   },
   {
+    "name": "BlockDissolve",
+    "slug": "block-dissolve",
+    "tier": 1,
+    "description": "Content uncovered a block at a time, where the order is chosen so the blocks spread rather than clump",
+    "category": "reveals",
+    "tags": [
+      "reveal",
+      "wipe",
+      "dissolve",
+      "transition",
+      "clip-path",
+      "no-canvas",
+      "no-dependencies"
+    ],
+    "ground": "either",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "none",
+      "notes": [
+        "Every wipe is the same effect. Cut the element into cells, give each cell a number saying when its turn comes, uncover the cells whose number has come up. A left-to-right wipe, a clock sweep, rings growing outward and a film dissolve are one mechanism fed four different orders",
+        "A shuffle is not an order. At half way through a shuffled wipe there is a patch of cells that arrived together in one corner and a hole the same size in the other, and the eye reads both as a fault in the rendering rather than as a dissolve. It is the same objection as white noise being the wrong noise for a halftone",
+        "So each cell is the best of `spread` random candidates, best meaning furthest from every cell already taken. At `spread: 1` that is exactly a shuffle, which is there to be set once",
+        "Going further does not help. An exhaustive version, taking the true furthest cell every time, was written first and produces a chequerboard: every tie in a regular grid breaks the same way, the sequence locks onto the lattice, and half coverage is a perfect chequer. That reads as a deliberate pattern, which is the same failure as the clump seen from the other side",
+        "Distance is measured on a torus. Without the wrap the cells along the edges have fewer neighbours, so they measure as further from the taken set than they are and the wipe opens with a frame round the outside",
+        "Candidates are drawn without replacement. Drawing with replacement means a high `spread` still misses a third of the pool, which quietly caps how spread it can get",
+        "`clip-path: path()` on the element itself, one subpath per uncovered block. Nothing is added to the DOM and the content is untouched: it selects, scrolls, translates and reads the whole time, it is simply not all visible yet",
+        "`path()` takes user units and rejects percentages. Unlike `polygon()` the geometry cannot follow a resize for free, so it is rebuilt in CSS pixels when the box changes. The first version of the probe for this used percentages, which made the property invalid, silently ignored, and the element came back unclipped looking like a pass",
+        "Rows follow from columns and the aspect so the cells come out square. A fixed row count gives tall thin cells on a hero and wide flat ones on a sidebar, and a dissolve made of letterbox slots does not read as a dissolve",
+        "Blocks grow from their centres rather than switching on, so the front is blocks blooming rather than blocks appearing. `grow: 0` is the version that looks like a slide transition",
+        "No colour in it at all, which is why it declares `either` without hedging. There is nothing to tune against a background because it clips whatever you put it on"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.1,
+      "contexts": 0,
+      "notes": [
+        "Measured at 0.058ms to rebuild a hundred and forty-four subpaths and set the property, including a forced layout. A clip is composited, so the content under it is not repainted",
+        "The order is built once per grid, per order and per seed, not per frame. It costs roughly columns squared times rows times spread, which at the default 16 columns is about 120 thousand comparisons and invisible; at 40 columns on a wide element it is nearer 5 million and worth knowing about. It is paid at mount and on resize",
+        "The path string is only assigned when it differs from the last one, so a finished wipe sets nothing"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/block-dissolve/core.ts",
+        "to": "src/beamish/effects/block-dissolve/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/block-dissolve/adapters/react.tsx",
+        "to": "src/beamish/effects/block-dissolve/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/block-dissolve/adapters/vue.ts",
+        "to": "src/beamish/effects/block-dissolve/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "order": {
+        "type": "enum",
+        "default": "scatter",
+        "description": "Which order the blocks arrive in, and the only difference between a dissolve, a wipe, a clock sweep and rings growing outward. `scatter` is the dissolve and the one the item is about; the other five are a sort on one number per cell and are each a single line.",
+        "values": [
+          "scatter",
+          "rows",
+          "columns",
+          "diagonal",
+          "rings",
+          "clock"
+        ]
+      },
+      "columns": {
+        "type": "number",
+        "default": 16,
+        "description": "Blocks across. Rows follow from it and the aspect so the cells come out square. This is the resolution of the whole thing: at 6 it is a slide transition made of panels, at 40 it is close enough to a film dissolve that the blocks stop being the subject. Note that the order costs roughly this squared, so 40 on a wide element is a few million comparisons at mount.",
+        "min": 2,
+        "max": 60,
+        "step": 1,
+        "sensible": [
+          10,
+          28
+        ]
+      },
+      "spread": {
+        "type": "number",
+        "default": 12,
+        "description": "Candidates considered per pick, for `scatter`. A dial between two failures rather than a quality setting. At 1 every pick is random, which is a plain shuffle, and it clumps: patches arrive together and holes the same size linger. Taking the true furthest cell every time goes the other way and settles onto the lattice, so half coverage is a chequerboard. Set it to 1 once so the difference is a thing you have seen.",
+        "min": 1,
+        "max": 64,
+        "step": 1,
+        "sensible": [
+          8,
+          20
+        ]
+      },
+      "grow": {
+        "type": "number",
+        "default": 0.6,
+        "description": "How much of its size each block grows through, from its centre. At 0 the blocks arrive at full size, which is the switch and the thing that makes this look like a slide transition. At 1 they come up from nothing, which is softer but loses the blocks. This is how much, not how long: the timing is `overlap`.",
+        "min": 0,
+        "max": 1,
+        "step": 0.05,
+        "sensible": [
+          0.4,
+          0.8
+        ]
+      },
+      "overlap": {
+        "type": "number",
+        "default": 0.22,
+        "description": "How long one block takes, as a share of the whole wipe. It is what gives the front a width: at the default about forty blocks are mid-arrival at any moment, so the edge is made of blocks in flight rather than being a hard boundary. At 0.02 the blocks arrive one at a time and it reads as a counter.",
+        "min": 0.02,
+        "max": 1,
+        "step": 0.02,
+        "sensible": [
+          0.12,
+          0.4
+        ]
+      },
+      "duration": {
+        "type": "number",
+        "default": 1400,
+        "description": "Milliseconds from the first block to the last.",
+        "min": 150,
+        "max": 10000,
+        "step": 50,
+        "unit": "ms",
+        "sensible": [
+          900,
+          2200
+        ]
+      },
+      "hold": {
+        "type": "number",
+        "default": 200,
+        "description": "Milliseconds of stillness before it starts.",
+        "min": 0,
+        "max": 5000,
+        "step": 50,
+        "unit": "ms"
+      },
+      "seed": {
+        "type": "number",
+        "default": 7,
+        "description": "Seed for the order. The same seed gives the same dissolve, which is what makes the take reproducible. It does nothing to the five geometric orders.",
+        "min": 1,
+        "max": 9999,
+        "step": 1
+      },
+      "reducedMotionTime": {
+        "type": "number",
+        "default": 4,
+        "description": "The single frame shown when the user prefers reduced motion. For a one-shot uncovering this has to be a time after it has finished, so the content is simply there. The content is the point; the dissolve is how it arrives.",
+        "min": 0,
+        "max": 30,
+        "step": 0.5,
+        "unit": "s"
+      }
+    },
+    "instruction": "press replay to run it again. set spread to 1 to see what a shuffle does",
+    "oneShot": true,
+    "record": {
+      "duration": 4,
+      "fps": 30,
+      "posterAt": 1.1
+    },
+    "credit": {
+      "what": "That every wipe is one effect fed a different coverage, a number per cell saying when it goes, from the Shader Effects library's reveals. Their shuffle is a plain shuffle; the spread order here is the answer to what that does",
+      "author": "Shader Effects Inc.",
+      "url": "https://github.com/shader-effects-inc/shaders"
+    },
+    "group": "effects",
+    "intro": "BlockDissolve uncovers whatever you mount it on, a block at a time.\n\nThe idea underneath it is that **every wipe is the same effect**. Cut the\nelement into cells, give each cell a number saying when its turn comes, and\nuncover the cells whose number has come up. A left-to-right wipe, a clock\nsweep, rings growing outward and a film dissolve are one mechanism fed four\ndifferent orders. Nothing else about them differs.\n\nThat is why `order` is the first option here and the only one that changes what\nthe thing is. Five of the six orders are a sort on one number per cell and are\na single line each. The sixth, `scatter`, is the dissolve, and it is the one\nthe item exists for."
+  },
+  {
     "name": "CardStack",
     "slug": "card-stack",
     "tier": 1,

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en-GB" data-ground="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BlockDissolve: Beamish demo</title>
+    <link rel="stylesheet" href="../../shared/tokens.css" />
+    <link rel="stylesheet" href="../../shared/fonts.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        /*
+         * The page behind the blocks, which is what shows where they are not
+         * yet. The item has no colour in it at all: it clips, and this is the
+         * thing being clipped.
+         */
+        background: #08080a;
+        font-family: var(--font-mono);
+      }
+      #stage {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        place-content: center;
+        box-sizing: border-box;
+        padding: 0 7vw;
+        /*
+         * A plate with a strong diagonal in it, on purpose. A flat colour
+         * cannot show the order: uncovered and not uncovered look the same
+         * everywhere, so a clump in the top corner is invisible and the whole
+         * argument the item is making cannot be seen.
+         */
+        background:
+          radial-gradient(110% 85% at 12% 12%, #e0491f 0%, transparent 56%),
+          radial-gradient(100% 90% at 88% 84%, #1f49e0 0%, transparent 58%),
+          radial-gradient(80% 70% at 62% 20%, #d8a21f 0%, transparent 50%),
+          #2b2638;
+        color: #f6f4ee;
+      }
+      #stage h1 {
+        margin: 0;
+        max-width: 15ch;
+        font-family: var(--font-display);
+        font-size: clamp(2.2rem, 8.5vw, 5.6rem);
+        font-weight: 700;
+        letter-spacing: -0.035em;
+        line-height: 0.95;
+      }
+      #stage p {
+        margin: 1.2rem 0 0;
+        max-width: 36ch;
+        font-size: clamp(0.8rem, 1.6vw, 1rem);
+        line-height: 1.6;
+        color: #e6e1d2;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Standalone. No site chrome: this page exists so the recorder has something
+      deterministic to screenshot, and so the effect can be opened on its own
+      without a build step. `pnpm build:items` produces demo.bundle.js.
+
+      Mounted on #stage, so what gets uncovered is the whole plate: the colour,
+      the heading and the paragraph clipped as one thing rather than arriving
+      one at a time.
+    -->
+    <div id="stage">
+      <h1>A shuffle is not an order</h1>
+      <p>
+        Shuffle the blocks and they clump: a patch arrives together in one
+        corner and a hole the same size lingers in the other. Each block here
+        is the best of twelve candidates, furthest from the ones already taken.
+      </p>
+    </div>
+
+    <script src="./demo.bundle.js"></script>
+    <script>
+      const handle = window.Beamish.create(document.getElementById('stage'))
+
+      // The recorder drives renderAtTime itself and must not race a RAF loop.
+      window.__beamish = handle
+      if (!new URLSearchParams(location.search).has('record')) handle.start()
+    </script>
+  </body>
+</html>
