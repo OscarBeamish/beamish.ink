@@ -778,7 +778,7 @@ export type TranslucentSheetsOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const translucentSheetsDefaults: TranslucentSheetsOptions = {
-  paper: 'auto',
+  paper: '#fbfaf4',
   ink: '#9a8e79',
   accent: '#c44400',
   sheets: 14,
@@ -1284,7 +1284,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `auto` | any CSS hex | The paper behind the stack. Everything else multiplies down from here, so this is the lightest value in the scene. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
+| `paper` | color | `#fbfaf4` | any CSS hex | The paper behind the stack. Everything else multiplies down from here, so this is the lightest value in the scene. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `ink` | color | `#9a8e79` | any CSS hex | What each sheet multiplies the paper by. Most of the stack is this. A warm grey reads as tracing paper; push it green and it becomes drafting film. |
 | `accent` | color | `#c44400` | any CSS hex | Roughly one sheet in five is printed in this instead. Never the first, so the accent always has something crossing it. |
 | `sheets` | number | `14` | 3 to 30 | How many sheets. Changing it rebuilds the pile, which is the one option here that is not free. Depth is by index, so a new sheet lands on top rather than shuffling the stack. |

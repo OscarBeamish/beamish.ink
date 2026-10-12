@@ -106,7 +106,7 @@ export type LightShaftsOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const lightShaftsDefaults: LightShaftsOptions = {
-  ground: 'auto',
+  ground: '#fbfaf4',
   light: '#fff6e2',
   angle: 128,
   distance: 1.6,
@@ -1227,7 +1227,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `ground` | color | `auto` | any CSS hex | The surface the light falls on, which is that surface in shadow: the lit bands are added on top of it, so it has to sit below them with room to spare. A ground as pale as the light clips to white across the whole frame, which is the first thing that went wrong here. Set it near black and the same effect is a projector beam in a dark room. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
+| `ground` | color | `#fbfaf4` | any CSS hex | The surface the light falls on, which is that surface in shadow: the lit bands are added on top of it, so it has to sit below them with room to spare. A ground as pale as the light clips to white across the whole frame, which is the first thing that went wrong here. Set it near black and the same effect is a projector beam in a dark room. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `light` | color | `#fff6e2` | any CSS hex | The light itself, added to the ground rather than mixed with it, because light is additive and a shaft that darkens what it crosses is a shaft of paint. Warm, because daylight through a window is warm and a neutral white beam reads as a lightbox. |
 | `angle` | number | `128` | 0 to 360 deg | Where the source sits, in degrees around the frame, with 0 to the right. Above and to one side is the one that reads as a window; straight on reads as a torch pointed at the viewer. |
 | `distance` | number | `1.6` | 0.2 to 8 (looks right between 1 and 3) | How far off frame the source is, in frame widths. Near is a lamp and the beams fan hard; far is the sun and they run very nearly parallel. There is no separate setting for parallel beams, because this is what parallel beams are. |

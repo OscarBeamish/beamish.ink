@@ -59,17 +59,17 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "auto",
+      "default": "#fbfaf4",
       "description": "The paper behind the marks. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "ink": {
       "type": "color",
-      "default": "light-dark(#36362f, #ded8cc)",
+      "default": "#36362f",
       "description": "The nib. A light-dark() pair picks by the ground it lands on."
     },
     "accent": {
       "type": "color",
-      "default": "light-dark(#c44400, #ff7a3d)",
+      "default": "#c44400",
       "description": "A second nib, on a small share of the marks. A light-dark() pair picks by the ground it lands on."
     },
     "pitch": {

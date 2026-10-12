@@ -71,9 +71,9 @@ export type PointerSmokeOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const pointerSmokeDefaults: PointerSmokeOptions = {
-  paper: 'auto',
-  smoke: 'light-dark(#b4afa4, #3b4049)',
-  accent: 'light-dark(#bfae9e, #7d6f61)',
+  paper: '#fbfaf4',
+  smoke: '#b4afa4',
+  accent: '#bfae9e',
   marks: 28,
   size: 0.026,
   spread: 2.4,

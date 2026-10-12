@@ -60,7 +60,7 @@
   "options": {
     "base": {
       "type": "color",
-      "default": "auto",
+      "default": "#fbfaf4",
       "description": "What the colour layers are laid over, and what shows wherever none of them reaches. Usually the palest of the four, because it is doing the job the paper does in print. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "one": {

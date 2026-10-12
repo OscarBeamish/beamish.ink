@@ -67,7 +67,7 @@
   "options": {
     "sky": {
       "type": "color",
-      "default": "auto",
+      "default": "#060507",
       "description": "The sky behind it. `auto` takes it from the page, which is almost always right: the strike should sit in your page rather than bring its own rectangle of night."
     },
     "bolt": {

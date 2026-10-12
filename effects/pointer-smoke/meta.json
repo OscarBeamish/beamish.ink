@@ -58,17 +58,17 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "auto",
+      "default": "#fbfaf4",
       "description": "The paper the smoke drifts over. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "smoke": {
       "type": "color",
-      "default": "light-dark(#b4afa4, #3b4049)",
+      "default": "#b4afa4",
       "description": "The body of it, once it has spread. Keep it close to the paper: smoke is the absence of a clear view, not a dark shape, and a strong colour here reads as paint. A light-dark() pair picks by the ground it lands on."
     },
     "accent": {
       "type": "color",
-      "default": "light-dark(#bfae9e, #7d6f61)",
+      "default": "#bfae9e",
       "description": "What warmth the freshest smoke carries, at the head of the trail. Only a little of the trail is ever this, so a saturated colour shows up as a bead following the cursor. A light-dark() pair picks by the ground it lands on."
     },
     "marks": {

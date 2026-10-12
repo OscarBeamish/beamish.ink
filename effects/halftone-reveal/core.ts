@@ -58,7 +58,7 @@ export type HalftoneRevealOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const halftoneRevealDefaults: HalftoneRevealOptions = {
-  paper: 'auto',
+  paper: '#fbfaf4',
   screen: 14,
   angle: 45,
   sweep: 24,

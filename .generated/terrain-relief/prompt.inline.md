@@ -768,10 +768,10 @@ export type TerrainReliefOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const terrainReliefDefaults: TerrainReliefOptions = {
-  paper: 'auto',
-  land: 'light-dark(#f4f1e7, #15171c)',
-  ink: 'light-dark(#6f665a, #93a0ae)',
-  indexInk: 'light-dark(#c44400, #ff7a3d)',
+  paper: '#fbfaf4',
+  land: '#f4f1e7',
+  ink: '#6f665a',
+  indexInk: '#c44400',
   relief: 1.9,
   scale: 0.3,
   density: 1.7,
@@ -889,14 +889,14 @@ class TerrainReliefSurface implements Surface<TerrainReliefOptions> {
       u_scale: { value: terrainReliefDefaults.scale },
       u_orbit: { value: new THREE.Vector2() },
       /*
-       * Seeded black rather than from the defaults, because those are
-       * light-dark() pairs now and THREE.Color cannot read one. Every render
-       * sets all three from the resolved options before the first draw, so
-       * the seed is never seen.
+       * Straight from the defaults now. These used to be light-dark() pairs,
+       * which THREE.Color cannot read, so they were seeded black and relied on
+       * the first render overwriting them. The colours are fixed hex, so the
+       * indirection has no job left.
        */
-      u_land: { value: new THREE.Color('#000') },
-      u_ink: { value: new THREE.Color('#000') },
-      u_indexInk: { value: new THREE.Color('#000') },
+      u_land: { value: new THREE.Color(terrainReliefDefaults.land) },
+      u_ink: { value: new THREE.Color(terrainReliefDefaults.ink) },
+      u_indexInk: { value: new THREE.Color(terrainReliefDefaults.indexInk) },
       u_density: { value: terrainReliefDefaults.density },
       u_weight: { value: terrainReliefDefaults.weight }
     }
@@ -1222,10 +1222,10 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `auto` | any CSS hex | The paper behind the land. Match it to your page background or the horizon reads as a hard edge. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
-| `land` | color | `light-dark(#f4f1e7, #15171c)` | any CSS hex | The land itself. Keep it close to the paper but not identical, or the horizon disappears entirely. A light-dark() pair picks by the ground it lands on. |
-| `ink` | color | `light-dark(#6f665a, #93a0ae)` | any CSS hex | The contour lines. A warm grey reads as print; pure black reads as a wireframe. A light-dark() pair picks by the ground it lands on. |
-| `indexInk` | color | `light-dark(#c44400, #ff7a3d)` | any CSS hex | Every fifth line is an index contour, the one a real map would label. This is the obvious place for your own colour. A light-dark() pair picks by the ground it lands on. |
+| `paper` | color | `#fbfaf4` | any CSS hex | The paper behind the land. Match it to your page background or the horizon reads as a hard edge. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
+| `land` | color | `#f4f1e7` | any CSS hex | The land itself. Keep it close to the paper but not identical, or the horizon disappears entirely. A light-dark() pair picks by the ground it lands on. |
+| `ink` | color | `#6f665a` | any CSS hex | The contour lines. A warm grey reads as print; pure black reads as a wireframe. A light-dark() pair picks by the ground it lands on. |
+| `indexInk` | color | `#c44400` | any CSS hex | Every fifth line is an index contour, the one a real map would label. This is the obvious place for your own colour. A light-dark() pair picks by the ground it lands on. |
 | `relief` | number | `1.9` | 0.2 to 5 (looks right between 1 and 2.4) | Height of the land. Past about 3 the ridges are steeper than the sun can light and the far side goes black. |
 | `scale` | number | `0.3` | 0.1 to 2 (looks right between 0.2 and 0.5) | Size of the landforms. Lower is broader country with fewer, longer ridges. |
 | `density` | number | `1.7` | 0.5 to 12 (looks right between 1.2 and 3) | Contour lines per unit of height. More lines reads as steeper country. Past about 8 the lines are closer than the pixels and the map turns grey. |

@@ -62,7 +62,7 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "auto",
+      "default": "#fbfaf4",
       "description": "The paper behind the stack. Everything else multiplies down from here, so this is the lightest value in the scene. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "ink": {

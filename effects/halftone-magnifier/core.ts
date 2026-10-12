@@ -58,7 +58,7 @@ export type HalftoneMagnifierOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const halftoneMagnifierDefaults: HalftoneMagnifierOptions = {
-  paper: 'auto',
+  paper: '#fbfaf4',
   cyan: '#1fb6e3',
   magenta: '#e5157f',
   yellow: '#ffe800',

@@ -59,7 +59,7 @@ export type MarbledPaperOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const marbledPaperDefaults: MarbledPaperOptions = {
-  paper: 'auto',
+  paper: '#fbfaf4',
   ink: '#6b675c',
   accent: '#cf8458',
   drops: 60,

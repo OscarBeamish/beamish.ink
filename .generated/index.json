@@ -538,17 +538,17 @@
     "options": {
       "paper": {
         "type": "color",
-        "default": "auto",
+        "default": "#fbfaf4",
         "description": "The paper the forms stand on. Match it to your page background or the panel reads as a pasted-in rectangle. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "stone": {
         "type": "color",
-        "default": "light-dark(#f5f2e9, #272b33)",
+        "default": "#f5f2e9",
         "description": "The forms. Slightly lighter than the paper is what makes them read as objects standing on it rather than holes cut in it. A light-dark() pair picks by the ground it lands on."
       },
       "accent": {
         "type": "color",
-        "default": "light-dark(#5b17c9, #b07aff)",
+        "default": "#5b17c9",
         "description": "One form carries colour. This is the obvious place to put your own brand colour. A light-dark() pair picks by the ground it lands on."
       },
       "elevation": {
@@ -3233,7 +3233,7 @@
       },
       "tint": {
         "type": "color",
-        "default": "auto",
+        "default": "#fbfaf4",
         "description": "The colour of the wash, if there is one. The page's own paper is the usual answer. Over a photograph a colour taken out of the image reads better than white. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "wash": {
@@ -3337,17 +3337,17 @@
     "options": {
       "paper": {
         "type": "color",
-        "default": "auto",
+        "default": "#fbfaf4",
         "description": "The paper the plate is printed on. Match it to your page background. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "ink": {
         "type": "color",
-        "default": "light-dark(#2f2b26, #d9cdb4)",
+        "default": "#2f2b26",
         "description": "The engraving. A desaturated near-black reads as ink; pure black reads as a wireframe. A light-dark() pair picks by the ground it lands on."
       },
       "accent": {
         "type": "color",
-        "default": "light-dark(#c44400, #ff7a3d)",
+        "default": "#c44400",
         "description": "The second colour, printed over one band of the pattern the way a share certificate prints one guilloche in red over the rest in black. A light-dark() pair picks by the ground it lands on."
       },
       "scale": {
@@ -3725,7 +3725,7 @@
     "options": {
       "paper": {
         "type": "color",
-        "default": "auto",
+        "default": "#fbfaf4",
         "description": "The sheet the picture is printed on. It shows between the dots, so it is most of what you see in the light passages under the glass. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "cyan": {
@@ -3908,7 +3908,7 @@
     "options": {
       "paper": {
         "type": "color",
-        "default": "auto",
+        "default": "#fbfaf4",
         "description": "Shown wherever a dot has not grown yet, which at the start is the whole frame. Match it to the page behind or the reveal begins as a visible panel. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "screen": {
@@ -4664,7 +4664,7 @@
     "options": {
       "ground": {
         "type": "color",
-        "default": "auto",
+        "default": "#fbfaf4",
         "description": "The surface the light falls on, which is that surface in shadow: the lit bands are added on top of it, so it has to sit below them with room to spare. A ground as pale as the light clips to white across the whole frame, which is the first thing that went wrong here. Set it near black and the same effect is a projector beam in a dark room. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "light": {
@@ -4859,7 +4859,7 @@
     "options": {
       "sky": {
         "type": "color",
-        "default": "auto",
+        "default": "#060507",
         "description": "The sky behind it. `auto` takes it from the page, which is almost always right: the strike should sit in your page rather than bring its own rectangle of night."
       },
       "bolt": {
@@ -5203,7 +5203,7 @@
     "options": {
       "paper": {
         "type": "color",
-        "default": "auto",
+        "default": "#fbfaf4",
         "description": "The size in the tray, and what shows wherever no ink reached. Match it to the page behind or the margins read as a panel. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "ink": {
@@ -5525,7 +5525,7 @@
     "options": {
       "base": {
         "type": "color",
-        "default": "auto",
+        "default": "#fbfaf4",
         "description": "What the colour layers are laid over, and what shows wherever none of them reaches. Usually the palest of the four, because it is doing the job the paper does in print. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "one": {
@@ -6890,17 +6890,17 @@
     "options": {
       "paper": {
         "type": "color",
-        "default": "auto",
+        "default": "#fbfaf4",
         "description": "The tray the filings are scattered on. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "ink": {
         "type": "color",
-        "default": "light-dark(#8d8577, #585e66)",
+        "default": "#8d8577",
         "description": "A filing lying flat, out where the field is weak. A light-dark() pair picks by the ground it lands on."
       },
       "accent": {
         "type": "color",
-        "default": "light-dark(#36362f, #e8ebf0)",
+        "default": "#36362f",
         "description": "A filing standing up in a strong field. The pattern reads as much from this change in tone as from the alignment. A light-dark() pair picks by the ground it lands on."
       },
       "pitch": {
@@ -7228,17 +7228,17 @@
     "options": {
       "paper": {
         "type": "color",
-        "default": "auto",
+        "default": "#fbfaf4",
         "description": "The paper the field stands on. Match it to your page background or the panel reads as a pasted-in rectangle. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "stone": {
         "type": "color",
-        "default": "light-dark(#f2efe6, #242831)",
+        "default": "#f2efe6",
         "description": "The forms at rest. Slightly lighter than the paper is what makes them read as objects standing on it. A light-dark() pair picks by the ground it lands on."
       },
       "accent": {
         "type": "color",
-        "default": "light-dark(#c44400, #ff7a3d)",
+        "default": "#c44400",
         "description": "The forms at the crest of the ripple. The colour is what makes the wave legible in a still frame, so do not set it to the same value as stone. A light-dark() pair picks by the ground it lands on."
       },
       "count": {
@@ -7521,17 +7521,17 @@
     "options": {
       "paper": {
         "type": "color",
-        "default": "auto",
+        "default": "#fbfaf4",
         "description": "The paper the smoke drifts over. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "smoke": {
         "type": "color",
-        "default": "light-dark(#b4afa4, #3b4049)",
+        "default": "#b4afa4",
         "description": "The body of it, once it has spread. Keep it close to the paper: smoke is the absence of a clear view, not a dark shape, and a strong colour here reads as paint. A light-dark() pair picks by the ground it lands on."
       },
       "accent": {
         "type": "color",
-        "default": "light-dark(#bfae9e, #7d6f61)",
+        "default": "#bfae9e",
         "description": "What warmth the freshest smoke carries, at the head of the trail. Only a little of the trail is ever this, so a saturated colour shows up as a bead following the cursor. A light-dark() pair picks by the ground it lands on."
       },
       "marks": {
@@ -8676,7 +8676,7 @@
     "options": {
       "paper": {
         "type": "color",
-        "default": "auto",
+        "default": "#fbfaf4",
         "description": "Shown wherever the web has pulled the image away from the edge of the frame. Match it to the page behind, or the gap reads as a border that appears only while scrolling. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "bend": {
@@ -8838,7 +8838,7 @@
     "options": {
       "paper": {
         "type": "color",
-        "default": "auto",
+        "default": "#fbfaf4",
         "description": "Shown wherever the warp has pulled the sheet away from the frame. Match it to the page behind, or a border appears out of nowhere as soon as anyone scrolls. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "bend": {
@@ -9726,17 +9726,17 @@
     "options": {
       "paper": {
         "type": "color",
-        "default": "auto",
+        "default": "#fbfaf4",
         "description": "The paper behind the marks. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "ink": {
         "type": "color",
-        "default": "light-dark(#36362f, #ded8cc)",
+        "default": "#36362f",
         "description": "The nib. A light-dark() pair picks by the ground it lands on."
       },
       "accent": {
         "type": "color",
-        "default": "light-dark(#c44400, #ff7a3d)",
+        "default": "#c44400",
         "description": "A second nib, on a small share of the marks. A light-dark() pair picks by the ground it lands on."
       },
       "pitch": {
@@ -10082,22 +10082,22 @@
     "options": {
       "paper": {
         "type": "color",
-        "default": "auto",
+        "default": "#fbfaf4",
         "description": "The paper behind the land. Match it to your page background or the horizon reads as a hard edge. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "land": {
         "type": "color",
-        "default": "light-dark(#f4f1e7, #15171c)",
+        "default": "#f4f1e7",
         "description": "The land itself. Keep it close to the paper but not identical, or the horizon disappears entirely. A light-dark() pair picks by the ground it lands on."
       },
       "ink": {
         "type": "color",
-        "default": "light-dark(#6f665a, #93a0ae)",
+        "default": "#6f665a",
         "description": "The contour lines. A warm grey reads as print; pure black reads as a wireframe. A light-dark() pair picks by the ground it lands on."
       },
       "indexInk": {
         "type": "color",
-        "default": "light-dark(#c44400, #ff7a3d)",
+        "default": "#c44400",
         "description": "Every fifth line is an index contour, the one a real map would label. This is the obvious place for your own colour. A light-dark() pair picks by the ground it lands on."
       },
       "relief": {
@@ -10510,7 +10510,7 @@
     "options": {
       "paper": {
         "type": "color",
-        "default": "auto",
+        "default": "#fbfaf4",
         "description": "The paper behind the stack. Everything else multiplies down from here, so this is the lightest value in the scene. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
       },
       "ink": {

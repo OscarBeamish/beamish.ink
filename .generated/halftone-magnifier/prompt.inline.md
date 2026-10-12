@@ -772,7 +772,7 @@ export type HalftoneMagnifierOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const halftoneMagnifierDefaults: HalftoneMagnifierOptions = {
-  paper: 'auto',
+  paper: '#fbfaf4',
   cyan: '#1fb6e3',
   magenta: '#e5157f',
   yellow: '#ffe800',
@@ -1308,7 +1308,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `auto` | any CSS hex | The sheet the picture is printed on. It shows between the dots, so it is most of what you see in the light passages under the glass. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
+| `paper` | color | `#fbfaf4` | any CSS hex | The sheet the picture is printed on. It shows between the dots, so it is most of what you see in the light passages under the glass. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `cyan` | color | `#1fb6e3` | any CSS hex | The cyan plate. |
 | `magenta` | color | `#e5157f` | any CSS hex | The magenta plate. |
 | `yellow` | color | `#ffe800` | any CSS hex | The yellow plate. Barely visible on its own, which is why it goes at zero degrees where the interference would show most. |

@@ -43,9 +43,9 @@ export type PointerFilingsOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const pointerFilingsDefaults: PointerFilingsOptions = {
-  paper: 'auto',
-  ink: 'light-dark(#8d8577, #585e66)',
-  accent: 'light-dark(#36362f, #e8ebf0)',
+  paper: '#fbfaf4',
+  ink: '#8d8577',
+  accent: '#36362f',
   pitch: 13,
   length: 0.42,
   weight: 0.055,

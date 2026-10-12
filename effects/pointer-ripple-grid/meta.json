@@ -58,17 +58,17 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "auto",
+      "default": "#fbfaf4",
       "description": "The paper the field stands on. Match it to your page background or the panel reads as a pasted-in rectangle. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "stone": {
       "type": "color",
-      "default": "light-dark(#f2efe6, #242831)",
+      "default": "#f2efe6",
       "description": "The forms at rest. Slightly lighter than the paper is what makes them read as objects standing on it. A light-dark() pair picks by the ground it lands on."
     },
     "accent": {
       "type": "color",
-      "default": "light-dark(#c44400, #ff7a3d)",
+      "default": "#c44400",
       "description": "The forms at the crest of the ripple. The colour is what makes the wave legible in a still frame, so do not set it to the same value as stone. A light-dark() pair picks by the ground it lands on."
     },
     "count": {

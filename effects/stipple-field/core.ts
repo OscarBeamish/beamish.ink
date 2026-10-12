@@ -53,9 +53,9 @@ export type StippleFieldOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const stippleFieldDefaults: StippleFieldOptions = {
-  paper: 'auto',
-  ink: 'light-dark(#36362f, #ded8cc)',
-  accent: 'light-dark(#c44400, #ff7a3d)',
+  paper: '#fbfaf4',
+  ink: '#36362f',
+  accent: '#c44400',
   pitch: 7,
   jitter: 0.75,
   scale: 1.6,

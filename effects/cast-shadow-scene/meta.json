@@ -59,17 +59,17 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "auto",
+      "default": "#fbfaf4",
       "description": "The paper the forms stand on. Match it to your page background or the panel reads as a pasted-in rectangle. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "stone": {
       "type": "color",
-      "default": "light-dark(#f5f2e9, #272b33)",
+      "default": "#f5f2e9",
       "description": "The forms. Slightly lighter than the paper is what makes them read as objects standing on it rather than holes cut in it. A light-dark() pair picks by the ground it lands on."
     },
     "accent": {
       "type": "color",
-      "default": "light-dark(#5b17c9, #b07aff)",
+      "default": "#5b17c9",
       "description": "One form carries colour. This is the obvious place to put your own brand colour. A light-dark() pair picks by the ground it lands on."
     },
     "elevation": {

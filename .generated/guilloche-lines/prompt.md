@@ -143,9 +143,9 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `auto` | any CSS hex | The paper the plate is printed on. Match it to your page background. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
-| `ink` | color | `light-dark(#2f2b26, #d9cdb4)` | any CSS hex | The engraving. A desaturated near-black reads as ink; pure black reads as a wireframe. A light-dark() pair picks by the ground it lands on. |
-| `accent` | color | `light-dark(#c44400, #ff7a3d)` | any CSS hex | The second colour, printed over one band of the pattern the way a share certificate prints one guilloche in red over the rest in black. A light-dark() pair picks by the ground it lands on. |
+| `paper` | color | `#fbfaf4` | any CSS hex | The paper the plate is printed on. Match it to your page background. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
+| `ink` | color | `#2f2b26` | any CSS hex | The engraving. A desaturated near-black reads as ink; pure black reads as a wireframe. A light-dark() pair picks by the ground it lands on. |
+| `accent` | color | `#c44400` | any CSS hex | The second colour, printed over one band of the pattern the way a share certificate prints one guilloche in red over the rest in black. A light-dark() pair picks by the ground it lands on. |
 | `scale` | number | `1.9` | 0.2 to 3 (looks right between 0.6 and 1.4) | Size of the whole rosette. Below about 0.5 the lines are finer than the pixels and the plate turns grey. |
 | `pitch` | number | `10` | 4 to 80 (looks right between 14 and 40) | Lines per unit of radius. Higher is finer engraving, and past about 50 it stops resolving on anything but a retina screen. |
 | `lobes` | number | `7` | 2 to 24 (looks right between 5 and 12) | Lobes on the first rosette. Whole numbers only: a fractional lobe count gives a curve that never closes, and an open curve reads as a mistake rather than as engraving. The other two families are derived from this and kept coprime to it. |

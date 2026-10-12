@@ -68,7 +68,7 @@ export type LightShaftsOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const lightShaftsDefaults: LightShaftsOptions = {
-  ground: 'auto',
+  ground: '#fbfaf4',
   light: '#fff6e2',
   angle: 128,
   distance: 1.6,

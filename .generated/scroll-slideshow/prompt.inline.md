@@ -759,7 +759,7 @@ export type ScrollSlideshowOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const scrollSlideshowDefaults: ScrollSlideshowOptions = {
-  paper: 'auto',
+  paper: '#fbfaf4',
   bend: 0,
   slip: 0.018,
   fringe: 0.004,
@@ -1203,7 +1203,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `auto` | any CSS hex | Shown wherever the web has pulled the image away from the edge of the frame. Match it to the page behind, or the gap reads as a border that appears only while scrolling. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
+| `paper` | color | `#fbfaf4` | any CSS hex | Shown wherever the web has pulled the image away from the edge of the frame. Match it to the page behind, or the gap reads as a border that appears only while scrolling. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
 | `bend` | number | `0` | 0 to 0.3 | How hard the sides lag behind the middle. Off by default: the bow is the loudest thing the press does and it competes with the picture, which is the thing you are actually showing. Turn it up to around 0.09 for the full press. Past about 0.12 it stops being a press and starts being a fisheye. |
 | `slip` | number | `0.018` | 0 to 0.15 | How far the whole web slides against the direction of travel, the way anything with mass does when it is pulled. Small: this is the part you feel rather than see. |
 | `fringe` | number | `0.004` | 0 to 0.03 | Separation between the colour channels at the edges while moving. A press running colour work strikes one plate per ink, and a moving web lands them a fraction apart. Keep it under about 0.01 or it reads as a broken monitor. |

@@ -755,9 +755,9 @@ export type PointerFilingsOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const pointerFilingsDefaults: PointerFilingsOptions = {
-  paper: 'auto',
-  ink: 'light-dark(#8d8577, #585e66)',
-  accent: 'light-dark(#36362f, #e8ebf0)',
+  paper: '#fbfaf4',
+  ink: '#8d8577',
+  accent: '#36362f',
   pitch: 13,
   length: 0.42,
   weight: 0.055,
@@ -1199,9 +1199,9 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `paper` | color | `auto` | any CSS hex | The tray the filings are scattered on. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
-| `ink` | color | `light-dark(#8d8577, #585e66)` | any CSS hex | A filing lying flat, out where the field is weak. A light-dark() pair picks by the ground it lands on. |
-| `accent` | color | `light-dark(#36362f, #e8ebf0)` | any CSS hex | A filing standing up in a strong field. The pattern reads as much from this change in tone as from the alignment. A light-dark() pair picks by the ground it lands on. |
+| `paper` | color | `#fbfaf4` | any CSS hex | The tray the filings are scattered on. `auto` takes it from the page, so the effect adopts whatever it is dropped onto. |
+| `ink` | color | `#8d8577` | any CSS hex | A filing lying flat, out where the field is weak. A light-dark() pair picks by the ground it lands on. |
+| `accent` | color | `#36362f` | any CSS hex | A filing standing up in a strong field. The pattern reads as much from this change in tone as from the alignment. A light-dark() pair picks by the ground it lands on. |
 | `pitch` | number | `13` | 5 to 40 | Cell size in CSS pixels. There is one filing per cell, so this is how thickly they are scattered. |
 | `length` | number | `0.42` | 0.1 to 1.2 | Length of a filing where the field is strongest, measured in cells. Past about 0.9 they overlap into continuous lines, which is a field diagram rather than a tray of filings. |
 | `weight` | number | `0.055` | 0.01 to 0.2 | Half the thickness of a filing, in cells. |

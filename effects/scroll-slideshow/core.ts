@@ -47,7 +47,7 @@ export type ScrollSlideshowOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const scrollSlideshowDefaults: ScrollSlideshowOptions = {
-  paper: 'auto',
+  paper: '#fbfaf4',
   bend: 0,
   slip: 0.018,
   fringe: 0.004,

@@ -59,17 +59,17 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "auto",
+      "default": "#fbfaf4",
       "description": "The tray the filings are scattered on. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "ink": {
       "type": "color",
-      "default": "light-dark(#8d8577, #585e66)",
+      "default": "#8d8577",
       "description": "A filing lying flat, out where the field is weak. A light-dark() pair picks by the ground it lands on."
     },
     "accent": {
       "type": "color",
-      "default": "light-dark(#36362f, #e8ebf0)",
+      "default": "#36362f",
       "description": "A filing standing up in a strong field. The pattern reads as much from this change in tone as from the alignment. A light-dark() pair picks by the ground it lands on."
     },
     "pitch": {

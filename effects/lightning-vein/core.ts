@@ -66,7 +66,7 @@ export type LightningVeinOptions = BaseOptions & {
  * stands alone.
  */
 export const lightningVeinDefaults: LightningVeinOptions = {
-  sky: 'auto',
+  sky: '#060507',
   bolt: '#eaf2ff',
   halo: '#5d7fd4',
   period: 9,

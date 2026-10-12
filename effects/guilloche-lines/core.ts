@@ -49,9 +49,9 @@ export type GuillocheLinesOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const guillocheLinesDefaults: GuillocheLinesOptions = {
-  paper: 'auto',
-  ink: 'light-dark(#2f2b26, #d9cdb4)',
-  accent: 'light-dark(#c44400, #ff7a3d)',
+  paper: '#fbfaf4',
+  ink: '#2f2b26',
+  accent: '#c44400',
   scale: 1.9,
   pitch: 10,
   lobes: 7,

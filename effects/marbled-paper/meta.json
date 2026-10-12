@@ -60,7 +60,7 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "auto",
+      "default": "#fbfaf4",
       "description": "The size in the tray, and what shows wherever no ink reached. Match it to the page behind or the margins read as a panel. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "ink": {

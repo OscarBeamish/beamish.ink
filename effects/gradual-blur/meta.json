@@ -103,7 +103,7 @@
     },
     "tint": {
       "type": "color",
-      "default": "auto",
+      "default": "#fbfaf4",
       "description": "The colour of the wash, if there is one. The page's own paper is the usual answer. Over a photograph a colour taken out of the image reads better than white. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "wash": {

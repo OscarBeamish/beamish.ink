@@ -62,7 +62,7 @@ export const gradualBlurDefaults: GradualBlurOptions = {
   depth: 0.22,
   strength: 14,
   layers: 6,
-  tint: 'auto',
+  tint: '#fbfaf4',
   wash: 0.35,
   follow: false,
   reducedMotionTime: 0

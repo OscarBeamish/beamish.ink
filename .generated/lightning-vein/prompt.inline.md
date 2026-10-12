@@ -103,7 +103,7 @@ export type LightningVeinOptions = BaseOptions & {
  * stands alone.
  */
 export const lightningVeinDefaults: LightningVeinOptions = {
-  sky: 'auto',
+  sky: '#060507',
   bolt: '#eaf2ff',
   halo: '#5d7fd4',
   period: 9,
@@ -1306,7 +1306,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `sky` | color | `auto` | any CSS hex | The sky behind it. `auto` takes it from the page, which is almost always right: the strike should sit in your page rather than bring its own rectangle of night. |
+| `sky` | color | `#060507` | any CSS hex | The sky behind it. `auto` takes it from the page, which is almost always right: the strike should sit in your page rather than bring its own rectangle of night. |
 | `bolt` | color | `#eaf2ff` | any CSS hex | The channel itself. Near white with a little blue in it reads as hot; pure white reads as a drawn line. |
 | `halo` | color | `#5d7fd4` | any CSS hex | The glow around the channel. Cooler and dimmer than the bolt, because air lit from the side scatters blue. |
 | `period` | number | `9` | 3 to 60 s | Seconds from one strike to the next. Exactly periodic over this, and the lower bound is held well above anything WCAG 2.3.1 would count. |

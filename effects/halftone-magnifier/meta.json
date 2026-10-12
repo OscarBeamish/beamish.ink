@@ -60,7 +60,7 @@
   "options": {
     "paper": {
       "type": "color",
-      "default": "auto",
+      "default": "#fbfaf4",
       "description": "The sheet the picture is printed on. It shows between the dots, so it is most of what you see in the light passages under the glass. `auto` takes it from the page, so the effect adopts whatever it is dropped onto."
     },
     "cyan": {
