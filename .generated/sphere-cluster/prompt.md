@@ -57,8 +57,8 @@ as the second argument to the create function; anything omitted takes its defaul
 | `overshoot` | number | `4` | 0 to 12 | How far past its resting place each sphere flies before falling back, and how far it bulges towards the camera on the way. The bulge is a half sine over each stage, so it returns to the resting depth exactly. |
 | `breathe` | number | `0.1` | 0 to 1 (looks right between 0.05 and 0.25) | How far each sphere drifts once settled: a sine in height against a cosine in depth at half the amplitude. At 0 the settled cluster is still. |
 | `breatheSpeed` | number | `2` | 0.1 to 8 (looks right between 1 and 3) | How fast it breathes, in radians a second. Each sphere is a fifth of a radian behind the one before it, which is what makes the cluster shimmer rather than pulse as one body. |
-| `part` | number | `0.9` | 0 to 4 | How far the pointer pushes a sphere aside. Instantaneous rather than a force that decays: a decaying force is an accumulator, so where a sphere sits would depend on where the cursor had been, and renderAtTime could no longer be seeked. The cluster opens the same way and does not carry momentum back out of the opening, which is what that costs. |
-| `partRadius` | number | `3` | 0.5 to 10 | How wide the parting is, in scene units. |
+| `part` | number | `2.2` | 0 to 4 | How far the one sphere nearest the cursor moves: towards the camera, and a little away from the cursor. Only one moves, which is the difference between a swarm being disturbed and a bite taken out of it. Displacing every sphere within a radius was tried twice and draws a void either way, because a dense cluster has no slack and moving a group of them reveals the background. Instantaneous rather than a force that decays, because a decaying force is an accumulator and renderAtTime could no longer be seeked. |
+| `partRadius` | number | `4.5` | 0.5 to 10 | How close the cursor has to be, in scene units, before the nearest sphere reacts at all. Beyond it nothing moves. |
 
 ## 5. Why it is not the simulation it came from
 

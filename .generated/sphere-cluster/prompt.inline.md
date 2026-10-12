@@ -137,8 +137,8 @@ export const sphereClusterDefaults: SphereClusterOptions = {
   overshoot: 4,
   breathe: 0.1,
   breatheSpeed: 2,
-  part: 0.9,
-  partRadius: 3,
+  part: 2.2,
+  partRadius: 4.5,
   maxDpr: 2,
   /* Far enough in that the poster and a reduced-motion reader both get the
      settled cluster rather than a frame of it still arriving. */
@@ -337,6 +337,40 @@ class SphereClusterSurface implements Surface<SphereClusterOptions> {
     const parting = pointer.active ? opts.part : 0
     const radius = Math.max(opts.partRadius, 0.001)
 
+    /*
+     * Which single sphere the cursor is nearest, found before anything is
+     * placed.
+     *
+     * Only one sphere moves, which is the whole difference between this
+     * reading as a swarm being disturbed and reading as a bite taken out of
+     * it. Two earlier versions displaced every sphere within a radius: the
+     * first pushed them straight out and drew a clean circular void, and the
+     * second pushed them mostly towards the camera and still drew one,
+     * because a dense cluster has no slack and moving any group of them
+     * reveals the background behind. The scene this came from never had that
+     * problem because it raycasts: one sphere is hit and one sphere moves.
+     *
+     * This is the same answer without the raycast. The resting positions are
+     * known, the cursor is already on the z = 0 plane, so the nearest sphere
+     * is a loop over a hundred and one distances and no intersection maths.
+     */
+    let poked = -1
+    if (parting > 0) {
+      let nearest = radius
+      for (let i = 0; i < COUNT; i++) {
+        const dx = LAYOUT[i * 4]! - pointerX
+        const dy = LAYOUT[i * 4 + 1]! - pointerY
+        const away = Math.hypot(dx, dy)
+        /* Biased towards the big ones, which are the ones a cursor over this
+           cluster is visually on top of. */
+        const reach = away - LAYOUT[i * 4 + 3]!
+        if (reach < nearest) {
+          nearest = reach
+          poked = i
+        }
+      }
+    }
+
     const half = Math.max(opts.intro, 0) / 2.6
     const riseFor = half * 1
     const fallFor = half * 1
@@ -393,17 +427,34 @@ class SphereClusterSurface implements Surface<SphereClusterOptions> {
         z = oz + Math.cos(phase) * opts.breathe * 0.5
       }
 
-      if (parting > 0) {
+      /*
+       * The swarm swells towards you rather than opening a hole.
+       *
+       * The first version pushed every sphere within the radius straight out
+       * from the cursor, and what that draws is a clean circular void: a bite
+       * taken out of the cluster, with a hard rim where the falloff ends. It
+       * tracked the cursor correctly and still read as wrong, because a
+       * cluster of spheres has no reason to evacuate a disc.
+       *
+       * So most of the displacement is towards the camera and only a little of
+       * it is sideways. Coming forward makes a sphere larger on screen and
+       * moves it in front of its neighbours, which reads as the swarm noticing
+       * the cursor; going sideways only makes a gap. The falloff is a
+       * smoothstep rather than a square, so there is no rim at the edge of the
+       * radius where the displacement stops.
+       */
+      /*
+       * The poke. Towards the camera and a little away from the cursor, which
+       * lifts this one sphere clear of its neighbours instead of shouldering
+       * them aside.
+       */
+      if (i === poked) {
         const dx = x - pointerX
         const dy = y - pointerY
-        const away = Math.hypot(dx, dy)
-        if (away < radius) {
-          const fall = 1 - away / radius
-          const push = fall * fall * parting
-          const inv = 1 / Math.max(away, 0.0001)
-          x += dx * inv * push
-          y += dy * inv * push
-        }
+        const inv = 1 / Math.max(Math.hypot(dx, dy), 0.0001)
+        x += dx * inv * parting * 0.3
+        y += dy * inv * parting * 0.3
+        z += parting
       }
 
       this.place.set(x, y, z)
@@ -1158,8 +1209,8 @@ as the second argument to the create function; anything omitted takes its defaul
 | `overshoot` | number | `4` | 0 to 12 | How far past its resting place each sphere flies before falling back, and how far it bulges towards the camera on the way. The bulge is a half sine over each stage, so it returns to the resting depth exactly. |
 | `breathe` | number | `0.1` | 0 to 1 (looks right between 0.05 and 0.25) | How far each sphere drifts once settled: a sine in height against a cosine in depth at half the amplitude. At 0 the settled cluster is still. |
 | `breatheSpeed` | number | `2` | 0.1 to 8 (looks right between 1 and 3) | How fast it breathes, in radians a second. Each sphere is a fifth of a radian behind the one before it, which is what makes the cluster shimmer rather than pulse as one body. |
-| `part` | number | `0.9` | 0 to 4 | How far the pointer pushes a sphere aside. Instantaneous rather than a force that decays: a decaying force is an accumulator, so where a sphere sits would depend on where the cursor had been, and renderAtTime could no longer be seeked. The cluster opens the same way and does not carry momentum back out of the opening, which is what that costs. |
-| `partRadius` | number | `3` | 0.5 to 10 | How wide the parting is, in scene units. |
+| `part` | number | `2.2` | 0 to 4 | How far the one sphere nearest the cursor moves: towards the camera, and a little away from the cursor. Only one moves, which is the difference between a swarm being disturbed and a bite taken out of it. Displacing every sphere within a radius was tried twice and draws a void either way, because a dense cluster has no slack and moving a group of them reveals the background. Instantaneous rather than a force that decays, because a decaying force is an accumulator and renderAtTime could no longer be seeked. |
+| `partRadius` | number | `4.5` | 0.5 to 10 | How close the cursor has to be, in scene units, before the nearest sphere reacts at all. Beyond it nothing moves. |
 
 ## 5. Why it is not the simulation it came from
 
