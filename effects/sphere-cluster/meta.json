@@ -1,0 +1,200 @@
+{
+  "name": "SphereCluster",
+  "slug": "sphere-cluster",
+  "tier": 1,
+  "description": "A drift of lit spheres that breathes on its own and opens where you point",
+  "category": "backdrops",
+  "ground": "dark",
+  "tags": [
+    "three",
+    "webgl",
+    "backdrop",
+    "spheres",
+    "cluster",
+    "pointer",
+    "3d",
+    "ambient"
+  ],
+  "peerDependencies": {
+    "three": ">=0.160.0"
+  },
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "One InstancedMesh rather than a mesh each: one geometry, one draw call and a matrix per sphere. The scene this is taken from builds a hundred and twenty eight separate spheres at sixty-four segments square, which is about a million triangles and a draw call apiece for balls a few dozen pixels across.",
+      "No shadow map. A cluster of spheres is all curvature, so the bright side, the terminator and the fill carry the form; a shadow pass over this many instances costs a second pass over every one of them to darken contacts nobody is looking for.",
+      "The layout is a hash of the sphere index, not a table. A direction and a cube-rooted radius rather than three independent axes, because three axes fill a box and the corners of it read as corners."
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 1.2,
+    "contexts": 1,
+    "notes": [
+      "The count is the cost, and it is linear: one matrix written per sphere per frame, one draw call for all of them. There is no pair testing anywhere, which is the other reason the collision pass from the original is gone: it is every pair, so at a hundred and twenty eight spheres that is eight thousand distance tests a frame to prevent an overlap the layout does not create.",
+      "Measured with pnpm gputime, which asks the GPU rather than timing the draw call."
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/sphere-cluster/core.ts",
+      "to": "src/beamish/effects/sphere-cluster/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/sphere-cluster/adapters/react.tsx",
+      "to": "src/beamish/effects/sphere-cluster/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/sphere-cluster/adapters/vue.ts",
+      "to": "src/beamish/effects/sphere-cluster/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "background": {
+      "type": "color",
+      "default": "#07060f",
+      "description": "Behind the cluster. Nothing is drawn there, so it is a flat fill, and a near-black with a trace of the fill hue in it rather than a neutral grey: a neutral ground flattens whatever stands in front of it."
+    },
+    "body": {
+      "type": "color",
+      "default": "#ddd4e8",
+      "description": "The spheres. One colour for all of them, because what separates one sphere from the next is the light falling across it rather than its own hue."
+    },
+    "light": {
+      "type": "color",
+      "default": "#ffb870",
+      "description": "The key light, which is what gives every sphere its bright side. Warm against a cool fill is the whole palette: it is the same split that makes metal and skin read as lit rather than as coloured in."
+    },
+    "fill": {
+      "type": "color",
+      "default": "#5f3fe8",
+      "description": "The fill light, from the opposite side to the key, which decides what colour the turned-away half of a sphere goes. It has to be a direction rather than an ambient: ambient adds the same amount to every surface whatever way it faces, so a coloured one tints the whole cluster evenly and the shadowed side comes out as the lit side with less of it. What makes a sphere read as lit rather than as coloured in is that its two halves disagree about the colour of the light."
+    },
+    "count": {
+      "type": "number",
+      "default": 120,
+      "min": 8,
+      "max": 400,
+      "step": 1,
+      "sensible": [
+        60,
+        180
+      ],
+      "description": "How many spheres. This is the cost and it is linear: one matrix written per sphere per frame and one draw call for all of them."
+    },
+    "spread": {
+      "type": "number",
+      "default": 6.6,
+      "min": 1,
+      "max": 12,
+      "step": 0.1,
+      "sensible": [
+        3.5,
+        7
+      ],
+      "description": "How far the cluster reaches, in scene units. Large and sparse reads as a galaxy; small and dense reads as a single mass with a lumpy edge."
+    },
+    "flatten": {
+      "type": "number",
+      "default": 0.45,
+      "min": 0.05,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [
+        0.3,
+        0.7
+      ],
+      "description": "How flat the cluster is. At 1 it is a ball of spheres and mostly hides itself; lower values spread it across the frame, which is what a backdrop wants, and let the light reach further into it."
+    },
+    "size": {
+      "type": "number",
+      "default": 0.74,
+      "min": 0.1,
+      "max": 2.5,
+      "step": 0.01,
+      "description": "The largest sphere, in scene units. Past about 1.4 at the default spread the big ones meet and the cluster becomes one surface."
+    },
+    "sizeVariation": {
+      "type": "number",
+      "default": 0.72,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [
+        0.5,
+        0.85
+      ],
+      "description": "How much the sizes differ. The spread is squared so a few are large and most are small: a uniform spread of radii reads as gravel. At 0 every sphere is the same size, which reads as a diagram."
+    },
+    "breathe": {
+      "type": "number",
+      "default": 0.16,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "sensible": [
+        0.1,
+        0.35
+      ],
+      "description": "How far each sphere drifts along the cluster's own radius as it breathes, so the whole thing swells and settles rather than sliding. At 0 it is still, which costs nothing to draw and is a legitimate way to use it."
+    },
+    "part": {
+      "type": "number",
+      "default": 1.1,
+      "min": 0,
+      "max": 4,
+      "step": 0.05,
+      "description": "How far the pointer pushes a sphere aside. Instantaneous rather than a force that decays: a decaying force is an accumulator, and the frame would then depend on the frames before it, which renderAtTime cannot allow. The squash of the scene this came from is what that costs."
+    },
+    "partRadius": {
+      "type": "number",
+      "default": 3.4,
+      "min": 0.5,
+      "max": 10,
+      "step": 0.1,
+      "description": "How wide the parting is, in scene units. Wide and gentle reads as the cluster leaning away; narrow and strong reads as a hole being pushed through it."
+    },
+    "seed": {
+      "type": "number",
+      "default": 7,
+      "min": 0,
+      "max": 999,
+      "step": 1,
+      "description": "The layout: where every sphere sits and how big it is. Every value is a different cluster and none is better than another."
+    },
+    "period": {
+      "type": "number",
+      "default": 20,
+      "min": 6,
+      "max": 90,
+      "step": 1,
+      "unit": "s",
+      "sensible": [
+        14,
+        40
+      ],
+      "description": "Seconds for one cycle of the breathing. The loop closes exactly on it, because the frequency is a whole number of turns in that time."
+    }
+  },
+  "instruction": "the cluster opens where you point",
+  "oneShot": false,
+  "credit": {
+    "what": "The scene: a cluster of lit spheres behind a hero, which you can push around with the cursor. Its version is a physics toy with accumulating forces and pairwise collisions, so none of that could come across; every sphere here is a closed form in t instead, and the squash is what that costs. The code is this repo's own.",
+    "author": "Ray Velez",
+    "url": "https://github.com/RayVelez27/instalanding.ai"
+  },
+  "record": {
+    "duration": 20,
+    "fps": 20,
+    "posterAt": 6,
+    "crf": 36,
+    "webmCrf": 48
+  }
+}
