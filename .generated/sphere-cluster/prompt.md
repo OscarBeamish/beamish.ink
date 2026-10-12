@@ -1,6 +1,6 @@
 You are adding **SphereCluster** from Beamish to this project.
 
-> A drift of lit spheres that breathes on its own and opens where you point. Backdrops · effect · MIT.
+> A hundred and one lit spheres that fly in, settle, breathe, and open where you point. Backdrops · effect · MIT.
 > https://beamish.ink/effects/sphere-cluster
 
 Beamish is not a package and there is nothing to install from npm. The source
@@ -14,9 +14,9 @@ Assume you have not seen this library before. Everything you need is below.
 
 - **npm dependencies:** `three@>=0.160.0`
 - WebGL2. There is no WebGL1 fallback
-- One InstancedMesh rather than a mesh each: one geometry, one draw call and a matrix per sphere. The scene this is taken from builds a hundred and twenty eight separate spheres at sixty-four segments square, which is about a million triangles and a draw call apiece for balls a few dozen pixels across.
-- No shadow map. A cluster of spheres is all curvature, so the bright side, the terminator and the fill carry the form; a shadow pass over this many instances costs a second pass over every one of them to darken contacts nobody is looking for.
-- The layout is a hash of the sphere index, not a table. A direction and a cube-rooted radius rather than three independent axes, because three axes fill a box and the corners of it read as corners.
+- One InstancedMesh rather than a mesh each: the same geometry at the same tessellation, one draw call and one matrix per sphere instead of a hundred and one draw calls.
+- The entrance is a closed form in t rather than a timeline. Three stages per sphere, staggered, with the z bulge a half sine over each of the first two so it returns to the resting z exactly. A timeline would have been easier to write and could not be seeked, which would mean no recorded take.
+- The warmth survives into the shadow side because it is the material emissive rather than a light. An ambient cannot colour a shadow side: it adds the same amount to every surface whichever way it faces.
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -43,20 +43,22 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `background` | color | `#07060f` | any CSS hex | Behind the cluster. Nothing is drawn there, so it is a flat fill, and a near-black with a trace of the fill hue in it rather than a neutral grey: a neutral ground flattens whatever stands in front of it. |
-| `body` | color | `#ddd4e8` | any CSS hex | The spheres. One colour for all of them, because what separates one sphere from the next is the light falling across it rather than its own hue. |
-| `light` | color | `#ffb870` | any CSS hex | The key light, which is what gives every sphere its bright side. Warm against a cool fill is the whole palette: it is the same split that makes metal and skin read as lit rather than as coloured in. |
-| `fill` | color | `#5f3fe8` | any CSS hex | The fill light, from the opposite side to the key, which decides what colour the turned-away half of a sphere goes. It has to be a direction rather than an ambient: ambient adds the same amount to every surface whatever way it faces, so a coloured one tints the whole cluster evenly and the shadowed side comes out as the lit side with less of it. What makes a sphere read as lit rather than as coloured in is that its two halves disagree about the colour of the light. |
-| `count` | number | `120` | 8 to 400 (looks right between 60 and 180) | How many spheres. This is the cost and it is linear: one matrix written per sphere per frame and one draw call for all of them. |
-| `spread` | number | `6.6` | 1 to 12 (looks right between 3.5 and 7) | How far the cluster reaches, in scene units. Large and sparse reads as a galaxy; small and dense reads as a single mass with a lumpy edge. |
-| `flatten` | number | `0.45` | 0.05 to 1 (looks right between 0.3 and 0.7) | How flat the cluster is. At 1 it is a ball of spheres and mostly hides itself; lower values spread it across the frame, which is what a backdrop wants, and let the light reach further into it. |
-| `size` | number | `0.74` | 0.1 to 2.5 | The largest sphere, in scene units. Past about 1.4 at the default spread the big ones meet and the cluster becomes one surface. |
-| `sizeVariation` | number | `0.72` | 0 to 1 (looks right between 0.5 and 0.85) | How much the sizes differ. The spread is squared so a few are large and most are small: a uniform spread of radii reads as gravel. At 0 every sphere is the same size, which reads as a diagram. |
-| `breathe` | number | `0.16` | 0 to 1 (looks right between 0.1 and 0.35) | How far each sphere drifts along the cluster's own radius as it breathes, so the whole thing swells and settles rather than sliding. At 0 it is still, which costs nothing to draw and is a legitimate way to use it. |
-| `part` | number | `1.1` | 0 to 4 | How far the pointer pushes a sphere aside. Instantaneous rather than a force that decays: a decaying force is an accumulator, and the frame would then depend on the frames before it, which renderAtTime cannot allow. The squash of the scene this came from is what that costs. |
-| `partRadius` | number | `3.4` | 0.5 to 10 | How wide the parting is, in scene units. Wide and gentle reads as the cluster leaning away; narrow and strong reads as a hole being pushed through it. |
-| `seed` | number | `7` | 0 to 999 | The layout: where every sphere sits and how big it is. Every value is a different cluster and none is better than another. |
-| `period` | number | `20` | 6 to 90 s (looks right between 14 and 40) | Seconds for one cycle of the breathing. The loop closes exactly on it, because the frequency is a whole number of turns in that time. |
+| `background` | color | `#fbfaff` | any CSS hex | Behind the cluster. The near-white the hero sits on in the page this came from; the spheres are a pale blush and need a light ground to be pale against. |
+| `body` | color | `#c7a5a5` | any CSS hex | The spheres' own colour, before the light and the glow reach them. A dusty rose, which with a pure red glow over it is what gives the cluster its colour from every angle. |
+| `glow` | color | `#7a1414` | any CSS hex | The glow every sphere carries regardless of the light. This is the emissive, and it is doing more for the colour than the body is: an emissive is not lit, so it survives into the shadow side where the diffuse has gone, which is why the cluster reads warm all over rather than warm on one side. The scene this came from sets it to pure red. On r128's colour pipeline that renders as a blush; on a current one it saturates the red channel completely, which stops the bright side clipping to white and leaves every sphere a flat coral. A darker red puts the highlights back. |
+| `light` | color | `#ffffff` | any CSS hex | The key light, which does the modelling. |
+| `keyStrength` | number | `0.52` | 0 to 3 (looks right between 0.3 and 1) | How bright the key is. Half the flat light, which is the balance the scene was lit at: the flat light is most of what you see and the key only has to say where the form is. |
+| `ambient` | color | `#ffffff` | any CSS hex | The flat light that reaches every surface whichever way it faces. |
+| `ambientStrength` | number | `1` | 0 to 3 (looks right between 0.6 and 1.4) | How bright the flat light is. At full strength, as the scene has it, which is why the cluster is evenly lit and the shapes are carried by the silhouette rather than by shading. |
+| `distance` | number | `24` | 8 to 60 (looks right between 18 and 34) | How far the camera sits from the cluster, in scene units. It is pulled back further on a narrow frame so the cluster still fits, which matters on a phone: at that aspect it otherwise runs off both sides. |
+| `intro` | number | `2.6` | 0 to 8 (looks right between 2 and 4) | Seconds the entrance takes for one sphere, before the stagger. At 0 the cluster starts settled, which is what a backdrop behind a page that is already open wants. |
+| `stagger` | number | `0.02` | 0 to 0.2 (looks right between 0.01 and 0.04) | Seconds between one sphere setting off and the next. The whole entrance therefore lasts the intro plus a hundred of these, so at the default it is finished a little after four and a half seconds. |
+| `drop` | number | `25` | 2 to 60 | How far below the frame the spheres start, in scene units. Far enough that none of them is in shot before it sets off. |
+| `overshoot` | number | `4` | 0 to 12 | How far past its resting place each sphere flies before falling back, and how far it bulges towards the camera on the way. The bulge is a half sine over each stage, so it returns to the resting depth exactly. |
+| `breathe` | number | `0.1` | 0 to 1 (looks right between 0.05 and 0.25) | How far each sphere drifts once settled: a sine in height against a cosine in depth at half the amplitude. At 0 the settled cluster is still. |
+| `breatheSpeed` | number | `2` | 0.1 to 8 (looks right between 1 and 3) | How fast it breathes, in radians a second. Each sphere is a fifth of a radian behind the one before it, which is what makes the cluster shimmer rather than pulse as one body. |
+| `part` | number | `0.9` | 0 to 4 | How far the pointer pushes a sphere aside. Instantaneous rather than a force that decays: a decaying force is an accumulator, so where a sphere sits would depend on where the cursor had been, and renderAtTime could no longer be seeked. The cluster opens the same way and does not carry momentum back out of the opening, which is what that costs. |
+| `partRadius` | number | `3` | 0.5 to 10 | How wide the parting is, in scene units. |
 
 ## 5. Why it is not the simulation it came from
 
@@ -122,7 +124,7 @@ drop-in file. They contain no effect logic.
 
 ---
 
-Concept credit: The scene: a cluster of lit spheres behind a hero, which you can push around with the cursor. Its version is a physics toy with accumulating forces and pairwise collisions, so none of that could come across; every sphere here is a closed form in t instead, and the squash is what that costs. The code is this repo's own., by Ray Velez, https://github.com/RayVelez27/instalanding.ai.
+Concept credit: The whole scene: the hundred and one hand-placed sphere positions and radii, the dusty rose body under a red emissive, the three light intensities, the twenty-five degree camera, and the staggered three-stage entrance. The arrangement is placed rather than generated and that is most of why it reads as composed, so it is carried across as his rather than replaced with a hash. What could not come across is the physics: its pointer force decays frame to frame and its collision pass tests every pair, and both are accumulators that would stop renderAtTime being seekable., by Ray Velez, https://github.com/RayVelez27/instalanding.ai.
 The implementation here is written from scratch.
 
 ---

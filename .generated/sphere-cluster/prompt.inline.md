@@ -1,6 +1,6 @@
 You are adding **SphereCluster** from Beamish to this project.
 
-> A drift of lit spheres that breathes on its own and opens where you point. Backdrops · effect · MIT.
+> A hundred and one lit spheres that fly in, settle, breathe, and open where you point. Backdrops · effect · MIT.
 > https://beamish.ink/effects/sphere-cluster
 
 Beamish is not a package and there is nothing to install from npm. The source
@@ -14,9 +14,9 @@ Assume you have not seen this library before. Everything you need is below.
 
 - **npm dependencies:** `three@>=0.160.0`
 - WebGL2. There is no WebGL1 fallback
-- One InstancedMesh rather than a mesh each: one geometry, one draw call and a matrix per sphere. The scene this is taken from builds a hundred and twenty eight separate spheres at sixty-four segments square, which is about a million triangles and a draw call apiece for balls a few dozen pixels across.
-- No shadow map. A cluster of spheres is all curvature, so the bright side, the terminator and the fill carry the form; a shadow pass over this many instances costs a second pass over every one of them to darken contacts nobody is looking for.
-- The layout is a hash of the sphere index, not a table. A direction and a cube-rooted radius rather than three independent axes, because three axes fill a box and the corners of it read as corners.
+- One InstancedMesh rather than a mesh each: the same geometry at the same tessellation, one draw call and one matrix per sphere instead of a hundred and one draw calls.
+- The entrance is a closed form in t rather than a timeline. Three stages per sphere, staggered, with the z bulge a half sine over each of the first two so it returns to the resting z exactly. A timeline would have been easier to write and could not be seeked, which would mean no recorded take.
+- The warmth survives into the shadow side because it is the material emissive rather than a light. An ambient cannot colour a shadow side: it adds the same amount to every surface whichever way it faces.
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -35,43 +35,41 @@ import between them is relative.
  * SphereCluster: Beamish
  * https://beamish.ink/effects/sphere-cluster
  *
- * A drift of lit spheres, breathing, that opens where you point.
+ * A hundred and one lit spheres that fly in, settle, breathe, and open where
+ * you point. The hero of a landing page, as an item.
  *
- * WHY THIS IS NOT THE SIMULATION IT CAME FROM
+ * WHAT IS THE SAME AS THE SCENE IT CAME FROM
  *
- * The scene this is taken from is a physics toy: pointing at a sphere adds a
- * force to it, the force decays by five per cent a frame, and every pair of
- * spheres is tested for overlap and pushed apart. All three of those are
- * accumulators. The position of a sphere at a given moment depends on how it
- * got there rather than on the clock, which means the scene cannot be seeked,
- * cannot be recorded without a visible jump where the take wraps, and drifts
- * into a different arrangement every time it is loaded.
+ * The arrangement, to the hand-placed coordinate: a hundred and one spheres
+ * at the positions and radii its author chose, which is most of why the
+ * cluster reads as deliberate rather than scattered. The material, including
+ * the red emissive that is doing more for the colour than the diffuse is. The
+ * three lights and their intensities. The camera, at twenty-five degrees and
+ * pulled back on a narrow frame so the cluster still fits. The entrance: each
+ * sphere rises from twenty-five below, overshoots, falls back and eases home,
+ * staggered two hundredths of a second apart. And the breathing, a sine in y
+ * against a cosine in z at half the amplitude, offset a fifth of a radian per
+ * sphere.
  *
- * So the state is gone and every sphere is a closed form in `t`:
+ * WHAT CANNOT BE
  *
- *   Where it sits comes from a hash of its index, which never changes.
- *   How it breathes is a sine of `t` with a per-sphere phase, and the
- *   frequency is a whole number of turns over the period, so the cluster is
- *   exactly where it started when the period is up.
- *   How far the pointer has moved it is a function of where the pointer is
- *   now, not of where it has been.
+ * Two things, and both for the same reason: `renderAtTime(t)` has to be a pure
+ * function of `t` or the recorder cannot seek and nothing can be recorded.
  *
- * What is lost is the squash: a sphere no longer carries momentum away from
- * the cursor and settle back. What is gained is that `renderAtTime(t)` can be
- * called with any time in any order, which is the contract every item here
- * keeps and the only reason the recorder works.
+ * The pointer push there adds a force to a sphere and decays it five per cent
+ * a frame, so where a sphere is depends on where the cursor has been. Here the
+ * displacement is a function of where the cursor IS. The cluster opens the
+ * same way and does not carry momentum back out of the opening.
  *
- * The collision pass is gone too, and not only because it accumulates. It is
- * every pair, so the cost is the square of the count: at the hundred and
- * twenty eight spheres of the original that is eight thousand distance tests
- * a frame to stop an overlap the layout can simply not create.
+ * The collision pass there tests every pair and pushes overlaps apart, which
+ * is both an accumulator and the square of the count. The layout it is
+ * resolving overlaps in is hand-placed and does not have any.
  *
- * ONE GEOMETRY, MANY SPHERES
+ * ONE DRAW CALL
  *
- * An InstancedMesh rather than a mesh each. The scene it came from builds a
- * hundred and twenty eight separate spheres at sixty-four segments square,
- * which is about a million triangles and a draw call each. One geometry at a
- * sensible tessellation, instanced, is one draw call and a matrix per sphere.
+ * An InstancedMesh rather than a mesh each. Same geometry, same tessellation,
+ * one draw call and one matrix per sphere instead of a hundred and one draw
+ * calls.
  */
 
 import * as THREE from 'three'
@@ -86,61 +84,108 @@ import {
 export type SphereClusterOptions = BaseOptions & {
   /** Behind the cluster. Nothing is drawn there, so it is a flat fill. */
   background: string
-  /** The spheres themselves. */
+  /** The spheres' own colour, before the light and the glow reach them. */
   body: string
-  /** The key light, which is what gives every sphere its bright side. */
+  /** The glow every sphere carries regardless of the light. */
+  glow: string
+  /** The key light. */
   light: string
-  /** The fill, which decides how dark the turned-away side goes. */
-  fill: string
-  /** How many spheres. The count is the cost: one matrix each, one draw call. */
-  count: number
-  /** How far the cluster spreads, in scene units. */
-  spread: number
-  /** How flat the cluster is. 1 is a ball of spheres, 0.3 a drift of them. */
-  flatten: number
-  /** The largest sphere, in scene units. */
-  size: number
-  /** How much the sizes vary. At 0 every sphere is the same. */
-  sizeVariation: number
+  /** How bright the key is. */
+  keyStrength: number
+  /** The flat light that reaches every surface whichever way it faces. */
+  ambient: string
+  /** How bright the flat light is. */
+  ambientStrength: number
+  /** How far the cluster is from the camera, in scene units. */
+  distance: number
+  /** Seconds the entrance takes, before the stagger. 0 starts it settled. */
+  intro: number
+  /** Seconds between one sphere setting off and the next. */
+  stagger: number
+  /** How far below the frame the spheres start. */
+  drop: number
+  /** How far the spheres overshoot on the way in. */
+  overshoot: number
   /** How far each sphere drifts as it breathes. */
   breathe: number
+  /** How fast it breathes, in radians a second. */
+  breatheSpeed: number
   /** How far the pointer pushes a sphere aside. */
   part: number
   /** How wide the parting is, in scene units. */
   partRadius: number
-  /** Seed for the layout: where the spheres sit and how big each one is. */
-  seed: number
-  /** Seconds for one cycle of the breathing. The loop closes exactly on it. */
-  period: number
 }
 
 export const sphereClusterDefaults: SphereClusterOptions = {
-  background: '#07060f',
-  body: '#ddd4e8',
-  light: '#ffb870',
-  fill: '#5f3fe8',
-  count: 120,
-  spread: 6.6,
-  flatten: 0.45,
-  size: 0.74,
-  sizeVariation: 0.72,
-  breathe: 0.16,
-  part: 1.1,
-  partRadius: 3.4,
-  seed: 7,
-  period: 20,
+  /*
+   * The scene's own values. The body is a dusty rose and the glow is pure red,
+   * which is a strange pair written down and the reason the cluster reads warm
+   * from every angle: the emissive is not lit, so it survives into the shadow
+   * side where the diffuse has gone.
+   */
+  background: '#fbfaff',
+  body: '#c7a5a5',
+  glow: '#7a1414',
+  light: '#ffffff',
+  keyStrength: 0.52,
+  ambient: '#ffffff',
+  ambientStrength: 1,
+  distance: 24,
+  intro: 2.6,
+  stagger: 0.02,
+  drop: 25,
+  overshoot: 4,
+  breathe: 0.1,
+  breatheSpeed: 2,
+  part: 0.9,
+  partRadius: 3,
   maxDpr: 2,
-  reducedMotionTime: 5
+  /* Far enough in that the poster and a reduced-motion reader both get the
+     settled cluster rather than a frame of it still arriving. */
+  reducedMotionTime: 8
 }
 
-/* The layout is a hash rather than a table. The scene this came from places a
-   hundred and twenty eight spheres by hand, which is a lovely arrangement and
-   also somebody else's data; a hash gives a different cluster per seed and one
-   fewer thing to keep in step. */
-function hash(n: number): number {
-  const s = Math.sin(n * 127.1 + 311.7) * 43758.5453123
-  return s - Math.floor(s)
-}
+/*
+ * The cluster, four numbers a sphere: x, y, z, radius.
+ *
+ * Hand-placed by the author of the scene this came from, and the reason it
+ * reads as composed. A hash fills a volume evenly, which is a different and
+ * worse thing: the big spheres here are placed where they hold the silhouette
+ * together and the small ones fill between them. Credited in meta.json.
+ */
+const LAYOUT = [
+  0, 0, 0, 1, 1.2, 0.9, -0.5, 0.6, 1.8, -0.3, 0, 0.8, -1, -1, 0, 0.4,
+  -1, 1.62, 0, 0.9, -1.65, 0, -0.4, 0.7, -2.13, -1.54, -0.4, 0.9, 0.8, 0.94, 0.3, 0.3,
+  0.5, -1, 1.2, 0.2, -0.16, -1.2, 0.9, 0.5, 1.5, 1.2, 0.8, 0.6, 0.5, -1.58, 1.4, 0.4,
+  -1.5, 1, 1.15, 0.5, -1.5, -1.5, 0.99, 0.6, -1.5, -1.5, -1.9, 0.7, 1.85, 0.8, 0.05, 0.3,
+  1.5, -1.2, -0.75, 0.4, 0.9, -1.62, 0.22, 0.8, 0.45, 2, 0.65, 0.7, 2.5, 1.22, -0.2, 0.5,
+  2.35, 0.7, 0.55, 0.4, -1.8, -0.35, 0.85, 0.6, -1.02, 0.2, 0.9, 0.35, 0.2, 1, 1, 0.38,
+  -2.88, 0.7, 1, 0.9, -2, -0.95, 1.5, 0.3, -2.3, 2.4, -0.1, 0.6, -2.5, 1.9, 1.2, 0.4,
+  -1.8, 0.37, 1.2, 0.2, -2.4, 1.42, 0.05, 0.35, -2.72, -0.9, 1.1, 0.5, -1.8, -1.34, 1.67, 0.15,
+  -1.6, 1.66, 0.91, 0.2, -2.8, 1.58, 1.69, 0.25, -2.97, 2.3, 0.65, 0.4, 1.1, -0.2, -1.45, 0.8,
+  -4, 1.78, 0.38, 0.76, 0.12, 1.4, -1.29, 0.8, -1.64, 1.4, -1.79, 1, -3.5, -0.58, 0.1, 0.8,
+  -0.1, -1, -2, 0.7, -4.5, 0.55, -0.5, 0.8, -3.87, 0, 1, 0.3, -4.6, -0.1, 0.65, 0.5,
+  -3, 1.5, -0.7, 0.6, -0.5, 0.2, -1.5, 0.55, -1.3, -0.45, -1.5, 0.42, -3.35, 0.25, -1.5, 0.75,
+  -4.76, -1.26, 0.4, 0.66, -4.32, 0.85, 1.4, 0.6, -3.5, -1.82, 0.9, 0.7, -3.6, -0.6, 1.46, 0.5,
+  -4.55, -1.5, 1.63, 0.6, -3.8, -1.15, 2.1, 0.35, -2.9, -0.25, 1.86, 0.35, -2.2, -0.4, 1.86, 0.35,
+  -5.1, -0.24, 1.86, 0.8, -5.27, 1.24, 0.76, 0.6, -5.27, 2, -0.4, 0.7, -6.4, 0.4, 1, 0.8,
+  -5.15, 0.95, 2, 0.4, -6.2, 0.5, -0.8, 0.89, -4, 0.08, 1.8, 0.3, 2, -0.95, 1.5, 0.3,
+  2.3, 2.4, -0.1, 0.6, 2.5, 1.9, 1.2, 0.4, 1.8, 0.37, 1.2, 0.2, 3.24, 0.6, 1.05, 0.52,
+  2.72, -0.9, 1.1, 0.5, 1.8, -1.34, 1.67, 0.15, 1.6, 1.99, 0.91, 0.2, 2.8, 1.58, 1.69, 0.25,
+  2.97, 2.3, 0.65, 0.4, -1.3, -0.2, -2.5, 0.8, 4, 1.78, 0.38, 0.76, 1.72, 1.4, -1.29, 0.8,
+  2.5, -1.2, -2, 1, 3.5, -0.58, 0.1, 0.8, 0.1, 0.4, -2.42, 0.7, 4.5, 0.55, -0.5, 0.8,
+  3.87, 0, 1, 0.3, 4.6, -0.1, 0.65, 0.5, 3, 1.5, -0.7, 0.6, 2.3, 0.6, -2.6, 0.8,
+  4, 1.5, -1.6, 0.7, 3.35, 0.25, -1.5, 0.75, 4.76, -1.26, 0.4, 0.66, 4.32, 0.85, 1.4, 0.6,
+  3.5, -1.82, 0.9, 0.7, 3.6, -0.6, 1.46, 0.5, 4.55, -1.5, 1.63, 0.6, 3.8, -1.15, 2.1, 0.35,
+  2.9, -0.25, 1.86, 0.35, 2.2, -0.4, 1.86, 0.35, 5.1, -0.24, 1.86, 0.8, 5.27, 1.24, 0.76, 0.6,
+  5.27, 2, -0.4, 0.7, 6.4, 0.4, 1, 0.8, 5.15, 0.95, 2, 0.4, 6.2, 0.5, -0.8, 0.89,
+  4, 0.08, 1.8, 0.3
+]
+
+const COUNT = LAYOUT.length / 4
+
+/* GSAP's power1.out, which is what the entrance was authored against. */
+const easeOut = (k: number) => 1 - (1 - k) * (1 - k)
 
 class SphereClusterSurface implements Surface<SphereClusterOptions> {
   private renderer: THREE.WebGLRenderer | null = null
@@ -149,11 +194,8 @@ class SphereClusterSurface implements Surface<SphereClusterOptions> {
   private mesh: THREE.InstancedMesh | null = null
   private material: THREE.MeshLambertMaterial | null = null
   private key: THREE.DirectionalLight | null = null
-  private fill: THREE.DirectionalLight | null = null
-  private built = -1
-  private seeded = Number.NaN
-  /* The resting layout, computed once per seed and never per frame. */
-  private home: { x: number; y: number; z: number; r: number; phase: number }[] = []
+  private ambient: THREE.AmbientLight | null = null
+  private under: THREE.DirectionalLight | null = null
   private matrix = new THREE.Matrix4()
   private place = new THREE.Vector3()
 
@@ -169,100 +211,94 @@ class SphereClusterSurface implements Surface<SphereClusterOptions> {
       preserveDrawingBuffer: true
     })
     renderer.setPixelRatio(1)
+    renderer.shadowMap.enabled = true
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    /*
+     * The colour pipeline the scene was lit against, not the current one.
+     *
+     * It was built on three r128, where colour management did not exist and
+     * the renderer wrote linear values straight out. Modern three enables
+     * management by default and converts to sRGB on the way out, so the same
+     * material and the same light intensities come out darker and far more
+     * saturated: a dusty rose under a red emissive renders as pale blush under
+     * the old pipeline and as flat signal red under the new one. Matching the
+     * look by re-picking the colours would mean inventing numbers; turning the
+     * pipeline back to the one they were chosen for reproduces them.
+     */
+    THREE.ColorManagement.enabled = false
 
     const scene = new THREE.Scene()
-    const camera = new THREE.PerspectiveCamera(26, 1, 0.5, 120)
-    camera.position.set(0, 0, 22)
+    const camera = new THREE.PerspectiveCamera(25, 1, 0.1, 1000)
+    camera.position.set(0, 0, 24)
 
     /*
-     * A warm key and a cool fill, opposed, and no shadow map.
-     *
-     * The fill has to be a DIRECTIONAL light from the other side. An ambient
-     * light was tried first and cannot do this job: ambient adds the same
-     * amount to every surface whatever way it faces, so a coloured one tints
-     * the whole cluster evenly and the turned-away side comes out as the lit
-     * side with less of it. What makes a sphere read as lit rather than as
-     * coloured in is that its two halves disagree about the colour of the
-     * light, and only a second direction can make them disagree.
-     *
-     * No shadow map. A cluster of spheres is all curvature, so the bright
-     * side, the terminator and the fill carry the form; a shadow pass over
-     * this many instances costs a second pass over every one of them to
-     * darken contacts nobody is looking for.
+     * Three lights, at the intensities the scene was lit with. The flat one is
+     * at full strength and is most of what you see; the spot is half of that
+     * and does the modelling. An ambient cannot make a shadow side a different
+     * colour, which is why the warmth here comes from the material's emissive
+     * instead.
      */
-    const ambient = new THREE.AmbientLight(0xffffff, 0.12)
+    const ambient = new THREE.AmbientLight(0xffffff, 1)
     scene.add(ambient)
-    const key = new THREE.DirectionalLight(0xffffff, 1.35)
-    key.position.set(6, 9, 11)
+    /*
+     * A directional where the scene has a spot, at the same place and the same
+     * intensity.
+     *
+     * A SpotLight's intensity is candela now and falls off with the square of
+     * the distance; in r128 it was a plain multiplier. At forty units away
+     * 0.52 candela is indistinguishable from no light at all, which left the
+     * ambient as the only illumination and the cluster flat. A directional has
+     * no falloff, so the number means what it meant when it was chosen.
+     *
+     * What it costs is the cone, and the cone was doing nothing: it is wider
+     * than the cluster from that distance. What it buys is the reason the
+     * cluster looks lit at all: ambient at 1 plus this at 0.52 plus the
+     * underlight at 0.2 is more irradiance than the material can hold, so the
+     * bright side clips to white and the rest stays pale. Those white
+     * highlights are the clipping.
+     */
+    const key = new THREE.DirectionalLight(0xffffff, 0.52)
+    key.position.set(14, 24, 30)
+    key.castShadow = true
     scene.add(key)
-    const fill = new THREE.DirectionalLight(0xffffff, 1.15)
-    fill.position.set(-7, -5, -3)
-    scene.add(fill)
+    this.under = new THREE.DirectionalLight(0xffffff, 0.2)
+    this.under.position.set(0, -4, 0)
+    scene.add(this.under)
 
+    /* Same tessellation as the scene it came from. Expensive per sphere and
+       affordable once, because every instance shares it. */
+    const geometry = new THREE.SphereGeometry(1, 64, 64)
     const material = new THREE.MeshLambertMaterial({ color: 0xffffff })
+    const mesh = new THREE.InstancedMesh(geometry, material, COUNT)
+    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
+    mesh.castShadow = true
+    mesh.receiveShadow = true
+    /*
+     * Never culled, which for one mesh that is the whole picture is free, and
+     * without which this effect records blank.
+     *
+     * An InstancedMesh computes its bounding sphere once and keeps it. The
+     * recorder captures frame zero first, and at t = 0 every sphere is still
+     * at its drop height below the frame, so the bounds are computed down
+     * there and cached. Every frame after that is culled against bounds the
+     * cluster has long since left, and the take comes out as a hundred and
+     * sixty-eight frames of empty background with no error anywhere.
+     *
+     * It does not reproduce by rendering a late frame on its own, which is how
+     * it survived a frame grab, a headless run and a run with the recorder's
+     * own clock stub: the bug needs the frames in order, which is exactly what
+     * the recorder does and nothing else did.
+     */
+    mesh.frustumCulled = false
+    scene.add(mesh)
 
     this.renderer = renderer
     this.scene = scene
     this.camera = camera
+    this.mesh = mesh
     this.material = material
     this.key = key
-    this.fill = fill
-  }
-
-  /* One geometry, one draw call, one matrix per sphere. Rebuilt only when the
-     count changes, because an InstancedMesh is sized at construction. */
-  private build(count: number): void {
-    const scene = this.scene
-    const material = this.material
-    if (!scene || !material) return
-    if (this.mesh) {
-      scene.remove(this.mesh)
-      this.mesh.geometry.dispose()
-      this.mesh.dispose()
-    }
-    /*
-     * 20 by 14 segments rather than 64 by 64. At this size on screen the
-     * silhouette is already smooth, and the original's tessellation is about
-     * eight thousand triangles a sphere for a ball a few dozen pixels across.
-     */
-    const geometry = new THREE.SphereGeometry(1, 20, 14)
-    const mesh = new THREE.InstancedMesh(geometry, material, count)
-    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
-    scene.add(mesh)
-    this.mesh = mesh
-    this.built = count
-  }
-
-  /*
-   * Where every sphere rests, and the phase it breathes on. A function of the
-   * seed alone, so it is computed when the seed changes rather than per frame.
-   */
-  private layout(opts: SphereClusterOptions, count: number): void {
-    const home: typeof this.home = []
-    for (let i = 0; i < count; i++) {
-      const n = i + opts.seed * 977
-      /*
-       * A direction and a radius rather than three independent axes. Three
-       * axes fill a box and the corners of it read as corners; a direction
-       * with a cube-rooted radius fills a ball evenly, which is what a drift
-       * of spheres wants to be before it is flattened.
-       */
-      const a = hash(n * 1.7) * Math.PI * 2
-      const z = hash(n * 3.1) * 2 - 1
-      const rim = Math.sqrt(Math.max(0, 1 - z * z))
-      const reach = Math.cbrt(hash(n * 5.3))
-      home.push({
-        x: Math.cos(a) * rim * reach,
-        y: z * reach,
-        z: Math.sin(a) * rim * reach,
-        /* Squared, so a few are large and most are small. A uniform spread of
-           radii reads as gravel. */
-        r: 0.3 + 0.7 * (1 - hash(n * 7.9) ** 2),
-        phase: hash(n * 11.3) * Math.PI * 2
-      })
-    }
-    this.home = home
-    this.seeded = opts.seed
+    this.ambient = ambient
   }
 
   resize(size: { pixelWidth: number; pixelHeight: number; dpr: number }): void {
@@ -279,58 +315,84 @@ class SphereClusterSurface implements Surface<SphereClusterOptions> {
     const renderer = this.renderer
     const scene = this.scene
     const camera = this.camera
-    if (!renderer || !scene || !camera) return
-
-    const count = Math.max(1, Math.min(400, Math.round(opts.count)))
-    if (count !== this.built) this.build(count)
-    if (opts.seed !== this.seeded || this.home.length !== count) this.layout(opts, count)
     const mesh = this.mesh
-    if (!mesh) return
+    if (!renderer || !scene || !camera || !mesh) return
 
     this.material?.color.set(opts.body)
+    this.material?.emissive.set(opts.glow)
     this.key?.color.set(opts.light)
-    this.fill?.color.set(opts.fill)
+    if (this.key) this.key.intensity = opts.keyStrength
+    this.ambient?.color.set(opts.ambient)
+    if (this.ambient) this.ambient.intensity = opts.ambientStrength
     scene.background = new THREE.Color(opts.background)
 
-    /*
-     * A whole number of turns over the period, so the first frame and the
-     * last are the same frame and the loop joins with nothing to hide.
-     */
-    const turn = (Math.PI * 2 * t) / Math.max(opts.period, 0.001)
+    /* Pulled back on a narrow frame so the cluster still fits, which is what
+       the scene does on resize and is worth keeping: at a phone's aspect the
+       cluster otherwise runs off both sides. */
+    camera.position.setLength(Math.max(opts.distance, (opts.distance + 4) / camera.aspect))
 
-    /*
-     * Where the pointer is, on the plane the cluster sits in. Read once per
-     * frame rather than per sphere, and from where the pointer IS rather than
-     * from where it has been: a force that decays is an accumulator and would
-     * take renderAtTime's determinism with it.
-     */
-    const reachX = Math.tan((camera.fov * Math.PI) / 360) * camera.position.z * camera.aspect
-    const reachY = Math.tan((camera.fov * Math.PI) / 360) * camera.position.z
-    const pointerX = pointer.active ? (pointer.x - 0.5) * 2 * reachX : 0
+    const reachY = Math.tan((camera.fov * Math.PI) / 360) * camera.position.length()
+    const pointerX = pointer.active ? (pointer.x - 0.5) * 2 * reachY * camera.aspect : 0
     const pointerY = pointer.active ? -(pointer.y - 0.5) * 2 * reachY : 0
     const parting = pointer.active ? opts.part : 0
     const radius = Math.max(opts.partRadius, 0.001)
 
-    for (let i = 0; i < count; i++) {
-      const h = this.home[i]!
-      const flat = Math.max(0.05, opts.flatten)
+    const half = Math.max(opts.intro, 0) / 2.6
+    const riseFor = half * 1
+    const fallFor = half * 1
+    const homeFor = half * 0.6
 
-      let x = h.x * opts.spread
-      let y = h.y * opts.spread * flat
-      let z = h.z * opts.spread
+    for (let i = 0; i < COUNT; i++) {
+      const ox = LAYOUT[i * 4]!
+      const oy = LAYOUT[i * 4 + 1]!
+      const oz = LAYOUT[i * 4 + 2]!
+      const r = LAYOUT[i * 4 + 3]!
 
-      /* Breathing: a drift along the cluster's own radius, so the whole thing
-         swells and settles rather than sliding. */
-      const swell = Math.sin(turn + h.phase) * opts.breathe
-      x += h.x * swell
-      y += h.y * swell
-      z += h.z * swell
+      let x = ox
+      let y = oy
+      let z = oz
 
       /*
-       * The parting. Pushed away from the pointer in the plane of the screen
-       * only: moving spheres towards the camera reads as the cluster bulging
-       * at whoever is looking at it, which is the wrong story and much louder.
+       * The entrance, as a closed form rather than a timeline.
+       *
+       * Three stages, staggered per sphere: up from below the frame, past the
+       * resting height and back down, then eased home. The z bulge is a half
+       * sine over each of the first two stages, out on the way up and back on
+       * the way down, so it returns to the resting z exactly.
+       *
+       * A timeline would have been easier to write and could not be seeked.
+       * Every one of these is a function of t, so the recorder can ask for the
+       * frames in any order and two runs are identical.
        */
+      const local = t - i * Math.max(opts.stagger, 0)
+      const settled = riseFor + fallFor + homeFor
+
+      if (opts.intro > 0 && local < settled) {
+        if (local <= 0) {
+          y = -opts.drop
+        } else if (local < riseFor) {
+          const p = easeOut(local / riseFor)
+          y = -opts.drop + (opts.overshoot + opts.drop) * p
+          z = oz + Math.sin(p * Math.PI) * opts.overshoot
+        } else if (local < riseFor + fallFor) {
+          const p = easeOut((local - riseFor) / fallFor)
+          y = opts.overshoot + (-opts.drop / 5 - opts.overshoot) * p
+          z = oz - Math.sin(p * Math.PI) * opts.overshoot
+        } else {
+          const p = easeOut((local - riseFor - fallFor) / homeFor)
+          y = -opts.drop / 5 + (oy + opts.drop / 5) * p
+        }
+      } else {
+        /*
+         * Breathing: a sine in y against a cosine in z at half the amplitude,
+         * a fifth of a radian apart per sphere, which is what makes the
+         * cluster shimmer rather than pulse as one body.
+         */
+        const phase = t * opts.breatheSpeed + i * 0.2
+        y = oy + Math.sin(phase) * opts.breathe
+        z = oz + Math.cos(phase) * opts.breathe * 0.5
+      }
+
       if (parting > 0) {
         const dx = x - pointerX
         const dy = y - pointerY
@@ -344,9 +406,8 @@ class SphereClusterSurface implements Surface<SphereClusterOptions> {
         }
       }
 
-      const scale = Math.max(0.01, opts.size) * (1 - opts.sizeVariation * (1 - h.r))
       this.place.set(x, y, z)
-      this.matrix.makeScale(scale, scale, scale)
+      this.matrix.makeScale(r, r, r)
       this.matrix.setPosition(this.place)
       mesh.setMatrixAt(i, this.matrix)
     }
@@ -371,9 +432,6 @@ class SphereClusterSurface implements Surface<SphereClusterOptions> {
     this.camera = null
     this.mesh = null
     this.material = null
-    this.home = []
-    this.built = -1
-    this.seeded = Number.NaN
   }
 }
 
@@ -382,10 +440,10 @@ class SphereClusterSurface implements Surface<SphereClusterOptions> {
  * content.
  *
  * ```ts
- * const drift = createSphereCluster(document.querySelector('#hero')!)
- * drift.start()
+ * const cluster = createSphereCluster(document.querySelector('#hero')!)
+ * cluster.start()
  * // …later
- * drift.destroy()
+ * cluster.destroy()
  * ```
  */
 export function createSphereCluster(
@@ -1086,20 +1144,22 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `background` | color | `#07060f` | any CSS hex | Behind the cluster. Nothing is drawn there, so it is a flat fill, and a near-black with a trace of the fill hue in it rather than a neutral grey: a neutral ground flattens whatever stands in front of it. |
-| `body` | color | `#ddd4e8` | any CSS hex | The spheres. One colour for all of them, because what separates one sphere from the next is the light falling across it rather than its own hue. |
-| `light` | color | `#ffb870` | any CSS hex | The key light, which is what gives every sphere its bright side. Warm against a cool fill is the whole palette: it is the same split that makes metal and skin read as lit rather than as coloured in. |
-| `fill` | color | `#5f3fe8` | any CSS hex | The fill light, from the opposite side to the key, which decides what colour the turned-away half of a sphere goes. It has to be a direction rather than an ambient: ambient adds the same amount to every surface whatever way it faces, so a coloured one tints the whole cluster evenly and the shadowed side comes out as the lit side with less of it. What makes a sphere read as lit rather than as coloured in is that its two halves disagree about the colour of the light. |
-| `count` | number | `120` | 8 to 400 (looks right between 60 and 180) | How many spheres. This is the cost and it is linear: one matrix written per sphere per frame and one draw call for all of them. |
-| `spread` | number | `6.6` | 1 to 12 (looks right between 3.5 and 7) | How far the cluster reaches, in scene units. Large and sparse reads as a galaxy; small and dense reads as a single mass with a lumpy edge. |
-| `flatten` | number | `0.45` | 0.05 to 1 (looks right between 0.3 and 0.7) | How flat the cluster is. At 1 it is a ball of spheres and mostly hides itself; lower values spread it across the frame, which is what a backdrop wants, and let the light reach further into it. |
-| `size` | number | `0.74` | 0.1 to 2.5 | The largest sphere, in scene units. Past about 1.4 at the default spread the big ones meet and the cluster becomes one surface. |
-| `sizeVariation` | number | `0.72` | 0 to 1 (looks right between 0.5 and 0.85) | How much the sizes differ. The spread is squared so a few are large and most are small: a uniform spread of radii reads as gravel. At 0 every sphere is the same size, which reads as a diagram. |
-| `breathe` | number | `0.16` | 0 to 1 (looks right between 0.1 and 0.35) | How far each sphere drifts along the cluster's own radius as it breathes, so the whole thing swells and settles rather than sliding. At 0 it is still, which costs nothing to draw and is a legitimate way to use it. |
-| `part` | number | `1.1` | 0 to 4 | How far the pointer pushes a sphere aside. Instantaneous rather than a force that decays: a decaying force is an accumulator, and the frame would then depend on the frames before it, which renderAtTime cannot allow. The squash of the scene this came from is what that costs. |
-| `partRadius` | number | `3.4` | 0.5 to 10 | How wide the parting is, in scene units. Wide and gentle reads as the cluster leaning away; narrow and strong reads as a hole being pushed through it. |
-| `seed` | number | `7` | 0 to 999 | The layout: where every sphere sits and how big it is. Every value is a different cluster and none is better than another. |
-| `period` | number | `20` | 6 to 90 s (looks right between 14 and 40) | Seconds for one cycle of the breathing. The loop closes exactly on it, because the frequency is a whole number of turns in that time. |
+| `background` | color | `#fbfaff` | any CSS hex | Behind the cluster. The near-white the hero sits on in the page this came from; the spheres are a pale blush and need a light ground to be pale against. |
+| `body` | color | `#c7a5a5` | any CSS hex | The spheres' own colour, before the light and the glow reach them. A dusty rose, which with a pure red glow over it is what gives the cluster its colour from every angle. |
+| `glow` | color | `#7a1414` | any CSS hex | The glow every sphere carries regardless of the light. This is the emissive, and it is doing more for the colour than the body is: an emissive is not lit, so it survives into the shadow side where the diffuse has gone, which is why the cluster reads warm all over rather than warm on one side. The scene this came from sets it to pure red. On r128's colour pipeline that renders as a blush; on a current one it saturates the red channel completely, which stops the bright side clipping to white and leaves every sphere a flat coral. A darker red puts the highlights back. |
+| `light` | color | `#ffffff` | any CSS hex | The key light, which does the modelling. |
+| `keyStrength` | number | `0.52` | 0 to 3 (looks right between 0.3 and 1) | How bright the key is. Half the flat light, which is the balance the scene was lit at: the flat light is most of what you see and the key only has to say where the form is. |
+| `ambient` | color | `#ffffff` | any CSS hex | The flat light that reaches every surface whichever way it faces. |
+| `ambientStrength` | number | `1` | 0 to 3 (looks right between 0.6 and 1.4) | How bright the flat light is. At full strength, as the scene has it, which is why the cluster is evenly lit and the shapes are carried by the silhouette rather than by shading. |
+| `distance` | number | `24` | 8 to 60 (looks right between 18 and 34) | How far the camera sits from the cluster, in scene units. It is pulled back further on a narrow frame so the cluster still fits, which matters on a phone: at that aspect it otherwise runs off both sides. |
+| `intro` | number | `2.6` | 0 to 8 (looks right between 2 and 4) | Seconds the entrance takes for one sphere, before the stagger. At 0 the cluster starts settled, which is what a backdrop behind a page that is already open wants. |
+| `stagger` | number | `0.02` | 0 to 0.2 (looks right between 0.01 and 0.04) | Seconds between one sphere setting off and the next. The whole entrance therefore lasts the intro plus a hundred of these, so at the default it is finished a little after four and a half seconds. |
+| `drop` | number | `25` | 2 to 60 | How far below the frame the spheres start, in scene units. Far enough that none of them is in shot before it sets off. |
+| `overshoot` | number | `4` | 0 to 12 | How far past its resting place each sphere flies before falling back, and how far it bulges towards the camera on the way. The bulge is a half sine over each stage, so it returns to the resting depth exactly. |
+| `breathe` | number | `0.1` | 0 to 1 (looks right between 0.05 and 0.25) | How far each sphere drifts once settled: a sine in height against a cosine in depth at half the amplitude. At 0 the settled cluster is still. |
+| `breatheSpeed` | number | `2` | 0.1 to 8 (looks right between 1 and 3) | How fast it breathes, in radians a second. Each sphere is a fifth of a radian behind the one before it, which is what makes the cluster shimmer rather than pulse as one body. |
+| `part` | number | `0.9` | 0 to 4 | How far the pointer pushes a sphere aside. Instantaneous rather than a force that decays: a decaying force is an accumulator, so where a sphere sits would depend on where the cursor had been, and renderAtTime could no longer be seeked. The cluster opens the same way and does not carry momentum back out of the opening, which is what that costs. |
+| `partRadius` | number | `3` | 0.5 to 10 | How wide the parting is, in scene units. |
 
 ## 5. Why it is not the simulation it came from
 
@@ -1157,7 +1217,7 @@ that shows you what the room is made of, so a grey ambient wastes it.
 
 ---
 
-Concept credit: The scene: a cluster of lit spheres behind a hero, which you can push around with the cursor. Its version is a physics toy with accumulating forces and pairwise collisions, so none of that could come across; every sphere here is a closed form in t instead, and the squash is what that costs. The code is this repo's own., by Ray Velez, https://github.com/RayVelez27/instalanding.ai.
+Concept credit: The whole scene: the hundred and one hand-placed sphere positions and radii, the dusty rose body under a red emissive, the three light intensities, the twenty-five degree camera, and the staggered three-stage entrance. The arrangement is placed rather than generated and that is most of why it reads as composed, so it is carried across as his rather than replaced with a hash. What could not come across is the physics: its pointer force decays frame to frame and its collision pass tests every pair, and both are accumulators that would stop renderAtTime being seekable., by Ray Velez, https://github.com/RayVelez27/instalanding.ai.
 The implementation here is written from scratch.
 
 ---
