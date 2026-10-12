@@ -10399,6 +10399,204 @@
     "intro": "A loose stack of translucent paper, drifting. Where two sheets cross the paper\ngoes darker, and you can read the order of the pile by how dark it gets.\n\nThe blend mode is the whole design. These sheets multiply rather than composite:\nthe result is destination times source, which is what a diffusing sheet laid over\nanother one actually does. More usefully, multiplying is order-independent. Two\nsheets crossing give the same answer whichever is drawn first.\n\nThat matters more than it sounds. Ordinary alpha-blended transparency has to be\nsorted back to front, and there is no way to sort inside a single InstancedMesh,\nso stacked-plane scenes usually either flicker as the sort order flips or give up\non instancing and take a draw call per sheet. Multiplying sidesteps the problem\nrather than solving it. Fourteen sheets draw in one call, in any order, and the\npicture is the same.\n\nThe cost is real and worth stating. Nothing here can be brighter than the paper.\nA multiply has no way to add light, so there is no specular highlight and there\ncannot be one. Where a sheet turns into the light it fades toward no tint at all,\nwhich within a multiply is the only direction \"brighter\" exists in, and which\nhappens to be what paper catching a lamp looks like anyway.\n\nThere is no shadow map either. Nothing in the scene is opaque enough to cast one,\nand a translucent sheet throwing a hard shadow is the tell that gives these scenes\naway. The overlaps are the depth cue.\n\nConcept credit: [Infinite Liquid Glass\nGrid](https://tympanus.net/codrops/), Codrops, September 2026, for the idea that\nthe glass can be faked in the shader with no refraction pass at all. Written from\nscratch, and recast from glass to paper."
   },
   {
+    "name": "TruchetMaze",
+    "slug": "truchet-maze",
+    "tier": 1,
+    "description": "Quarter-circle tiles flipped at random in a square lattice, joining into one continuous maze that breathes along a diagonal",
+    "category": "backdrops",
+    "tags": [
+      "webgl",
+      "shader",
+      "backdrop",
+      "truchet",
+      "tiling",
+      "pattern",
+      "geometric",
+      "ambient",
+      "no-dependencies"
+    ],
+    "ground": "dark",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "The arcs are distance fields rather than drawn strokes. Distance to a circle is one length() and a subtraction, so a tile is two of those and a minimum, and the stroke is a band around the zero set. Line width is therefore a number rather than a resolution, and nothing aliases as the cells get small",
+        "fwidth measures one pixel in lattice units, which is what keeps the edge the same softness at every cell count and every rotation. A constant would be a different number of pixels each time the lattice is scaled",
+        "The tile hash is the multiply-and-stir kind rather than fract(sin(x) * 43758.0). The argument is a cell index that grows without bound as the lattice is rotated or the cell count raised, and the sine of a large number is a different value on a different driver"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.2,
+      "contexts": 1,
+      "notes": [
+        "One hash, two length() calls, a minimum and a smoothstep per pixel. No noise, no loops, no textures and no render targets: this is among the cheapest effects in the library and it is meant to be, because a backdrop that costs a tenth of a frame is a backdrop that still works on a machine already doing something else",
+        "Measured with pnpm gputime rather than by timing the draw call, which returns as soon as the command is queued and says nothing about what the GPU then does"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/truchet-maze/core.ts",
+        "to": "src/beamish/effects/truchet-maze/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/truchet-maze/adapters/react.tsx",
+        "to": "src/beamish/effects/truchet-maze/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/truchet-maze/adapters/vue.ts",
+        "to": "src/beamish/effects/truchet-maze/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "ground": {
+        "type": "color",
+        "default": "#0b0a18",
+        "description": "The ground the maze is drawn on. Near-black with a trace of violet in it rather than a true black, so the darkest part of the ramp still has somewhere to go."
+      },
+      "near": {
+        "type": "color",
+        "default": "#6d2fd1",
+        "description": "Line colour at the near end of the ramp."
+      },
+      "mid": {
+        "type": "color",
+        "default": "#e04b9e",
+        "description": "Line colour through the middle. This is the stop that matters: between two colours you get one hue and a tint of it, and passing through a third is what makes a ramp read as light falling across something rather than as a fade."
+      },
+      "far": {
+        "type": "color",
+        "default": "#ff9a4a",
+        "description": "Line colour at the far end."
+      },
+      "cells": {
+        "type": "number",
+        "default": 9,
+        "description": "Tiles across the short edge of the frame. Few and large reads as architecture; many and small reads as a textile, and past about twenty the curves are too short to follow and it becomes a texture rather than a maze.",
+        "min": 3,
+        "max": 30,
+        "step": 1,
+        "sensible": [
+          6,
+          14
+        ]
+      },
+      "thickness": {
+        "type": "number",
+        "default": 0.17,
+        "description": "Line width as a fraction of a cell, so it holds when the cell count changes. At 0.5 neighbouring arcs meet and the maze fills in solid, which is a different and also usable look.",
+        "min": 0.02,
+        "max": 0.5,
+        "step": 0.01,
+        "sensible": [
+          0.1,
+          0.25
+        ]
+      },
+      "rotation": {
+        "type": "number",
+        "default": 0,
+        "description": "Rotation of the lattice in degrees. Only ninety are worth having: a square lattice of symmetric tiles is unchanged by a quarter turn.",
+        "min": 0,
+        "max": 90,
+        "step": 1,
+        "sensible": [
+          0,
+          45
+        ]
+      },
+      "softness": {
+        "type": "number",
+        "default": 0.04,
+        "description": "Softness of the line edge, on top of the one pixel of antialiasing that is always there. At 0 the line is as crisp as the display allows; high values turn the maze into a glow of itself.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0,
+          0.2
+        ]
+      },
+      "seed": {
+        "type": "number",
+        "default": 3,
+        "description": "Which tiles are flipped. Changes the maze and nothing else, and every value is as good as every other, which is the pleasant thing about a Truchet tiling.",
+        "min": 0,
+        "max": 999,
+        "step": 1
+      },
+      "breathe": {
+        "type": "number",
+        "default": 0.42,
+        "description": "How much the line weight swells and thins as the wave passes. At 0 the maze is a still image, which is a legitimate way to use this and costs nothing to draw.",
+        "min": 0,
+        "max": 0.9,
+        "step": 0.01,
+        "sensible": [
+          0.2,
+          0.6
+        ]
+      },
+      "wave": {
+        "type": "number",
+        "default": 7,
+        "description": "Cells between one crest of the breathing wave and the next. Short wavelengths make neighbouring tiles disagree and read as noise; long ones move the whole frame together and read as a tide.",
+        "min": 2,
+        "max": 24,
+        "step": 1,
+        "sensible": [
+          5,
+          12
+        ]
+      },
+      "tilt": {
+        "type": "number",
+        "default": 0.35,
+        "description": "Direction of the colour ramp. 0 runs it up the frame, 1 runs it across, and between the two it runs on a diagonal, which is where it crosses the most curves.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "period": {
+        "type": "number",
+        "default": 12,
+        "description": "Seconds for one cycle of the breathing wave. The loop closes exactly on it, because the phase advances a whole turn in that time.",
+        "min": 6,
+        "max": 60,
+        "step": 1,
+        "unit": "s",
+        "sensible": [
+          10,
+          24
+        ]
+      }
+    },
+    "instruction": "the maze breathes along a diagonal",
+    "oneShot": false,
+    "record": {
+      "duration": 12,
+      "fps": 20,
+      "posterAt": 3,
+      "crf": 34,
+      "webmCrf": 46,
+      "posterQuality": 6
+    },
+    "credit": {
+      "what": "The parameter set: cells, thickness, rotation, softness and seed turned out to be the right five knobs for a quarter-circle Truchet tiling, and there was no reason to invent different ones. The tiling itself is Sebastien Truchet's, from 1704. The code here is this repo's own.",
+      "author": "Shader Effects Inc.",
+      "url": "https://github.com/shader-effects-inc/shaders"
+    },
+    "group": "effects",
+    "intro": ""
+  },
+  {
     "name": "TypewriterText",
     "slug": "typewriter-text",
     "tier": 1,
