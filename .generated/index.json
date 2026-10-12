@@ -3566,6 +3566,294 @@
     "intro": "A slab of glass laid on a picture, bending and splitting what scrolls behind it.\n\nNot a blur with a white border. Every part of this is something glass does:\n\n**It bends.** The slab is a signed distance field for a rounded rectangle, and\nthe direction light bends is that field's gradient, which is the surface normal.\nThe amount is weighted towards the edge, because the middle of a slab is flat\nand only the bevel has an angle to refract through. That is why the centre of\nthe panel stays readable while the rim distorts.\n\n**It splits.** Glass has a different refractive index per wavelength, so the\nthree channels bend by slightly different amounts. This is why a real glass edge\nfringes, and it is the single cheapest thing that stops a shape reading as\nplastic.\n\n**It catches the light.** The 2D gradient plus a height gives a real 3D normal,\nso the highlight moves round the bevel as the light moves rather than sitting\nwhere somebody painted it. The rim brightens where you are looking through the\nmost glass, which is what gives the edge its thickness.\n\n**It sits on something.** There is a shadow under it. Without one the panel is a\nwindow cut in the picture rather than an object resting on it."
   },
   {
+    "name": "GlassShatter",
+    "slug": "glass-shatter",
+    "tier": 1,
+    "description": "A plate of glass broken over a picture, cracked along the stress rather than into a honeycomb",
+    "category": "surfaces",
+    "tags": [
+      "webgl",
+      "shader",
+      "image",
+      "glass",
+      "shatter",
+      "crack",
+      "refraction",
+      "no-dependencies"
+    ],
+    "ground": "either",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "Every shattered-glass effect scatters random sites across the plane and gives each pixel to the nearest one. It produces a honeycomb, and a honeycomb is a dry mud flat rather than a broken window",
+        "A plate struck at a point breaks along the stress, and the stress is radial and circumferential: cracks run out from the impact and other cracks run round it, crossing the first set. The pieces come out roughly four-sided, small near the impact and growing with distance, because the radial cracks fan apart as they travel",
+        "So the lattice is polar rather than square. Sites live in cells of angle by radius, the borders fall along radii and around arcs, and the whole character of real glass comes out of the coordinate system rather than out of any extra work",
+        "The radius goes under a square root. A plain radius gives rings of even spacing, and concentric cracks get further apart as they travel; the root also crowds the inner rings together, which is the zone of fine fragments around the impact that any photograph of a broken window has",
+        "The sector index is taken modulo the sector count when it is hashed, so the cell on one side of angle zero is the same cell as the one on the other side. Without that there is a seam running out from the impact that no amount of jitter hides. The position uses the unwrapped index, so the distance stays continuous across the join",
+        "A site is jittered inside its own cell and capped there, which is the assumption the three by three search rests on. Let a site cross into its neighbour and the nearest site can be two cells away, and the plate tears along the lattice instead of along the cracks",
+        "The second nearest site is where the cracks come from. Halfway between two sites the two distances are equal, so their difference falls to zero, and that difference is a distance to the edge for free",
+        "Not every crack is the same crack. In a struck plate the radial cracks go first and go deepest, because the plate is in tension around the impact; the circumferential ones are secondary, forming between radials that have already gone, and they are shorter and shallower. Drawn at equal weight you get a spider web, which is a thing built outward from a centre rather than a thing broken from one. Which kind a border is can be read straight off its own normal: a radial crack runs along the radius, so its normal points round, and a circumferential one is the other way about",
+        "The picture is sampled a little inside its own edge, because the bend and the drift push the lookup outward and a clamped texture asked past its edge hands back the edge column over and over. At the left and right of the frame that came out as horizontal smears of colour, which reads as a fault in the effect rather than as glass",
+        "And not every circumferential crack forms at all. Weighting them down was not enough: a Voronoi diagram partitions the plane, so every cell is ringed by borders and the arcs close into polygons, which is exactly a spider web's architecture and still read as one at a quarter of the weight. Each border is therefore hashed and the circumferential ones only exist if their number comes up. The key is the pair of cells either side of it, taken with a componentwise min and max so both sides agree and a crack does not appear from one shard and not from its neighbour",
+        "What turns a dark line into a crack is the bright line beside it. A broken edge is a fresh face of glass and it catches the light, so a crack in a photograph is a dark line with a glint along it. That one term is the biggest single difference between this and a drawn grid",
+        "The crack width is in screen pixels, got by dividing the border distance by its own gradient. One lattice unit is a few pixels at the impact and a hundred at the edge of the frame, so a width in lattice units comes out as cracks of wildly uneven thickness. Scaling by fwidth was the first attempt and it is the same mistake in a different hat, because fwidth measures how fast the quantity changes rather than how far away the border is: it gave lines eight pixels thick with a white halo, and the thing came out as a spider web",
+        "The picture bends across the crack and the channels come apart as it bends, which is what a wedge of glass does to light passing through it. The bend follows the gradient of the border distance, which points across the crack rather than along it",
+        "The shard drift slides the picture inside the shard rather than moving the shard, so it is kept small. Past a fraction of a cell it stops reading as a piece that has shifted and starts reading as the wrong piece of the photograph",
+        "The <img> stays in the document, hidden. Its alt text is the accessible version of the picture and a page whose script never runs still shows the photograph"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.4,
+      "contexts": 1,
+      "notes": [
+        "Nine hashes and nine distances per pixel for the polar lattice, then three samples of the picture for the channel split. No list, no sorting, no texture for the sites",
+        "Nothing is allocated per frame and the picture is uploaded once",
+        "One shot. Once the break has opened the frame stops changing, and the runtime stops the loop when the element leaves the screen"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/glass-shatter/core.ts",
+        "to": "src/beamish/effects/glass-shatter/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/glass-shatter/adapters/react.tsx",
+        "to": "src/beamish/effects/glass-shatter/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/glass-shatter/adapters/vue.ts",
+        "to": "src/beamish/effects/glass-shatter/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "sectors": {
+        "type": "number",
+        "default": 29,
+        "description": "Radial cracks running out from the impact. A prime number by default and for a reason: with an even count the cracks opposite each other line up through the impact and read as a drawn asterisk rather than as a break.",
+        "min": 3,
+        "max": 48,
+        "step": 1,
+        "sensible": [
+          8,
+          20
+        ]
+      },
+      "rings": {
+        "type": "number",
+        "default": 9,
+        "description": "Concentric cracks running round the impact, counted along the square root of the radius, so they come out close together near the impact and further apart as they go out. At 1 you have radial cracks only, which is a smashed pane rather than a struck one.",
+        "min": 1,
+        "max": 24,
+        "step": 1,
+        "sensible": [
+          4,
+          12
+        ]
+      },
+      "jitter": {
+        "type": "number",
+        "default": 0.7,
+        "description": "How far a site may sit from the middle of its own cell. At 0 the shards are a perfect polar grid, which is a dartboard. The cap is just under 1 and it is load-bearing: a site that crosses into its neighbour's cell breaks the nine-cell search the whole thing rests on, and the plate tears along the lattice.",
+        "min": 0,
+        "max": 0.96,
+        "step": 0.02,
+        "sensible": [
+          0.5,
+          0.9
+        ]
+      },
+      "crack": {
+        "type": "number",
+        "default": 1.3,
+        "description": "Width of the dark line, in screen pixels. Thin. A crack in glass is a hairline with light on it, and a fat dark line is a drawing of a crack: that is the single most common way this effect is got wrong.",
+        "min": 0.2,
+        "max": 8,
+        "step": 0.1,
+        "unit": "px",
+        "sensible": [
+          1,
+          3
+        ]
+      },
+      "glint": {
+        "type": "number",
+        "default": 0.5,
+        "description": "How brightly the fresh edge beside the crack catches the light. The term that does the most work here and the one nobody includes. Set it to 0 once: the cracks stop being cracks and become a grid drawn over the photograph, and no amount of width or refraction brings them back.",
+        "min": 0,
+        "max": 2,
+        "step": 0.05,
+        "sensible": [
+          0.35,
+          0.9
+        ]
+      },
+      "gap": {
+        "type": "number",
+        "default": 1,
+        "description": "How far each shard shifts, outward from the impact plus a little of its own. This slides the picture inside the shard rather than moving the shard, so it has to stay small: past about 2.5 the pieces stop reading as shifted and start reading as the wrong part of the photograph.",
+        "min": 0,
+        "max": 4,
+        "step": 0.1,
+        "sensible": [
+          0.5,
+          1.8
+        ]
+      },
+      "refract": {
+        "type": "number",
+        "default": 0.6,
+        "description": "How much the picture bends at a crack. The bend is strongest at the crack and dies away into the middle of the shard, which is where a wedge of glass is thickest and where it is flat.",
+        "min": 0,
+        "max": 4,
+        "step": 0.1,
+        "sensible": [
+          0.6,
+          1.8
+        ]
+      },
+      "fringe": {
+        "type": "number",
+        "default": 0.6,
+        "description": "How far red and blue come apart as the picture bends. It only happens at the cracks, which is the point: a plate of glass is not a prism, but the wedge at a broken edge is.",
+        "min": 0,
+        "max": 4,
+        "step": 0.1,
+        "sensible": [
+          0.5,
+          1.8
+        ]
+      },
+      "facet": {
+        "type": "number",
+        "default": 0.16,
+        "description": "How far a shard may sit out of the plane of the plate, as a share of its brightness. This is what gives the plate thickness: without it the cracks are lines on a flat picture, and with too much of it the shards read as tiles of different colours.",
+        "min": 0,
+        "max": 0.6,
+        "step": 0.02,
+        "sensible": [
+          0.08,
+          0.26
+        ]
+      },
+      "reach": {
+        "type": "number",
+        "default": 0.62,
+        "description": "How far the damage carries from the impact, measured in short edges of the element. A strike does not break the whole pane: there is a region of cracks around the impact and intact glass past it, and without that the frame is webbed edge to edge at an even density, which is half of why the honeycomb version of this effect never convinces. Above about 1.4 the whole element is inside the break and this stops doing anything.",
+        "min": 0.1,
+        "max": 2,
+        "step": 0.02,
+        "sensible": [
+          0.45,
+          0.95
+        ]
+      },
+      "arcs": {
+        "type": "number",
+        "default": 0.3,
+        "description": "What share of the circumferential cracks actually form. At 1 every one of them is there, and that is the spider web: a Voronoi diagram partitions the plane, so with a radial crack between each pair of neighbours and an arc joining them the architecture is exactly a web, and weighting the arcs down is not enough to fix it. A break is not a partition of the plane, it is a set of curves with ends. At 0 you have radials only, which is a struck pane that has not finished going.",
+        "min": 0,
+        "max": 1,
+        "step": 0.05,
+        "sensible": [
+          0.3,
+          0.6
+        ]
+      },
+      "impactX": {
+        "type": "number",
+        "default": 0.42,
+        "description": "Where the plate was struck, across the element. Off centre on purpose: a break centred in the frame reads as a graphic, and the whole argument for a polar lattice is that the break has a place it came from.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "impactY": {
+        "type": "number",
+        "default": 0.56,
+        "description": "Where the plate was struck, down the element.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+      },
+      "impactAt": {
+        "type": "number",
+        "default": 0.5,
+        "description": "Seconds of intact glass before it is struck. Worth having at all: the picture whole for half a second is what makes the break an event rather than a texture.",
+        "min": 0,
+        "max": 10,
+        "step": 0.1,
+        "unit": "s"
+      },
+      "spread": {
+        "type": "number",
+        "default": 0.75,
+        "description": "Seconds for the break to open. Quick. Glass does not ease: the cracks arrive at something like a kilometre a second, and anything above about 1.5 here reads as the picture slowly developing a fault.",
+        "min": 0.05,
+        "max": 6,
+        "step": 0.05,
+        "unit": "s",
+        "sensible": [
+          0.4,
+          1.2
+        ]
+      },
+      "tint": {
+        "type": "color",
+        "default": "#dbe9ff",
+        "description": "The colour of the light on a fresh edge. Slightly cool, because a fresh break in glass is a green-blue line: that is the iron in it, and it is why the cut edge of a float-glass pane looks green end on."
+      },
+      "seed": {
+        "type": "number",
+        "default": 7,
+        "description": "Seed for the shards. The same seed gives the same break, which is what makes the take reproducible.",
+        "min": 1,
+        "max": 9999,
+        "step": 1
+      },
+      "maxDpr": {
+        "type": "number",
+        "default": 2,
+        "description": "Device pixel ratio ceiling. The crack width is in screen pixels, so this changes what the hairlines cost to draw but not how thick they look.",
+        "min": 1,
+        "max": 3,
+        "step": 0.5
+      },
+      "reducedMotionTime": {
+        "type": "number",
+        "default": 4,
+        "description": "The single frame shown when the user prefers reduced motion. For a one-shot break this has to be a time after it has opened, so the plate is simply broken. The broken plate is the point; the breaking is how it gets there.",
+        "min": 0,
+        "max": 30,
+        "step": 0.5,
+        "unit": "s"
+      }
+    },
+    "instruction": "press replay to break it again. set glint to 0 to see what holds it together",
+    "oneShot": true,
+    "record": {
+      "duration": 4,
+      "fps": 30,
+      "posterAt": 1.8,
+      "crf": 30
+    },
+    "credit": {
+      "what": "Splitting a layer into shards around a set of sites, opening a crack along each border with the next-nearest shard, and bending and colour-splitting the layer across it, from the Shader Effects library's fracture. Their sites are random; the polar lattice here is the answer to what that looks like",
+      "author": "Shader Effects Inc.",
+      "url": "https://github.com/shader-effects-inc/shaders"
+    },
+    "group": "effects",
+    "intro": "GlassShatter breaks a plate of glass over a picture and leaves the pieces in\nthe frame.\n\nEvery version of this effect scatters random sites across the plane and gives\neach pixel to the nearest one. The result is a honeycomb, and a honeycomb is\nwhat a dry mud flat looks like. It is not what a broken window looks like, and\nonce you have noticed that you cannot unsee it."
+  },
+  {
     "name": "GradualBlur",
     "slug": "gradual-blur",
     "tier": 1,
