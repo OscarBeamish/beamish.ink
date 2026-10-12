@@ -218,6 +218,9 @@ const int SUB = 4;
 /* Room for eight systems. u_systems says how many are actually walked. */
 const int MAX_SYSTEMS = 8;
 
+/* The slowest wind whose direction is still worth believing. See the walk. */
+const float CALM = 0.04;
+
 float hash12(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
@@ -321,8 +324,32 @@ void main() {
     /* One field evaluation per segment, in each direction. */
     vec2 vf = wind(fwd, aspect, phase);
     vec2 vb = wind(back, aspect, phase);
-    vec2 df = (vf / max(length(vf), 1e-4)) * stepLen;
-    vec2 db = (vb / max(length(vb), 1e-4)) * stepLen;
+    /*
+     * Floored at a real wind speed, not at an epsilon.
+     *
+     * max(length(v), 1e-4) is the usual way to make a normalise safe, and it
+     * is only safe against a divide by zero. It is not safe against slow air.
+     * Typical speeds here are about 0.5, so a pocket where the systems cancel
+     * to 1e-5 has its direction amplified a hundred thousand times: what
+     * comes out points wherever the rounding went, and it points somewhere
+     * else next frame because the systems are still drifting underneath it.
+     * Every streamline walking through that pocket scatters, so the pixels
+     * that sample it re-randomise instead of travelling. That is a stagnation
+     * point, and it is what a reader sees as the field flickering between two
+     * positions while plainly still moving.
+     *
+     * Whether one is in frame depends on where the systems sit, which is why
+     * it moved when the seed changed and came back when the wander changed,
+     * and why it survived every hunt through the clock, the canvas, the
+     * compositor and the GPU: nothing was wrong with any of them.
+     *
+     * CALM is about a twelfth of a typical speed. Above it this is the unit
+     * step it always was. Below it the step shortens rather than keeping its
+     * length, so still air draws a short stable streak instead of a long one
+     * pointing at nothing.
+     */
+    vec2 df = (vf / max(length(vf), CALM)) * stepLen;
+    vec2 db = (vb / max(length(vb), CALM)) * stepLen;
 
     for (int k = 0; k < SUB; k++) {
       fwd += df;
