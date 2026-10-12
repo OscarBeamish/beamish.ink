@@ -15,13 +15,13 @@ Assume you have not seen this library before. Everything you need is below.
 - **npm dependencies:** None. This file has no npm dependencies at all.
 - Every dithering effect on the web is an ordered dither: a fixed matrix of thresholds compared against the picture one pixel at a time. It is the only kind a fragment shader can do, because a fragment shader has to answer for one pixel without knowing anything about its neighbours
 - Error diffusion is the other kind and the one that looks like something. Quantise a pixel, work out how much tone you threw away, hand that error to the pixels you have not reached yet. It is why a dithered Macintosh picture has grain that follows the subject instead of a crosshatch laid over it, and it is strictly sequential, so there is no way to put it on a GPU
-- It runs on the CPU every frame, and what makes that affordable is that it runs on a coarse grid. The look is coarse anyway: a Macintosh screen was 512 by 342 for the whole desktop. At a six-pixel dot a panel is about two hundred dots across, and a serpentine pass over that is a small fraction of a frame
+- It runs on the CPU, and it does not run at the frame rate. Time is quantised to `rate` steps a second and the pass only runs when the step changes, so every other frame is one scaled drawImage. That is what lets the dots be fine: the pass costs four times as much each time the dot halves, so at sixty frames a second anything under about five pixels was unaffordable and the picture came out as big soft squares. It is still pure in t, because the step is a function of t alone
 - Do not dither in linear light. A trap, and the first version here fell into it. The argument for linear is good as far as it goes: a half-and-half field of black and white dots averages in the eye to half the light, and light adds linearly. But a mid grey is 128, which is 0.50 encoded and 0.22 linear, so dithering in linear lays down 22 per cent white dots where the photograph says 50 per cent grey, and most of the frame goes solid. The flaw is that a photograph is not a scene: it has already been tone-mapped for a display, and undoing its encoding undoes the tone mapping with it. The quantity to preserve is the one the picture is stored in, which is why every implementation since 1976 works on the bytes as they come
 - Atkinson throws a quarter of the error away. Floyd and Steinberg pass all of it over four neighbours; Atkinson passes six eighths over six, and the missing two eighths is not an oversight. Losing error pulls flat areas towards whichever tone they were nearest, so highlights go clean white and shadows go clean black, which is the whole reason the Macintosh look reads as contrasty rather than as a field of grey speckle
 - Scan alternate rows backwards. Always going left to right drags the error one way, and in a smooth gradient that comes out as diagonal streaks running down and to the right. A serpentine scan cancels the drag, and the kernel is mirrored with it so a backwards row pushes its error the way it is travelling
 - The source is sampled through a canvas the size of the grid, so the browser's own downscaler does the averaging. Taking one source pixel per dot aliases badly and a picture of foliage comes back as noise rather than as tone
 - Scaled up with image smoothing off. With it on the browser interpolates the two tones back into the greys the dither existed to avoid, and the result is a slightly noisy photograph
-- Animated error diffusion boils. The error propagates, so lifting the exposure by a hair flips one pixel, which changes what every pixel after it inherits, and whole runs of grain reorganise at once. Fast it looks like static, which is why the swell is small and the period is long
+- Animated error diffusion boils. The error propagates, so lifting the exposure by a hair flips one pixel, which changes what every pixel after it inherits, and whole runs of grain reorganise at once. At sixty frames a second that is television static; at eight it reads as grain, which is the other reason the rate is low
 - A 2D canvas, so this is the one image item that costs nothing against the sixteen-million-pixel WebGL budget and can sit on a page beside a shader without competing with it
 - The <img> stays in the document, hidden. Its alt text is the accessible version of the picture and a page whose script never runs still shows the photograph
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
@@ -60,11 +60,13 @@ import between them is relative.
  * on the ones before it, so there is no way to write it per-pixel and no way
  * to put it on a GPU.
  *
- * So it runs on the CPU, every frame, and the thing that makes that
- * affordable is that it runs on a coarse grid. The look is coarse anyway: a
- * Macintosh screen was 512 by 342 for the whole desktop. At a six-pixel dot a
- * panel is about two hundred dots across, and a serpentine pass over that is a
- * small fraction of a frame. The result is drawn once into a small
+ * So it runs on the CPU, and the thing that makes that affordable is that it
+ * does not run at the frame rate. See the long note on `rate` further down:
+ * the pass costs four times as much each time the dot halves, and running it
+ * eight times a second instead of sixty is what lets the dots be fine enough
+ * to be worth looking at. The first version of this ran every frame and had to
+ * use a six-pixel dot to afford it, which came out as big soft squares with
+ * the subject lost in them. The result is drawn once into a small
  * canvas and scaled up with smoothing off.
  *
  * THREE THINGS THAT ARE EASY TO GET WRONG
@@ -147,6 +149,8 @@ export type DitherImageOptions = BaseOptions & {
   period: number
   /** Scan alternate rows backwards, which cancels the error's drag. */
   serpentine: boolean
+  /** How many times a second the dither is recomputed. */
+  rate: number
 }
 
 /*
@@ -154,7 +158,7 @@ export type DitherImageOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const ditherImageDefaults: DitherImageOptions = {
-  dot: 6,
+  dot: 3,
   mode: 'atkinson',
   levels: 2,
   ink: '#16141c',
@@ -162,8 +166,9 @@ export const ditherImageDefaults: DitherImageOptions = {
   exposure: 1.05,
   contrast: 1.15,
   swell: 0.05,
-  period: 6,
+  period: 4,
   serpentine: true,
+  rate: 8,
   reducedMotionTime: 0,
   maxDpr: 2
 }
@@ -265,6 +270,8 @@ class DitherImageSurface implements Surface<DitherImageOptions> {
   private buf = new Float32Array(0)
   private grid = { w: 0, h: 0 }
   private sampledFor = ''
+  /** What the plate currently holds, so a frame that would redraw it skips. */
+  private platedFor = ''
 
   setup(ctx: { canvas: HTMLCanvasElement | null; host: HTMLElement }): void {
     if (!ctx.canvas) throw new Error('DitherImage needs a canvas')
@@ -318,6 +325,7 @@ class DitherImageSurface implements Surface<DitherImageOptions> {
     if (key === this.sampledFor) return
 
     this.grid = { w, h }
+    this.platedFor = ''
     this.lum = new Float32Array(w * h)
     this.buf = new Float32Array(w * h)
 
@@ -385,11 +393,62 @@ class DitherImageSurface implements Surface<DitherImageOptions> {
     if (!out || !plate || !plateCtx || w < 1 || h < 1) return
 
     /*
+     * THE DITHER DOES NOT RUN AT THE FRAME RATE
+     *
+     * Time is quantised to `rate` steps a second and the pass only runs when
+     * the step changes; every other frame redraws the plate it already has,
+     * which is one scaled drawImage.
+     *
+     * Three things come out of that, and the first one is the reason:
+     *
+     *   The dots can be as fine as they should be. The whole pass costs four
+     *   times as much each time the dot halves, so at the frame rate anything
+     *   under about five pixels was unaffordable and the picture came out as
+     *   big soft squares. Eight passes a second instead of sixty is near
+     *   enough an eighth of the work, and a three-pixel dot costs less than a
+     *   six-pixel one used to.
+     *
+     *   It is what a one-bit display did. A Macintosh did not re-dither its
+     *   screen sixty times a second; the bitmap sat there until something
+     *   changed it.
+     *
+     *   And the boil stops being static. Error diffusion reorganises whole
+     *   runs of grain for a hair of exposure, so at sixty frames a second it
+     *   is noise. At eight it reads as grain.
+     *
+     * Still pure in `t`: the step is a function of `t` alone, so the recorder
+     * seeks to the same frame every time.
+     */
+    const rate = Math.max(opts.rate, 0.1)
+    const step = Math.floor(t * rate) / rate
+    const key = [
+      step,
+      this.grid.w,
+      this.grid.h,
+      opts.mode,
+      opts.levels,
+      opts.ink,
+      opts.paper,
+      opts.exposure,
+      opts.contrast,
+      opts.swell,
+      opts.period,
+      opts.serpentine
+    ].join('|')
+
+    if (key === this.platedFor) {
+      ctx.imageSmoothingEnabled = false
+      ctx.drawImage(plate, 0, 0, w, h, 0, 0, canvas.width, canvas.height)
+      return
+    }
+    this.platedFor = key
+
+    /*
      * The swell, a whole number of cycles over the period so the last frame is
      * the first frame. Error diffusion boils when it moves, so this is kept
      * small and slow on purpose.
      */
-    const swell = 1 + opts.swell * Math.sin((TAU * t) / Math.max(opts.period, 0.001))
+    const swell = 1 + opts.swell * Math.sin((TAU * step) / Math.max(opts.period, 0.001))
     const exposure = Math.max(opts.exposure, 0) * swell
     const contrast = Math.max(opts.contrast, 0)
 
@@ -1305,7 +1364,7 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `dot` | number | `6` | 1 to 20 px (looks right between 3 and 8) | Size of one dot, in CSS pixels. The resolution of the whole thing: at 2 it is a photograph with texture in it, at 6 the subject is clear and the grain is the subject too, and by 14 it is a pattern and the subject is a rumour. The work goes with the square of this, so it is also the performance control, and it is what a video codec cares about most: a full-frame one-bit dither that boils is close to the worst content a codec can be handed. |
+| `dot` | number | `3` | 2 to 20 px (looks right between 2 and 5) | Size of one dot, in CSS pixels. The resolution of the whole thing, and the first version of this item had it at 6, which is wrong: at 6 the picture is big soft squares and the subject is mush. At 3 it is a legible one-bit photograph, which is the point. The pass costs four times as much each time this halves, which is why it only runs `rate` times a second rather than every frame: 4.8ms at 3, and 12.6ms at 2, which is a dropped frame every time it runs. |
 | `mode` | enum | `atkinson` | `atkinson` · `floyd` · `ordered` | Which dither. `atkinson` throws away a quarter of the error, which cleans the highlights and the shadows and is the Macintosh look. `floyd` keeps all of it, which holds more midtone and reads greyer and flatter. `ordered` is the Bayer matrix, the only kind a shader can do, and it is here to be switched to once: notice that it sits over the picture rather than in it. |
 | `levels` | number | `2` | 2 to 8 (looks right between 2 and 4) | How many tones. 2 is one bit and it is the whole point. Past about 4 there is enough tone that the dither stops doing any work and you have a posterised photograph, which is a different and much less interesting thing. |
 | `ink` | color | `#16141c` | any CSS hex | The dark tone. A soft near-black rather than a true one: a screen printed in true black against true white reads as a screenshot of a bitmap rather than as something on a page. |
@@ -1313,21 +1372,43 @@ as the second argument to the create function; anything omitted takes its defaul
 | `exposure` | number | `1.05` | 0.2 to 3 (looks right between 0.8 and 1.6) | Multiplies the tone before quantising. The main tone control. It works on the picture as stored rather than on reconstructed light, which is deliberate and is explained in the notes, and it means this behaves like an ordinary brightness rather than like a stop of exposure. |
 | `contrast` | number | `1.15` | 0.2 to 4 (looks right between 0.9 and 1.8) | Pushes tone away from the midpoint before quantising. A photograph with a narrow range gives a picture that is all one grain size, and this is what opens it out. Past about 2.5 the midtones are gone and you have a stencil. |
 | `swell` | number | `0.05` | 0 to 0.5 (looks right between 0.03 and 0.12) | How far the exposure swells over the period. Small. Animated error diffusion boils, because the error propagates and one flipped pixel changes everything downstream of it, so whole runs of grain reorganise at once. At 0.3 it is static. At 0 it holds still and the item draws one frame and stops. |
-| `period` | number | `6` | 2 to 60 s (looks right between 8 and 24) | Seconds for one swell. The loop closes exactly on it. Long, for the same reason the swell is small: slow, the boil reads as film grain on a plate that is breathing, which is the one kind of motion this technique is any good at. |
+| `period` | number | `4` | 2 to 60 s (looks right between 8 and 24) | Seconds for one swell. The loop closes exactly on it. Long, for the same reason the swell is small: slow, the boil reads as film grain on a plate that is breathing, which is the one kind of motion this technique is any good at. |
 | `serpentine` | boolean | `true` | `true` · `false` | Scan alternate rows backwards. Always going left to right drags the error one way and a smooth gradient comes out with diagonal streaks running down and to the right. Turn it off once on a sky: the streaks are not subtle, and they are the reason this option exists rather than being hard-coded. |
+| `rate` | number | `8` | 0.5 to 60 hz (looks right between 5 and 12) | How many times a second the dither is recomputed. Every other frame redraws the plate it already has, which is one scaled drawImage and costs nothing. This is the option that lets the dots be fine, because the pass is expensive and running it eight times a second instead of sixty is near enough an eighth of the work. It is also what a one-bit display did: a Macintosh did not re-dither its screen sixty times a second, the bitmap sat there until something changed it. And it is what stops the boil reading as television static. |
 | `reducedMotionTime` | number | `0` | 0 to 60 s | The single frame shown when the user prefers reduced motion. Any time works here: the swell is the only thing that moves and the picture is the point, so this is just a choice of exposure. |
 | `maxDpr` | number | `2` | 1 to 3 | Device pixel ratio ceiling. It changes how crisply a dot's edges land on the display, not how many dots there are: the grid is measured in CSS pixels so the picture is the same picture on any screen. |
 
-## 5. So it runs on the CPU, and that is affordable because it is coarse
+## 5. So it runs on the CPU, and not at the frame rate
 
 The look is coarse anyway. A Macintosh screen was 512 by 342 for the entire
-desktop. At a six-pixel dot a panel is about 200 dots across, which is tens of
-thousands of cells, and one serpentine pass over that is a small fraction of a
-frame: 2.0ms at 1280 by 720 with a five-pixel dot, measured in the page. The result goes into a small canvas and is scaled up with
-smoothing off.
+desktop. But coarse does not mean *big*: the first version of this item shipped
+with a six-pixel dot and it was mush, big soft squares with the subject lost in
+them. A three-pixel dot is a legible one-bit photograph, which is the point.
 
-Going finer costs the square: `dot: 2` is nine times the work of `dot: 6`. If a
-page feels heavy, that is the number to reach for.
+The reason it shipped wrong is worth stating, because it is the kind of mistake
+that is easy to make and hard to notice. The pass costs four times as much each
+time the dot halves, and at sixty frames a second a three-pixel dot was
+unaffordable. So the dot got coarser to fit the budget, which is solving the
+wrong problem.
+
+**The fix is that the dither does not run at the frame rate.** Time is
+quantised to `rate` steps a second and the pass only runs when the step
+changes. Every other frame redraws the plate it already has, which is one
+scaled `drawImage` and costs 0.003ms. Three things come out of that:
+
+- **The dots can be as fine as they should be.** Eight passes a second instead
+  of sixty is near enough an eighth of the work, so a three-pixel dot now costs
+  less than a six-pixel one used to.
+- **It is what a one-bit display did.** A Macintosh did not re-dither its screen
+  sixty times a second. The bitmap sat there until something changed it.
+- **The boil stops being static.** See below.
+
+It is still pure in `t`, because the step is a function of `t` alone, so the
+recorder seeks to the same frame every time.
+
+Measured in the page at 1280 by 720: the pass is 12.6ms at `dot: 2`, 4.8 at 3,
+2.7 at 4, 1.2 at 6. At `dot: 2` that is a dropped frame every time it runs,
+which is why 3 is the default and 2 is the edge rather than the aim.
 
 ## 6. The three things everybody gets wrong
 
@@ -1379,6 +1460,11 @@ changes what every pixel after it inherits, and whole runs of grain reorganise
 at once. Fast, it looks like television static. Slow, it looks like film grain
 on a plate that is breathing, which is the one kind of motion this technique is
 any good at.
+
+`rate` is the other half of it. At sixty passes a second the boil is television
+static; at eight it reads as grain. Lower the rate and raise the swell for
+something that looks like a plate being developed, but keep both modest: this
+technique has one good kind of motion and it is subtle.
 
 `swell: 0` holds it still, and then the item draws one frame and stops.
 

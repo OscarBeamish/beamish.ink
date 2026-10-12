@@ -19,16 +19,37 @@ per-pixel and no way to put it on a GPU.
 Switch `mode` to `ordered` once. The difference is not subtle and it is the
 whole argument for this item existing.
 
-## So it runs on the CPU, and that is affordable because it is coarse
+## So it runs on the CPU, and not at the frame rate
 
 The look is coarse anyway. A Macintosh screen was 512 by 342 for the entire
-desktop. At a six-pixel dot a panel is about 200 dots across, which is tens of
-thousands of cells, and one serpentine pass over that is a small fraction of a
-frame: 2.0ms at 1280 by 720 with a five-pixel dot, measured in the page. The result goes into a small canvas and is scaled up with
-smoothing off.
+desktop. But coarse does not mean *big*: the first version of this item shipped
+with a six-pixel dot and it was mush, big soft squares with the subject lost in
+them. A three-pixel dot is a legible one-bit photograph, which is the point.
 
-Going finer costs the square: `dot: 2` is nine times the work of `dot: 6`. If a
-page feels heavy, that is the number to reach for.
+The reason it shipped wrong is worth stating, because it is the kind of mistake
+that is easy to make and hard to notice. The pass costs four times as much each
+time the dot halves, and at sixty frames a second a three-pixel dot was
+unaffordable. So the dot got coarser to fit the budget, which is solving the
+wrong problem.
+
+**The fix is that the dither does not run at the frame rate.** Time is
+quantised to `rate` steps a second and the pass only runs when the step
+changes. Every other frame redraws the plate it already has, which is one
+scaled `drawImage` and costs 0.003ms. Three things come out of that:
+
+- **The dots can be as fine as they should be.** Eight passes a second instead
+  of sixty is near enough an eighth of the work, so a three-pixel dot now costs
+  less than a six-pixel one used to.
+- **It is what a one-bit display did.** A Macintosh did not re-dither its screen
+  sixty times a second. The bitmap sat there until something changed it.
+- **The boil stops being static.** See below.
+
+It is still pure in `t`, because the step is a function of `t` alone, so the
+recorder seeks to the same frame every time.
+
+Measured in the page at 1280 by 720: the pass is 12.6ms at `dot: 2`, 4.8 at 3,
+2.7 at 4, 1.2 at 6. At `dot: 2` that is a dropped frame every time it runs,
+which is why 3 is the default and 2 is the edge rather than the aim.
 
 ## The three things everybody gets wrong
 
@@ -80,6 +101,11 @@ changes what every pixel after it inherits, and whole runs of grain reorganise
 at once. Fast, it looks like television static. Slow, it looks like film grain
 on a plate that is breathing, which is the one kind of motion this technique is
 any good at.
+
+`rate` is the other half of it. At sixty passes a second the boil is television
+static; at eight it reads as grain. Lower the rate and raise the swell for
+something that looks like a plate being developed, but keep both modest: this
+technique has one good kind of motion and it is subtle.
 
 `swell: 0` holds it still, and then the item draws one frame and stops.
 

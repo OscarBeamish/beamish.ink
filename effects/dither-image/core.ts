@@ -20,11 +20,13 @@
  * on the ones before it, so there is no way to write it per-pixel and no way
  * to put it on a GPU.
  *
- * So it runs on the CPU, every frame, and the thing that makes that
- * affordable is that it runs on a coarse grid. The look is coarse anyway: a
- * Macintosh screen was 512 by 342 for the whole desktop. At a six-pixel dot a
- * panel is about two hundred dots across, and a serpentine pass over that is a
- * small fraction of a frame. The result is drawn once into a small
+ * So it runs on the CPU, and the thing that makes that affordable is that it
+ * does not run at the frame rate. See the long note on `rate` further down:
+ * the pass costs four times as much each time the dot halves, and running it
+ * eight times a second instead of sixty is what lets the dots be fine enough
+ * to be worth looking at. The first version of this ran every frame and had to
+ * use a six-pixel dot to afford it, which came out as big soft squares with
+ * the subject lost in them. The result is drawn once into a small
  * canvas and scaled up with smoothing off.
  *
  * THREE THINGS THAT ARE EASY TO GET WRONG
@@ -107,6 +109,8 @@ export type DitherImageOptions = BaseOptions & {
   period: number
   /** Scan alternate rows backwards, which cancels the error's drag. */
   serpentine: boolean
+  /** How many times a second the dither is recomputed. */
+  rate: number
 }
 
 /*
@@ -114,7 +118,7 @@ export type DitherImageOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const ditherImageDefaults: DitherImageOptions = {
-  dot: 6,
+  dot: 3,
   mode: 'atkinson',
   levels: 2,
   ink: '#16141c',
@@ -122,8 +126,9 @@ export const ditherImageDefaults: DitherImageOptions = {
   exposure: 1.05,
   contrast: 1.15,
   swell: 0.05,
-  period: 6,
+  period: 4,
   serpentine: true,
+  rate: 8,
   reducedMotionTime: 0,
   maxDpr: 2
 }
@@ -225,6 +230,8 @@ class DitherImageSurface implements Surface<DitherImageOptions> {
   private buf = new Float32Array(0)
   private grid = { w: 0, h: 0 }
   private sampledFor = ''
+  /** What the plate currently holds, so a frame that would redraw it skips. */
+  private platedFor = ''
 
   setup(ctx: { canvas: HTMLCanvasElement | null; host: HTMLElement }): void {
     if (!ctx.canvas) throw new Error('DitherImage needs a canvas')
@@ -278,6 +285,7 @@ class DitherImageSurface implements Surface<DitherImageOptions> {
     if (key === this.sampledFor) return
 
     this.grid = { w, h }
+    this.platedFor = ''
     this.lum = new Float32Array(w * h)
     this.buf = new Float32Array(w * h)
 
@@ -345,11 +353,62 @@ class DitherImageSurface implements Surface<DitherImageOptions> {
     if (!out || !plate || !plateCtx || w < 1 || h < 1) return
 
     /*
+     * THE DITHER DOES NOT RUN AT THE FRAME RATE
+     *
+     * Time is quantised to `rate` steps a second and the pass only runs when
+     * the step changes; every other frame redraws the plate it already has,
+     * which is one scaled drawImage.
+     *
+     * Three things come out of that, and the first one is the reason:
+     *
+     *   The dots can be as fine as they should be. The whole pass costs four
+     *   times as much each time the dot halves, so at the frame rate anything
+     *   under about five pixels was unaffordable and the picture came out as
+     *   big soft squares. Eight passes a second instead of sixty is near
+     *   enough an eighth of the work, and a three-pixel dot costs less than a
+     *   six-pixel one used to.
+     *
+     *   It is what a one-bit display did. A Macintosh did not re-dither its
+     *   screen sixty times a second; the bitmap sat there until something
+     *   changed it.
+     *
+     *   And the boil stops being static. Error diffusion reorganises whole
+     *   runs of grain for a hair of exposure, so at sixty frames a second it
+     *   is noise. At eight it reads as grain.
+     *
+     * Still pure in `t`: the step is a function of `t` alone, so the recorder
+     * seeks to the same frame every time.
+     */
+    const rate = Math.max(opts.rate, 0.1)
+    const step = Math.floor(t * rate) / rate
+    const key = [
+      step,
+      this.grid.w,
+      this.grid.h,
+      opts.mode,
+      opts.levels,
+      opts.ink,
+      opts.paper,
+      opts.exposure,
+      opts.contrast,
+      opts.swell,
+      opts.period,
+      opts.serpentine
+    ].join('|')
+
+    if (key === this.platedFor) {
+      ctx.imageSmoothingEnabled = false
+      ctx.drawImage(plate, 0, 0, w, h, 0, 0, canvas.width, canvas.height)
+      return
+    }
+    this.platedFor = key
+
+    /*
      * The swell, a whole number of cycles over the period so the last frame is
      * the first frame. Error diffusion boils when it moves, so this is kept
      * small and slow on purpose.
      */
-    const swell = 1 + opts.swell * Math.sin((TAU * t) / Math.max(opts.period, 0.001))
+    const swell = 1 + opts.swell * Math.sin((TAU * step) / Math.max(opts.period, 0.001))
     const exposure = Math.max(opts.exposure, 0) * swell
     const contrast = Math.max(opts.contrast, 0)
 

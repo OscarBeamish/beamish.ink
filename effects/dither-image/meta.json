@@ -21,26 +21,27 @@
     "notes": [
       "Every dithering effect on the web is an ordered dither: a fixed matrix of thresholds compared against the picture one pixel at a time. It is the only kind a fragment shader can do, because a fragment shader has to answer for one pixel without knowing anything about its neighbours",
       "Error diffusion is the other kind and the one that looks like something. Quantise a pixel, work out how much tone you threw away, hand that error to the pixels you have not reached yet. It is why a dithered Macintosh picture has grain that follows the subject instead of a crosshatch laid over it, and it is strictly sequential, so there is no way to put it on a GPU",
-      "It runs on the CPU every frame, and what makes that affordable is that it runs on a coarse grid. The look is coarse anyway: a Macintosh screen was 512 by 342 for the whole desktop. At a six-pixel dot a panel is about two hundred dots across, and a serpentine pass over that is a small fraction of a frame",
+      "It runs on the CPU, and it does not run at the frame rate. Time is quantised to `rate` steps a second and the pass only runs when the step changes, so every other frame is one scaled drawImage. That is what lets the dots be fine: the pass costs four times as much each time the dot halves, so at sixty frames a second anything under about five pixels was unaffordable and the picture came out as big soft squares. It is still pure in t, because the step is a function of t alone",
       "Do not dither in linear light. A trap, and the first version here fell into it. The argument for linear is good as far as it goes: a half-and-half field of black and white dots averages in the eye to half the light, and light adds linearly. But a mid grey is 128, which is 0.50 encoded and 0.22 linear, so dithering in linear lays down 22 per cent white dots where the photograph says 50 per cent grey, and most of the frame goes solid. The flaw is that a photograph is not a scene: it has already been tone-mapped for a display, and undoing its encoding undoes the tone mapping with it. The quantity to preserve is the one the picture is stored in, which is why every implementation since 1976 works on the bytes as they come",
       "Atkinson throws a quarter of the error away. Floyd and Steinberg pass all of it over four neighbours; Atkinson passes six eighths over six, and the missing two eighths is not an oversight. Losing error pulls flat areas towards whichever tone they were nearest, so highlights go clean white and shadows go clean black, which is the whole reason the Macintosh look reads as contrasty rather than as a field of grey speckle",
       "Scan alternate rows backwards. Always going left to right drags the error one way, and in a smooth gradient that comes out as diagonal streaks running down and to the right. A serpentine scan cancels the drag, and the kernel is mirrored with it so a backwards row pushes its error the way it is travelling",
       "The source is sampled through a canvas the size of the grid, so the browser's own downscaler does the averaging. Taking one source pixel per dot aliases badly and a picture of foliage comes back as noise rather than as tone",
       "Scaled up with image smoothing off. With it on the browser interpolates the two tones back into the greys the dither existed to avoid, and the result is a slightly noisy photograph",
-      "Animated error diffusion boils. The error propagates, so lifting the exposure by a hair flips one pixel, which changes what every pixel after it inherits, and whole runs of grain reorganise at once. Fast it looks like static, which is why the swell is small and the period is long",
+      "Animated error diffusion boils. The error propagates, so lifting the exposure by a hair flips one pixel, which changes what every pixel after it inherits, and whole runs of grain reorganise at once. At sixty frames a second that is television static; at eight it reads as grain, which is the other reason the rate is low",
       "A 2D canvas, so this is the one image item that costs nothing against the sixteen-million-pixel WebGL budget and can sit on a page beside a shader without competing with it",
       "The <img> stays in the document, hidden. Its alt text is the accessible version of the picture and a page whose script never runs still shows the photograph"
     ]
   },
   "perf": {
-    "frameBudgetMs": 2,
+    "frameBudgetMs": 4.8,
     "contexts": 0,
     "notes": [
-      "Measured in the page at 1280 by 720: 2.0ms per frame at a five-pixel dot, which is a grid of 256 by 144. The default is six, which is a third less. The heaviest thing in the library is PointerRippleGrid at 7, so this is mid-range, and it is spent on the CPU rather than the GPU",
-      "It started at 3.5ms. Two things took it down. The kernel was an array of triples and was destructured six times per cell, which at a quarter of a million cells a second was most of the cost; it is a flat Float32Array read three at a time now. And the output was written four bytes at a time into the ImageData, where for one bit there are only two possible words, so they are worked out once and chosen between through a 32-bit view",
-      "The source is resampled only when the grid changes, not per frame. Redoing the drawImage and getImageData every frame would be the expensive part and the answer would be the same",
-      "Cost goes with the square of 1/dot. At dot 2 it is nine times the work of dot 6, and that is the number to reach for if a page feels heavy",
-      "The plate context asks for willReadFrequently, which keeps it where putImageData is cheap. It also changes which downscaler the browser uses for the source, so the grain lands differently; the tone is the same to within a per cent in every band of the frame, which was measured rather than assumed"
+      "Two numbers, not one, because the dither does not run at the frame rate. The pass costs 4.8ms at 1280 by 720 with a three-pixel dot; every frame in between redraws the plate it already has, which is one scaled drawImage at 0.003ms. At the default rate of eight a second that is about 38ms of work per second of animation",
+      "That split is what lets the dots be fine. The pass costs four times as much each time the dot halves, so at the frame rate anything under about five pixels was unaffordable and the picture came out as big soft squares, which is exactly how the first version of this item shipped and exactly what was wrong with it. 12.6ms at dot 2, 4.8 at 3, 2.7 at 4, 1.2 at 6",
+      "It is also what a one-bit display did. A Macintosh did not re-dither its screen sixty times a second; the bitmap sat there until something changed it",
+      "The pass itself went from 3.5ms to 2.0ms at the old six-pixel dot before any of that. The kernel was an array of triples destructured six times per cell, and the output was written four bytes at a time when for one bit there are only two possible words",
+      "The source is resampled only when the grid changes. The plate context asks for willReadFrequently, which keeps it where putImageData is cheap",
+      "Holds no WebGL context at all, so it costs nothing against the sixteen-million-pixel budget and can sit on a page beside a shader"
     ]
   },
   "files": [
@@ -67,17 +68,17 @@
   ],
   "options": {
     "dot": {
-      "default": 6,
+      "default": 3,
       "type": "number",
-      "min": 1,
+      "min": 2,
       "max": 20,
       "step": 1,
       "unit": "px",
       "sensible": [
-        3,
-        8
+        2,
+        5
       ],
-      "description": "Size of one dot, in CSS pixels. The resolution of the whole thing: at 2 it is a photograph with texture in it, at 6 the subject is clear and the grain is the subject too, and by 14 it is a pattern and the subject is a rumour. The work goes with the square of this, so it is also the performance control, and it is what a video codec cares about most: a full-frame one-bit dither that boils is close to the worst content a codec can be handed."
+      "description": "Size of one dot, in CSS pixels. The resolution of the whole thing, and the first version of this item had it at 6, which is wrong: at 6 the picture is big soft squares and the subject is mush. At 3 it is a legible one-bit photograph, which is the point. The pass costs four times as much each time this halves, which is why it only runs `rate` times a second rather than every frame: 4.8ms at 3, and 12.6ms at 2, which is a dropped frame every time it runs."
     },
     "mode": {
       "type": "enum",
@@ -148,7 +149,7 @@
       "description": "How far the exposure swells over the period. Small. Animated error diffusion boils, because the error propagates and one flipped pixel changes everything downstream of it, so whole runs of grain reorganise at once. At 0.3 it is static. At 0 it holds still and the item draws one frame and stops."
     },
     "period": {
-      "default": 6,
+      "default": 4,
       "type": "number",
       "min": 2,
       "max": 60,
@@ -164,6 +165,19 @@
       "type": "boolean",
       "default": true,
       "description": "Scan alternate rows backwards. Always going left to right drags the error one way and a smooth gradient comes out with diagonal streaks running down and to the right. Turn it off once on a sky: the streaks are not subtle, and they are the reason this option exists rather than being hard-coded."
+    },
+    "rate": {
+      "default": 8,
+      "type": "number",
+      "min": 0.5,
+      "max": 60,
+      "step": 0.5,
+      "unit": "hz",
+      "sensible": [
+        5,
+        12
+      ],
+      "description": "How many times a second the dither is recomputed. Every other frame redraws the plate it already has, which is one scaled drawImage and costs nothing. This is the option that lets the dots be fine, because the pass is expensive and running it eight times a second instead of sixty is near enough an eighth of the work. It is also what a one-bit display did: a Macintosh did not re-dither its screen sixty times a second, the bitmap sat there until something changed it. And it is what stops the boil reading as television static."
     },
     "reducedMotionTime": {
       "default": 0,
@@ -190,11 +204,11 @@
     "url": "https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering"
   },
   "record": {
-    "duration": 6,
+    "duration": 4,
     "fps": 30,
-    "posterAt": 2,
-    "crf": 42,
-    "posterQuality": 10,
+    "posterAt": 1.5,
+    "crf": 46,
+    "posterQuality": 15,
     "webmCrf": 58
   }
 }
