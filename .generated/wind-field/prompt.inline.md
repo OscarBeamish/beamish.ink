@@ -131,7 +131,30 @@ export const windFieldDefaults: WindFieldOptions = {
   contrast: 0.46,
   seed: 11,
   period: 24,
-  maxDpr: 1.5,
+  /*
+   * 1, not the usual 2 and no longer 1.5.
+   *
+   * This is the most expensive shader on the site by a wide margin: fifty-six
+   * noise samples a pixel, each of them four hashes. Measured with
+   * `pnpm gputime`, which asks the GPU rather than timing the draw call, it
+   * costs 1.23ms a frame at a pixel ratio of 1 where MeshGradient costs 0.07
+   * and AuroraCurtain 0.10.
+   *
+   * Cost goes with the square of the ratio, and a Windows display at 150 per
+   * cent reports 1.5. At 1.5 the same shader took 4.03ms with a worst frame
+   * of 5.10, against the 6.06ms a 165Hz display gives you for everything:
+   * two thirds to five sixths of the whole frame budget spent on one
+   * backdrop. Over that line the browser stops delivering a new frame every
+   * refresh and starts repeating and reordering the ones it has, and what
+   * that looks like from the other side of the screen is a field that
+   * flickers between two positions while plainly still moving. It was
+   * reported in exactly those words.
+   *
+   * The thing it draws is noise at a cell of about two pixels. The second
+   * sub-pixel was already being paid for and not seen, which is what the 1.5
+   * was about; the first one is the same argument carried to its end.
+   */
+  maxDpr: 1,
   reducedMotionTime: 0
 }
 
@@ -854,6 +877,24 @@ export function mount<O extends BaseOptions>(
     canvas.style.width = '100%'
     canvas.style.height = '100%'
     /*
+     * Its own compositor layer, so the page cannot resample it.
+     *
+     * A canvas whose box lands on a half pixel has to be resampled to the
+     * device grid, and which way it snaps is the compositor's business rather
+     * than ours. Snapping one way on one frame and the other way on the next
+     * moves the whole picture by a pixel, which is a flicker between two
+     * positions that leaves no trace anywhere: the drawing buffer is perfect,
+     * the clock is smooth, the box never changes and every number comes back
+     * clean. It was reported on a canvas sitting at x = 683.5, and the same
+     * effect at x = 123.5 on another machine was steady.
+     *
+     * translateZ(0) rather than will-change, because will-change is a hint
+     * the browser is free to drop and this needs to be a promise. The cost is
+     * one layer per live effect, and there is only ever one.
+     */
+    canvas.style.transform = 'translateZ(0)'
+    canvas.style.backfaceVisibility = 'hidden'
+    /*
      * Hidden until the first frame is in it.
      *
      * A WebGL canvas with `alpha: false` starts opaque black, and it is in the
@@ -1000,7 +1041,21 @@ export function mount<O extends BaseOptions>(
 
   function tick(stamp: number) {
     if (!running) return
-    const dt = Math.min(stamp - lastStamp, 100) / 1000 // clamp tab-switch spikes
+    /*
+     * Clamped at both ends.
+     *
+     * The top end is the tab-switch spike this always guarded against. The
+     * bottom end is that a rAF timestamp is the moment the frame began, which
+     * can be EARLIER than the performance.now() start() took a moment before:
+     * the subtraction is then negative, Math.min keeps it, and the effect's
+     * clock runs backwards. Measured on WindField, elapsed began at -0.1088
+     * and four frames were rendered at a negative t before it climbed past
+     * zero. A shader handed a smaller t than last frame draws an earlier
+     * picture, which is a visible jump backwards on every start, and start
+     * runs again every time the panel scrolls into view or the tab is
+     * returned to.
+     */
+    const dt = Math.min(Math.max(stamp - lastStamp, 0), 100) / 1000
     elapsed += dt
     lastStamp = stamp
     sampleScroll(dt)
