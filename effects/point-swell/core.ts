@@ -68,12 +68,14 @@ export type PointSwellOptions = BaseOptions & {
   waves: number
   /** How far the camera drops into the sea between scroll 0 and scroll 1. */
   dive: number
-  /** How far the cursor moves the camera, in scene units. */
+  /*
+   * How far the pointer moves the camera, in scene units. The pointer does
+   * not touch the water: it moves the viewer. An earlier version parted the
+   * surface under the cursor, which is the more obvious thing to do and reads
+   * as the sea noticing you. Moving the camera instead reads as leaning over
+   * it, which is what somebody looking at a sea is actually doing.
+   */
   parallax: number
-  /** How far the cursor pushes the surface aside. */
-  part: number
-  /** How wide the parting is, in scene units. */
-  partRadius: number
   /** Seconds for one cycle. Every mode completes whole turns in it. */
   period: number
   /** Seed for the wave directions and phases. */
@@ -96,8 +98,6 @@ export const pointSwellDefaults: PointSwellOptions = {
   waves: 18,
   dive: 1,
   parallax: 1.2,
-  part: 0.9,
-  partRadius: 7,
   period: 32,
   seed: 4,
   reducedMotionTime: 9
@@ -133,10 +133,6 @@ uniform float uScale;
 uniform float uWaves;
 uniform float uSize;
 uniform float uSeed;
-uniform vec3 uCursor;
-uniform float uPartRadius;
-uniform float uPart;
-uniform float uActivity;
 uniform vec3 uColLow;
 uniform vec3 uColHigh;
 
@@ -201,16 +197,6 @@ void main() {
   float lift = clamp(p.y / max(uSwell, 0.0001) * 1.7 + 0.5, 0.0, 1.0);
 
   vec4 world = modelMatrix * vec4(p, 1.0);
-
-  /*
-   * The cursor parts the surface. Pushed outward along the ground plane only:
-   * lifting points towards the camera reads as the sea bulging at whoever is
-   * looking at it, which is the wrong physical story and much louder.
-   */
-  vec3 away = vec3(world.x - uCursor.x, 0.0, world.z - uCursor.z);
-  float d = length(away);
-  float fall = smoothstep(uPartRadius, 0.0, d);
-  world.xyz += normalize(away + vec3(0.0001, 0.0, 0.0001)) * fall * uPart * uActivity;
 
   vec4 mv = viewMatrix * world;
 
@@ -307,10 +293,6 @@ class PointSwellSurface implements Surface<PointSwellOptions> {
         uSize: { value: pointSwellDefaults.pointSize },
         uSeed: { value: pointSwellDefaults.seed },
         uOpacity: { value: pointSwellDefaults.opacity },
-        uCursor: { value: new THREE.Vector3() },
-        uPartRadius: { value: pointSwellDefaults.partRadius },
-        uPart: { value: pointSwellDefaults.part },
-        uActivity: { value: 0 },
         uColLow: { value: new THREE.Color(pointSwellDefaults.colorLow) },
         uColHigh: { value: new THREE.Color(pointSwellDefaults.colorHigh) }
       }
@@ -400,8 +382,6 @@ class PointSwellSurface implements Surface<PointSwellOptions> {
     u['uSize']!.value = opts.pointSize
     u['uSeed']!.value = opts.seed
     u['uOpacity']!.value = opts.opacity
-    u['uPartRadius']!.value = opts.partRadius
-    u['uPart']!.value = opts.part
     ;(u['uColLow']!.value as THREE.Color).set(opts.colorLow)
     ;(u['uColHigh']!.value as THREE.Color).set(opts.colorHigh)
 
@@ -420,27 +400,24 @@ class PointSwellSurface implements Surface<PointSwellOptions> {
     const px = pointer.active ? (pointer.x - 0.5) * 2 : 0
     const py = pointer.active ? (pointer.y - 0.5) * 2 : 0
 
-    camera.position.set(px * opts.parallax, Lerp(7, 0.8, e) + py * opts.parallax * 0.3, Lerp(16, -2, e))
-    camera.lookAt(px * opts.parallax * 0.5, Lerp(0, 0.6, e), Lerp(2, -16, e))
-
     /*
-     * The cursor, put on the water rather than on the screen. The pointer
-     * arrives as a fraction of the element; where it lands in the scene is
-     * wherever the ray through it meets y = 0, which is the surface the sea
-     * is drawn on.
+     * Instant, not eased. Easing towards the pointer would mean keeping the
+     * last camera position and moving a fraction of the way each frame, which
+     * is an accumulator: the frame would depend on the frames before it and
+     * renderAtTime could no longer be seeked. The recorder samples a pointer
+     * path as a function of t, so a camera that is a function of the pointer
+     * stays pure and a camera that chases it does not.
+     *
+     * All three axes rather than just across. Sliding sideways reads as the
+     * image being dragged; a little height and a little depth with it reads
+     * as leaning over the water, which is the thing being imitated.
      */
-    const cursor = u['uCursor']!.value as THREE.Vector3
-    if (pointer.active) {
-      const ndc = new THREE.Vector3(px, py, 0.5).unproject(camera)
-      const dir = ndc.sub(camera.position).normalize()
-      if (Math.abs(dir.y) > 1e-4) {
-        const travel = -camera.position.y / dir.y
-        if (travel > 0 && Number.isFinite(travel)) {
-          cursor.copy(camera.position).addScaledVector(dir, travel)
-        }
-      }
-    }
-    u['uActivity']!.value = pointer.active ? 1 : 0
+    camera.position.set(
+      px * opts.parallax,
+      Lerp(7, 0.8, e) + py * opts.parallax * 0.35,
+      Lerp(16, -2, e) + py * opts.parallax * 0.3
+    )
+    camera.lookAt(px * opts.parallax * 0.4, Lerp(0, 0.6, e), Lerp(2, -16, e))
 
     renderer.render(scene, camera)
   }

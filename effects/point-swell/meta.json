@@ -166,27 +166,7 @@
       "min": 0,
       "max": 4,
       "step": 0.1,
-      "description": "How far the cursor moves the camera, in scene units. Small: this is a head moving, not a camera on rails."
-    },
-    "part": {
-      "type": "number",
-      "default": 0.9,
-      "min": 0,
-      "max": 4,
-      "step": 0.1,
-      "sensible": [
-        0.5,
-        1.6
-      ],
-      "description": "How far the cursor pushes the surface aside. At 0 the sea ignores the pointer entirely, which is a perfectly good way to run it behind text."
-    },
-    "partRadius": {
-      "type": "number",
-      "default": 7,
-      "min": 1,
-      "max": 20,
-      "step": 0.5,
-      "description": "How wide the parting is, in scene units. Wide and soft reads as a swell moving around something; narrow and hard reads as a hole."
+      "description": "How far the pointer moves the camera, in scene units. The pointer does not touch the water: it moves the viewer. Parting the surface under the cursor was tried first and reads as the sea noticing you, where moving the camera reads as leaning over it, which is what somebody looking at a sea is doing. The move is instant rather than eased, because easing means keeping the last position and moving a fraction of the way each frame, and that is an accumulator: it would make the frame depend on the frames before it and renderAtTime could no longer be seeked."
     },
     "period": {
       "type": "number",

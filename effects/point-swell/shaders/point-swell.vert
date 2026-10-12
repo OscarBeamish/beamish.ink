@@ -22,10 +22,6 @@ uniform float uScale;
 uniform float uWaves;
 uniform float uSize;
 uniform float uSeed;
-uniform vec3 uCursor;
-uniform float uPartRadius;
-uniform float uPart;
-uniform float uActivity;
 uniform vec3 uColLow;
 uniform vec3 uColHigh;
 
@@ -90,16 +86,6 @@ void main() {
   float lift = clamp(p.y / max(uSwell, 0.0001) * 1.7 + 0.5, 0.0, 1.0);
 
   vec4 world = modelMatrix * vec4(p, 1.0);
-
-  /*
-   * The cursor parts the surface. Pushed outward along the ground plane only:
-   * lifting points towards the camera reads as the sea bulging at whoever is
-   * looking at it, which is the wrong physical story and much louder.
-   */
-  vec3 away = vec3(world.x - uCursor.x, 0.0, world.z - uCursor.z);
-  float d = length(away);
-  float fall = smoothstep(uPartRadius, 0.0, d);
-  world.xyz += normalize(away + vec3(0.0001, 0.0, 0.0001)) * fall * uPart * uActivity;
 
   vec4 mv = viewMatrix * world;
 

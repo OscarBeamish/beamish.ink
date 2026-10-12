@@ -22,8 +22,6 @@ export const PointSwell = defineComponent({
     waves: { type: Number, default: pointSwellDefaults.waves },
     dive: { type: Number, default: pointSwellDefaults.dive },
     parallax: { type: Number, default: pointSwellDefaults.parallax },
-    part: { type: Number, default: pointSwellDefaults.part },
-    partRadius: { type: Number, default: pointSwellDefaults.partRadius },
     period: { type: Number, default: pointSwellDefaults.period },
     seed: { type: Number, default: pointSwellDefaults.seed },
     autoStart: { type: Boolean, default: true }
