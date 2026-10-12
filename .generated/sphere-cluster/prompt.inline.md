@@ -15,8 +15,9 @@ Assume you have not seen this library before. Everything you need is below.
 - **npm dependencies:** `three@>=0.160.0`
 - WebGL2. There is no WebGL1 fallback
 - One InstancedMesh rather than a mesh each: the same geometry at the same tessellation, one draw call and one matrix per sphere instead of a hundred and one draw calls.
-- The entrance is a closed form in t rather than a timeline. Three stages per sphere, staggered, with the z bulge a half sine over each of the first two so it returns to the resting z exactly. A timeline would have been easier to write and could not be seeked, which would mean no recorded take.
-- The warmth survives into the shadow side because it is the material emissive rather than a light. An ambient cannot colour a shadow side: it adds the same amount to every surface whichever way it faces.
+- frustumCulled is off. An InstancedMesh computes its bounding sphere once and keeps it, and the first frame of the entrance has every sphere below the frame, so the cached bounds sit off screen and every later frame is culled against them. That records as a take of empty background with no error anywhere.
+- Which sphere the cursor is over is a real ray-sphere intersection against the displaced centres, not the nearest centre on the ground plane. The plane version picks the wrong sphere wherever the cluster is deep under the cursor, which is most of it: the nearest in x and y can be well behind the one whose surface you can see.
+- The entrance is a closed form in t rather than a timeline, so it can be seeked. The disturbance cannot be, and carries state; it is identically zero until the pointer touches it, which is why a take is still a pure function of t.
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -198,6 +199,30 @@ class SphereClusterSurface implements Surface<SphereClusterOptions> {
   private under: THREE.DirectionalLight | null = null
   private matrix = new THREE.Matrix4()
   private place = new THREE.Vector3()
+  /*
+   * The one piece of state in the effect, and it is worth being exact about
+   * why it is allowed.
+   *
+   * The disturbance in the scene this came from cannot be a function of t. A
+   * hovered sphere is given a force; the force is added to its position every
+   * frame and decays five per cent a frame, so the push arrives over about a
+   * second; meanwhile every sphere lerps one and a bit per cent of the way
+   * back towards where it belongs, and the collision pass shoves overlapping
+   * neighbours apart so the disturbance spreads. Where a sphere is depends on
+   * where the cursor has been, which is the whole feel of it: you sweep the
+   * cursor and the cluster bulges towards you and drifts home.
+   *
+   * What makes it safe here is that all of it is identically zero until a
+   * pointer force is injected, and the pointer is never active while a take is
+   * being recorded. So renderAtTime(t) is a pure function of t for every t the
+   * recorder asks for, and the seekability the contract is protecting is
+   * intact. `moved` counts the spheres currently away from home, and while it
+   * is zero the effect takes the stateless path exactly as before.
+   */
+  private disp: Float32Array = new Float32Array(COUNT * 3)
+  private force: Float32Array = new Float32Array(COUNT * 3)
+  private moved = 0
+  private lastT = 0
 
   setup(ctx: { canvas: HTMLCanvasElement | null }): void {
     if (!ctx.canvas) throw new Error('SphereCluster needs a canvas')
@@ -331,43 +356,86 @@ class SphereClusterSurface implements Surface<SphereClusterOptions> {
        cluster otherwise runs off both sides. */
     camera.position.setLength(Math.max(opts.distance, (opts.distance + 4) / camera.aspect))
 
-    const reachY = Math.tan((camera.fov * Math.PI) / 360) * camera.position.length()
-    const pointerX = pointer.active ? (pointer.x - 0.5) * 2 * reachY * camera.aspect : 0
-    const pointerY = pointer.active ? -(pointer.y - 0.5) * 2 * reachY : 0
-    const parting = pointer.active ? opts.part : 0
     const radius = Math.max(opts.partRadius, 0.001)
 
     /*
-     * Which single sphere the cursor is nearest, found before anything is
-     * placed.
+     * Frame time, for the two rates below.
      *
-     * Only one sphere moves, which is the whole difference between this
-     * reading as a swarm being disturbed and reading as a bite taken out of
-     * it. Two earlier versions displaced every sphere within a radius: the
-     * first pushed them straight out and drew a clean circular void, and the
-     * second pushed them mostly towards the camera and still drew one,
-     * because a dense cluster has no slack and moving any group of them
-     * reveals the background behind. The scene this came from never had that
-     * problem because it raycasts: one sphere is hit and one sphere moves.
-     *
-     * This is the same answer without the raycast. The resting positions are
-     * known, the cursor is already on the z = 0 plane, so the nearest sphere
-     * is a loop over a hundred and one distances and no intersection maths.
+     * The scene's decay and return are per FRAME: five per cent of the force
+     * gone each frame and one and eight tenths per cent of the way home each
+     * frame. On the sixty hertz display it was written on that is a push
+     * lasting about a second; on a hundred and twenty it is half a second, and
+     * on a hundred and sixty five a third. Converting both to per-second rates
+     * is the one change made to how it behaves, and it is the difference
+     * between the effect feeling the same on every machine and feeling
+     * different on each.
      */
-    let poked = -1
-    if (parting > 0) {
-      let nearest = radius
+    const dt = Math.min(Math.max(t - this.lastT, 0), 0.1)
+    this.lastT = t
+
+    /*
+     * Which sphere the cursor is actually over, by intersecting the ray with
+     * each sphere rather than by measuring distance on the ground plane.
+     *
+     * Measuring on the plane was the previous attempt and picks the wrong
+     * sphere whenever the cluster is deep under the cursor, which is most of
+     * it: the one nearest the ray in x and y can be metres behind the one you
+     * are looking at. This takes the nearest intersection along the ray, which
+     * is the sphere whose surface you can see, which is what a raycast does.
+     */
+    if (pointer.active && opts.part > 0) {
+      const ndcX = (pointer.x - 0.5) * 2
+      const ndcY = -(pointer.y - 0.5) * 2
+      const tanHalf = Math.tan((camera.fov * Math.PI) / 360)
+      const eye = camera.position.length()
+      /* The ray from the camera, which looks down -z at the origin. */
+      const dirX = ndcX * tanHalf * camera.aspect
+      const dirY = ndcY * tanHalf
+      const len = Math.hypot(dirX, dirY, 1)
+      const rx = dirX / len
+      const ry = dirY / len
+      const rz = -1 / len
+
+      let hit = -1
+      let hitAt = Infinity
+      let hx = 0
+      let hy = 0
+      let hz = 0
       for (let i = 0; i < COUNT; i++) {
-        const dx = LAYOUT[i * 4]! - pointerX
-        const dy = LAYOUT[i * 4 + 1]! - pointerY
-        const away = Math.hypot(dx, dy)
-        /* Biased towards the big ones, which are the ones a cursor over this
-           cluster is visually on top of. */
-        const reach = away - LAYOUT[i * 4 + 3]!
-        if (reach < nearest) {
-          nearest = reach
-          poked = i
-        }
+        /* Against where the sphere is now, displacement included, or the ray
+           misses the one you can see once the cluster has been pushed about. */
+        const cx = LAYOUT[i * 4]! + this.disp[i * 3]!
+        const cy = LAYOUT[i * 4 + 1]! + this.disp[i * 3 + 1]!
+        const cz = LAYOUT[i * 4 + 2]! + this.disp[i * 3 + 2]!
+        const r = LAYOUT[i * 4 + 3]!
+        /* Camera at (0, 0, eye) looking at the origin. */
+        const ox = -cx
+        const oy = -cy
+        const oz = eye - cz
+        const b = ox * rx + oy * ry + oz * rz
+        const c = ox * ox + oy * oy + oz * oz - r * r
+        const disc = b * b - c
+        if (disc < 0) continue
+        const along = -b - Math.sqrt(disc)
+        if (along <= 0 || along >= hitAt) continue
+        hitAt = along
+        hit = i
+        hx = along * rx - ox
+        hy = along * ry - oy
+        hz = along * rz - oz
+      }
+
+      /*
+       * The force, exactly as the scene computes it: from the sphere's centre
+       * towards the point on its surface the ray met, which is a point on the
+       * side facing you, so the sphere is pushed out of the cluster towards
+       * the viewer.
+       */
+      if (hit >= 0 && hitAt < radius * 12) {
+        const n = Math.max(Math.hypot(hx, hy, hz), 0.0001)
+        this.force[hit * 3] = (hx / n) * opts.part
+        this.force[hit * 3 + 1] = (hy / n) * opts.part
+        this.force[hit * 3 + 2] = (hz / n) * opts.part
       }
     }
 
@@ -375,6 +443,97 @@ class SphereClusterSurface implements Surface<SphereClusterOptions> {
     const riseFor = half * 1
     const fallFor = half * 1
     const homeFor = half * 0.6
+
+    /*
+     * Deliver the forces, then let everything drift home.
+     *
+     * Both are exponentials in real time rather than per frame. The scene's
+     * 0.95 a frame at sixty hertz is a factor of about twenty over a second,
+     * and its 0.018 lerp leaves about a third of the offset after a second;
+     * those are the two rates reproduced here.
+     */
+    if (this.moved > 0 || pointer.active) {
+      const keepForce = Math.exp(-3.07 * dt)
+      const comeHome = Math.exp(-1.09 * dt)
+      let still = 0
+      for (let i = 0; i < COUNT; i++) {
+        for (let k = 0; k < 3; k++) {
+          const at = i * 3 + k
+          /* Scaled by dt and sixty so a second of pushing delivers what a
+             second of pushing delivered at sixty frames a second. */
+          this.disp[at]! += this.force[at]! * dt * 60
+          this.force[at]! *= keepForce
+          this.disp[at]! *= comeHome
+        }
+        const d = Math.abs(this.disp[i * 3]!) + Math.abs(this.disp[i * 3 + 1]!) +
+          Math.abs(this.disp[i * 3 + 2]!)
+        if (d > 0.002) still++
+        else {
+          this.disp[i * 3] = 0
+          this.disp[i * 3 + 1] = 0
+          this.disp[i * 3 + 2] = 0
+          this.force[i * 3] = 0
+          this.force[i * 3 + 1] = 0
+          this.force[i * 3 + 2] = 0
+        }
+      }
+      this.moved = still
+
+      /*
+       * The collision pass, and it is not there to stop overlaps: the layout
+       * is hand-placed and has none. It is what spreads the disturbance. A
+       * sphere coming towards you shoulders the ones it meets, they shoulder
+       * theirs, and the push travels outward through the cluster instead of
+       * stopping at the one sphere the cursor touched. Removing it, which an
+       * earlier version of this did, is most of why the interaction read as a
+       * single sphere twitching.
+       *
+       * Every pair, which at a hundred and one spheres is five thousand
+       * distance tests, and only while something is actually out of place.
+       */
+      if (this.moved > 0) {
+        for (let i = 0; i < COUNT; i++) {
+          const ri = LAYOUT[i * 4 + 3]!
+          const ix = LAYOUT[i * 4]! + this.disp[i * 3]!
+          const iy = LAYOUT[i * 4 + 1]! + this.disp[i * 3 + 1]!
+          const iz = LAYOUT[i * 4 + 2]! + this.disp[i * 3 + 2]!
+          for (let j = i + 1; j < COUNT; j++) {
+            const rj = LAYOUT[j * 4 + 3]!
+            const jx = LAYOUT[j * 4]! + this.disp[j * 3]!
+            const jy = LAYOUT[j * 4 + 1]! + this.disp[j * 3 + 1]!
+            const jz = LAYOUT[j * 4 + 2]! + this.disp[j * 3 + 2]!
+            const dx = jx - ix
+            const dy = jy - iy
+            const dz = jz - iz
+            const gap = Math.hypot(dx, dy, dz)
+            const least = (ri + rj) * 1.2
+            if (gap >= least || gap < 1e-5) continue
+            const shove = (least - gap) * 0.4
+            const inv = shove / gap
+            this.disp[i * 3]! -= dx * inv
+            this.disp[i * 3 + 1]! -= dy * inv
+            this.disp[i * 3 + 2]! -= dz * inv
+            this.disp[j * 3]! += dx * inv
+            this.disp[j * 3 + 1]! += dy * inv
+            this.disp[j * 3 + 2]! += dz * inv
+          }
+        }
+        /*
+         * Counted again, not assumed. Setting it to the whole count here was
+         * the first version and meant the effect never went back to the
+         * stateless path once the cursor had touched it: the pair tests and
+         * the per-sphere integration ran for the rest of the page's life over
+         * displacements of zero.
+         */
+        let awake = 0
+        for (let i = 0; i < COUNT; i++) {
+          const d = Math.abs(this.disp[i * 3]!) + Math.abs(this.disp[i * 3 + 1]!) +
+            Math.abs(this.disp[i * 3 + 2]!)
+          if (d > 0.002) awake++
+        }
+        this.moved = awake
+      }
+    }
 
     for (let i = 0; i < COUNT; i++) {
       const ox = LAYOUT[i * 4]!
@@ -443,19 +602,9 @@ class SphereClusterSurface implements Surface<SphereClusterOptions> {
        * smoothstep rather than a square, so there is no rim at the edge of the
        * radius where the displacement stops.
        */
-      /*
-       * The poke. Towards the camera and a little away from the cursor, which
-       * lifts this one sphere clear of its neighbours instead of shouldering
-       * them aside.
-       */
-      if (i === poked) {
-        const dx = x - pointerX
-        const dy = y - pointerY
-        const inv = 1 / Math.max(Math.hypot(dx, dy), 0.0001)
-        x += dx * inv * parting * 0.3
-        y += dy * inv * parting * 0.3
-        z += parting
-      }
+      x += this.disp[i * 3]!
+      y += this.disp[i * 3 + 1]!
+      z += this.disp[i * 3 + 2]!
 
       this.place.set(x, y, z)
       this.matrix.makeScale(r, r, r)
@@ -1209,8 +1358,8 @@ as the second argument to the create function; anything omitted takes its defaul
 | `overshoot` | number | `4` | 0 to 12 | How far past its resting place each sphere flies before falling back, and how far it bulges towards the camera on the way. The bulge is a half sine over each stage, so it returns to the resting depth exactly. |
 | `breathe` | number | `0.1` | 0 to 1 (looks right between 0.05 and 0.25) | How far each sphere drifts once settled: a sine in height against a cosine in depth at half the amplitude. At 0 the settled cluster is still. |
 | `breatheSpeed` | number | `2` | 0.1 to 8 (looks right between 1 and 3) | How fast it breathes, in radians a second. Each sphere is a fifth of a radian behind the one before it, which is what makes the cluster shimmer rather than pulse as one body. |
-| `part` | number | `2.2` | 0 to 4 | How far the one sphere nearest the cursor moves: towards the camera, and a little away from the cursor. Only one moves, which is the difference between a swarm being disturbed and a bite taken out of it. Displacing every sphere within a radius was tried twice and draws a void either way, because a dense cluster has no slack and moving a group of them reveals the background. Instantaneous rather than a force that decays, because a decaying force is an accumulator and renderAtTime could no longer be seeked. |
-| `partRadius` | number | `4.5` | 0.5 to 10 | How close the cursor has to be, in scene units, before the nearest sphere reacts at all. Beyond it nothing moves. |
+| `part` | number | `2.2` | 0 to 4 | The size of the shove a hovered sphere is given, along the normal at the point the cursor ray met its surface, which is a point on the side facing you. It is delivered over about a second rather than at once, and the collision pass carries it outward into the neighbours, so sweeping the cursor pushes the whole cluster about and it drifts home afterwards. |
+| `partRadius` | number | `4.5` | 0.5 to 10 | How far along the cursor ray a sphere can be and still be hovered, as a multiple of itself. It exists only to stop a ray that has left the cluster entirely from catching something behind it. |
 
 ## 5. Why it is not the simulation it came from
 

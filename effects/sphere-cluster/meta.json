@@ -22,16 +22,17 @@
     "webgl": "webgl2",
     "notes": [
       "One InstancedMesh rather than a mesh each: the same geometry at the same tessellation, one draw call and one matrix per sphere instead of a hundred and one draw calls.",
-      "The entrance is a closed form in t rather than a timeline. Three stages per sphere, staggered, with the z bulge a half sine over each of the first two so it returns to the resting z exactly. A timeline would have been easier to write and could not be seeked, which would mean no recorded take.",
-      "The warmth survives into the shadow side because it is the material emissive rather than a light. An ambient cannot colour a shadow side: it adds the same amount to every surface whichever way it faces."
+      "frustumCulled is off. An InstancedMesh computes its bounding sphere once and keeps it, and the first frame of the entrance has every sphere below the frame, so the cached bounds sit off screen and every later frame is culled against them. That records as a take of empty background with no error anywhere.",
+      "Which sphere the cursor is over is a real ray-sphere intersection against the displaced centres, not the nearest centre on the ground plane. The plane version picks the wrong sphere wherever the cluster is deep under the cursor, which is most of it: the nearest in x and y can be well behind the one whose surface you can see.",
+      "The entrance is a closed form in t rather than a timeline, so it can be seeked. The disturbance cannot be, and carries state; it is identically zero until the pointer touches it, which is why a take is still a pure function of t."
     ]
   },
   "perf": {
     "frameBudgetMs": 1.2,
     "contexts": 1,
     "notes": [
-      "A hundred and one spheres at sixty-four segments square is about eight hundred thousand triangles, which is affordable exactly once: every instance shares the one geometry, so it is one upload and one draw call. There is no pair testing anywhere.",
-      "A shadow map is on, as in the scene this came from, which is a second pass over the instances. Measured with pnpm gputime rather than by timing the draw call."
+      "A hundred and one spheres at sixty-four segments square is about eight hundred thousand triangles, affordable exactly once because every instance shares the one geometry.",
+      "The collision pass is every pair, five thousand distance tests, and it runs only while something is actually out of place. It is what spreads the disturbance rather than what prevents overlaps, so it cannot be dropped: without it the interaction is one sphere twitching. Measured with pnpm gputime at 0.21ms a frame and about 1ms on a frame where the cluster is being pushed."
     ]
   },
   "files": [
@@ -188,7 +189,7 @@
       "min": 0,
       "max": 4,
       "step": 0.05,
-      "description": "How far the one sphere nearest the cursor moves: towards the camera, and a little away from the cursor. Only one moves, which is the difference between a swarm being disturbed and a bite taken out of it. Displacing every sphere within a radius was tried twice and draws a void either way, because a dense cluster has no slack and moving a group of them reveals the background. Instantaneous rather than a force that decays, because a decaying force is an accumulator and renderAtTime could no longer be seeked."
+      "description": "The size of the shove a hovered sphere is given, along the normal at the point the cursor ray met its surface, which is a point on the side facing you. It is delivered over about a second rather than at once, and the collision pass carries it outward into the neighbours, so sweeping the cursor pushes the whole cluster about and it drifts home afterwards."
     },
     "partRadius": {
       "type": "number",
@@ -196,10 +197,10 @@
       "min": 0.5,
       "max": 10,
       "step": 0.1,
-      "description": "How close the cursor has to be, in scene units, before the nearest sphere reacts at all. Beyond it nothing moves."
+      "description": "How far along the cursor ray a sphere can be and still be hovered, as a multiple of itself. It exists only to stop a ray that has left the cluster entirely from catching something behind it."
     }
   },
-  "instruction": "the spheres fly in, then open where you point",
+  "instruction": "you can push the swarm around with the cursor",
   "oneShot": true,
   "credit": {
     "what": "The whole scene: the hundred and one hand-placed sphere positions and radii, the dusty rose body under a red emissive, the three light intensities, the twenty-five degree camera, and the staggered three-stage entrance. The arrangement is placed rather than generated and that is most of why it reads as composed, so it is carried across as his rather than replaced with a hash. What could not come across is the physics: its pointer force decays frame to frame and its collision pass tests every pair, and both are accumulators that would stop renderAtTime being seekable.",

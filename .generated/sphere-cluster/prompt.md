@@ -15,8 +15,9 @@ Assume you have not seen this library before. Everything you need is below.
 - **npm dependencies:** `three@>=0.160.0`
 - WebGL2. There is no WebGL1 fallback
 - One InstancedMesh rather than a mesh each: the same geometry at the same tessellation, one draw call and one matrix per sphere instead of a hundred and one draw calls.
-- The entrance is a closed form in t rather than a timeline. Three stages per sphere, staggered, with the z bulge a half sine over each of the first two so it returns to the resting z exactly. A timeline would have been easier to write and could not be seeked, which would mean no recorded take.
-- The warmth survives into the shadow side because it is the material emissive rather than a light. An ambient cannot colour a shadow side: it adds the same amount to every surface whichever way it faces.
+- frustumCulled is off. An InstancedMesh computes its bounding sphere once and keeps it, and the first frame of the entrance has every sphere below the frame, so the cached bounds sit off screen and every later frame is culled against them. That records as a take of empty background with no error anywhere.
+- Which sphere the cursor is over is a real ray-sphere intersection against the displaced centres, not the nearest centre on the ground plane. The plane version picks the wrong sphere wherever the cluster is deep under the cursor, which is most of it: the nearest in x and y can be well behind the one whose surface you can see.
+- The entrance is a closed form in t rather than a timeline, so it can be seeked. The disturbance cannot be, and carries state; it is identically zero until the pointer touches it, which is why a take is still a pure function of t.
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -57,8 +58,8 @@ as the second argument to the create function; anything omitted takes its defaul
 | `overshoot` | number | `4` | 0 to 12 | How far past its resting place each sphere flies before falling back, and how far it bulges towards the camera on the way. The bulge is a half sine over each stage, so it returns to the resting depth exactly. |
 | `breathe` | number | `0.1` | 0 to 1 (looks right between 0.05 and 0.25) | How far each sphere drifts once settled: a sine in height against a cosine in depth at half the amplitude. At 0 the settled cluster is still. |
 | `breatheSpeed` | number | `2` | 0.1 to 8 (looks right between 1 and 3) | How fast it breathes, in radians a second. Each sphere is a fifth of a radian behind the one before it, which is what makes the cluster shimmer rather than pulse as one body. |
-| `part` | number | `2.2` | 0 to 4 | How far the one sphere nearest the cursor moves: towards the camera, and a little away from the cursor. Only one moves, which is the difference between a swarm being disturbed and a bite taken out of it. Displacing every sphere within a radius was tried twice and draws a void either way, because a dense cluster has no slack and moving a group of them reveals the background. Instantaneous rather than a force that decays, because a decaying force is an accumulator and renderAtTime could no longer be seeked. |
-| `partRadius` | number | `4.5` | 0.5 to 10 | How close the cursor has to be, in scene units, before the nearest sphere reacts at all. Beyond it nothing moves. |
+| `part` | number | `2.2` | 0 to 4 | The size of the shove a hovered sphere is given, along the normal at the point the cursor ray met its surface, which is a point on the side facing you. It is delivered over about a second rather than at once, and the collision pass carries it outward into the neighbours, so sweeping the cursor pushes the whole cluster about and it drifts home afterwards. |
+| `partRadius` | number | `4.5` | 0.5 to 10 | How far along the cursor ray a sphere can be and still be hovered, as a multiple of itself. It exists only to stop a ray that has left the cluster entirely from catching something behind it. |
 
 ## 5. Why it is not the simulation it came from
 
