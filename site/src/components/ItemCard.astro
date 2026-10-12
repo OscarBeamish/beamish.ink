@@ -18,11 +18,9 @@ type Props = {
   description: string
   label: string
   /*
-   * `dark` is the same take against the other ground, and only items that
-   * declare `either` have one. The card follows the page: an item that claims
-   * both grounds has to show the one you are looking at, or the claim is
-   * decoration. An item built for paper keeps its paper take on a dark page,
-   * because that is the truth about the item.
+   * The one take this card shows. `dark` is accepted and ignored: items that
+   * declare `either` still record a second take and the walls still pass it,
+   * but a card no longer switches between them. See the note on the script.
    */
   media: Shot & { dark?: Shot | null }
 }
@@ -34,7 +32,6 @@ type Props = {
  * editing them again.
  */
 const { href, name, label, media } = Astro.props
-const dark = media.dark ?? null
 ---
 
 <a
@@ -53,8 +50,6 @@ const dark = media.dark ?? null
           decoding="async"
           class="absolute inset-0 h-full w-full object-cover"
           data-poster
-          data-poster-paper={media.poster}
-          data-poster-dark={dark?.poster ?? undefined}
         />
       ) : (
         <div class="text-l3 absolute inset-0 grid place-items-center text-[0.7rem] tracking-[0.1em] uppercase">
@@ -77,10 +72,6 @@ const dark = media.dark ?? null
           playsinline
           preload="none"
           data-video
-          data-webm-paper={media.webm ?? undefined}
-          data-mp4-paper={media.mp4 ?? undefined}
-          data-webm-dark={dark?.webm ?? undefined}
-          data-mp4-dark={dark?.mp4 ?? undefined}
         >
           {media.webm && <source src={media.webm} type="video/webm" />}
           {media.mp4 && <source src={media.mp4} type="video/mp4" />}
@@ -106,74 +97,21 @@ const dark = media.dark ?? null
 
 <script>
   /*
-   * The card follows the ground.
+   * A card shows one take, whichever ground the page is on.
    *
-   * Only items that declare `either` carry a second take, and only they should
-   * switch: an item built for paper is telling the truth by showing a paper
-   * video on a dark page, while an `either` item with one paper take is making
-   * a claim its evidence does not support. That was the actual bug, not the
-   * colour of the page around it.
+   * It used to follow the ground: twenty-six items carry a second take
+   * recorded against the other one, and the card swapped poster and video
+   * when the toggle moved. The reasoning was that an item claiming both
+   * grounds should show the one you are looking at. In use it reads as the
+   * wall rearranging itself rather than as the page changing: you press a
+   * theme toggle and a third of the effects become different effects, which
+   * is not what a theme toggle is for.
    *
-   * Nothing is preloaded here. The poster swaps immediately because it is
-   * already a visible image; the video sources are rewritten but not loaded,
-   * so a page nobody hovers still costs one image per card.
+   * So the take is fixed and the dark ones are simply not shown here. They
+   * are still recorded and still in each item's own media directory, because
+   * the item page and the prompt both have use for them; what has gone is
+   * only the swap.
    */
-  const applyGround = (ground: string) => {
-    const dark = ground === 'dark'
-
-    for (const poster of document.querySelectorAll<HTMLImageElement>('[data-poster]')) {
-      const wanted = dark
-        ? (poster.dataset.posterDark ?? poster.dataset.posterPaper)
-        : poster.dataset.posterPaper
-      if (wanted && !poster.src.endsWith(wanted)) poster.src = wanted
-    }
-
-    for (const video of document.querySelectorAll<HTMLVideoElement>('[data-video]')) {
-      const webm = dark
-        ? (video.dataset.webmDark ?? video.dataset.webmPaper)
-        : video.dataset.webmPaper
-      const mp4 = dark
-        ? (video.dataset.mp4Dark ?? video.dataset.mp4Paper)
-        : video.dataset.mp4Paper
-
-      let changed = false
-      for (const source of video.querySelectorAll('source')) {
-        const wanted = source.type === 'video/webm' ? webm : mp4
-        if (wanted && source.getAttribute('src') !== wanted) {
-          source.setAttribute('src', wanted)
-          changed = true
-        }
-      }
-
-      /*
-       * load() only when the element has already fetched something. Calling it
-       * on an untouched preload="none" video starts the download this card was
-       * written to avoid.
-       */
-      if (changed && video.readyState > 0) {
-        const wasPlaying = !video.paused
-        video.load()
-        if (wasPlaying) void video.play().catch(() => {})
-      }
-    }
-  }
-
-  /*
-   * Per page, because the cards on a wall the router has just swapped in have
-   * never been touched: their posters are whatever the build wrote, which is
-   * the paper take, and a reader on dark would see every card revert.
-   *
-   * The ground listener stays at the top level. It is on `document`, which
-   * survives a swap, and binding it again per page would run applyGround once
-   * per navigation for every page ever visited.
-   */
-  document.addEventListener('astro:page-load', () =>
-    applyGround(document.documentElement.dataset.ground ?? 'paper')
-  )
-  document.addEventListener('beamish:ground', event => {
-    applyGround((event as CustomEvent<string>).detail)
-  })
-
   /*
    * A card plays while it is on screen.
    *
