@@ -3,10 +3,11 @@
  * A hidden page showing somebody else's work.
  *
  * Playable Worlds is by lovis odin: twenty-six generated videos rebuilt as
- * playable WebGL games by Claude and the fal Agent SDK. It is mirrored here so
- * it can be shown without a network, and it is not ours. The credit is in the
- * markup rather than in a comment, the page is noindex, and it is linked from
- * nowhere.
+ * playable WebGL games by Claude and the fal Agent SDK, originally at
+ * fal-video-to-game.vercel.app. It is mirrored here so it can be shown without
+ * a network, and it is not ours. The page says in its own copy that the work is
+ * somebody else's; the name and the link live here rather than on the page, the
+ * page is noindex, and it is linked from nowhere.
  *
  * The mirror itself lives in public/playable-worlds and is gitignored: 713MB
  * of models, textures and audio, against a repo whose own video budget is
@@ -48,6 +49,14 @@ const title = (tag: string) =>
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ')
 
+const sum = (pick: (g: Game) => number) => games.reduce((n, g) => n + pick(g), 0)
+const totals = {
+  images: sum(g => g.images?.length ?? 0),
+  models: sum(g => g.glbs?.length ?? 0),
+  audio: sum(g => g.audios?.length ?? 0),
+  usd: sum(g => g.usd ?? 0)
+}
+
 /* Every distinct fal endpoint across the set, commonest first. */
 const endpoints = new Map<string, number>()
 for (const g of games) {
@@ -58,7 +67,7 @@ const byUse = [...endpoints.entries()].sort((a, b) => b[1] - a[1])
 
 <Base
   title="Playable Worlds: a mirror"
-  description="Twenty-six generated videos rebuilt as playable WebGL games, by lovis odin. Mirrored here to run without a network."
+  description="Twenty-six generated videos rebuilt as playable WebGL games. Mirrored here to run without a network."
   noindex={true}
 >
   <article class="spine pt-32 pb-16 md:pt-44">
@@ -77,29 +86,24 @@ const byUse = [...endpoints.entries()].sort((a, b) => b[1] - a[1])
 
     <dl class="subgrid-12 col-span-12 mt-10 gap-y-4">
       <div class="col-span-6 sm:col-span-3">
-        <dt class="tag">Made by</dt>
-        <dd class="mt-1 text-[0.95rem]">lovis odin</dd>
-      </div>
-      <div class="col-span-6 sm:col-span-3">
         <dt class="tag">Built with</dt>
         <dd class="mt-1 text-[0.95rem]">Claude + fal Agent SDK</dd>
-      </div>
-      <div class="col-span-6 sm:col-span-3">
-        <dt class="tag">Original</dt>
-        <dd class="mt-1 text-[0.95rem]">
-          <a
-            class="underline underline-offset-4"
-            href="https://fal-video-to-game.vercel.app"
-            rel="noopener noreferrer"
-            target="_blank">fal-video-to-game.vercel.app</a
-          >
-        </dd>
       </div>
       <div class="col-span-6 sm:col-span-3">
         <dt class="tag">Engine</dt>
         <dd class="mt-1 text-[0.95rem]">three.js only, no framework</dd>
       </div>
     </dl>
+
+    {
+      present && (
+        <p class="text-l2 col-span-12 mt-10 text-[0.9rem] sm:col-span-9 lg:col-span-7">
+          {games.length} games &middot; {totals.images} images &middot; {totals.models}{' '}
+          3D models &middot; {totals.audio} audio files
+          {totals.usd > 0 && <> &middot; ${totals.usd.toFixed(2)} of generation</>}
+        </p>
+      )
+    }
 
     {
       !present && (
@@ -128,13 +132,9 @@ const byUse = [...endpoints.entries()].sort((a, b) => b[1] - a[1])
 
     <ol class="subgrid-12 col-span-12 mt-16 gap-y-16">
       {
-        games.map((g, i) => (
+        games.map(g => (
           <li class="subgrid-12 col-span-12">
-            <p class="tag col-span-12 sm:col-span-3">
-              {String(i + 1).padStart(2, '0')}
-            </p>
-
-            <div class="col-span-12 sm:col-span-9 sm:col-start-4">
+            <div class="col-span-12">
               <h2 class="text-[1.4rem] leading-tight font-semibold tracking-[-0.01em]">
                 {title(g.tag)}
               </h2>
