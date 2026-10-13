@@ -47,7 +47,7 @@
   heading.
 -->
 <html lang="en-GB" data-ground="dark"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Recall — a million tokens your agent can reach</title>
+<title>Recall: a million tokens your agent can reach</title>
 <meta name="description" content="A fictional context layer for agents, staged inside a recessed parallax aperture with tokens drifting through it. One file, no images, no libraries." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1173,7 +1173,7 @@ font-size: 15px; color: rgba(255, 255, 255, 0.86); }
           <rect x="3" y="4" width="18" height="16" rx="4" /><path d="M7 9h6M7 13h10M7 17h4" stroke-linecap="round" />
         </svg>
         <span class="sr">Request</span>
-        <input type="text" placeholder="Name a run — e.g. support-triage-0412" />
+        <input type="text" placeholder="Name a run, e.g. support-triage-0412" />
       </label>
       <div class="ask-bar">
         <div class="modes nm nm--inset" role="tablist" aria-label="Mode">
@@ -1264,7 +1264,7 @@ font-size: 15px; color: rgba(255, 255, 255, 0.86); }
         <div class="stat nm nm--inset"><b>0</b><span>re-reads on turn forty</span></div>
         <div class="stat nm nm--inset"><b>94%</b><span>fewer prompt tokens billed</span></div>
       </div>
-      <p class="note">Invented product, invented figures — nothing here was measured.</p>
+      <p class="note">Invented product, invented figures. Nothing here was measured.</p>
     </div>
   </section>
 
@@ -1276,17 +1276,17 @@ font-size: 15px; color: rgba(255, 255, 255, 0.86); }
       </div>
       <div class="steps">
         <article class="step">
-          <b>01 — Open</b>
+          <b>01 / Open</b>
           <h3>Start a window</h3>
           <p>One call per run returns a handle. Everything after that is written against it, including the turns your framework would otherwise be concatenating for you.</p>
         </article>
         <article class="step">
-          <b>02 — Write</b>
+          <b>02 / Write</b>
           <h3>Append as you go</h3>
           <p>Turns, tool results and documents go in as spans with whatever metadata you want to query them by later. Writes are append-only, so a replay is exact.</p>
         </article>
         <article class="step">
-          <b>03 — Point</b>
+          <b>03 / Point</b>
           <h3>Hand over the handle</h3>
           <p>The model reads through the window instead of through your prompt. You send the question and the handle, and nothing else travels.</p>
         </article>
@@ -1682,13 +1682,13 @@ const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const tabs = [...form.querySelectorAll(".mode")];
   const statusText = status.querySelector("span");
   const MODES = {
-    open:   { ph: "Name a run — e.g. support-triage-0412",
+    open:   { ph: "Name a run, e.g. support-triage-0412",
               out: (v) => ({ window: "win_7f3a9c", run: v || "support-triage-0412", budget: "620K", policy: { pin: ["tool_results", "cited_spans"] } }) },
     write:  { ph: "Paste a turn, a tool result or a document",
               out: (v) => ({ window: "win_7f3a9c", span: "sp_0041", kind: "tool_result", text: (v || "rows: 212, status: ok").slice(0, 34) + (v.length > 34 ? "…" : ""), appended: true }) },
-    read:   { ph: "Ask for a span — e.g. the third tool call",
+    read:   { ph: "Ask for a span, e.g. the third tool call",
               out: (v) => ({ span: "sp_0003", turn: 3, query: v || "the third tool call", cited_by: ["ans_12"], fetch_ms: 6 }) },
-    replay: { ph: "Replay from an append — e.g. sp_0040",
+    replay: { ph: "Replay from an append, e.g. sp_0040",
               out: (v) => ({ from: v || "sp_0040", turns: 38, exact: true, tokens_resent: 0 }) },
   };
   let mode = "open", timer = 0;

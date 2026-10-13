@@ -1584,10 +1584,10 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
           <div><dt>Draw</dt><dd>284 W nominal · 694 W turbo</dd></div>
           <div><dt>Network</dt><dd>2 × 100 GbE<small>Plus 1 × 1 GbE management port</small></dd></div>
           <div><dt>Acoustics</dt><dd>38 dB(A) at 1 m, nominal</dd></div>
-          <div><dt>Environment</dt><dd>10–35 °C, front-to-rear airflow</dd></div>
+          <div><dt>Environment</dt><dd>10 to 35 °C, front-to-rear airflow</dd></div>
         </dl>
         <div class="r-bottom">
-          <div class="r-power"><span>Input</span><b>100–240 V~ · 50/60 Hz · 2 × 10 A</b></div>
+          <div class="r-power"><span>Input</span><b>100 to 240 V~ · 50/60 Hz · 2 × 10 A</b></div>
           <div class="r-marks" aria-label="Invented certification marks"><i>FX</i><i>NR</i><i>K·7</i></div>
           <div class="r-serial"><span class="barcode" id="barcode" aria-hidden="true"></span><b>SN IG4-C-000731</b></div>
         </div>
@@ -1747,7 +1747,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
 
       <footer class="footer" data-section="footer">
         <span>
-          Ingot is a fictional product and this page is a design demo — the machine, the readings<br />
+          Ingot is a fictional product and this page is a design demo. The machine, the readings<br />
           and every number are invented. Nothing here is real.
         </span>
         <span>One file · no images · no libraries</span>
@@ -2013,7 +2013,7 @@ function step(dt) {
   }
 
   const msg = !state.power ? "Standby. Element cold."
-    : state.turbo ? "Turbo. Element at working temperature — watch the draw."
+    : state.turbo ? "Turbo. Element at working temperature. Watch the draw."
     : "Running. Element warm, fans nominal.";
   const tm = $("#thermMsg");
   if (tm.textContent !== msg) tm.textContent = msg;
@@ -2349,7 +2349,7 @@ else setTimeout(() => { if (!state.power) powerOn(true); }, 560);
     /* minutes from start, message, status, which step it belongs to, step finished here? */
     var LINES = [
       [0, "unit unboxed · 24 kg · SN IG4-C-000731", "OK", 1],
-      [4, "rails seated · unit at U17–U18", "OK", 1],
+      [4, "rails seated · unit at U17-U18", "OK", 1],
       [11, "PSU A online · PSU B online · redundancy ok", "OK", 1],
       [17, "fans spun up · 38 dB(A) at 1 m", "OK", 1],
       [20, "rack it", "DONE", 1, true],
@@ -2545,7 +2545,7 @@ else setTimeout(() => { if (!state.power) powerOn(true); }, 560);
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   if (!("IntersectionObserver" in window)) return;
 
-  var GLITCH = "!<>-_\/[]{}—=+*^?#_@";
+  var GLITCH = "!<>-_\/[]{}~=+*^?#_@";
   var GROUPS = [
     { sel: ".hero-copy h1, .section-head h2, .cta h2", speed: 26, glitch: 0.42 },
     { sel: ".hero-copy .eyebrow, .section-head .lead-in, .cta .lead-in", speed: 30, glitch: 0.55 },

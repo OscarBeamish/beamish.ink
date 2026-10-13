@@ -1445,13 +1445,13 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
       </div>
       <div class="steps">
         <div class="step">
-          <span class="when">Weeks 1–2</span>
+          <span class="when">Weeks 1-2</span>
           <h3>Connect</h3>
           <p>Point your PACS and HL7 or FHIR feed at an endpoint in your own VPC. Data stays in your region, and nothing trains on it without a signed addendum.</p>
           <div class="tags"><span>DICOM</span><span>HL7 / FHIR</span><span>SSO</span></div>
         </div>
         <div class="step">
-          <span class="when">Weeks 3–6</span>
+          <span class="when">Weeks 3-6</span>
           <h3>Calibrate</h3>
           <p>Run in shadow mode. Compare model output with your own reads, then set alert thresholds for each service line.</p>
           <div class="tags"><span>Shadow mode</span><span>Per-site thresholds</span></div>
@@ -1590,8 +1590,8 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
               <div class="track-labels" aria-hidden="true"><span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span><span>W6</span><span>W7</span></div>
             </div>
             <ol class="phases">
-              <li class="phase"><span class="w">W1–2</span><b>Connect</b><small>PACS and HL7 or FHIR feed, inside your VPC</small></li>
-              <li class="phase"><span class="w">W3–6</span><b>Shadow mode</b><small>Model output compared with your own reads</small></li>
+              <li class="phase"><span class="w">W1-2</span><b>Connect</b><small>PACS and HL7 or FHIR feed, inside your VPC</small></li>
+              <li class="phase"><span class="w">W3-6</span><b>Shadow mode</b><small>Model output compared with your own reads</small></li>
               <li class="phase"><span class="w">W7</span><b>Go live</b><small>Pre-reads land in the worklist, if you approve</small></li>
             </ol>
             <div class="kpis">
@@ -2084,7 +2084,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
       var gl = glow(svg, "gl-coh"), cols = 17, rows = 9;
       var P = function (i, j) { return [56 + i * 15 + j * 9, 198 - j * 11]; };
       el(svg, "text", { x: 16, y: 24, class: "v-text" }, "QUERY");
-      el(svg, "text", { x: 16, y: 38, class: "v-text hi" }, "“FLAIR LESION > 10 MM, AGE 50–70”");
+      el(svg, "text", { x: 16, y: 38, class: "v-text hi" }, "“FLAIR LESION > 10 MM, AGE 50-70”");
       el(svg, "text", { x: 384, y: 24, class: "v-text sig", "text-anchor": "end" }, "n = 1,284");
       el(svg, "text", { x: 384, y: 38, class: "v-text", "text-anchor": "end" }, "OF 41,800 STUDIES");
       var c = [P(0, 0), P(cols - 1, 0), P(cols - 1, rows - 1), P(0, rows - 1)];

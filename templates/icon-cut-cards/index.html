@@ -1463,7 +1463,7 @@ a{ color:inherit; }
           </dd>
           <dt><span class="tp">});</span></dt>
           <span class="sp"></span>
-          <dt><span class="tp">// 0.86 — ship it</span></dt>
+          <dt><span class="tp">// 0.86, ship it</span></dt>
         </dl></div>
       </div></div>
         <div class="info">
@@ -1508,7 +1508,7 @@ a{ color:inherit; }
 <section class="band" id="stages" data-section="features">
   <div class="wrap">
     <div class="band-head">
-      <span class="band-num">01 — Stages</span>
+      <span class="band-num">01 / Stages</span>
       <h2>Four stages that already know about each other</h2>
       <p>Most teams bolt a router, a vector store, an eval harness and a deploy script together and spend the next year maintaining the seams. These four share one config, one trace and one set of numbers.</p>
     </div>
@@ -1526,7 +1526,7 @@ a{ color:inherit; }
         
         <h3>Route</h3>
         <p>One endpoint in front of every model you use. Per-route budgets, automatic failover on 429 and 529, and a blended cost that updates as you change the mix.</p>
-        <div class="kv">p95 overhead — 41ms</div>
+        <div class="kv">p95 overhead · 41ms</div>
       </div>
       <div class="stage-card">
         <svg class="wx wx-ground" viewBox="0 0 64 64" aria-hidden="true">
@@ -1540,7 +1540,7 @@ a{ color:inherit; }
         
         <h3>Ground</h3>
         <p>Your corpus, chunked and embedded on ingest, queried with a floor you set. Every answer carries citations that resolve, or the answer does not leave the run.</p>
-        <div class="kv">Re-embed on write — no nightly job</div>
+        <div class="kv">Re-embed on write · no nightly job</div>
       </div>
       <div class="stage-card">
         <svg class="wx wx-gate" viewBox="0 0 64 64" aria-hidden="true">
@@ -1553,7 +1553,7 @@ a{ color:inherit; }
         
         <h3>Gate</h3>
         <p>An eval suite that runs on the diff, not on a schedule. Faithfulness, refusal rate, latency and cost, each with a threshold that blocks the deploy when it is missed.</p>
-        <div class="kv">240 cases — 3m 40s to green</div>
+        <div class="kv">240 cases · 3m 40s to green</div>
       </div>
       <div class="stage-card">
         <svg class="wx wx-ship" viewBox="0 0 64 64" aria-hidden="true">
@@ -1567,7 +1567,7 @@ a{ color:inherit; }
         
         <h3>Ship</h3>
         <p>Canary a percentage, watch the same four numbers in production, promote or roll back in one command. The rollback is a config change, so it takes seconds.</p>
-        <div class="kv">Rollback — 1.2s median</div>
+        <div class="kv">Rollback · 1.2s median</div>
       </div>
     </div>
   </div>
@@ -1589,7 +1589,7 @@ a{ color:inherit; }
 <section class="band" id="pricing" data-section="pricing">
   <div class="wrap">
     <div class="band-head">
-      <span class="band-num">02 — Pricing</span>
+      <span class="band-num">02 / Pricing</span>
       <h2>Priced on what you run, not who logs in</h2>
       <p>Seats are free. You pay for routed tokens and eval minutes, and the first of each every month is on us.</p>
     </div>
@@ -1639,7 +1639,7 @@ a{ color:inherit; }
 <section class="band" id="faq" data-section="faq">
   <div class="wrap">
     <div class="band-head">
-      <span class="band-num">03 — Questions</span>
+      <span class="band-num">03 / Questions</span>
       <h2>The four we get in the first call</h2>
     </div>
     <div class="faq">
@@ -1649,7 +1649,7 @@ a{ color:inherit; }
       </details>
       <details>
         <summary> What happens when a gate fails at 2am?</summary>
-        <p>The deploy stops and the previous config keeps serving. Nothing pages until a human asks it to — the failing cases, their scores and the diff that caused them are waiting in the run when someone looks.</p>
+        <p>The deploy stops and the previous config keeps serving. Nothing pages until a human asks it to. The failing cases, their scores and the diff that caused them are waiting in the run when someone looks.</p>
       </details>
       <details>
         <summary> Where does my corpus live?</summary>

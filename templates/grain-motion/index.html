@@ -1071,7 +1071,12 @@ button{ font:inherit; }
     radial-gradient(30% 40% at 62% 70%, color-mix(in oklch, var(--color-sun-3) 34%, transparent), transparent 70%);
 }
 .hero-grid{ display:grid; grid-template-columns:minmax(0, .95fr) minmax(0, 1.05fr); gap:clamp(36px, 5vw, 72px); align-items:center; }
-.hero-copy{ min-width:0; }
+/* A container, so the headline can be sized against the column it is in
+   rather than against the viewport. In vw it came out 572px wide inside a
+   496px column and overflowed into the 72px gap, which put it against the
+   lake frame. The column is about a third of the viewport, so any vw that
+   fits here is one that wastes the width everywhere else. */
+.hero-copy{ min-width:0; container-type:inline-size; }
 .pill{
   display:inline-flex; align-items:center; gap:10px; padding:5px 12px 5px 6px; border-radius:100px;
   background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-sm);
@@ -1085,7 +1090,7 @@ button{ font:inherit; }
   display:flex; flex-direction:column; align-items:flex-start;
   margin:18px 0 0 -10px; font-size:inherit;
 }
-.hero h1 .sticker{ --text-size:clamp(36px, 6vw, 78px); margin-block:calc(var(--text-size) * -.14); }
+.hero h1 .sticker{ --text-size:clamp(36px, 12.5cqw, 78px); margin-block:calc(var(--text-size) * -.14); }
 .hero h1 .l1{ --text-color:var(--color-plum); --tilt:-2deg; }
 .hero h1 .l2{ --text-color:var(--color-rose); --tilt:1.5deg; margin-left:clamp(10px, 3vw, 40px); }
 .lede{ font-size:18px; line-height:1.55; color:var(--ink-2); max-width:44ch; margin:22px 0 30px; }

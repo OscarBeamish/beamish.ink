@@ -460,7 +460,7 @@ p.mono {
     <div class="console-head">
       <span class="live" id="liveDot"><i></i><span id="liveText">Ready</span></span>
       <span>run log · svc/payments@staging</span>
-      <span class="spacer" id="consoleStatus">idle — press the key</span>
+      <span class="spacer" id="consoleStatus">idle: press the key</span>
     </div>
     <div class="steps" id="steps"></div>
     <div class="prompt"><span class="ps">$</span><span id="promptText">deadman run rb_payments_restart</span><span class="cursor" aria-hidden="true"></span></div>
@@ -948,7 +948,7 @@ p.mono {
         resetRun();
         running = false;
         document.body.classList.remove("running");
-        statusEl.textContent = "halted — sequence rolled back";
+        statusEl.textContent = "halted: sequence rolled back";
         dialLabel.innerHTML = DEFAULT_LABEL;
         setLive(false, "Ready");
         typeInto(promptText, "deadman rollback r_7f3a  ✓ rolled back", 400);
@@ -988,7 +988,7 @@ p.mono {
       timers.push(setTimeout(function () {
         running = false;
         document.body.classList.remove("running");
-        statusEl.textContent = "done — 6 steps, 0 errors · " + (t / 1000).toFixed(1) + "s";
+        statusEl.textContent = "done: 6 steps, 0 errors · " + (t / 1000).toFixed(1) + "s";
         dialLabel.innerHTML = DEFAULT_LABEL;
         setLive(false, "Ready");
         promptText.textContent = "";

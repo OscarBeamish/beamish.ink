@@ -1439,7 +1439,7 @@ h1, h2, h3 { text-wrap: balance; }
   var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
   var COPY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"/></svg>';
 
-  function money(v) { return v === 0 ? "—" : "$" + (v < 0.1 ? v.toFixed(3) : v.toFixed(2)); }
+  function money(v) { return v === 0 ? "n/a" : "$" + (v < 0.1 ? v.toFixed(3) : v.toFixed(2)); }
   function avg(m) { return Math.round(m.bars.reduce(function (t, v) { return t + v; }, 0) / m.bars.length); }
 
   /* fill each slot reel with seven copies of its icon */
@@ -1485,7 +1485,7 @@ h1, h2, h3 { text-wrap: balance; }
   }
   MODELS.forEach(function (m, i) { grid.appendChild(card(m, i)); });
 
-  document.getElementById("benchKey").innerHTML = "Benchmarks, scored 0–100: " + BENCH.map(function (b) {
+  document.getElementById("benchKey").innerHTML = "Benchmarks, scored 0 to 100: " + BENCH.map(function (b) {
     return "<b>" + b.k + "</b> " + b.n;
   }).join(" · ") + ".";
 
