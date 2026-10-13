@@ -48,14 +48,6 @@ const title = (tag: string) =>
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ')
 
-const sum = (pick: (g: Game) => number) => games.reduce((n, g) => n + pick(g), 0)
-const totals = {
-  images: sum(g => g.images?.length ?? 0),
-  models: sum(g => g.glbs?.length ?? 0),
-  audio: sum(g => g.audios?.length ?? 0),
-  usd: sum(g => g.usd ?? 0)
-}
-
 /* Every distinct fal endpoint across the set, commonest first. */
 const endpoints = new Map<string, number>()
 for (const g of games) {
@@ -70,8 +62,6 @@ const byUse = [...endpoints.entries()].sort((a, b) => b[1] - a[1])
   noindex={true}
 >
   <article class="spine pt-32 pb-16 md:pt-44">
-    <p class="tag col-span-12">Not ours &middot; mirrored for reference</p>
-
     <h1
       class="col-span-12 mt-3 text-[10.5svw] leading-[0.86] font-bold tracking-[-0.012em] uppercase lg:col-span-8 lg:text-[6.6svw]"
     >
@@ -110,16 +100,6 @@ const byUse = [...endpoints.entries()].sort((a, b) => b[1] - a[1])
         <dd class="mt-1 text-[0.95rem]">three.js only, no framework</dd>
       </div>
     </dl>
-
-    {
-      present && (
-        <p class="text-l2 col-span-12 mt-10 text-[0.9rem] sm:col-span-9 lg:col-span-7">
-          {games.length} games &middot; {totals.images} images &middot; {totals.models}{' '}
-          3D models &middot; {totals.audio} audio files
-          {totals.usd > 0 && <> &middot; ${totals.usd.toFixed(2)} of generation</>}
-        </p>
-      )
-    }
 
     {
       !present && (
@@ -163,12 +143,12 @@ const byUse = [...endpoints.entries()].sort((a, b) => b[1] - a[1])
               <div class="mt-4 grid gap-4 md:grid-cols-2">
                 {/*
                   The source clip and the thing it became, side by side. That
-                  pairing is the whole argument of the original and it is worth
-                  keeping: a video on the left, a playable game on the right.
+                  pairing is the whole argument of the original and it is the
+                  reason to show them together rather than linking out.
                 */}
                 <figure class="m-0">
                   <video
-                    class="w-full rounded-[2px] border border-line"
+                    class="aspect-video w-full rounded-[2px] border border-line bg-be object-cover"
                     src={`/playable-worlds/videos/${g.tag}.mp4`}
                     muted
                     loop
@@ -179,20 +159,39 @@ const byUse = [...endpoints.entries()].sort((a, b) => b[1] - a[1])
                   <figcaption class="tag mt-2">Video &middot; input</figcaption>
                 </figure>
 
-                <div class="flex flex-col justify-between">
-                  <p class="text-l2 text-[0.9rem]">{g.prompt}</p>
-                  <div class="mt-4">
+                {/*
+                  The game starts as a button and becomes an iframe when you
+                  press it, which is how the original does it and is the only
+                  way it can work: twenty-six live frames would be twenty-six
+                  WebGL contexts against a browser limit of about sixteen, and
+                  seven hundred megabytes of loading nobody asked for. One at a
+                  time, and the last one is torn down when the next starts.
+                */}
+                <figure class="m-0">
+                  <div
+                    class="relative aspect-video w-full overflow-hidden rounded-[2px] border border-line bg-be"
+                    data-slot
+                    data-game={`/playable-worlds/${g.tag}/index.html`}
+                    data-name={title(g.tag)}
+                  >
+                    <button
+                      class="absolute inset-0 flex cursor-pointer items-center justify-center gap-2 text-[0.8rem] tracking-[0.08em] uppercase"
+                      type="button"
+                      data-play
+                    >
+                      Play
+                    </button>
+                  </div>
+                  <figcaption class="tag mt-2 flex items-center justify-between gap-3">
+                    <span>WebGL game &middot; output</span>
                     <a
-                      class="inline-block border border-line px-4 py-2 text-[0.8rem] tracking-[0.08em] uppercase"
+                      class="underline underline-offset-4"
                       href={`/playable-worlds/${g.tag}/index.html`}
                       target="_blank"
-                      rel="noopener noreferrer"
+                      rel="noopener noreferrer">Full screen &nearr;</a
                     >
-                      Play &nearr;
-                    </a>
-                    <p class="tag mt-2">WebGL game &middot; output</p>
-                  </div>
-                </div>
+                  </figcaption>
+                </figure>
               </div>
 
               <p class="text-l3 mt-4 text-[0.8rem]">{g.controls}</p>
@@ -212,21 +211,24 @@ const byUse = [...endpoints.entries()].sort((a, b) => b[1] - a[1])
 
 <script>
   /*
-   * The videos are set to preload nothing, because twenty-six of them on one
-   * page is twelve megabytes nobody asked for. They load when they are nearly
-   * on screen and play while they are on it, which is what a reel of clips
-   * should do and what the posterless ones would otherwise fail to do.
+   * Two jobs: load the clips lazily, and keep exactly one game alive.
    */
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)')
-  const seen = new WeakSet<HTMLVideoElement>()
 
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)')
+
+  /*
+   * The videos preload nothing, because twenty-six of them on one page is
+   * twelve megabytes nobody asked for. They load as they come near and play
+   * while they are on screen.
+   */
+  const started = new WeakSet<HTMLVideoElement>()
   const watcher = new IntersectionObserver(
     entries => {
       for (const entry of entries) {
         const video = entry.target as HTMLVideoElement
         if (entry.isIntersecting) {
-          if (!seen.has(video)) {
-            seen.add(video)
+          if (!started.has(video)) {
+            started.add(video)
             video.preload = 'metadata'
             video.load()
           }
@@ -238,6 +240,57 @@ const byUse = [...endpoints.entries()].sort((a, b) => b[1] - a[1])
     },
     { rootMargin: '200px 0px' }
   )
-
   for (const video of document.querySelectorAll('video')) watcher.observe(video)
+
+  /*
+   * One game at a time.
+   *
+   * Each slot is a button until it is pressed, then it becomes an iframe.
+   * Starting another tears the last one down first, and the teardown points
+   * the old frame at about:blank rather than just removing it: a dropped
+   * iframe can keep its audio and its WebGL context for longer than you would
+   * like, and the browser only allows about sixteen contexts before it starts
+   * killing the oldest. Twenty-six live frames is not an option.
+   */
+  type Live = { slot: HTMLElement; frame: HTMLIFrameElement; button: HTMLButtonElement }
+  let live: Live | null = null
+
+  function stop() {
+    if (!live) return
+    live.frame.src = 'about:blank'
+    live.frame.remove()
+    live.slot.appendChild(live.button)
+    live = null
+  }
+
+  function play(slot: HTMLElement, button: HTMLButtonElement) {
+    stop()
+    const src = slot.dataset.game
+    if (!src) return
+    const frame = document.createElement('iframe')
+    frame.src = src
+    frame.title = slot.dataset.name ?? 'Game'
+    frame.className = 'absolute inset-0 h-full w-full border-0'
+    /* Gamepad and fullscreen are the two the games actually ask for. */
+    frame.allow = 'autoplay; fullscreen; gamepad; xr-spatial-tracking'
+    button.remove()
+    slot.appendChild(frame)
+    live = { slot, frame, button }
+    /* The games read the keyboard, so the frame has to have focus or the
+       first arrow key scrolls the page instead of moving anything. */
+    frame.addEventListener('load', () => frame.focus(), { once: true })
+  }
+
+  for (const slot of document.querySelectorAll<HTMLElement>('[data-slot]')) {
+    const button = slot.querySelector<HTMLButtonElement>('[data-play]')
+    if (!button) continue
+    button.addEventListener('click', () => play(slot, button))
+  }
+
+  /* A game left running in a hidden tab keeps making noise and keeps its
+     context. Stop it, and stop it on a client-side swap too. */
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stop()
+  })
+  document.addEventListener('astro:before-swap', stop)
 </script>
