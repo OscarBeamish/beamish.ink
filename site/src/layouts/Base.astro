@@ -8,13 +8,15 @@ type Props = {
   /** Absolute path to an og image, if the page has one. */
   image?: string | null
   video?: string | null
+  /** Keep the page out of search. For anything that is not ours to publish. */
+  noindex?: boolean
 }
 
 // Item pages pass their own poster. Everything else falls back to the social
 // card, because a shared link with no image is a grey box.
 const FALLBACK_IMAGE = '/social/preview.png'
 
-const { title, description, image = FALLBACK_IMAGE, video = null } = Astro.props
+const { title, description, image = FALLBACK_IMAGE, video = null, noindex = false } = Astro.props
 const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink')
 ---
 
@@ -97,6 +99,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
         /* No FontFace constructor is no worse than before it existed. */
       }
     </script>
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical.href} />
     <title>{title}</title>
     <meta name="description" content={description} />

@@ -51,3 +51,9 @@ reference/
 # did not cover images at all.
 .*.jpg
 .*.png
+
+# Playable Worlds, mirrored for the hidden showcase page. Someone else's work,
+# 700MB of it, and not ours to commit: 283MB of models and 278MB of textures
+# against a repo whose own video budget is three and a half. Rebuild it with
+# tools/playable-worlds/mirror.py.
+site/public/playable-worlds/

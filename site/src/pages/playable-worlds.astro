@@ -1,0 +1,243 @@
+---
+/*
+ * A hidden page showing somebody else's work.
+ *
+ * Playable Worlds is by lovis odin: twenty-six generated videos rebuilt as
+ * playable WebGL games by Claude and the fal Agent SDK. It is mirrored here so
+ * it can be shown without a network, and it is not ours. The credit is in the
+ * markup rather than in a comment, the page is noindex, and it is linked from
+ * nowhere.
+ *
+ * The mirror itself lives in public/playable-worlds and is gitignored: 713MB
+ * of models, textures and audio, against a repo whose own video budget is
+ * three and a half. `tools/playable-worlds/mirror.py` rebuilds it.
+ */
+import fs from 'node:fs'
+import path from 'node:path'
+import Base from '../layouts/Base.astro'
+
+type Game = {
+  tag: string
+  model: string
+  prompt: string
+  controls: string
+  usd?: number
+  images?: string[]
+  audios?: string[]
+  glbs?: { f: string; mb: number }[]
+  models?: { id: string; n: number }[]
+}
+
+const MIRROR = path.join(process.cwd(), 'public', 'playable-worlds')
+const manifest = path.join(MIRROR, 'games.json')
+
+/*
+ * The mirror is not in git, so a fresh clone has no games.json. The page says
+ * so rather than failing the build: a missing 700MB download is a thing to go
+ * and fetch, not a broken site.
+ */
+const present = fs.existsSync(manifest)
+const games: Game[] = present ? JSON.parse(fs.readFileSync(manifest, 'utf8')) : []
+
+const title = (tag: string) =>
+  tag
+    .replace(/^[A-Z]+\d+_/, '')
+    .replace(/_.*$/, '')
+    .toLowerCase()
+    .split('-')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ')
+
+const sum = (pick: (g: Game) => number) => games.reduce((n, g) => n + pick(g), 0)
+const totals = {
+  images: sum(g => g.images?.length ?? 0),
+  models: sum(g => g.glbs?.length ?? 0),
+  audio: sum(g => g.audios?.length ?? 0),
+  usd: sum(g => g.usd ?? 0)
+}
+
+/* Every distinct fal endpoint across the set, commonest first. */
+const endpoints = new Map<string, number>()
+for (const g of games) {
+  for (const m of g.models ?? []) endpoints.set(m.id, (endpoints.get(m.id) ?? 0) + m.n)
+}
+const byUse = [...endpoints.entries()].sort((a, b) => b[1] - a[1])
+---
+
+<Base
+  title="Playable Worlds: a mirror"
+  description="Twenty-six generated videos rebuilt as playable WebGL games, by lovis odin. Mirrored here to run without a network."
+  noindex={true}
+>
+  <article class="spine pt-32 pb-16 md:pt-44">
+    <p class="tag col-span-12">Not ours &middot; mirrored for reference</p>
+
+    <h1
+      class="col-span-12 mt-3 text-[10.5svw] leading-[0.86] font-bold tracking-[-0.012em] uppercase lg:col-span-8 lg:text-[6.6svw]"
+    >
+      Playable Worlds
+    </h1>
+
+    <p class="text-l2 col-span-12 mt-6 text-[1rem] sm:col-span-9 lg:col-span-6">
+      Twenty-six generated videos, each watched by Claude and rebuilt as a playable
+      WebGL game. Every texture, model and track generated too. This is
+      <strong>somebody else&rsquo;s work</strong>, kept here so it can be shown
+      without a network.
+    </p>
+
+    <dl class="subgrid-12 col-span-12 mt-10 gap-y-4">
+      <div class="col-span-6 sm:col-span-3">
+        <dt class="tag">Made by</dt>
+        <dd class="mt-1 text-[0.95rem]">lovis odin</dd>
+      </div>
+      <div class="col-span-6 sm:col-span-3">
+        <dt class="tag">Built with</dt>
+        <dd class="mt-1 text-[0.95rem]">Claude + fal Agent SDK</dd>
+      </div>
+      <div class="col-span-6 sm:col-span-3">
+        <dt class="tag">Original</dt>
+        <dd class="mt-1 text-[0.95rem]">
+          <a
+            class="underline underline-offset-4"
+            href="https://fal-video-to-game.vercel.app"
+            rel="noopener noreferrer"
+            target="_blank">fal-video-to-game.vercel.app</a
+          >
+        </dd>
+      </div>
+      <div class="col-span-6 sm:col-span-3">
+        <dt class="tag">Engine</dt>
+        <dd class="mt-1 text-[0.95rem]">three.js only, no framework</dd>
+      </div>
+    </dl>
+
+    {
+      present && (
+        <p class="text-l2 col-span-12 mt-10 text-[0.9rem] sm:col-span-9 lg:col-span-7">
+          {games.length} games &middot; {totals.images} images &middot; {totals.models}{' '}
+          3D models &middot; {totals.audio} audio files
+          {totals.usd > 0 && <> &middot; ${totals.usd.toFixed(2)} of generation</>}
+        </p>
+      )
+    }
+
+    {
+      !present && (
+        <div class="col-span-12 mt-10 border border-line p-6 sm:col-span-9">
+          <p class="text-[0.95rem]">The mirror is not on this machine.</p>
+          <p class="text-l2 mt-2 text-[0.9rem]">
+            It is 713MB and deliberately not in git. Run{' '}
+            <code>python tools/playable-worlds/mirror.py</code> to fetch it into{' '}
+            <code>site/public/playable-worlds/</code>, then reload.
+          </p>
+        </div>
+      )
+    }
+
+    {
+      byUse.length > 0 && (
+        <ul class="col-span-12 mt-8 flex flex-wrap gap-x-3 gap-y-2 lg:col-span-9">
+          {byUse.map(([id, n]) => (
+            <li class="tag">
+              {id} <span class="text-l3">&times;{n}</span>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
+    <ol class="subgrid-12 col-span-12 mt-16 gap-y-16">
+      {
+        games.map((g, i) => (
+          <li class="subgrid-12 col-span-12">
+            <p class="tag col-span-12 sm:col-span-3">
+              {String(i + 1).padStart(2, '0')}
+            </p>
+
+            <div class="col-span-12 sm:col-span-9 sm:col-start-4">
+              <h2 class="text-[1.4rem] leading-tight font-semibold tracking-[-0.01em]">
+                {title(g.tag)}
+              </h2>
+              <p class="tag mt-1">{g.model}</p>
+
+              <div class="mt-4 grid gap-4 md:grid-cols-2">
+                {/*
+                  The source clip and the thing it became, side by side. That
+                  pairing is the whole argument of the original and it is worth
+                  keeping: a video on the left, a playable game on the right.
+                */}
+                <figure class="m-0">
+                  <video
+                    class="w-full rounded-[2px] border border-line"
+                    src={`/playable-worlds/videos/${g.tag}.mp4`}
+                    muted
+                    loop
+                    playsinline
+                    preload="none"
+                    controls
+                  />
+                  <figcaption class="tag mt-2">Video &middot; input</figcaption>
+                </figure>
+
+                <div class="flex flex-col justify-between">
+                  <p class="text-l2 text-[0.9rem]">{g.prompt}</p>
+                  <div class="mt-4">
+                    <a
+                      class="inline-block border border-line px-4 py-2 text-[0.8rem] tracking-[0.08em] uppercase"
+                      href={`/playable-worlds/${g.tag}/index.html`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Play &nearr;
+                    </a>
+                    <p class="tag mt-2">WebGL game &middot; output</p>
+                  </div>
+                </div>
+              </div>
+
+              <p class="text-l3 mt-4 text-[0.8rem]">{g.controls}</p>
+
+              <p class="tag mt-3">
+                {g.images?.length ?? 0} images &middot; {g.glbs?.length ?? 0} models
+                &middot; {g.audios?.length ?? 0} audio
+                {g.usd ? <> &middot; ${g.usd.toFixed(2)}</> : null}
+              </p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </article>
+</Base>
+
+<script>
+  /*
+   * The videos are set to preload nothing, because twenty-six of them on one
+   * page is twelve megabytes nobody asked for. They load when they are nearly
+   * on screen and play while they are on it, which is what a reel of clips
+   * should do and what the posterless ones would otherwise fail to do.
+   */
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)')
+  const seen = new WeakSet<HTMLVideoElement>()
+
+  const watcher = new IntersectionObserver(
+    entries => {
+      for (const entry of entries) {
+        const video = entry.target as HTMLVideoElement
+        if (entry.isIntersecting) {
+          if (!seen.has(video)) {
+            seen.add(video)
+            video.preload = 'metadata'
+            video.load()
+          }
+          if (!reduced.matches) void video.play().catch(() => {})
+        } else {
+          video.pause()
+        }
+      }
+    },
+    { rootMargin: '200px 0px' }
+  )
+
+  for (const video of document.querySelectorAll('video')) watcher.observe(video)
+</script>
