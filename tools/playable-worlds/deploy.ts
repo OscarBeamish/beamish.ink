@@ -138,6 +138,18 @@ console.log('root: redirected to /playable-worlds')
  * `pages deploy` against a project that does not exist offers to create one,
  * which is a prompt, and a prompt is a hang when nobody is at the terminal.
  * So ask first and create it explicitly. Both commands are harmless to repeat.
+ *
+ * `--force` on the create is not optional. Wrangler now hands `pages` over to
+ * the Workers version of Pages, which starts by working out what kind of
+ * application it is looking at, and in the root of a pnpm workspace it refuses
+ * on the grounds that it found a workspace rather than a project. There is no
+ * project to point it at: what is being uploaded is a directory of built
+ * files, not an application. `--force` keeps it on the older Pages API, which
+ * only wants the directory.
+ *
+ * It belongs on the create alone. Once the project exists wrangler stops
+ * delegating and says so, and passing it to the deploy as well is the kind of
+ * flag that gets copied forward until somebody wonders what it was for.
  */
 const wrangler = (args: string[], capture = false) =>
   spawnSync('npx', ['wrangler', ...args], {
@@ -156,7 +168,14 @@ if (list.status !== 0) {
 
 if (!(list.stdout ?? '').includes(PROJECT)) {
   console.log(`\ncreating the Pages project ${PROJECT}`)
-  const made = wrangler(['pages', 'project', 'create', PROJECT, '--production-branch=main'])
+  const made = wrangler([
+    'pages',
+    'project',
+    'create',
+    PROJECT,
+    '--production-branch=main',
+    '--force'
+  ])
   if (made.status !== 0) fail(`Could not create ${PROJECT}.`)
 }
 
