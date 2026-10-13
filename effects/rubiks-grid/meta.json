@@ -1,0 +1,173 @@
+{
+  "name": "RubiksGrid",
+  "slug": "rubiks-grid",
+  "tier": 1,
+  "description": "A field of Rubik's cubes in isometric projection, each turning a layer at a time and solving itself",
+  "category": "backdrops",
+  "ground": "either",
+  "tags": [
+    "webgl",
+    "three",
+    "isometric",
+    "cube",
+    "grid",
+    "puzzle",
+    "loop"
+  ],
+  "peerDependencies": {
+    "three": ">=0.160.0"
+  },
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "Adapted from a standalone sketch of mine, Isometric Rubik's, which is MIT. The look is the same and almost none of the code is, for one reason: the original keeps its state and this cannot",
+      "The sketch does what any cube simulation does. Pick a move, reparent the nine cubies of that layer to a pivot, turn the pivot, reparent them back with positions snapped, push the move onto a history. Every frame is built from the one before it",
+      "renderAtTime has to answer for any moment without having seen the moments before it, so the recorder can seek and so a loop closes exactly. So the scene graph is never mutated and no history is kept",
+      "Every move is derived instead. Cube seven's fourth move is a function of the seed and those two numbers, so it is the same answer every time it is asked and it can be asked out of order",
+      "The state is rebuilt each frame, replayed from solved. A few dozen integer permutations per cube, which costs nothing next to the matrices that have to be written anyway",
+      "The cubie state is integer: a position in {-1,0,1} and a 3x3 rotation whose entries are only ever -1, 0 or 1. Quaternions drift over a few hundred replayed turns, and a cube that should be solved coming back a fraction of a degree off is a visible seam on a flat isometric face. Integers cannot drift",
+      "The loop closes because the sequence undoes itself. Each cube scrambles for `moves` turns then replays them backwards, which is the standard inverse scramble. That is the original's solve button turned into the shape of the animation rather than a control on it",
+      "When the cubes are out of step their offsets are whole numbers of turns, never fractions. A fractional offset means the grid never returns to the frame it started on and the recording jumps once per loop",
+      "Orthographic camera, because isometric is a projection with no perspective in it: a cube at the edge has to be the same size and shape as one in the middle, or the field stops tiling and starts being a scene",
+      "Seven draw calls whatever the grid size. The original gives every cubie its own mesh with six materials, which at a 6x4 grid is 648 meshes before the stickers; here the bodies are one InstancedMesh and the stickers are one per colour",
+      "Which faces of a cubie carry a sticker is decided by where it started, not where it is now. That is what keeps nine of each colour however scrambled it gets",
+      "The middle layer is never turned. It moves no corner, so at this size it reads as a glitch rather than as a move",
+      "three's colour management is off, so a colour written here is the colour that lands. With it on the sticker reds come out muddy and the whites come out grey"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 2.5,
+    "contexts": 1,
+    "notes": [
+      "Seven draw calls regardless of grid size. The real per-frame cost is writing the instance matrices: at the default five columns that is about 650 cubie bodies and 1300 stickers",
+      "Every working matrix and vector is allocated once. The inner loop runs tens of thousands of times a second and a matrix made in there is a matrix the collector has to take away again",
+      "The move sequences are cached per cube. They are pure functions of the seed and the index so they could be recomputed every frame, but it would be the same answer",
+      "Cost goes with the square of `columns`, since rows follow from it. 5 is comfortable, 10 is four times the work"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/rubiks-grid/core.ts",
+      "to": "src/beamish/effects/rubiks-grid/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/rubiks-grid/adapters/react.tsx",
+      "to": "src/beamish/effects/rubiks-grid/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/rubiks-grid/adapters/vue.ts",
+      "to": "src/beamish/effects/rubiks-grid/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "columns": {
+      "default": 5,
+      "type": "number",
+      "min": 1,
+      "max": 14,
+      "step": 1,
+      "sensible": [3, 8],
+      "description": "Cubes across the frame. Rows follow from it and the aspect, so the field always fills the box. This is the density control and the performance control at once: the work goes with the square of it, so 10 is four times 5."
+    },
+    "scheme": {
+      "type": "enum",
+      "default": "classic",
+      "values": ["classic", "neon", "ocean", "sunset", "monochrome"],
+      "description": "The six sticker colours. `classic` is the real cube's palette. `monochrome` is the one worth seeing once: with the colour gone you watch the geometry instead, and it becomes obvious how much of the effect is the turning rather than the palette."
+    },
+    "turn": {
+      "default": 0.4,
+      "type": "number",
+      "min": 0.08,
+      "max": 2,
+      "step": 0.02,
+      "unit": "s",
+      "sensible": [0.25, 0.6],
+      "description": "Seconds one quarter turn takes. The easing inside it is a finger flick rather than a symmetric curve: quick away, slow home, with the weight at the end. That is the single thing that makes the motion feel like fingers instead of like a motor."
+    },
+    "rest": {
+      "default": 0.2,
+      "type": "number",
+      "min": 0,
+      "max": 3,
+      "step": 0.05,
+      "unit": "s",
+      "sensible": [0.1, 0.6],
+      "description": "Seconds a cube sits still between turns. Most of the charm is here. At 0 nothing ever stops and the field reads as a machine; a pause lets each turn land before the next one starts."
+    },
+    "moves": {
+      "default": 5,
+      "type": "number",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "sensible": [3, 8],
+      "description": "Turns of scramble before the cube undoes them and returns to solved. The whole loop is twice this, so it is also what sets the length of the animation: at the default beat, 5 moves is a six second cycle."
+    },
+    "sync": {
+      "type": "boolean",
+      "default": false,
+      "description": "Every cube turns at the same moment rather than each on its own offset. Worth trying both: in sync the field reads as one object breathing, and out of sync it reads as a room full of people each solving their own."
+    },
+    "tilt": {
+      "default": 30,
+      "type": "number",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "deg",
+      "sensible": [24, 38],
+      "description": "How far the field tilts out of flat. 30 with the fixed eighth-turn is the classic isometric pair, and it is why a cube drawn this way shows three faces of equal width. Away from 30 it is still a nice axonometric view, just not an isometric one."
+    },
+    "body": {
+      "type": "color",
+      "default": "#141318",
+      "description": "The plastic between the stickers. Near-black rather than black: a true black body against bright stickers reads as gaps rather than as a cube."
+    },
+    "seed": {
+      "default": 7,
+      "type": "number",
+      "min": 1,
+      "max": 9999,
+      "step": 1,
+      "description": "Seed for the scramble. The same seed gives the same sequence in the same order, which is what makes a recording reproducible."
+    },
+    "maxDpr": {
+      "default": 2,
+      "type": "number",
+      "min": 1,
+      "max": 3,
+      "step": 0.5,
+      "description": "Device pixel ratio ceiling. Flat isometric faces meeting at hard edges alias badly, so this is worth leaving at 2."
+    },
+    "reducedMotionTime": {
+      "default": 1.2,
+      "type": "number",
+      "min": 0,
+      "max": 30,
+      "step": 0.1,
+      "unit": "s",
+      "description": "The single frame shown when the user prefers reduced motion. Pick a moment mid-scramble rather than 0: at 0 every cube is solved and the field is six flat colours, which says nothing about what the item does."
+    }
+  },
+  "instruction": "each cube scrambles then undoes itself, which is why it loops",
+  "credit": {
+    "what": "A grid of Rubik's cubes in isometric projection with layers turning, from a procedurally generated Rubik's cube pattern posted to r/creativecoding. The standalone sketch this is adapted from is my own and is MIT; the idea was theirs",
+    "author": "u/Positive_Tea_1166 on r/creativecoding",
+    "url": "https://www.reddit.com/r/creativecoding/comments/1r78hw2/procedurally_generated_rubiks_cube_pattern/"
+  },
+  "record": {
+    "duration": 6,
+    "fps": 30,
+    "posterAt": 1.4,
+    "crf": 30
+  }
+}
