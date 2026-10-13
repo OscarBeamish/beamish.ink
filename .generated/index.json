@@ -9071,29 +9071,31 @@
     "browser": {
       "webgl": "webgl2",
       "notes": [
-        "Adapted from a standalone sketch of mine, Isometric Rubik's, which is MIT. The look is the same and almost none of the code is, for one reason: the original keeps its state and this cannot",
-        "The sketch does what any cube simulation does. Pick a move, reparent the nine cubies of that layer to a pivot, turn the pivot, reparent them back with positions snapped, push the move onto a history. Every frame is built from the one before it",
-        "renderAtTime has to answer for any moment without having seen the moments before it, so the recorder can seek and so a loop closes exactly. So the scene graph is never mutated and no history is kept",
-        "Every move is derived instead. Cube seven's fourth move is a function of the seed and those two numbers, so it is the same answer every time it is asked and it can be asked out of order",
-        "The state is rebuilt each frame, replayed from solved. A few dozen integer permutations per cube, which costs nothing next to the matrices that have to be written anyway",
-        "The cubie state is integer: a position in {-1,0,1} and a 3x3 rotation whose entries are only ever -1, 0 or 1. Quaternions drift over a few hundred replayed turns, and a cube that should be solved coming back a fraction of a degree off is a visible seam on a flat isometric face. Integers cannot drift",
-        "The loop closes because the sequence undoes itself. Each cube scrambles for `moves` turns then replays them backwards, which is the standard inverse scramble. That is the original's solve button turned into the shape of the animation rather than a control on it",
-        "When the cubes are out of step their offsets are whole numbers of turns, never fractions. A fractional offset means the grid never returns to the frame it started on and the recording jumps once per loop",
+        "Adapted from a standalone sketch of mine, Isometric Rubik's, which is MIT. The idea came from a post on r/creativecoding. The look is matched deliberately; the mechanism underneath it is not the same, for one reason",
+        "The sketch keeps its state. Pick a move, reparent the nine cubies of that layer to a pivot, turn the pivot, reparent them back with positions snapped, push the move onto a history. Every frame is built from the one before it",
+        "renderAtTime has to answer for any moment without having seen the moments before it, so the recorder can seek and so a loop closes exactly. So nothing is mutated and no history is kept: every move is derived from the seed and the cube's place, and the state is replayed from solved each frame",
+        "The cubie state is integer: a position in {-1,0,1} and a 3x3 rotation of -1, 0 and 1. Replaying composes hundreds of turns and floating point drifts over that, which on a flat isometric face shows as a seam on a cube that is supposed to be solved. The sketch solves the same problem by snapping positions after every turn",
+        "The loop closes because the sequence undoes itself. Each cube scrambles for `moves` turns then replays them backwards, which is the inverse scramble, and is the sketch's solve button turned into the shape of the animation rather than a control on it",
+        "Cube offsets are whole turns, never fractions, or the field never returns to the frame it started on and a recording jumps once per loop",
+        "The cubes are laid in a staircase, not a grid. Each row is pushed sideways by half a cube so the V between two cubes in a row is filled by the one below, and the rows sit closer together than a cube is tall. The first version here used a rectangular grid with a gap and it read as a shelf of ornaments rather than as a pattern",
+        "The field covers the frame rather than fitting inside it. A cube clipped by the edge is correct; a tidy margin of background around a rectangle of cubes is what makes it look like a widget",
+        "No lights at all, and that is the look. The sketch uses MeshBasicMaterial throughout, so a face of a given colour is that exact colour wherever it is and whichever way it points. Lambert with an ambient and a key was tried first and it pulled the reds to a dusty rose and the whites to grey",
+        "three's colour management is left on, which is its default and what the sketch relies on. Turning it off skips the sRGB-to-linear conversion on the way in but not the linear-to-sRGB on the way out, so every colour is brightened exactly once and classic red comes out pink",
+        "A cubie fills 0.88 of its cell, which is the sketch's ratio. The sticker covers the whole cubie face rather than sitting inset on it, so the only black is the gap between cubies; an inset tile gives every cubie a second outline and doubles the black in the picture",
         "Orthographic camera, because isometric is a projection with no perspective in it: a cube at the edge has to be the same size and shape as one in the middle, or the field stops tiling and starts being a scene",
-        "Seven draw calls whatever the grid size. The original gives every cubie its own mesh with six materials, which at a 6x4 grid is 648 meshes before the stickers; here the bodies are one InstancedMesh and the stickers are one per colour",
+        "Seven draw calls whatever the grid size. The sketch gives every cubie its own mesh with six materials; here the bodies are one InstancedMesh and the stickers are one per colour",
         "Which faces of a cubie carry a sticker is decided by where it started, not where it is now. That is what keeps nine of each colour however scrambled it gets",
-        "The middle layer is never turned. It moves no corner, so at this size it reads as a glitch rather than as a move",
-        "three's colour management is off, so a colour written here is the colour that lands. With it on the sticker reds come out muddy and the whites come out grey"
+        "The middle layer is never turned. It moves no corner, so at this size it reads as a glitch rather than as a move"
       ]
     },
     "perf": {
       "frameBudgetMs": 2.5,
       "contexts": 1,
       "notes": [
-        "Seven draw calls regardless of grid size. The real per-frame cost is writing the instance matrices: at the default five columns that is about 650 cubie bodies and 1300 stickers",
+        "Seven draw calls regardless of grid size. The real per-frame cost is writing the instance matrices: at the default density that is roughly 1,100 cubie bodies and 2,200 stickers",
         "Every working matrix and vector is allocated once. The inner loop runs tens of thousands of times a second and a matrix made in there is a matrix the collector has to take away again",
         "The move sequences are cached per cube. They are pure functions of the seed and the index so they could be recomputed every frame, but it would be the same answer",
-        "Cost goes with the square of `columns`, since rows follow from it. 5 is comfortable, 10 is four times the work"
+        "Cost goes with the square of `density`, since it opens the camera in both directions. 6 is comfortable, 12 is four times the work"
       ]
     },
     "files": [
@@ -9119,27 +9121,29 @@
       }
     ],
     "options": {
-      "columns": {
+      "density": {
         "type": "number",
-        "default": 5,
-        "description": "Cubes across the frame. Rows follow from it and the aspect, so the field always fills the box. This is the density control and the performance control at once: the work goes with the square of it, so 10 is four times 5.",
-        "min": 1,
-        "max": 14,
+        "default": 6,
+        "description": "How much of the field you see. It opens the camera rather than resizing the cubes, so a higher number is more cubes at the same size rather than the same cubes smaller. The sketch calls this zoom. 6 is its base and is what the demo shows.",
+        "min": 2,
+        "max": 16,
         "step": 1,
         "sensible": [
-          3,
-          8
+          4,
+          10
         ]
       },
       "scheme": {
         "type": "enum",
         "default": "classic",
-        "description": "The six sticker colours. `classic` is the real cube's palette. `monochrome` is the one worth seeing once: with the colour gone you watch the geometry instead, and it becomes obvious how much of the effect is the turning rather than the palette.",
+        "description": "The seven palettes from the original sketch, carried over exactly. Each one carries its own body colour as well as its six face colours, because the plastic between the stickers is part of the palette: pastel on black is a different idea from pastel on its own near-black.",
         "values": [
           "classic",
           "neon",
           "ocean",
           "sunset",
+          "forest",
+          "pastel",
           "monochrome"
         ]
       },
@@ -9199,11 +9203,6 @@
           38
         ]
       },
-      "body": {
-        "type": "color",
-        "default": "#141318",
-        "description": "The plastic between the stickers. Near-black rather than black: a true black body against bright stickers reads as gaps rather than as a cube."
-      },
       "seed": {
         "type": "number",
         "default": 7,
@@ -9236,7 +9235,9 @@
       "duration": 6,
       "fps": 30,
       "posterAt": 1.4,
-      "crf": 30
+      "crf": 36,
+      "webmCrf": 50,
+      "posterQuality": 12
     },
     "credit": {
       "what": "A grid of Rubik's cubes in isometric projection with layers turning, from a procedurally generated Rubik's cube pattern posted to r/creativecoding. The standalone sketch this is adapted from is my own and is MIT; the idea was theirs",

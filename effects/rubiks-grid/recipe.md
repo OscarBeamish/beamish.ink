@@ -62,6 +62,49 @@ makes a cube show three faces of equal width, which is the whole look. `tilt`
 is adjustable, but away from 30 you have a nice axonometric view rather than an
 isometric one.
 
+## The tiling is a staircase, not a grid
+
+This is the part that decides whether it reads as a pattern or as a shelf of
+ornaments, and the first version here got it wrong.
+
+Each row is pushed sideways by **half a cube**, so the V between two cubes in a
+row is filled by the cube below it, and the rows sit **closer together than a
+cube is tall** so the faces interlock. The three numbers come from projecting
+the eight corners of a cube under the isometric pair and measuring:
+
+| | as a multiple of the cube's side |
+| --- | --- |
+| projected width | 1.41421 |
+| projected height | 1.57313 |
+| spacing across | 1.38821 |
+| stagger per row | 0.70111 |
+| spacing down | 1.19459 |
+
+That last one is the projected height times 0.767, and the 0.767 was found by
+eye rather than derived. It is what makes the rows sit *into* each other rather
+than merely near each other.
+
+The field also **covers the frame rather than fitting inside it**. A cube
+clipped by the edge is correct. A tidy margin of background around a rectangle
+of cubes is the thing that makes it look like a widget instead of a surface.
+
+## No lights at all
+
+The whole thing is `MeshBasicMaterial`, so a face of a given colour is that
+exact colour wherever it is and whichever way it points. There is no shading
+anywhere.
+
+Lambert with an ambient and a key light was tried first, because that is the
+sensible thing to do, and it is wrong: the shading pulled the reds to a dusty
+rose and the whites to grey, and the field stopped being a flat graphic and
+became a photograph of some toys. A cube still reads as a cube because its
+three visible faces are three different colours. It does not need shading.
+
+**Leave three's colour management alone.** Turning it off skips the
+sRGB-to-linear conversion on the way in but not the linear-to-sRGB conversion
+on the way out, so every colour is brightened exactly once and classic red
+comes out pink. The two conversions are inverses; let them be.
+
 ## Seven draw calls
 
 The original gives every cubie its own mesh with six materials. Readable, and
@@ -75,6 +118,11 @@ way.
 Which faces of a cubie carry a sticker is decided by **where it started**, not
 where it is now. That is what keeps exactly nine of each colour however
 scrambled it gets.
+
+A cubie fills **0.88 of its cell** and the sticker covers the whole cubie face
+rather than sitting inset on it. The only black in the picture is the gap
+between cubies. An inset tile gives every cubie a second outline and doubles
+the amount of black.
 
 ## Wiring
 
@@ -102,7 +150,7 @@ export function Hero() {
 
   useEffect(() => {
     if (!host.current) return
-    const field = createRubiksGrid(host.current, { columns: 5 })
+    const field = createRubiksGrid(host.current, { density: 6 })
     field.start()
     return () => field.destroy()
   }, [])
@@ -139,8 +187,9 @@ one of the few items here with a dependency.
 
 ## Tuning it
 
-1. **`columns`.** The density and the cost at once, since rows follow from it
-   and the aspect. The work goes with the square, so 10 is four times 5.
+1. **`density`.** How much of the field you see. It opens the camera rather
+   than resizing the cubes, so higher is more cubes at the same size. The work
+   goes with the square, so 12 is four times 6.
 2. **`rest`.** Most of the charm. At 0 nothing ever stops and the field reads
    as a machine. A pause lets each turn land before the next starts.
 3. **`sync`.** Worth trying both. In sync the field reads as one object
@@ -148,19 +197,16 @@ one of the few items here with a dependency.
    own.
 4. **`moves`.** Also the loop length, because the cycle is twice it. At the
    default beat, 5 moves is a six second loop.
-5. **`scheme`.** Set it to `monochrome` once. With the colour gone you watch
-   the geometry instead, and it is obvious how much of the effect is the
-   turning rather than the palette.
+5. **`scheme`.** Seven palettes, carried over from the sketch exactly. Each
+   carries its own body colour as well as its six face colours, because the
+   plastic between the stickers is part of the palette. Set it to `monochrome`
+   once: with the colour gone you watch the geometry instead, and it is obvious
+   how much of the effect is the turning rather than the palette.
 
 ## Two small decisions
 
 **The middle layer is never turned.** It moves no corner, so at this size it
 reads as a glitch rather than as a move.
-
-**three's colour management is switched off**, so a colour written in the
-palette is the colour that lands. With it on, three converts every colour from
-sRGB into linear light on the way in, and the sticker reds come out muddy and
-the whites come out grey.
 
 ## Cleanup and SSR
 
@@ -196,3 +242,9 @@ item does.
 
 5. **A mesh per cubie.** It works and it is readable, and it is hundreds of
    draw calls for a result that instancing gives you in seven.
+
+6. **Spacing the cubes on a plain grid.** They have to staircase and interlock.
+   On a grid with gaps it is a shelf of ornaments.
+
+7. **Lighting it.** There is no shading in this at all, and adding any turns
+   the flat graphic into a photograph of toys.

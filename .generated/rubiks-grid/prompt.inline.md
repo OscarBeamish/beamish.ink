@@ -14,19 +14,21 @@ Assume you have not seen this library before. Everything you need is below.
 
 - **npm dependencies:** `three@>=0.160.0`
 - WebGL2. There is no WebGL1 fallback
-- Adapted from a standalone sketch of mine, Isometric Rubik's, which is MIT. The look is the same and almost none of the code is, for one reason: the original keeps its state and this cannot
-- The sketch does what any cube simulation does. Pick a move, reparent the nine cubies of that layer to a pivot, turn the pivot, reparent them back with positions snapped, push the move onto a history. Every frame is built from the one before it
-- renderAtTime has to answer for any moment without having seen the moments before it, so the recorder can seek and so a loop closes exactly. So the scene graph is never mutated and no history is kept
-- Every move is derived instead. Cube seven's fourth move is a function of the seed and those two numbers, so it is the same answer every time it is asked and it can be asked out of order
-- The state is rebuilt each frame, replayed from solved. A few dozen integer permutations per cube, which costs nothing next to the matrices that have to be written anyway
-- The cubie state is integer: a position in {-1,0,1} and a 3x3 rotation whose entries are only ever -1, 0 or 1. Quaternions drift over a few hundred replayed turns, and a cube that should be solved coming back a fraction of a degree off is a visible seam on a flat isometric face. Integers cannot drift
-- The loop closes because the sequence undoes itself. Each cube scrambles for `moves` turns then replays them backwards, which is the standard inverse scramble. That is the original's solve button turned into the shape of the animation rather than a control on it
-- When the cubes are out of step their offsets are whole numbers of turns, never fractions. A fractional offset means the grid never returns to the frame it started on and the recording jumps once per loop
+- Adapted from a standalone sketch of mine, Isometric Rubik's, which is MIT. The idea came from a post on r/creativecoding. The look is matched deliberately; the mechanism underneath it is not the same, for one reason
+- The sketch keeps its state. Pick a move, reparent the nine cubies of that layer to a pivot, turn the pivot, reparent them back with positions snapped, push the move onto a history. Every frame is built from the one before it
+- renderAtTime has to answer for any moment without having seen the moments before it, so the recorder can seek and so a loop closes exactly. So nothing is mutated and no history is kept: every move is derived from the seed and the cube's place, and the state is replayed from solved each frame
+- The cubie state is integer: a position in {-1,0,1} and a 3x3 rotation of -1, 0 and 1. Replaying composes hundreds of turns and floating point drifts over that, which on a flat isometric face shows as a seam on a cube that is supposed to be solved. The sketch solves the same problem by snapping positions after every turn
+- The loop closes because the sequence undoes itself. Each cube scrambles for `moves` turns then replays them backwards, which is the inverse scramble, and is the sketch's solve button turned into the shape of the animation rather than a control on it
+- Cube offsets are whole turns, never fractions, or the field never returns to the frame it started on and a recording jumps once per loop
+- The cubes are laid in a staircase, not a grid. Each row is pushed sideways by half a cube so the V between two cubes in a row is filled by the one below, and the rows sit closer together than a cube is tall. The first version here used a rectangular grid with a gap and it read as a shelf of ornaments rather than as a pattern
+- The field covers the frame rather than fitting inside it. A cube clipped by the edge is correct; a tidy margin of background around a rectangle of cubes is what makes it look like a widget
+- No lights at all, and that is the look. The sketch uses MeshBasicMaterial throughout, so a face of a given colour is that exact colour wherever it is and whichever way it points. Lambert with an ambient and a key was tried first and it pulled the reds to a dusty rose and the whites to grey
+- three's colour management is left on, which is its default and what the sketch relies on. Turning it off skips the sRGB-to-linear conversion on the way in but not the linear-to-sRGB on the way out, so every colour is brightened exactly once and classic red comes out pink
+- A cubie fills 0.88 of its cell, which is the sketch's ratio. The sticker covers the whole cubie face rather than sitting inset on it, so the only black is the gap between cubies; an inset tile gives every cubie a second outline and doubles the black in the picture
 - Orthographic camera, because isometric is a projection with no perspective in it: a cube at the edge has to be the same size and shape as one in the middle, or the field stops tiling and starts being a scene
-- Seven draw calls whatever the grid size. The original gives every cubie its own mesh with six materials, which at a 6x4 grid is 648 meshes before the stickers; here the bodies are one InstancedMesh and the stickers are one per colour
+- Seven draw calls whatever the grid size. The sketch gives every cubie its own mesh with six materials; here the bodies are one InstancedMesh and the stickers are one per colour
 - Which faces of a cubie carry a sticker is decided by where it started, not where it is now. That is what keeps nine of each colour however scrambled it gets
 - The middle layer is never turned. It moves no corner, so at this size it reads as a glitch rather than as a move
-- three's colour management is off, so a colour written here is the colour that lands. With it on the sticker reds come out muddy and the whites come out grey
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -109,11 +111,18 @@ import {
   type Surface
 } from '../../shared/runtime'
 
-export type RubiksGridScheme = 'classic' | 'neon' | 'ocean' | 'sunset' | 'monochrome'
+export type RubiksGridScheme =
+  | 'classic'
+  | 'neon'
+  | 'ocean'
+  | 'sunset'
+  | 'forest'
+  | 'pastel'
+  | 'monochrome'
 
 export type RubiksGridOptions = BaseOptions & {
-  /** Cubes across the frame. Rows follow from the aspect. */
-  columns: number
+  /** How much of the field you see. Higher means smaller cubes, more of them. */
+  density: number
   /** Which set of sticker colours. */
   scheme: RubiksGridScheme
   /** Seconds one quarter turn takes. */
@@ -126,8 +135,6 @@ export type RubiksGridOptions = BaseOptions & {
   sync: boolean
   /** How far the field tilts out of flat, in degrees. 30 is isometric. */
   tilt: number
-  /** The body of a cubie, between the stickers. */
-  body: string
   /** Seed for the scramble. The same seed gives the same sequence. */
   seed: number
 }
@@ -137,26 +144,55 @@ export type RubiksGridOptions = BaseOptions & {
  * meta.json is the source of truth; this object exists so the file stands alone.
  */
 export const rubiksGridDefaults: RubiksGridOptions = {
-  columns: 5,
+  density: 6,
   scheme: 'classic',
   turn: 0.4,
   rest: 0.2,
   moves: 5,
   sync: false,
   tilt: 30,
-  body: '#141318',
   seed: 7,
   maxDpr: 2,
   reducedMotionTime: 1.2
 }
 
-/* The six sticker colours, in the order right, left, top, bottom, front, back. */
-const SCHEMES: Record<RubiksGridScheme, readonly string[]> = {
-  classic: ['#c41e3a', '#ff5800', '#ffd500', '#ffffff', '#0051ba', '#009e60'],
-  neon: ['#ff2d95', '#ff8a00', '#faff00', '#f2f2f2', '#00c2ff', '#28ff8f'],
-  ocean: ['#0b4f6c', '#01baef', '#20bf55', '#fbfbff', '#145c9e', '#0f8b8d'],
-  sunset: ['#c1292e', '#f17105', '#ffd25a', '#fdfcdc', '#235789', '#e6af2e'],
-  monochrome: ['#f5f5f5', '#171717', '#f5f5f5', '#171717', '#9a9a9a', '#3d3d3d']
+/*
+ * The seven palettes from the original sketch, carried over exactly.
+ *
+ * `faces` is right, left, top, bottom, front, back. `body` is the plastic
+ * between the stickers, which the sketch calls the internal colour and which
+ * is part of the palette rather than a separate setting: pastel on black looks
+ * like a different idea from pastel on its own near-black.
+ */
+const SCHEMES: Record<RubiksGridScheme, { faces: readonly string[]; body: string }> = {
+  classic: {
+    faces: ['#c41e3a', '#ff5800', '#ffd500', '#ffffff', '#0051ba', '#009e60'],
+    body: '#000000'
+  },
+  neon: {
+    faces: ['#ff00ff', '#00ffff', '#ffff00', '#ff0080', '#00ff00', '#8000ff'],
+    body: '#000000'
+  },
+  ocean: {
+    faces: ['#0077b6', '#00b4d8', '#90e0ef', '#caf0f8', '#023e8a', '#48cae4'],
+    body: '#001219'
+  },
+  sunset: {
+    faces: ['#ff6b6b', '#ffa500', '#ffd93d', '#ff8e72', '#c44569', '#6c5b7b'],
+    body: '#1a1a2e'
+  },
+  forest: {
+    faces: ['#2d6a4f', '#40916c', '#95d5b2', '#74c69d', '#1b4332', '#52b788'],
+    body: '#081c15'
+  },
+  pastel: {
+    faces: ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#bdb2ff'],
+    body: '#2d2d2d'
+  },
+  monochrome: {
+    faces: ['#ffffff', '#000000', '#ffffff', '#000000', '#ffffff', '#000000'],
+    body: '#000000'
+  }
 }
 
 /** The six face normals, in the same order as the colours above. */
@@ -170,19 +206,43 @@ const FACES: ReadonlyArray<readonly [number, number, number]> = [
 ]
 
 const CUBIES = 27
+/* A cube is three cubies across, and a cubie is one unit. */
 const SIDE = 3
 
 /*
- * How much room one cube takes on screen, which is not how big it is.
+ * THE TILING
  *
- * Tilted and turned, a cube of side s projects to s*sqrt(2) across and
- * s*sqrt(6)/2 down. Spacing the grid by the side length instead was the first
- * version and the cubes overlapped by forty per cent, because a cube seen
- * corner-on is wider than a cube seen face-on.
+ * These three numbers are the whole look, and they are not a grid.
+ *
+ * The cubes are laid in a staircase: each row is pushed sideways by half a
+ * cube so the V between two cubes in one row is filled by the cube below, and
+ * the rows are closer together than a cube is tall so the faces interlock. The
+ * result is a continuous surface rather than objects with gaps between them,
+ * which is the difference between a pattern and a pile.
+ *
+ * The first version here used a plain rectangular grid with a gap, and it read
+ * as a shelf of ornaments.
+ *
+ * They come from projecting the eight corners of a cube under the isometric
+ * pair and measuring, then taking the sketch's own fractions of the result.
+ * Carried as multiples of the side length so they hold at any size:
+ *
+ *   projected width  = side * sqrt(2)   = 1.41421 sides
+ *   projected height                    = 1.57313 sides
+ *   spacing across   = width  - gap     = 1.38821 sides
+ *   stagger per row  = (width - gap)/2  = 0.70111 sides
+ *   spacing down     = height * 0.767   = 1.19459 sides
+ *
+ * The 0.767 is the sketch's, found by eye rather than derived, and it is what
+ * makes the rows sit into each other instead of merely near each other.
  */
+/* A cubie fills 0.88 of its one-unit cell; the rest is the black grid. */
+const CUBIE = 0.88
+
 const PROJ_W = SIDE * Math.SQRT2
-const PROJ_H = (SIDE * Math.sqrt(6)) / 2
-const GAP = 0.55
+const SPACING_X = SIDE * 1.388214
+const SHIFT_X = SIDE * 0.701107
+const SPACING_Y = SIDE * 1.194592
 
 const AXIS_X = new THREE.Vector3(1, 0, 0)
 const AXIS_Y = new THREE.Vector3(0, 1, 0)
@@ -194,7 +254,7 @@ const AXIS_Z = new THREE.Vector3(0, 0, 1)
  * them in the loop would be six matrices per cubie per frame.
  */
 const FACE_PLACE: THREE.Matrix4[] = FACES.map(n => {
-  const place = new THREE.Matrix4().makeTranslation(n[0] * 0.49, n[1] * 0.49, n[2] * 0.49)
+  const place = new THREE.Matrix4().makeTranslation(n[0] * 0.451, n[1] * 0.451, n[2] * 0.451)
   const turn = new THREE.Matrix4()
   if (n[0] !== 0) turn.makeRotationY((Math.PI / 2) * n[0])
   else if (n[1] !== 0) turn.makeRotationX((-Math.PI / 2) * n[1])
@@ -330,11 +390,18 @@ class RubiksGridSurface implements Surface<RubiksGridOptions> {
     renderer.setClearAlpha(0)
 
     /*
-     * Off, so a colour written here is the colour that lands. With it on,
-     * three converts every colour from sRGB into linear light on the way in,
-     * and the sticker reds come out muddy and the whites come out grey.
+     * three's colour management is left ON, which is its default and which the
+     * sketch relies on.
+     *
+     * Turning it off was the first thing done here, copied from another item
+     * in this library where it is needed for a different reason, and it washed
+     * every colour out: disabling it skips the sRGB-to-linear conversion on
+     * the way IN but not the linear-to-sRGB conversion on the way OUT, so each
+     * colour gets brightened exactly once. Classic red came out pink.
+     *
+     * Left alone, the two conversions are inverses and the colour that lands
+     * is the colour that was written.
      */
-    THREE.ColorManagement.enabled = false
 
     const scene = new THREE.Scene()
     scene.add(this.field)
@@ -349,15 +416,18 @@ class RubiksGridSurface implements Surface<RubiksGridOptions> {
     scene.add(camera)
 
     /*
-     * Mostly ambient, with just enough directional to separate the three
-     * faces you can see. Lit any harder and the stickers go muddy: a Rubik's
-     * cube is flat plastic, and the only shading that belongs on it is the
-     * difference between top, left and right.
+     * No lights. None at all, and that is the look.
+     *
+     * The sketch uses MeshBasicMaterial throughout, so every face of a given
+     * colour is that exact colour wherever it is and whichever way it points.
+     * The first version here used Lambert with an ambient and a key, which is
+     * the sensible thing to do and is wrong: the shading pulled the reds to a
+     * dusty rose and the whites to grey, and the field went from a flat
+     * graphic to a photograph of some toys.
+     *
+     * A cube still reads as a cube because its three visible faces are three
+     * different colours. It does not need shading to do that.
      */
-    scene.add(new THREE.AmbientLight(0xffffff, 1.0))
-    const key = new THREE.DirectionalLight(0xffffff, 0.34)
-    key.position.set(3, 8, 6)
-    scene.add(key)
 
     for (let i = 0; i < CUBIES; i++) {
       this.cubies.push({ x: 0, y: 0, z: 0, r: IDENTITY() })
@@ -391,31 +461,59 @@ class RubiksGridSurface implements Surface<RubiksGridOptions> {
     const scene = this.scene
     if (!scene) return
 
-    const cols = Math.max(1, Math.round(opts.columns))
+    /*
+     * How many cubes it takes to COVER the frame, not to fit inside it.
+     *
+     * The field is a pattern, so it has to run off every edge: a cube clipped
+     * by the frame is right, and a tidy margin of background around a
+     * rectangle of cubes is the thing that makes it look like a widget. The
+     * last row and column are generated beyond the edge and simply fall
+     * outside.
+     */
+    const density = Math.max(2, Math.round(opts.density))
     const aspect = this.size.width / Math.max(this.size.height, 1)
-    const rows = Math.max(1, Math.round(cols / Math.max(aspect, 0.2)))
-    const key = [cols, rows, opts.scheme, opts.body].join('/')
+    const frustum = density * 2.5
+    const halfW = (frustum * aspect) / 2
+    const halfH = frustum / 2
+    const pad = PROJ_W * 1.5
+    const rows = Math.ceil((halfH + pad) / SPACING_Y) + 1
+    const cols = Math.ceil((halfW + pad) / SPACING_X) + 1
+
+    const key = [rows, cols, opts.scheme].join('/')
     if (key === this.builtFor) return
 
     this.disposeMeshes()
     this.grid = { cols, rows }
-    const cubes = cols * rows
+    /* Both run from -n to n, and the stagger pushes rows sideways, so the
+       capacity has to cover the worst case rather than the visible count. */
+    const cubes = (rows * 2 + 1) * (cols * 2 + 1)
 
-    const body = new THREE.BoxGeometry(0.94, 0.94, 0.94)
-    const bodyMaterial = new THREE.MeshLambertMaterial({ color: rgb(opts.body) })
+    const palette = SCHEMES[opts.scheme] ?? SCHEMES.classic
+
+    /*
+     * A cubie fills 0.88 of its cell, which is the sketch's own ratio: a gap
+     * of four per cent of the whole cube on each side. That gap is the black
+     * grid you see, and it is the only black there is.
+     */
+    const body = new THREE.BoxGeometry(CUBIE, CUBIE, CUBIE)
+    const bodyMaterial = new THREE.MeshBasicMaterial({ color: rgb(palette.body) })
     const bodies = new THREE.InstancedMesh(body, bodyMaterial, cubes * CUBIES)
     bodies.frustumCulled = false
     this.field.add(bodies)
     this.bodies = bodies
 
     /*
-     * A sticker is a flat tile sitting just proud of its cubie face. Nine per
-     * face per cube, so each colour's instance count is fixed and known.
+     * The sticker covers its whole cubie face rather than sitting inset on it.
+     * The sketch colours the cubie's own faces, so there is no border around a
+     * sticker, only the gap between cubies. An inset tile gives every cubie a
+     * second black outline and doubles the amount of black in the picture.
+     *
+     * It is a separate tile here only because an InstancedMesh cannot give
+     * each instance a different colour per face.
      */
-    const tile = new THREE.BoxGeometry(0.78, 0.78, 0.03)
-    const palette = SCHEMES[opts.scheme] ?? SCHEMES.classic
+    const tile = new THREE.BoxGeometry(CUBIE, CUBIE, 0.02)
     for (let face = 0; face < 6; face++) {
-      const material = new THREE.MeshLambertMaterial({ color: rgb(palette[face]!) })
+      const material = new THREE.MeshBasicMaterial({ color: rgb(palette.faces[face]!) })
       const mesh = new THREE.InstancedMesh(tile, material, cubes * 9)
       mesh.frustumCulled = false
       this.field.add(mesh)
@@ -519,25 +617,19 @@ class RubiksGridSurface implements Surface<RubiksGridOptions> {
     const beat = turn + Math.max(opts.rest, 0)
 
     /*
-     * The field is laid out in cube units and the camera is then opened to
-     * exactly fit it, so the grid meets the edges of the frame at any aspect
-     * without anything here being measured in pixels.
+     * The camera opens by `density` alone. The cubes are a fixed size in world
+     * units and it is the frustum that changes, which is what the sketch's
+     * zoom control does: more of the same field rather than smaller cubes.
      */
-    const pitchX = PROJ_W + GAP
-    const pitchY = PROJ_H + GAP
-    /*
-     * A margin, because a cube is bigger than its own footprint while it is
-     * turning: a layer swung half way out reaches past the cube's resting
-     * silhouette, and without the margin the top and bottom rows were clipped
-     * exactly when they were doing the interesting thing.
-     */
-    const margin = 0.9
-    const halfWidth = (cols * pitchX) / 2 + margin
-    const halfHeight = (rows * pitchY) / 2 + margin
-    camera.left = -halfWidth
-    camera.right = halfWidth
-    camera.top = halfHeight
-    camera.bottom = -halfHeight
+    const density = Math.max(2, Math.round(opts.density))
+    const aspect = this.size.width / Math.max(this.size.height, 1)
+    const frustum = density * 2.5
+    const halfW = (frustum * aspect) / 2
+    const halfH = frustum / 2
+    camera.left = -halfW
+    camera.right = halfW
+    camera.top = halfH
+    camera.bottom = -halfH
     camera.updateProjectionMatrix()
 
     /*
@@ -549,7 +641,7 @@ class RubiksGridSurface implements Surface<RubiksGridOptions> {
      * holds them. Rotating the group was the first version, and it turns the
      * grid as well as the cubes: the rows come out as diagonals running off
      * the frame instead of as a field. The cubes are drawn isometrically and
-     * then laid out on a grid that is square to the screen.
+     * then laid out on a staircase that is square to the screen.
      */
     this.tiltM.makeRotationX((opts.tilt * Math.PI) / 180)
     this.isoM.makeRotationY(-Math.PI / 4).premultiply(this.tiltM)
@@ -558,9 +650,27 @@ class RubiksGridSurface implements Surface<RubiksGridOptions> {
     const stickerAt = this.stickerAt
     stickerAt.fill(0)
 
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        const index = row * cols + col
+    const edge = PROJ_W
+    for (let row = -rows; row <= rows; row++) {
+      for (let col = -cols; col <= cols; col++) {
+        /*
+         * The staircase. Each row is pushed sideways by half a cube, so the V
+         * between two cubes in a row is filled by the cube below it.
+         */
+        const originX = col * SPACING_X + row * SHIFT_X
+        const originY = -row * SPACING_Y
+        if (
+          originX < -halfW - edge ||
+          originX > halfW + edge ||
+          originY < -halfH - edge ||
+          originY > halfH + edge
+        ) {
+          continue
+        }
+
+        /* Keyed on the place, so a cube keeps its own sequence rather than
+           being renumbered when the grid changes size. */
+        const index = (row + 512) * 1024 + (col + 512)
         const seq = this.sequence(index, opts)
 
         /*
@@ -593,9 +703,6 @@ class RubiksGridSurface implements Surface<RubiksGridOptions> {
           const axis = this.move.axis === 0 ? AXIS_X : this.move.axis === 1 ? AXIS_Y : AXIS_Z
           this.turnM.makeRotationAxis(axis, (Math.PI / 2) * this.move.dir * spun)
         }
-
-        const originX = (col - (cols - 1) / 2) * pitchX
-        const originY = (row - (rows - 1) / 2) * pitchY
 
         for (let i = 0; i < CUBIES; i++) {
           const cubie = this.cubies[i]!
@@ -1422,7 +1529,7 @@ export function Hero() {
 
   useEffect(() => {
     if (!host.current) return
-    const field = createRubiksGrid(host.current, { columns: 5 })
+    const field = createRubiksGrid(host.current, { density: 6 })
     field.start()
     return () => field.destroy()
   }, [])
@@ -1464,14 +1571,13 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `columns` | number | `5` | 1 to 14 (looks right between 3 and 8) | Cubes across the frame. Rows follow from it and the aspect, so the field always fills the box. This is the density control and the performance control at once: the work goes with the square of it, so 10 is four times 5. |
-| `scheme` | enum | `classic` | `classic` · `neon` · `ocean` · `sunset` · `monochrome` | The six sticker colours. `classic` is the real cube's palette. `monochrome` is the one worth seeing once: with the colour gone you watch the geometry instead, and it becomes obvious how much of the effect is the turning rather than the palette. |
+| `density` | number | `6` | 2 to 16 (looks right between 4 and 10) | How much of the field you see. It opens the camera rather than resizing the cubes, so a higher number is more cubes at the same size rather than the same cubes smaller. The sketch calls this zoom. 6 is its base and is what the demo shows. |
+| `scheme` | enum | `classic` | `classic` · `neon` · `ocean` · `sunset` · `forest` · `pastel` · `monochrome` | The seven palettes from the original sketch, carried over exactly. Each one carries its own body colour as well as its six face colours, because the plastic between the stickers is part of the palette: pastel on black is a different idea from pastel on its own near-black. |
 | `turn` | number | `0.4` | 0.08 to 2 s (looks right between 0.25 and 0.6) | Seconds one quarter turn takes. The easing inside it is a finger flick rather than a symmetric curve: quick away, slow home, with the weight at the end. That is the single thing that makes the motion feel like fingers instead of like a motor. |
 | `rest` | number | `0.2` | 0 to 3 s (looks right between 0.1 and 0.6) | Seconds a cube sits still between turns. Most of the charm is here. At 0 nothing ever stops and the field reads as a machine; a pause lets each turn land before the next one starts. |
 | `moves` | number | `5` | 1 to 20 (looks right between 3 and 8) | Turns of scramble before the cube undoes them and returns to solved. The whole loop is twice this, so it is also what sets the length of the animation: at the default beat, 5 moves is a six second cycle. |
 | `sync` | boolean | `false` | `true` · `false` | Every cube turns at the same moment rather than each on its own offset. Worth trying both: in sync the field reads as one object breathing, and out of sync it reads as a room full of people each solving their own. |
 | `tilt` | number | `30` | 0 to 60 deg (looks right between 24 and 38) | How far the field tilts out of flat. 30 with the fixed eighth-turn is the classic isometric pair, and it is why a cube drawn this way shows three faces of equal width. Away from 30 it is still a nice axonometric view, just not an isometric one. |
-| `body` | color | `#141318` | any CSS hex | The plastic between the stickers. Near-black rather than black: a true black body against bright stickers reads as gaps rather than as a cube. |
 | `seed` | number | `7` | 1 to 9999 | Seed for the scramble. The same seed gives the same sequence in the same order, which is what makes a recording reproducible. |
 | `maxDpr` | number | `2` | 1 to 3 | Device pixel ratio ceiling. Flat isometric faces meeting at hard edges alias badly, so this is worth leaving at 2. |
 | `reducedMotionTime` | number | `1.2` | 0 to 30 s | The single frame shown when the user prefers reduced motion. Pick a moment mid-scramble rather than 0: at 0 every cube is solved and the field is six flat colours, which says nothing about what the item does. |
@@ -1529,7 +1635,50 @@ makes a cube show three faces of equal width, which is the whole look. `tilt`
 is adjustable, but away from 30 you have a nice axonometric view rather than an
 isometric one.
 
-## 8. Seven draw calls
+## 8. The tiling is a staircase, not a grid
+
+This is the part that decides whether it reads as a pattern or as a shelf of
+ornaments, and the first version here got it wrong.
+
+Each row is pushed sideways by **half a cube**, so the V between two cubes in a
+row is filled by the cube below it, and the rows sit **closer together than a
+cube is tall** so the faces interlock. The three numbers come from projecting
+the eight corners of a cube under the isometric pair and measuring:
+
+| | as a multiple of the cube's side |
+| --- | --- |
+| projected width | 1.41421 |
+| projected height | 1.57313 |
+| spacing across | 1.38821 |
+| stagger per row | 0.70111 |
+| spacing down | 1.19459 |
+
+That last one is the projected height times 0.767, and the 0.767 was found by
+eye rather than derived. It is what makes the rows sit *into* each other rather
+than merely near each other.
+
+The field also **covers the frame rather than fitting inside it**. A cube
+clipped by the edge is correct. A tidy margin of background around a rectangle
+of cubes is the thing that makes it look like a widget instead of a surface.
+
+## 9. No lights at all
+
+The whole thing is `MeshBasicMaterial`, so a face of a given colour is that
+exact colour wherever it is and whichever way it points. There is no shading
+anywhere.
+
+Lambert with an ambient and a key light was tried first, because that is the
+sensible thing to do, and it is wrong: the shading pulled the reds to a dusty
+rose and the whites to grey, and the field stopped being a flat graphic and
+became a photograph of some toys. A cube still reads as a cube because its
+three visible faces are three different colours. It does not need shading.
+
+**Leave three's colour management alone.** Turning it off skips the
+sRGB-to-linear conversion on the way in but not the linear-to-sRGB conversion
+on the way out, so every colour is brightened exactly once and classic red
+comes out pink. The two conversions are inverses; let them be.
+
+## 10. Seven draw calls
 
 The original gives every cubie its own mesh with six materials. Readable, and
 at a 6x4 grid that is 648 meshes before you count the stickers.
@@ -1543,10 +1692,16 @@ Which faces of a cubie carry a sticker is decided by **where it started**, not
 where it is now. That is what keeps exactly nine of each colour however
 scrambled it gets.
 
-## 9. Tuning it
+A cubie fills **0.88 of its cell** and the sticker covers the whole cubie face
+rather than sitting inset on it. The only black in the picture is the gap
+between cubies. An inset tile gives every cubie a second outline and doubles
+the amount of black.
 
-1. **`columns`.** The density and the cost at once, since rows follow from it
-   and the aspect. The work goes with the square, so 10 is four times 5.
+## 11. Tuning it
+
+1. **`density`.** How much of the field you see. It opens the camera rather
+   than resizing the cubes, so higher is more cubes at the same size. The work
+   goes with the square, so 12 is four times 6.
 2. **`rest`.** Most of the charm. At 0 nothing ever stops and the field reads
    as a machine. A pause lets each turn land before the next starts.
 3. **`sync`.** Worth trying both. In sync the field reads as one object
@@ -1554,21 +1709,18 @@ scrambled it gets.
    own.
 4. **`moves`.** Also the loop length, because the cycle is twice it. At the
    default beat, 5 moves is a six second loop.
-5. **`scheme`.** Set it to `monochrome` once. With the colour gone you watch
-   the geometry instead, and it is obvious how much of the effect is the
-   turning rather than the palette.
+5. **`scheme`.** Seven palettes, carried over from the sketch exactly. Each
+   carries its own body colour as well as its six face colours, because the
+   plastic between the stickers is part of the palette. Set it to `monochrome`
+   once: with the colour gone you watch the geometry instead, and it is obvious
+   how much of the effect is the turning rather than the palette.
 
-## 10. Two small decisions
+## 12. Two small decisions
 
 **The middle layer is never turned.** It moves no corner, so at this size it
 reads as a glitch rather than as a move.
 
-**three's colour management is switched off**, so a colour written in the
-palette is the colour that lands. With it on, three converts every colour from
-sRGB into linear light on the way in, and the sticker reds come out muddy and
-the whites come out grey.
-
-## 11. Accessibility. Do not skip this
+## 13. Accessibility. Do not skip this
 
 Decorative, and there is nothing in the canvas for assistive technology. Under
 reduced motion the loop never starts and one frame is drawn, the one at
@@ -1576,7 +1728,7 @@ reduced motion the loop never starts and one frame is drawn, the one at
 is solved and the field is six flat colours, which says nothing about what the
 item does.
 
-## 12. Cleanup and SSR
+## 14. Cleanup and SSR
 
 `destroy()` releases the WebGL context, disposes every geometry and material,
 cancels the RAF, disconnects the observers and removes every listener. One live
@@ -1585,7 +1737,7 @@ context at a time is the budget, so call it.
 There is nothing to render on the server. The element is empty until the script
 runs, so give it a height and, if it matters, a background.
 
-## 13. The three mistakes most likely to be made here
+## 15. The three mistakes most likely to be made here
 
 1. **Keeping a move history.** It is the obvious way to write this and it makes
    the effect unrecordable, because no frame can be produced without producing
@@ -1602,6 +1754,12 @@ runs, so give it a height and, if it matters, a background.
 
 5. **A mesh per cubie.** It works and it is readable, and it is hundreds of
    draw calls for a result that instancing gives you in seven.
+
+6. **Spacing the cubes on a plain grid.** They have to staircase and interlock.
+   On a grid with gaps it is a shelf of ornaments.
+
+7. **Lighting it.** There is no shading in this at all, and adding any turns
+   the flat graphic into a photograph of toys.
 
 ---
 

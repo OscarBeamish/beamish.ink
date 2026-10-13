@@ -10,14 +10,13 @@ import type { EffectHandle } from '../../../shared/runtime'
 export const RubiksGrid = defineComponent({
   name: 'RubiksGrid',
   props: {
-    columns: { type: Number, default: rubiksGridDefaults.columns },
+    density: { type: Number, default: rubiksGridDefaults.density },
     scheme: { type: String, default: rubiksGridDefaults.scheme },
     turn: { type: Number, default: rubiksGridDefaults.turn },
     rest: { type: Number, default: rubiksGridDefaults.rest },
     moves: { type: Number, default: rubiksGridDefaults.moves },
     sync: { type: Boolean, default: rubiksGridDefaults.sync },
     tilt: { type: Number, default: rubiksGridDefaults.tilt },
-    body: { type: String, default: rubiksGridDefaults.body },
     seed: { type: Number, default: rubiksGridDefaults.seed },
     autoStart: { type: Boolean, default: true }
   },

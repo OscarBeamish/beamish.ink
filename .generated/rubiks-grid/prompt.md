@@ -14,19 +14,21 @@ Assume you have not seen this library before. Everything you need is below.
 
 - **npm dependencies:** `three@>=0.160.0`
 - WebGL2. There is no WebGL1 fallback
-- Adapted from a standalone sketch of mine, Isometric Rubik's, which is MIT. The look is the same and almost none of the code is, for one reason: the original keeps its state and this cannot
-- The sketch does what any cube simulation does. Pick a move, reparent the nine cubies of that layer to a pivot, turn the pivot, reparent them back with positions snapped, push the move onto a history. Every frame is built from the one before it
-- renderAtTime has to answer for any moment without having seen the moments before it, so the recorder can seek and so a loop closes exactly. So the scene graph is never mutated and no history is kept
-- Every move is derived instead. Cube seven's fourth move is a function of the seed and those two numbers, so it is the same answer every time it is asked and it can be asked out of order
-- The state is rebuilt each frame, replayed from solved. A few dozen integer permutations per cube, which costs nothing next to the matrices that have to be written anyway
-- The cubie state is integer: a position in {-1,0,1} and a 3x3 rotation whose entries are only ever -1, 0 or 1. Quaternions drift over a few hundred replayed turns, and a cube that should be solved coming back a fraction of a degree off is a visible seam on a flat isometric face. Integers cannot drift
-- The loop closes because the sequence undoes itself. Each cube scrambles for `moves` turns then replays them backwards, which is the standard inverse scramble. That is the original's solve button turned into the shape of the animation rather than a control on it
-- When the cubes are out of step their offsets are whole numbers of turns, never fractions. A fractional offset means the grid never returns to the frame it started on and the recording jumps once per loop
+- Adapted from a standalone sketch of mine, Isometric Rubik's, which is MIT. The idea came from a post on r/creativecoding. The look is matched deliberately; the mechanism underneath it is not the same, for one reason
+- The sketch keeps its state. Pick a move, reparent the nine cubies of that layer to a pivot, turn the pivot, reparent them back with positions snapped, push the move onto a history. Every frame is built from the one before it
+- renderAtTime has to answer for any moment without having seen the moments before it, so the recorder can seek and so a loop closes exactly. So nothing is mutated and no history is kept: every move is derived from the seed and the cube's place, and the state is replayed from solved each frame
+- The cubie state is integer: a position in {-1,0,1} and a 3x3 rotation of -1, 0 and 1. Replaying composes hundreds of turns and floating point drifts over that, which on a flat isometric face shows as a seam on a cube that is supposed to be solved. The sketch solves the same problem by snapping positions after every turn
+- The loop closes because the sequence undoes itself. Each cube scrambles for `moves` turns then replays them backwards, which is the inverse scramble, and is the sketch's solve button turned into the shape of the animation rather than a control on it
+- Cube offsets are whole turns, never fractions, or the field never returns to the frame it started on and a recording jumps once per loop
+- The cubes are laid in a staircase, not a grid. Each row is pushed sideways by half a cube so the V between two cubes in a row is filled by the one below, and the rows sit closer together than a cube is tall. The first version here used a rectangular grid with a gap and it read as a shelf of ornaments rather than as a pattern
+- The field covers the frame rather than fitting inside it. A cube clipped by the edge is correct; a tidy margin of background around a rectangle of cubes is what makes it look like a widget
+- No lights at all, and that is the look. The sketch uses MeshBasicMaterial throughout, so a face of a given colour is that exact colour wherever it is and whichever way it points. Lambert with an ambient and a key was tried first and it pulled the reds to a dusty rose and the whites to grey
+- three's colour management is left on, which is its default and what the sketch relies on. Turning it off skips the sRGB-to-linear conversion on the way in but not the linear-to-sRGB on the way out, so every colour is brightened exactly once and classic red comes out pink
+- A cubie fills 0.88 of its cell, which is the sketch's ratio. The sticker covers the whole cubie face rather than sitting inset on it, so the only black is the gap between cubies; an inset tile gives every cubie a second outline and doubles the black in the picture
 - Orthographic camera, because isometric is a projection with no perspective in it: a cube at the edge has to be the same size and shape as one in the middle, or the field stops tiling and starts being a scene
-- Seven draw calls whatever the grid size. The original gives every cubie its own mesh with six materials, which at a 6x4 grid is 648 meshes before the stickers; here the bodies are one InstancedMesh and the stickers are one per colour
+- Seven draw calls whatever the grid size. The sketch gives every cubie its own mesh with six materials; here the bodies are one InstancedMesh and the stickers are one per colour
 - Which faces of a cubie carry a sticker is decided by where it started, not where it is now. That is what keeps nine of each colour however scrambled it gets
 - The middle layer is never turned. It moves no corner, so at this size it reads as a glitch rather than as a move
-- three's colour management is off, so a colour written here is the colour that lands. With it on the sticker reds come out muddy and the whites come out grey
 - A DOM element with a real size. The canvas fills its host, so a host with no height renders nothing.
 
 Pinned to `{{PIN}}`. These URLs do not move; a future refactor gets a new tag.
@@ -83,7 +85,7 @@ export function Hero() {
 
   useEffect(() => {
     if (!host.current) return
-    const field = createRubiksGrid(host.current, { columns: 5 })
+    const field = createRubiksGrid(host.current, { density: 6 })
     field.start()
     return () => field.destroy()
   }, [])
@@ -125,14 +127,13 @@ as the second argument to the create function; anything omitted takes its defaul
 
 | Option | Type | Default | Range | What it does |
 | --- | --- | --- | --- | --- |
-| `columns` | number | `5` | 1 to 14 (looks right between 3 and 8) | Cubes across the frame. Rows follow from it and the aspect, so the field always fills the box. This is the density control and the performance control at once: the work goes with the square of it, so 10 is four times 5. |
-| `scheme` | enum | `classic` | `classic` · `neon` · `ocean` · `sunset` · `monochrome` | The six sticker colours. `classic` is the real cube's palette. `monochrome` is the one worth seeing once: with the colour gone you watch the geometry instead, and it becomes obvious how much of the effect is the turning rather than the palette. |
+| `density` | number | `6` | 2 to 16 (looks right between 4 and 10) | How much of the field you see. It opens the camera rather than resizing the cubes, so a higher number is more cubes at the same size rather than the same cubes smaller. The sketch calls this zoom. 6 is its base and is what the demo shows. |
+| `scheme` | enum | `classic` | `classic` · `neon` · `ocean` · `sunset` · `forest` · `pastel` · `monochrome` | The seven palettes from the original sketch, carried over exactly. Each one carries its own body colour as well as its six face colours, because the plastic between the stickers is part of the palette: pastel on black is a different idea from pastel on its own near-black. |
 | `turn` | number | `0.4` | 0.08 to 2 s (looks right between 0.25 and 0.6) | Seconds one quarter turn takes. The easing inside it is a finger flick rather than a symmetric curve: quick away, slow home, with the weight at the end. That is the single thing that makes the motion feel like fingers instead of like a motor. |
 | `rest` | number | `0.2` | 0 to 3 s (looks right between 0.1 and 0.6) | Seconds a cube sits still between turns. Most of the charm is here. At 0 nothing ever stops and the field reads as a machine; a pause lets each turn land before the next one starts. |
 | `moves` | number | `5` | 1 to 20 (looks right between 3 and 8) | Turns of scramble before the cube undoes them and returns to solved. The whole loop is twice this, so it is also what sets the length of the animation: at the default beat, 5 moves is a six second cycle. |
 | `sync` | boolean | `false` | `true` · `false` | Every cube turns at the same moment rather than each on its own offset. Worth trying both: in sync the field reads as one object breathing, and out of sync it reads as a room full of people each solving their own. |
 | `tilt` | number | `30` | 0 to 60 deg (looks right between 24 and 38) | How far the field tilts out of flat. 30 with the fixed eighth-turn is the classic isometric pair, and it is why a cube drawn this way shows three faces of equal width. Away from 30 it is still a nice axonometric view, just not an isometric one. |
-| `body` | color | `#141318` | any CSS hex | The plastic between the stickers. Near-black rather than black: a true black body against bright stickers reads as gaps rather than as a cube. |
 | `seed` | number | `7` | 1 to 9999 | Seed for the scramble. The same seed gives the same sequence in the same order, which is what makes a recording reproducible. |
 | `maxDpr` | number | `2` | 1 to 3 | Device pixel ratio ceiling. Flat isometric faces meeting at hard edges alias badly, so this is worth leaving at 2. |
 | `reducedMotionTime` | number | `1.2` | 0 to 30 s | The single frame shown when the user prefers reduced motion. Pick a moment mid-scramble rather than 0: at 0 every cube is solved and the field is six flat colours, which says nothing about what the item does. |
@@ -190,7 +191,50 @@ makes a cube show three faces of equal width, which is the whole look. `tilt`
 is adjustable, but away from 30 you have a nice axonometric view rather than an
 isometric one.
 
-## 8. Seven draw calls
+## 8. The tiling is a staircase, not a grid
+
+This is the part that decides whether it reads as a pattern or as a shelf of
+ornaments, and the first version here got it wrong.
+
+Each row is pushed sideways by **half a cube**, so the V between two cubes in a
+row is filled by the cube below it, and the rows sit **closer together than a
+cube is tall** so the faces interlock. The three numbers come from projecting
+the eight corners of a cube under the isometric pair and measuring:
+
+| | as a multiple of the cube's side |
+| --- | --- |
+| projected width | 1.41421 |
+| projected height | 1.57313 |
+| spacing across | 1.38821 |
+| stagger per row | 0.70111 |
+| spacing down | 1.19459 |
+
+That last one is the projected height times 0.767, and the 0.767 was found by
+eye rather than derived. It is what makes the rows sit *into* each other rather
+than merely near each other.
+
+The field also **covers the frame rather than fitting inside it**. A cube
+clipped by the edge is correct. A tidy margin of background around a rectangle
+of cubes is the thing that makes it look like a widget instead of a surface.
+
+## 9. No lights at all
+
+The whole thing is `MeshBasicMaterial`, so a face of a given colour is that
+exact colour wherever it is and whichever way it points. There is no shading
+anywhere.
+
+Lambert with an ambient and a key light was tried first, because that is the
+sensible thing to do, and it is wrong: the shading pulled the reds to a dusty
+rose and the whites to grey, and the field stopped being a flat graphic and
+became a photograph of some toys. A cube still reads as a cube because its
+three visible faces are three different colours. It does not need shading.
+
+**Leave three's colour management alone.** Turning it off skips the
+sRGB-to-linear conversion on the way in but not the linear-to-sRGB conversion
+on the way out, so every colour is brightened exactly once and classic red
+comes out pink. The two conversions are inverses; let them be.
+
+## 10. Seven draw calls
 
 The original gives every cubie its own mesh with six materials. Readable, and
 at a 6x4 grid that is 648 meshes before you count the stickers.
@@ -204,10 +248,16 @@ Which faces of a cubie carry a sticker is decided by **where it started**, not
 where it is now. That is what keeps exactly nine of each colour however
 scrambled it gets.
 
-## 9. Tuning it
+A cubie fills **0.88 of its cell** and the sticker covers the whole cubie face
+rather than sitting inset on it. The only black in the picture is the gap
+between cubies. An inset tile gives every cubie a second outline and doubles
+the amount of black.
 
-1. **`columns`.** The density and the cost at once, since rows follow from it
-   and the aspect. The work goes with the square, so 10 is four times 5.
+## 11. Tuning it
+
+1. **`density`.** How much of the field you see. It opens the camera rather
+   than resizing the cubes, so higher is more cubes at the same size. The work
+   goes with the square, so 12 is four times 6.
 2. **`rest`.** Most of the charm. At 0 nothing ever stops and the field reads
    as a machine. A pause lets each turn land before the next starts.
 3. **`sync`.** Worth trying both. In sync the field reads as one object
@@ -215,21 +265,18 @@ scrambled it gets.
    own.
 4. **`moves`.** Also the loop length, because the cycle is twice it. At the
    default beat, 5 moves is a six second loop.
-5. **`scheme`.** Set it to `monochrome` once. With the colour gone you watch
-   the geometry instead, and it is obvious how much of the effect is the
-   turning rather than the palette.
+5. **`scheme`.** Seven palettes, carried over from the sketch exactly. Each
+   carries its own body colour as well as its six face colours, because the
+   plastic between the stickers is part of the palette. Set it to `monochrome`
+   once: with the colour gone you watch the geometry instead, and it is obvious
+   how much of the effect is the turning rather than the palette.
 
-## 10. Two small decisions
+## 12. Two small decisions
 
 **The middle layer is never turned.** It moves no corner, so at this size it
 reads as a glitch rather than as a move.
 
-**three's colour management is switched off**, so a colour written in the
-palette is the colour that lands. With it on, three converts every colour from
-sRGB into linear light on the way in, and the sticker reds come out muddy and
-the whites come out grey.
-
-## 11. Accessibility. Do not skip this
+## 13. Accessibility. Do not skip this
 
 Decorative, and there is nothing in the canvas for assistive technology. Under
 reduced motion the loop never starts and one frame is drawn, the one at
@@ -237,7 +284,7 @@ reduced motion the loop never starts and one frame is drawn, the one at
 is solved and the field is six flat colours, which says nothing about what the
 item does.
 
-## 12. Cleanup and SSR
+## 14. Cleanup and SSR
 
 `destroy()` releases the WebGL context, disposes every geometry and material,
 cancels the RAF, disconnects the observers and removes every listener. One live
@@ -246,7 +293,7 @@ context at a time is the budget, so call it.
 There is nothing to render on the server. The element is empty until the script
 runs, so give it a height and, if it matters, a background.
 
-## 13. The three mistakes most likely to be made here
+## 15. The three mistakes most likely to be made here
 
 1. **Keeping a move history.** It is the obvious way to write this and it makes
    the effect unrecordable, because no frame can be produced without producing
@@ -263,6 +310,12 @@ runs, so give it a height and, if it matters, a background.
 
 5. **A mesh per cubie.** It works and it is readable, and it is hundreds of
    draw calls for a result that instancing gives you in seven.
+
+6. **Spacing the cubes on a plain grid.** They have to staircase and interlock.
+   On a grid with gaps it is a shelf of ornaments.
+
+7. **Lighting it.** There is no shading in this at all, and adding any turns
+   the flat graphic into a photograph of toys.
 
 ## Ready-made wrappers
 
