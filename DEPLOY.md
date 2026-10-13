@@ -199,3 +199,66 @@ gitignored, because it is a copy. `pnpm build` runs `sync-public.mjs` first,
 which recreates it. If you changed the build command, that is why.
 
 **Videos 404.** Same cause, same fix. `site/public/media` is a copy too.
+
+---
+
+## Appendix: the Playable Worlds mirror
+
+`/playable-worlds` is a hidden page holding somebody else's work, mirrored so it
+runs without a network. It is not part of the site above and it deploys by a
+different route, for one reason: the mirror is 717MB and gitignored, so a
+Cloudflare Git build clones the repo, finds no `games.json`, and ships the "not
+on this machine" notice. Committing 717MB to fix that is not a trade worth
+making.
+
+So it goes up as a **direct upload to a Pages project of its own**, from the
+machine that actually has the assets.
+
+```bash
+npx wrangler login      # once per machine
+pnpm build              # the mirror is in site/public, so it lands in dist
+pnpm worlds:deploy
+```
+
+`pnpm worlds:deploy` checks the build has the mirror in it, checks it fits
+inside Cloudflare's limits, writes the noindex header, creates the project if
+it is not there, and uploads. The project name is `beamish-worlds-mirror`,
+overridable with `PW_PROJECT`.
+
+### Why a project of its own
+
+The beamish.ink project keeps building itself from `main` with nothing a
+gigabyte in the way, and a project of its own can carry a blanket noindex,
+which the real site must never have.
+
+### Keeping it out of Google
+
+Three things, and the third is the one that actually does the work:
+
+1. `<meta name="robots" content="noindex, nofollow">` on the page, from
+   `noindex` on the Base layout.
+2. `X-Robots-Tag: noindex, nofollow, noarchive` on every path, written into
+   `dist/_headers` at deploy time. It is written into `dist` and never into
+   `site/public`, because `site/public/_headers` is the real site.
+3. Nothing anywhere links to it. No sitemap, no nav entry, no inbound link.
+   A crawler has no route in.
+
+**Not a `robots.txt` Disallow.** That is the instinct and it is the wrong one.
+Disallow stops a crawler fetching the page, which also stops it reading the
+noindex, so a URL somebody shares can still end up listed with no description.
+Letting the crawler in and telling it noindex is the combination that keeps a
+page out.
+
+### Limits worth knowing before the upload starts
+
+Cloudflare Pages caps a deployment at 20,000 files and 25MiB per file. The
+build is about 2,600 files and the largest is a 21.7MB glb. It fits, with room,
+and the script checks both before it starts rather than failing partway through
+a gigabyte.
+
+### Rebuilding the mirror
+
+If `site/public/playable-worlds` is missing, `python
+tools/playable-worlds/mirror.py` fetches it and
+`tools/playable-worlds/vendor-stragglers.py` closes the last two remote
+references. That needs a network. The result does not.
