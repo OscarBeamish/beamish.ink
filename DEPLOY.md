@@ -221,15 +221,37 @@ pnpm worlds:deploy
 ```
 
 `pnpm worlds:deploy` checks the build has the mirror in it, checks it fits
-inside Cloudflare's limits, writes the noindex header, creates the project if
-it is not there, and uploads. The project name is `beamish-worlds-mirror`,
-overridable with `PW_PROJECT`.
+inside Cloudflare's limits, writes the noindex header and the root redirect,
+creates the project if it is not there, and uploads. The project name is
+`beamish-worlds-mirror`, overridable with `PW_PROJECT`.
+
+### It still lives on beamish.ink
+
+A project of its own is about where the bytes come from, not about the URL. The
+domain is already on Cloudflare nameservers, so the project takes a subdomain
+and Cloudflare writes the DNS itself:
+
+**Workers & Pages** -> `beamish-worlds-mirror` -> **Custom domains** -> **Set
+up a custom domain** -> `worlds.beamish.ink` -> **Activate domain**.
+
+The certificate is usually live within a minute or two. The whole build goes
+up, so the nav works and the effects library is there to show too, but the root
+of that host redirects to `/playable-worlds`, so the URL to say out loud is the
+bare subdomain.
 
 ### Why a project of its own
 
 The beamish.ink project keeps building itself from `main` with nothing a
 gigabyte in the way, and a project of its own can carry a blanket noindex,
-which the real site must never have.
+which the real site must never have. A second copy of the site on a second
+hostname would otherwise be duplicate content competing with the first; the
+noindex is what makes that safe.
+
+The one thing this shape does not give you is the exact path
+`beamish.ink/playable-worlds`. Pages projects cannot share a hostname by path.
+That would need a small Worker on a `beamish.ink/playable-worlds*` route
+proxying to this project, which is a runtime, which is the one thing the main
+deploy deliberately avoids.
 
 ### Keeping it out of Google
 

@@ -115,7 +115,24 @@ if (!original.includes('X-Robots-Tag')) {
   console.log('noindex: already in dist/_headers')
 }
 
-/* --- 4. the project has to exist before anything can be pushed into it --- */
+/* --- 4. the root of this host is the page, not a second copy of the site --- */
+
+/*
+ * The whole build goes up, so every link in the nav resolves and the effects
+ * library is there to show as well. But the host exists for one page, so its
+ * root redirects to that page rather than serving a duplicate front door. The
+ * URL to say out loud is then the bare subdomain.
+ *
+ * In dist, not in site/public, for the same reason as the header: site/public
+ * is the real site, and the real site's root is its own.
+ */
+fs.writeFileSync(
+  path.join(DIST, '_redirects'),
+  '# This host is one page. Its root is that page.\n/  /playable-worlds  302\n'
+)
+console.log('root: redirected to /playable-worlds')
+
+/* --- 5. the project has to exist before anything can be pushed into it --- */
 
 /*
  * `pages deploy` against a project that does not exist offers to create one,
@@ -143,7 +160,7 @@ if (!(list.stdout ?? '').includes(PROJECT)) {
   if (made.status !== 0) fail(`Could not create ${PROJECT}.`)
 }
 
-/* --- 5. upload --- */
+/* --- 6. upload --- */
 
 console.log(`\nuploading to ${PROJECT}.pages.dev, this takes a while at ${mb(bytes)}\n`)
 
