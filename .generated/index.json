@@ -5265,6 +5265,214 @@
     "intro": "Plate is a contact sheet that opens into a lightbox. A grid of numbered plates,\nand an overlay you move through with the arrow keys, a swipe, the controls, or an\nautoplay you have to start yourself.\n\nThe overlay is a real `<dialog>` opened with `showModal()`. That is the decision\nthe rest of it hangs off. The browser then gives you the focus trap, Escape, the\ntop layer, inerting the page behind, and returning focus to where you came from.\nEvery one of those is something hand-rolled galleries get subtly wrong, and none\nof it is code in this repo or a package in yours. There is no carousel library\nhere, no focus-trap library, no portal and no scroll-lock.\n\nWhat is left is the part worth building. Arrow keys and Home and End. A swipe\nthat is ignored for mouse input, where a small drag is the start of a click\nrather than a gesture. Neighbour preload, so the next plate is already decoded\nbefore you ask for it. And a counter, because a gallery with no sense of how far\nthrough you are is a gallery you leave.\n\nThe overlay is paper rather than black. A dark lightbox is the convention and it\nis the wrong one here: it turns every warm image cold, and it makes the caption\nthe brightest thing on the screen. A plate in a book sits on the page, with a\nmargin, which is what this does."
   },
   {
+    "name": "ImageMelt",
+    "slug": "image-melt",
+    "tier": 1,
+    "description": "One picture bleeding through another around the cursor, with a torn edge rather than a crossfade",
+    "category": "pointer",
+    "tags": [
+      "webgl",
+      "shader",
+      "image",
+      "pointer",
+      "transition",
+      "displacement",
+      "no-dependencies"
+    ],
+    "ground": "either",
+    "peerDependencies": {},
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "The version of this on every agency site is a hover: you point at a card and the first image displaces into the second over about half a second. That cannot be done here, because easing a hover toward a target is a running total and renderAtTime has to answer for any moment on its own",
+        "So the transition is driven by where the cursor is rather than by how long it has been there. The second picture bleeds out from under it, which is a function of the pointer and the time, both of which the runtime replays exactly",
+        "The boundary is displaced by noise before it is drawn, not blurred afterwards. A soft edge is a crossfade with extra steps; an edge that wanders by a few per cent of the frame is something coming apart",
+        "The two pictures are pulled in opposite directions across the seam, so there is shear across it and the eye reads two separate sheets rather than one dissolve",
+        "The channels come apart at the boundary and nowhere else. A fringe over the whole frame is a broken monitor; a fringe only where the picture is being torn is the tear doing it",
+        "Distance from the cursor is measured with the aspect put back, so the front is a circle on screen rather than an ellipse. Squashed fronts are the commonest sign of an effect working in UV space without thinking about it",
+        "Two octaves of noise. One is too smooth to read as torn, and the interpolation between lattice corners is cubic rather than linear: linear leaves visible straight creases running through the tear along the lattice",
+        "The idle state still moves. The noise drifts a whole number of turns over the period, so a take with no cursor in it is a loop rather than a still",
+        "Both <img> elements stay in the document, hidden. If the host has only one, it is used for both and the picture tears into itself, which is a reasonable thing for a single-image host to do",
+        "Pointer effects need a scripted cursor path for recording, or the take is a still with nothing happening in it"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.5,
+      "contexts": 1,
+      "notes": [
+        "Six samples of the pictures per pixel: three for each side of the seam, once per colour channel. The channel split is what costs, and it is the thing that makes the tear read",
+        "Two octaves of value noise, which is eight hashes per pixel",
+        "Nothing is allocated per frame and each picture is uploaded once"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/image-melt/core.ts",
+        "to": "src/beamish/effects/image-melt/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/image-melt/adapters/react.tsx",
+        "to": "src/beamish/effects/image-melt/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/image-melt/adapters/vue.ts",
+        "to": "src/beamish/effects/image-melt/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "radius": {
+        "type": "number",
+        "default": 0.34,
+        "description": "How far the second picture reaches from the cursor, as a share of the element's height. Small is a hole you drag about; past about 1 the second picture fills the frame whenever the cursor is anywhere on it, which turns the item into a plain hover swap.",
+        "min": 0.02,
+        "max": 1.4,
+        "step": 0.02,
+        "sensible": [
+          0.2,
+          0.6
+        ]
+      },
+      "feather": {
+        "type": "number",
+        "default": 0.05,
+        "description": "How soft the boundary is. Keep it well under `displace` or the softening swallows the tear and you are back to a crossfade, which is the whole thing this is trying not to be.",
+        "min": 0.002,
+        "max": 0.3,
+        "step": 0.002,
+        "sensible": [
+          0.02,
+          0.1
+        ]
+      },
+      "displace": {
+        "type": "number",
+        "default": 0.1,
+        "description": "How far the noise pushes the boundary about, and how hard the two pictures shear past each other at it. The single most important number here: at 0 it is a circle with a soft edge, and it is this that makes it a tear.",
+        "min": 0,
+        "max": 0.4,
+        "step": 0.005,
+        "sensible": [
+          0.05,
+          0.18
+        ]
+      },
+      "fringe": {
+        "type": "number",
+        "default": 0.35,
+        "description": "How far red and blue come apart at the seam. Only at the seam, which is the point: it reads as the tear splitting the light rather than as a fault in the screen.",
+        "min": 0,
+        "max": 2,
+        "step": 0.05,
+        "sensible": [
+          0.2,
+          0.6
+        ]
+      },
+      "grain": {
+        "type": "number",
+        "default": 5.5,
+        "description": "How big the torn shapes are. Low gives a few long tongues of the second picture; high gives a ragged lace. Around 5 the shapes are about the size of a hand, which is what reads as something being pulled apart.",
+        "min": 0.5,
+        "max": 30,
+        "step": 0.5,
+        "sensible": [
+          3,
+          10
+        ]
+      },
+      "drift": {
+        "type": "number",
+        "default": 0.5,
+        "description": "How far the tear wanders while nothing is happening. Small: this is the breathing that stops an untouched frame being a still, not an animation in its own right.",
+        "min": 0,
+        "max": 4,
+        "step": 0.1,
+        "sensible": [
+          0.2,
+          1
+        ]
+      },
+      "period": {
+        "type": "number",
+        "default": 12,
+        "description": "Seconds for one turn of that wander. The idle loop closes exactly on it, which is what lets the item be recorded without a cursor in the frame.",
+        "min": 2,
+        "max": 60,
+        "step": 1,
+        "unit": "s",
+        "sensible": [
+          8,
+          24
+        ]
+      },
+      "maxDpr": {
+        "type": "number",
+        "default": 2,
+        "description": "Device pixel ratio ceiling. Six texture samples per pixel, so this is the performance control.",
+        "min": 1,
+        "max": 3,
+        "step": 0.5
+      },
+      "reducedMotionTime": {
+        "type": "number",
+        "default": 0,
+        "description": "The single frame shown when the user prefers reduced motion. The pointer still works under reduced motion, because responding to a deliberate action is not the kind of movement the setting is about; this only freezes the idle wander.",
+        "min": 0,
+        "max": 60,
+        "step": 0.5,
+        "unit": "s"
+      }
+    },
+    "instruction": "move the cursor over it",
+    "oneShot": false,
+    "cursor": {
+      "duration": 12,
+      "keys": [
+        {
+          "t": 0,
+          "x": 0.5,
+          "y": 0.5
+        },
+        {
+          "t": 3,
+          "x": 0.2,
+          "y": 0.3
+        },
+        {
+          "t": 6,
+          "x": 0.75,
+          "y": 0.62
+        },
+        {
+          "t": 9,
+          "x": 0.35,
+          "y": 0.78
+        },
+        {
+          "t": 12,
+          "x": 0.5,
+          "y": 0.5
+        }
+      ]
+    },
+    "record": {
+      "duration": 12,
+      "fps": 30,
+      "posterAt": 4.5,
+      "crf": 32
+    },
+    "group": "effects",
+    "intro": "ImageMelt tears one picture open to show another underneath, around the cursor.\n\nThe version of this on every agency site is a **hover**: you point at a card\nand the first image displaces into the second over about half a second.\n\nThat cannot be done here, and the reason is worth stating because it shaped the\nwhole item. Easing a hover toward a target is a running total: frame two is\nbuilt from frame one. `renderAtTime(t)` has to answer for any moment on its own\nso the recorder can seek, so nothing here may keep one.\n\nSo the transition is driven by **where the cursor is**, not by how long it has\nbeen there. The second picture bleeds out from under it. That is a function of\nthe pointer and the time, both of which the runtime replays exactly, and it\nkeeps the part that mattered: a torn, displaced edge between two photographs\nrather than a crossfade."
+  },
+  {
     "name": "InfiniteTube",
     "slug": "infinite-tube",
     "tier": 1,
