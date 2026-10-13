@@ -370,6 +370,7 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'infinite-tube': () => import('@items/effects/infinite-tube/core'),
     'light-trails': () => import('@items/effects/light-trails/core'),
     'image-melt': () => import('@items/effects/image-melt/core'),
+    'pixel-resolve': () => import('@items/effects/pixel-resolve/core'),
     'voronoi-cells': () => import('@items/effects/voronoi-cells/core'),
     'water-caustics': () => import('@items/effects/water-caustics/core'),
     'metaball-field': () => import('@items/effects/metaball-field/core'),
@@ -455,6 +456,8 @@ const tweakable = tier === 1 ? Object.entries(options) : []
       '<img class="demo-plate-fill" src="/plates/ascii-image/plate.jpg" alt="A grass headland falling away to the sea, with fog lying along the cliff" />',
     'crt-screen':
       '<img class="demo-plate-fill" src="/plates/crt-screen/plate.jpg" alt="A crowd walking down a Tokyo street at night under stacked lit signs" />',
+    'pixel-resolve':
+      '<img class="demo-plate-fill" src="/plates/pixel-resolve/plate.jpg" alt="A crowd walking down a Tokyo street at night under stacked lit signs" />',
     /* Two plates: the first is what you start on, the second bleeds through. */
     'image-melt':
       '<img class="demo-plate-fill" src="/plates/image-melt/one.jpg" alt="A grass headland falling away to the sea, with fog lying along the cliff" /><img class="demo-plate-fill" src="/plates/image-melt/two.jpg" alt="A ring of stones on a bright green hillside, the sun coming up behind the ridge" />',
@@ -703,6 +706,8 @@ const tweakable = tier === 1 ? Object.entries(options) : []
     'crt-screen',
     /* Two <img> children, both inputs rather than the thing on show. */
     'image-melt',
+    /* Same shape again: the <img> is the input, not the thing on show. */
+    'pixel-resolve',
     /* And again: the <img> is the picture behind the glass, not the thing on
        show, and the cracks have to reach the edges of the stage. */
     'glass-shatter',
