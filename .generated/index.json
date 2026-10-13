@@ -5962,6 +5962,226 @@
     "intro": "LightShafts is light coming into a room through something, and falling across\nthe frame in bands. Sun through a blind, through glazing bars, through a door\nleft ajar.\n\nEvery version of this effect anybody ships is a few pale triangles fanned out\nfrom a corner, and they all have the same tell: the beams are solid, their edges\nare equally sharp all the way along, and nothing accounts for why they are there\nat all. A shaft of light is not a shape. It is the gap in whatever is between\nyou and the sun.\n\nSo this is built the way the thing works.\n\n**There is a source, off frame, at a distance.** Everything is drawn from the\nangle to it, which is what makes the beams fan rather than run parallel. Move\nthe source far enough away and they do run parallel, because that is what\ndistance does to a fan, and the sun is the limiting case. There is no separate\nsetting for parallel beams, because this is what parallel beams are.\n\n**There is an occluder.** A repeating profile of bars and gaps, crossed by the\nrays. The bright bands are the gaps, not the bars.\n\n**The edges go soft with distance.** A shadow edge is sharp only near the thing\nthat cast it, because the source has width and the half-shadow it throws grows\nas the shadow travels. This one multiplication is the whole difference between a\nbeam of light and a triangle.\n\n**The beam is visible because of what is in the air.** Light in clean air cannot\nbe seen from the side, so the motes are not decoration over the top of the\nshafts: they are the reason there is anything to see, and they are drawn only\ninside the beams."
   },
   {
+    "name": "LightTrails",
+    "slug": "light-trails",
+    "tier": 1,
+    "description": "A motorway at night on a long exposure, two rivers of light running away and toward you",
+    "category": "backdrops",
+    "tags": [
+      "webgl",
+      "three",
+      "night",
+      "road",
+      "trails",
+      "speed",
+      "loop"
+    ],
+    "ground": "dark",
+    "peerDependencies": {
+      "three": ">=0.160.0"
+    },
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "One stretched box drawn many times with an InstancedMesh, each copy running down its own lane. The idea is from a Codrops article by Daniel Velasquez, which took it from an Akira poster",
+        "Two directions, two colours. Tail lights going away are red and headlights coming toward you are white. One colour in one direction is a tunnel of stripes; the pair of opposing streams is what says motorway",
+        "The oncoming ones cross the frame much faster, because their speed and yours add up. That difference does most of the work and it comes free from pointing them the other way",
+        "The trails are different lengths. A real exposure is as long as the shutter was open and as fast as the car was going, so no two streaks match; equal lengths read as a conveyor belt",
+        "Each trail covers a whole number of road lengths in one period, so its position is a mod of a function of t with no running total in it, and after one period everything is exactly where it started. Choosing speeds freely looks identical and never repeats, so the recording jumps on its last frame",
+        "A box rather than a plane. Seen from a low camera a flat streak disappears whenever it is edge on, which makes the traffic flicker",
+        "three's own fog rather than a hand-written fade. It is per-vertex, which is enough here because a trail is long: its two ends are far enough apart for the fog to differ along it, so a streak fades out along its own length",
+        "Without the fog the road ends in a hard line of lights sitting on nothing and the frame has no depth at all"
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 0.8,
+      "contexts": 1,
+      "notes": [
+        "One draw call for the whole road. The per-frame work is a scale and a position for each trail, which at the default 260 is nothing",
+        "The fog is three's, so it costs a few instructions in the stock shader rather than a pass of its own",
+        "Cost is linear in `trails`, and 400 is still comfortable. The limit you will hit first is that the road stops reading as traffic and starts reading as a solid sheet of light"
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/light-trails/core.ts",
+        "to": "src/beamish/effects/light-trails/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/light-trails/adapters/react.tsx",
+        "to": "src/beamish/effects/light-trails/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/light-trails/adapters/vue.ts",
+        "to": "src/beamish/effects/light-trails/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "period": {
+        "type": "number",
+        "default": 8,
+        "description": "Seconds before everything is back where it started. Every trail covers a whole number of road lengths in this time, which is what makes it loop, so this is also the traffic speed: shorter is faster.",
+        "min": 2,
+        "max": 60,
+        "step": 1,
+        "unit": "s",
+        "sensible": [
+          6,
+          16
+        ]
+      },
+      "trails": {
+        "type": "number",
+        "default": 260,
+        "description": "How many streaks, across both carriageways, split evenly between the two directions. It has to be high, because the road is seen end on: the trails are spread through depth, and only the nearest third are more than a couple of pixels wide. Below about 60 it is a quiet road at three in the morning, which is a different and quite good picture.",
+        "min": 4,
+        "max": 600,
+        "step": 2,
+        "sensible": [
+          80,
+          260
+        ]
+      },
+      "lanes": {
+        "type": "number",
+        "default": 3,
+        "description": "Lanes each way. More lanes spread the traffic sideways and fill the frame; one lane each way is a country road and leaves a lot of night.",
+        "min": 1,
+        "max": 6,
+        "step": 1,
+        "sensible": [
+          2,
+          4
+        ]
+      },
+      "length": {
+        "type": "number",
+        "default": 18,
+        "description": "The longest a streak gets, in road units. Each trail takes a random share of this, so it sets the spread as well as the maximum. Long is a slow shutter: the streaks start to overlap and the road turns into continuous ribbons.",
+        "min": 2,
+        "max": 120,
+        "step": 2,
+        "sensible": [
+          14,
+          48
+        ]
+      },
+      "weight": {
+        "type": "number",
+        "default": 0.34,
+        "description": "How thick a streak is. Thin reads as a distant motorway seen from a bridge; thick reads as being down among the traffic.",
+        "min": 0.04,
+        "max": 2,
+        "step": 0.02,
+        "sensible": [
+          0.2,
+          0.6
+        ]
+      },
+      "reach": {
+        "type": "number",
+        "default": 190,
+        "description": "How far down the road you can see before the fog takes it. The one that decides whether there is any depth: too far and the road ends in a hard line of lights sitting on nothing.",
+        "min": 30,
+        "max": 200,
+        "step": 10,
+        "sensible": [
+          120,
+          195
+        ]
+      },
+      "away": {
+        "type": "color",
+        "default": "#ff2d2d",
+        "description": "Tail lights, going away from you. Red because that is what the back of a car is, and the moment you make both streams the same colour the whole thing stops being a road."
+      },
+      "toward": {
+        "type": "color",
+        "default": "#fff2d0",
+        "description": "Headlights, coming toward you. Warm white rather than pure: a headlight is a filament or a slightly blue LED, and pure white next to pure red reads as a test card."
+      },
+      "night": {
+        "type": "color",
+        "default": "#07070c",
+        "description": "The night behind it, and also what the fog fades into, so the two are the same value on purpose. A fog colour that differs from the background leaves a visible band where the road ends."
+      },
+      "height": {
+        "type": "number",
+        "default": 5.5,
+        "description": "How high the camera sits above the road. Low is in the traffic and the lanes overlap into a tangle; high is a bridge, and the lanes separate into readable lines. This is the biggest single change to how it looks.",
+        "min": 0.5,
+        "max": 40,
+        "step": 0.5,
+        "sensible": [
+          3,
+          12
+        ]
+      },
+      "lens": {
+        "type": "number",
+        "default": 62,
+        "description": "How wide an angle the camera takes in. Narrow compresses the road and piles the distant traffic up, which is what a long lens does and is most of the look of the photographs this comes from.",
+        "min": 20,
+        "max": 110,
+        "step": 1,
+        "unit": "deg",
+        "sensible": [
+          40,
+          80
+        ]
+      },
+      "seed": {
+        "type": "number",
+        "default": 3,
+        "description": "Seed for the traffic: which lane each trail is in, how long it is, and how fast it goes. The same seed gives the same road.",
+        "min": 1,
+        "max": 9999,
+        "step": 1
+      },
+      "maxDpr": {
+        "type": "number",
+        "default": 2,
+        "description": "Device pixel ratio ceiling. Thin bright streaks on a dark ground alias badly, so this is worth leaving at 2.",
+        "min": 1,
+        "max": 3,
+        "step": 0.5
+      },
+      "reducedMotionTime": {
+        "type": "number",
+        "default": 2,
+        "description": "The single frame shown when the user prefers reduced motion. Any moment works: a still of this is a long-exposure photograph, which is what it was imitating in the first place.",
+        "min": 0,
+        "max": 60,
+        "step": 0.5,
+        "unit": "s"
+      }
+    },
+    "instruction": "ambient, red is going away and white is coming toward you",
+    "oneShot": false,
+    "record": {
+      "duration": 8,
+      "fps": 30,
+      "posterAt": 2,
+      "crf": 34,
+      "webmCrf": 44
+    },
+    "credit": {
+      "what": "A road of instanced light trails running in two directions into fog, from the Codrops article High-speed Light Trails in Three.js, which took it from an Akira poster",
+      "author": "Daniel Velasquez, Codrops",
+      "url": "https://tympanus.net/codrops/2019/11/13/high-speed-light-trails-in-three-js/"
+    },
+    "group": "effects",
+    "intro": "LightTrails is a motorway at night shot on a long exposure: two rivers of\nlight, one running away from you and one coming toward you, fading into fog.\n\nOne stretched box, drawn many times with an instanced mesh, each copy running\ndown its own lane. The idea is from a [Codrops article by Daniel\nVelasquez](https://tympanus.net/codrops/2019/11/13/high-speed-light-trails-in-three-js/),\nwhich took it from an Akira poster."
+  },
+  {
     "name": "LightningVein",
     "slug": "lightning-vein",
     "tier": 1,
