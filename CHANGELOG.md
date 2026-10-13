@@ -5,6 +5,124 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.14.0, 13 October 2026
+
+### Added
+
+- VoronoiCells (backdrops): the plane divided by which scattered point is
+  nearest. The cell borders are never drawn and the points are never stored:
+  a hash turns a grid square into a repeatable position inside it, so a pixel
+  looks its neighbours up rather than reading a list, and nine squares are
+  enough to find the closest of them.
+
+- TruchetMaze (backdrops): quarter-circle tiles in two orientations, joining
+  into one continuous maze. The whole effect is the rule that both arcs meet
+  every edge at its midpoint, which is what makes neighbouring tiles connect
+  whatever they roll.
+
+- TumblingBlocks (backdrops): a rhombille tiling lit as stacked cubes. Three
+  rhombi meeting at a point read as a cube corner, and the only thing turning
+  a flat tiling into a solid is giving each of the three a different value.
+
+- SphereCluster (backdrops): the holographic ticket template's hero, taken out
+  as an item of its own. Instanced, so a hundred spheres cost one instruction
+  with a hundred positions rather than a hundred instructions.
+
+- CrtScreen (surfaces): a picture on a tube rather than on a panel. Curvature,
+  an aperture grille measured in device pixels so it does not alias on a
+  retina screen, convergence error, bloom and a rolling bar.
+
+- GlassShatter (surfaces): polar for the arrangement, cartesian for the metric.
+  Lines out from the impact plus rings around it is how glass breaks and also
+  how a spider builds a web, so the arrangement alone was not the answer. What
+  makes it glass is that the cracks are dead straight, which is the distance
+  measure rather than the layout.
+
+- DitherImage (surfaces): error diffusion, which is the one kind of dither a
+  shader cannot do. Every pixel passes its rounding error to pixels not yet
+  done, and a GPU does every pixel at once, so no pixel can know what its
+  neighbour decided. It runs on the CPU at eight passes a second rather than
+  sixty, which is what pays for dots small enough to look right.
+
+- BlockDissolve (reveals): a picture arriving one block at a time, where the
+  order is the whole effect. Random clumps and reads as a broken page; always
+  taking the block furthest from the ones already done gives a chequerboard.
+  It picks a handful at random and takes the furthest of those, one dial with
+  a failure at each end.
+
+- PixelResolve (reveals): a picture arriving out of big blocks, the way one
+  used to over a slow line. Two block sizes are in flight at once and
+  crossfading, because stepping the size gives four or five visible lurches,
+  and each block is averaged rather than sampled, because one pixel out of a
+  block is not the block.
+
+- ImageMelt (pointer): a tear between two pictures rather than a crossfade.
+  The pointer drags the seam and the shear carries the chromatic split, which
+  has to be scaled off the transition rather than off the shear or an
+  untouched frame arrives already fringed.
+
+- RubiksGrid (backdrops): a field of cubes that solves itself, after a sketch
+  by u/Positive_Tea_1166. A staircase tiling rather than a rectangular grid,
+  covering the frame rather than fitted inside it, and no lights at all: the
+  faces are flat colour, and shading them was what turned classic red pink.
+
+- InfiniteTube (backdrops): endless because the road is a closed loop. The
+  camera runs along a closed Catmull-Rom curve at constant arc length, so the
+  journey has no beginning to return to.
+
+- LightTrails (backdrops): a motorway at night on a long exposure. The trails
+  are placed ahead of the camera and travel whole laps per period, which is
+  what makes the loop close.
+
+### Changed
+
+- The front door leads with the effects, then grids, then templates. It led
+  with templates on the reasoning that a template is a page and everybody
+  knows what a page is, which is true and still the wrong lead: the effects
+  are the bulk of the library and the thing anybody arrives for.
+
+- Cards on a wall play while they are on screen rather than while you point at
+  one. Hover meant a wall of sixty-seven items looked like sixty-seven stills
+  until you touched one, and on a phone it never moved at all. An observer
+  buys the same bandwidth more precisely: nothing is fetched until a card is
+  near the viewport, and nothing off screen is being decoded.
+
+- A card shows one take whatever ground the page is on. It used to follow the
+  theme toggle, which read as the wall rearranging itself rather than as the
+  page changing.
+
+- Every demo panel has a fullscreen button, and "Behind type" is now
+  "Layouts".
+
+- Effects hold fixed colours, so an item looks the same however the page was
+  loaded.
+
+- A darker dark ground, and four backdrops retoned to carry some chroma.
+
+### Fixed
+
+- Time never runs backwards in the shared runtime, and WindField no longer
+  eats the frame.
+
+- A stagnation point in a flow field is not a direction. WindField treated a
+  point where the gradient vanishes as though it pointed somewhere.
+
+- The effect canvas gets its own compositing layer, so the page cannot
+  resample it.
+
+- A card plays when it is on screen and has data, rather than when it arrives.
+  Play was being called before the loader had given the element a source, the
+  promise rejected, and nothing ever asked again.
+
+- The dev server these tools start syncs media and sees new items, and a busy
+  dev server is no longer mistaken for a missing one: a port clash now fails
+  rather than measuring somebody else's server.
+
+- HalftoneBackdrop needs stock to print on, so its ground is no longer `auto`.
+
+- No dashes in the visible text of the templates, and a headline sized to its
+  column rather than to the viewport.
+
 ## v0.13.0, 11 October 2026
 
 ### Added
