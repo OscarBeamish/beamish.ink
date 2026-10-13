@@ -9,11 +9,16 @@
  * reader the other tiers are afterthoughts, whatever the nav says. The wall
  * moved to /effects unchanged and this page became three shelves.
  *
- * Templates first. They are the only tier you can look at and understand
- * without being told what the library is, because a template is a page and
- * everybody already knows what a page is. An effect is a piece of one and a
- * grid is the rules underneath it, and both read better once you have seen
- * where they end up.
+ * Effects first, then grids, then templates. The shelves used to lead with
+ * templates, on the reasoning that a template is a page and everybody already
+ * knows what a page is, so it is the one tier that explains itself. That is
+ * true and it was still the wrong lead: the effects are the bulk of the
+ * library and the thing anybody arrives here for, and a front door that opens
+ * on the smallest tier buries them.
+ *
+ * The order it leaves is also the order of assembly, which is a better story
+ * than the old one: a piece, then the rules a page is laid out on, then a
+ * whole page with both in it.
  *
  * The three on each shelf are chosen by hand and listed here rather than taken
  * off the front of the catalogue. Alphabetical order is not a curation, and a
@@ -67,21 +72,6 @@ const SHOWN_GRIDS = ['twelve-column', 'baseline-grid', 'marginalia-columns']
  */
 const shelves = [
   {
-    heading: 'Templates',
-    blurb: 'Whole pages, one file each',
-    href: '/templates',
-    total: templates.length,
-    cards: SHOWN_TEMPLATES.map(slug => templates.find(t => t.slug === slug))
-      .filter(t => t !== undefined)
-      .map(template => ({
-        href: `/templates/${template.slug}`,
-        name: template.name,
-        description: template.description,
-        label: template.ground === 'dark' ? 'Dark' : 'Light',
-        media: loadTemplateMedia(template.slug)
-      }))
-  },
-  {
     heading: 'Effects and components',
     blurb: 'Scenes, shaders, text and interface parts',
     href: '/effects',
@@ -109,6 +99,21 @@ const shelves = [
         description: grid.description,
         label: GRID_CATEGORY_LABELS[grid.category],
         media: loadGridMedia(grid.slug)
+      }))
+  },
+  {
+    heading: 'Templates',
+    blurb: 'Whole pages, one file each',
+    href: '/templates',
+    total: templates.length,
+    cards: SHOWN_TEMPLATES.map(slug => templates.find(t => t.slug === slug))
+      .filter(t => t !== undefined)
+      .map(template => ({
+        href: `/templates/${template.slug}`,
+        name: template.name,
+        description: template.description,
+        label: template.ground === 'dark' ? 'Dark' : 'Light',
+        media: loadTemplateMedia(template.slug)
       }))
   }
 ]
