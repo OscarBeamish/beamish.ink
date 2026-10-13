@@ -115,22 +115,24 @@ if (!original.includes('X-Robots-Tag')) {
   console.log('noindex: already in dist/_headers')
 }
 
-/* --- 4. the root of this host is the page, not a second copy of the site --- */
+/* --- 4. the root of this host is the site, not the page --- */
 
 /*
- * The whole build goes up, so every link in the nav resolves and the effects
- * library is there to show as well. But the host exists for one page, so its
- * root redirects to that page rather than serving a duplicate front door. The
- * URL to say out loud is then the bare subdomain.
+ * No root redirect, and it was tried the other way first.
  *
- * In dist, not in site/public, for the same reason as the header: site/public
- * is the real site, and the real site's root is its own.
+ * Sending `/` to /playable-worlds makes the URL to say out loud the bare
+ * subdomain, which is tidy, and it costs more than it buys: it swallows
+ * /index.html as well, so the front door is unreachable on this host and the
+ * logo in the nav lands a reader back on the mirror they were trying to leave.
+ *
+ * The whole build goes up, so what this host is is a copy of the site with one
+ * extra page in it, and that page is reached the way every other page is.
  */
-fs.writeFileSync(
-  path.join(DIST, '_redirects'),
-  '# This host is one page. Its root is that page.\n/  /playable-worlds  302\n'
-)
-console.log('root: redirected to /playable-worlds')
+const stale = path.join(DIST, '_redirects')
+if (fs.existsSync(stale)) {
+  fs.unlinkSync(stale)
+  console.log('root: redirect removed')
+}
 
 /* --- 5. the project has to exist before anything can be pushed into it --- */
 

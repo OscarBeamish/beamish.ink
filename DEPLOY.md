@@ -221,8 +221,8 @@ pnpm worlds:deploy
 ```
 
 `pnpm worlds:deploy` checks the build has the mirror in it, checks it fits
-inside Cloudflare's limits, writes the noindex header and the root redirect,
-creates the project if it is not there, and uploads. The project name is
+inside Cloudflare's limits, writes the noindex header, creates the project if
+it is not there, and uploads. The project name is
 `beamish-worlds-mirror`, overridable with `PW_PROJECT`.
 
 ### It still lives on beamish.ink
@@ -235,9 +235,13 @@ and Cloudflare writes the DNS itself:
 up a custom domain** -> `worlds.beamish.ink` -> **Activate domain**.
 
 The certificate is usually live within a minute or two. The whole build goes
-up, so the nav works and the effects library is there to show too, but the root
-of that host redirects to `/playable-worlds`, so the URL to say out loud is the
-bare subdomain.
+up, so what that host is is a copy of the site with one extra page in it,
+reached at `worlds.beamish.ink/playable-worlds` the way every other page is.
+
+There is no root redirect. Sending `/` to the mirror makes the URL to say out
+loud the bare subdomain, which is tidy, and it swallows `/index.html` with it:
+the front door becomes unreachable and the logo in the nav lands a reader back
+on the mirror they were trying to leave.
 
 ### Why a project of its own
 
