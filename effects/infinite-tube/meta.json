@@ -1,0 +1,226 @@
+{
+  "name": "InfiniteTube",
+  "slug": "infinite-tube",
+  "tier": 1,
+  "description": "Flying through the inside of a tube that has no end, because the tube is a closed loop",
+  "category": "backdrops",
+  "ground": "dark",
+  "tags": [
+    "webgl",
+    "three",
+    "tunnel",
+    "tube",
+    "flight",
+    "loop",
+    "perspective"
+  ],
+  "peerDependencies": {
+    "three": ">=0.160.0"
+  },
+  "browser": {
+    "webgl": "webgl2",
+    "notes": [
+      "Build a tube along a curve, turn the material inside out so you see its far wall, put the camera inside. The idea is from a Codrops article by Louis Hoebregts, credited below",
+      "The usual way to make the flight endless is to scroll the texture a little further along the tube every frame. That is a running total, and a running total is the one thing an effect here may not keep: renderAtTime has to answer for any moment on its own, so the recorder can seek",
+      "So the tube is a closed curve instead. It comes back to where it started, the camera goes round it, and after one lap everything is exactly as it was. The flight has no end because the road has no end, rather than because a counter keeps going up, and the loop is perfect for free because the last frame IS the first frame",
+      "The tube has to bend. A straight one gives a stationary circle with a pattern sliding down it, which reads as a screensaver; corners coming at you are what sells the movement and what makes the far end disappear and reappear",
+      "The camera looks ahead along the curve rather than at a fixed point, so going into a bend swings the view the way a car does",
+      "It has to go dark in the distance, squared rather than linear. Without the fade you can see the whole tube and there is nothing to arrive out of; with a linear fade there is a visible grey disc at the far end that reads as the tube being capped",
+      "getPointAt, not getPoint. The first is spaced by distance along the curve and the second by the parameter, and on a curve whose segments differ in length the parameter version speeds up and slows down on its own, which reads as the tube breathing",
+      "The control points sit on a circle and are then pushed about by the seed, so the loop is always a loop. Scattering them freely was the first attempt and about one seed in three produced a curve that passed through itself, which from the inside is a wall",
+      "The lines are widened by one pixel of their own gradient, measured with fwidth. Without it the far end of the tube is a field of moire rather than a pattern",
+      "The wall is drawn by a shader rather than a texture, so there is no image to fetch and the rings stay sharp at any resolution"
+    ]
+  },
+  "perf": {
+    "frameBudgetMs": 1.2,
+    "contexts": 1,
+    "notes": [
+      "One mesh, one draw call. The geometry is built once per shape and the only per-frame work is moving the camera and setting a handful of uniforms",
+      "The tube is 28 segments per bend around a 24-sided cross-section, which at the default seven bends is about 9,400 triangles. Cheap, and the tessellation is what keeps a bend from showing its facets",
+      "frustumCulled is off. The camera is inside the mesh, and a bounding sphere test on a shape you are standing in is a coin toss"
+    ]
+  },
+  "files": [
+    {
+      "from": "effects/infinite-tube/core.ts",
+      "to": "src/beamish/effects/infinite-tube/core.ts",
+      "role": "core"
+    },
+    {
+      "from": "effects/infinite-tube/adapters/react.tsx",
+      "to": "src/beamish/effects/infinite-tube/react.tsx",
+      "role": "adapter"
+    },
+    {
+      "from": "effects/infinite-tube/adapters/vue.ts",
+      "to": "src/beamish/effects/infinite-tube/vue.ts",
+      "role": "adapter"
+    },
+    {
+      "from": "shared/runtime.ts",
+      "to": "src/beamish/shared/runtime.ts",
+      "role": "runtime"
+    }
+  ],
+  "options": {
+    "period": {
+      "default": 12,
+      "type": "number",
+      "min": 4,
+      "max": 120,
+      "step": 1,
+      "unit": "s",
+      "sensible": [
+        10,
+        30
+      ],
+      "description": "Seconds for one lap of the loop, which is also the speed: the distance is fixed, so a shorter period is a faster flight. Under about 10 the bends arrive faster than the eye can follow and it stops reading as travel."
+    },
+    "radius": {
+      "default": 2.6,
+      "type": "number",
+      "min": 0.6,
+      "max": 8,
+      "step": 0.1,
+      "sensible": [
+        1.6,
+        4
+      ],
+      "description": "How wide the tube is. Narrow is claustrophobic and fast because the wall is close; wide is calm and the bends matter less. It interacts with `lens`: a wide tube through a wide lens is just a room."
+    },
+    "bends": {
+      "default": 7,
+      "type": "number",
+      "min": 3,
+      "max": 20,
+      "step": 1,
+      "sensible": [
+        5,
+        11
+      ],
+      "description": "How many control points the loop has, which is roughly how many corners you go round per lap. Three is a triangle with rounded corners. Past about fifteen the bends are shorter than the visible distance and they stop registering as separate corners."
+    },
+    "sway": {
+      "default": 11,
+      "type": "number",
+      "min": 0,
+      "max": 24,
+      "step": 0.5,
+      "sensible": [
+        6,
+        15
+      ],
+      "description": "How far the control points are pushed off their circle, so how wild the loop is. At 0 it is a perfectly round doughnut and the flight is a constant gentle curve. High values eventually fold the tube through itself, and from the inside that is a wall."
+    },
+    "rings": {
+      "default": 300,
+      "type": "number",
+      "min": 10,
+      "max": 900,
+      "step": 10,
+      "sensible": [
+        120,
+        400
+      ],
+      "description": "Rings down the length of the tube. These are the thing that actually shows the speed, because they are what streams past. Too few and there is nothing to measure the movement against."
+    },
+    "spokes": {
+      "default": 16,
+      "type": "number",
+      "min": 0,
+      "max": 64,
+      "step": 1,
+      "sensible": [
+        8,
+        24
+      ],
+      "description": "Lines running around the tube. They do not move relative to the camera, so they read as the structure of the tunnel rather than as speed. At 0 you get rings only, which is cleaner and reads more like a scan."
+    },
+    "weight": {
+      "default": 0.045,
+      "type": "number",
+      "min": 0.005,
+      "max": 0.45,
+      "step": 0.005,
+      "sensible": [
+        0.04,
+        0.16
+      ],
+      "description": "How thick a line is, as a share of the gap between lines. Thin. Past about 0.3 the lines meet and you have a solid tube with gaps in it instead of a tube with lines on it."
+    },
+    "reach": {
+      "default": 20,
+      "type": "number",
+      "min": 6,
+      "max": 160,
+      "step": 2,
+      "sensible": [
+        12,
+        36
+      ],
+      "description": "How far down the tube you can see before it goes dark. This is the one that decides whether there is a tunnel at all: too long and the far end stays lit, there is no hole to fly into and nothing arrives out of anything. Short is a tunnel; long is a pipe with the lights on."
+    },
+    "wall": {
+      "type": "color",
+      "default": "#0a0a12",
+      "description": "The wall between the lines. Near-black rather than black, so the tube still has a surface where no line is falling."
+    },
+    "line": {
+      "type": "color",
+      "default": "#5de4ff",
+      "description": "The lines. One bright colour against a dark wall is the whole palette, which is why this reads as something lit rather than something painted."
+    },
+    "lens": {
+      "default": 78,
+      "type": "number",
+      "min": 30,
+      "max": 120,
+      "step": 1,
+      "unit": "deg",
+      "sensible": [
+        60,
+        95
+      ],
+      "description": "How wide an angle the camera takes in. Wide exaggerates the speed, because things at the edge of the frame move much faster than things in the middle. Past about 100 the walls bow and it stops being a tube."
+    },
+    "seed": {
+      "default": 4,
+      "type": "number",
+      "min": 1,
+      "max": 9999,
+      "step": 1,
+      "description": "Seed for the shape of the loop. Worth clicking through a few: the character of the flight changes completely between a loop with one long straight and one that never stops turning."
+    },
+    "maxDpr": {
+      "default": 2,
+      "type": "number",
+      "min": 1,
+      "max": 3,
+      "step": 0.5,
+      "description": "Device pixel ratio ceiling. The lines are antialiased in the shader, so this costs fill rate rather than changing how they look."
+    },
+    "reducedMotionTime": {
+      "default": 3,
+      "type": "number",
+      "min": 0,
+      "max": 60,
+      "step": 0.5,
+      "unit": "s",
+      "description": "The single frame shown when the user prefers reduced motion. Any moment works, since every point on the loop looks like a tunnel; this one happens to be on a bend, which is more interesting than a straight."
+    }
+  },
+  "instruction": "ambient, the loop is closed so it never actually ends",
+  "credit": {
+    "what": "Building a tube along a curve, flipping the material to its back side and putting the camera inside, from the Codrops article Infinite Tubes with Three.js. Theirs scrolls a texture to fake the travel; this one flies round a closed curve so it can be seeked and so it loops exactly",
+    "author": "Louis Hoebregts, Codrops",
+    "url": "https://tympanus.net/codrops/2017/05/09/infinite-tubes-with-three-js/"
+  },
+  "record": {
+    "duration": 12,
+    "fps": 30,
+    "posterAt": 3,
+    "crf": 38,
+    "webmCrf": 56
+  }
+}
