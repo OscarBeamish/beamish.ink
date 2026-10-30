@@ -1,0 +1,7 @@
+# Everything on the site is for reading. The one page that is not, Playable
+# Worlds, says so in its own head rather than here, because a robots rule
+# stops a crawler fetching a page, which also stops it reading the noindex.
+User-agent: *
+Allow: /
+
+Sitemap: https://beamish.ink/sitemap-index.xml

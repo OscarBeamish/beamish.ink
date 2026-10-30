@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config'
 import react from '@astrojs/react'
+import sitemap from '@astrojs/sitemap'
 import tailwind from '@tailwindcss/vite'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -10,7 +11,24 @@ const repo = path.resolve(here, '..')
 // https://astro.build/config
 export default defineConfig({
   site: 'https://beamish.ink',
-  integrations: [react()],
+  /*
+   * The sitemap is what tells a crawler the item pages exist. Nothing links to
+   * most of them from outside, and the site had been live for weeks with
+   * `site:beamish.ink` returning nothing.
+   *
+   * Two pages are kept out of it. Playable Worlds is noindex (it is a mirror
+   * of somebody else's work, and it says so in its own head), and a URL that
+   * is in the sitemap and noindex at once is a contradiction a crawler
+   * resolves by trusting neither. The 404 is a page in the build but not an
+   * address anybody should be sent to.
+   */
+  integrations: [
+    react(),
+    sitemap({
+      filter: page =>
+        !page.includes('/playable-worlds') && !page.includes('/404') && !page.includes('/pointer-trail')
+    })
+  ],
   /*
    * A port of its own. Astro's default 4321 collides with every other Astro
    * project on this machine, and its auto-increment means you never know which
