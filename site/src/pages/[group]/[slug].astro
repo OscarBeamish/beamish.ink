@@ -4,6 +4,7 @@ import DemoPanel from '../../components/DemoPanel.astro'
 import PromptButtons from '../../components/PromptButtons.astro'
 import { loadCatalogue, loadMedia, loadPrompts, PIN } from '../../lib/catalogue'
 import { CATEGORY_LABELS } from '../../../../tools/schema/meta'
+import { pageTitle, sourceCodeSchema } from '../../lib/seo'
 
 export function getStaticPaths() {
   return loadCatalogue().map(item => ({
@@ -34,10 +35,17 @@ const notes = [...item.browser.notes, ...item.perf.notes]
 ---
 
 <Base
-  title={`${item.name}: Beamish`}
+  title={pageTitle(item.name, item.description, item.seoTitle)}
   description={item.description}
   image={media.poster}
   video={media.mp4}
+  schema={sourceCodeSchema({
+    name: item.name,
+    description: item.description,
+    pathname: Astro.url.pathname,
+    keywords: item.tags,
+    programmingLanguage: 'TypeScript'
+  })}
 >
   {/*
     A reading column, with the demo breaking out of it. Everything that is words

@@ -28,6 +28,7 @@
 import Base from '../../layouts/Base.astro'
 import PromptButtons from '../../components/PromptButtons.astro'
 import { loadTemplates, loadTemplatePrompt } from '../../lib/templates'
+import { pageTitle, sourceCodeSchema } from '../../lib/seo'
 
 export function getStaticPaths() {
   return loadTemplates().map(template => ({
@@ -42,7 +43,18 @@ const demo = `/template-demos/${template.slug}/index.html`
 const source = template.source
 ---
 
-<Base title={`${template.name}: Beamish`} description={template.description}>
+<Base
+  title={pageTitle(template.name, template.description, template.seoTitle)}
+  description={template.description}
+  schema={sourceCodeSchema({
+    name: template.name,
+    description: template.description,
+    pathname: Astro.url.pathname,
+    keywords: template.uses.map(use => use.name),
+    programmingLanguage: 'HTML',
+    basedOn: source?.url
+  })}
+>
   <section class="spine pt-32 pb-8 md:pt-40">
     <h1 class="col-span-12 text-[clamp(2.2rem,6vw,4.5rem)] leading-[0.95] lg:col-span-9">
       {template.name}

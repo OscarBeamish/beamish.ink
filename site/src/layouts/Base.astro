@@ -1,5 +1,6 @@
 ---
 import { ClientRouter } from 'astro:transitions'
+import { jsonLd } from '../lib/seo'
 import '../styles/global.css'
 
 type Props = {
@@ -10,14 +11,35 @@ type Props = {
   video?: string | null
   /** Keep the page out of search. For anything that is not ours to publish. */
   noindex?: boolean
+  /**
+   * Structured data for this page, as one node or several, to go in the
+   * JSON-LD graph beside the site and its author. Item pages pass a
+   * SoftwareSourceCode node built by `sourceCodeSchema` in lib/seo.
+   */
+  schema?: Record<string, unknown> | Record<string, unknown>[]
 }
 
 // Item pages pass their own poster. Everything else falls back to the social
 // card, because a shared link with no image is a grey box.
 const FALLBACK_IMAGE = '/social/preview.png'
 
-const { title, description, image = FALLBACK_IMAGE, video = null, noindex = false } = Astro.props
+const {
+  title,
+  description,
+  image = FALLBACK_IMAGE,
+  video = null,
+  noindex = false,
+  schema = []
+} = Astro.props
 const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink')
+
+/*
+ * Structured data. The site and its author on every indexable page, plus
+ * whatever the page adds. The author node carries the same @id as the Person
+ * on oscarbeamish.com, which is what tells a search engine the two sites are
+ * one person's work rather than a coincidence of names.
+ */
+const structured = noindex ? null : jsonLd(Array.isArray(schema) ? schema : [schema])
 ---
 
 <!doctype html>
@@ -113,6 +135,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://beamish.ink
     {/* The videos are the product, so a shared link should unfurl into one. */}
     {video && <meta property="og:video" content={new URL(video, canonical).href} />}
     <meta name="twitter:card" content="summary_large_image" />
+    {structured && <script type="application/ld+json" set:html={structured} />}
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />

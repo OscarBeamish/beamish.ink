@@ -34,6 +34,7 @@ import Base from '../../layouts/Base.astro'
 import { loadGrids, loadGridSource, GRID_CATEGORY_LABELS } from '../../lib/grids'
 import { loadPrompts } from '../../lib/catalogue'
 import PromptButtons from '../../components/PromptButtons.astro'
+import { pageTitle, sourceCodeSchema } from '../../lib/seo'
 
 export function getStaticPaths() {
   return loadGrids().map(grid => ({ params: { slug: grid.slug }, props: { grid } }))
@@ -65,7 +66,17 @@ const DRAWS_RULES = new Set(['twelve-column', 'baseline-grid', 'asymmetric-colum
 const hasToggle = DRAWS_RULES.has(grid.slug)
 ---
 
-<Base title={`${grid.name}: Beamish`} description={grid.description}>
+<Base
+  title={pageTitle(grid.name, grid.description, grid.seoTitle)}
+  description={grid.description}
+  schema={sourceCodeSchema({
+    name: grid.name,
+    description: grid.description,
+    pathname: Astro.url.pathname,
+    keywords: grid.tags,
+    programmingLanguage: 'CSS'
+  })}
+>
   <section class="spine pt-32 pb-8 md:pt-40">
     <h1 class="col-span-12 text-[clamp(2.2rem,6vw,4.5rem)] leading-[0.95] lg:col-span-9">
       {grid.name}
