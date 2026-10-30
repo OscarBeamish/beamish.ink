@@ -3,6 +3,7 @@
   "slug": "dither-image",
   "tier": 1,
   "description": "A photograph reduced to two tones by error diffusion, which is the kind of dither a shader cannot do",
+  "seoTitle": "image dithering effect for the web",
   "category": "surfaces",
   "ground": "paper",
   "tags": [

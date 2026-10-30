@@ -4,6 +4,7 @@
     "slug": "ascii-image",
     "tier": 1,
     "description": "A picture set in characters, where each cell takes the glyph whose shape fits the edge running through it rather than the one whose brightness matches",
+    "seoTitle": "ASCII art image effect in WebGL",
     "category": "surfaces",
     "tags": [
       "webgl",
@@ -170,6 +171,7 @@
     "slug": "aurora-curtain",
     "tier": 1,
     "description": "The northern lights on a night sky, folded into curtains and lit from the bottom up",
+    "seoTitle": "aurora northern lights background",
     "category": "backdrops",
     "tags": [
       "webgl",
@@ -1646,6 +1648,7 @@
     "slug": "crt-screen",
     "tier": 1,
     "description": "A picture shown on a tube rather than on a panel: the glass bows, the phosphors sit in columns and the beam overshoots",
+    "seoTitle": "CRT screen scanlines shader effect",
     "category": "surfaces",
     "tags": [
       "webgl",
@@ -1902,6 +1905,7 @@
     "slug": "decode-text",
     "tier": 1,
     "description": "Text resolving out of a run of cipher glyphs, one character at a time, without the line moving while it does",
+    "seoTitle": "text scramble and decode effect",
     "category": "type",
     "tags": [
       "text",
@@ -2236,6 +2240,7 @@
     "slug": "dither-image",
     "tier": 1,
     "description": "A photograph reduced to two tones by error diffusion, which is the kind of dither a shader cannot do",
+    "seoTitle": "image dithering effect for the web",
     "category": "surfaces",
     "tags": [
       "canvas",
@@ -3787,6 +3792,7 @@
     "slug": "glass-shatter",
     "tier": 1,
     "description": "A plate of glass broken over a picture, cracked along the stress rather than into a honeycomb",
+    "seoTitle": "shattered glass image effect",
     "category": "surfaces",
     "tags": [
       "webgl",
@@ -4795,6 +4801,7 @@
     "slug": "halftone-reveal",
     "tier": 1,
     "description": "A picture arriving dot by dot, the way a halftone comes up on press",
+    "seoTitle": "halftone image reveal effect",
     "category": "reveals",
     "tags": [
       "webgl",
@@ -5477,6 +5484,7 @@
     "slug": "infinite-tube",
     "tier": 1,
     "description": "Flying through the inside of a tube that has no end, because the tube is a closed loop",
+    "seoTitle": "infinite tunnel effect in three.js",
     "category": "backdrops",
     "tags": [
       "webgl",
@@ -6556,6 +6564,7 @@
     "slug": "magnetic-button",
     "tier": 1,
     "description": "An element that leans towards the cursor before the cursor arrives",
+    "seoTitle": "magnetic button hover effect",
     "category": "pointer",
     "tags": [
       "pointer",
@@ -7067,6 +7076,7 @@
     "slug": "mesh-gradient",
     "tier": 1,
     "description": "The soft flowing colour field behind half the software marketing on the web, lit by its own slope",
+    "seoTitle": "animated mesh gradient background",
     "category": "backdrops",
     "tags": [
       "webgl",
@@ -10088,6 +10098,7 @@
     "slug": "scramble-text",
     "tier": 1,
     "description": "Type set one character at a time, in the order you choose",
+    "seoTitle": "staggered text reveal animation",
     "category": "type",
     "tags": [
       "text",
@@ -11242,6 +11253,7 @@
     "slug": "split-flap-text",
     "tier": 1,
     "description": "A departure board, built as hinged leaves that have to pass through the strip to reach their letter",
+    "seoTitle": "split flap display text animation",
     "category": "type",
     "tags": [
       "text",
@@ -11538,6 +11550,7 @@
     "slug": "spotlight-card",
     "tier": 1,
     "description": "A card under a desk lamp, lit across the face and bright on the near edge",
+    "seoTitle": "spotlight card hover effect",
     "category": "surfaces",
     "tags": [
       "surfaces",
@@ -12446,6 +12459,7 @@
     "slug": "tilt-card",
     "tier": 1,
     "description": "A panel that leans towards the cursor, with a sheen raking across it",
+    "seoTitle": "3D tilt card hover effect",
     "category": "surfaces",
     "tags": [
       "card",
@@ -13206,6 +13220,7 @@
     "slug": "typewriter-text",
     "tier": 1,
     "description": "Text typed on a machine with type bars: an uneven hand, a breath at the punctuation, and every letter struck a little off square",
+    "seoTitle": "typewriter text animation",
     "category": "type",
     "tags": [
       "text",

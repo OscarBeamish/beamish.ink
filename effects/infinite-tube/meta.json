@@ -3,6 +3,7 @@
   "slug": "infinite-tube",
   "tier": 1,
   "description": "Flying through the inside of a tube that has no end, because the tube is a closed loop",
+  "seoTitle": "infinite tunnel effect in three.js",
   "category": "backdrops",
   "ground": "dark",
   "tags": [

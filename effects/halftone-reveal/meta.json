@@ -3,6 +3,7 @@
   "slug": "halftone-reveal",
   "tier": 1,
   "description": "A picture arriving dot by dot, the way a halftone comes up on press",
+  "seoTitle": "halftone image reveal effect",
   "category": "reveals",
   "tags": [
     "webgl",

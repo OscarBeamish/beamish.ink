@@ -136,6 +136,27 @@ const recordSpec = z.object({
   interactions: z.array(interactionStep).optional()
 })
 
+/*
+ * The page title the site builds from a name and a seoTitle is
+ * `Name: seoTitle | Beamish`, and a title over 60 characters is cut off in a
+ * results page at the point where it was about to say the useful thing.
+ * Checked here rather than on the site, so the fix lands in meta.json where
+ * the field is, and before a build rather than in one.
+ */
+const TITLE_LIMIT = 60
+const TITLE_SUFFIX = ' | Beamish'
+const seoTitleFits = (value: { name: string; seoTitle?: string }, ctx: z.RefinementCtx) => {
+  if (value.seoTitle === undefined) return
+  const length = value.name.length + 2 + value.seoTitle.length + TITLE_SUFFIX.length
+  if (length > TITLE_LIMIT) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['seoTitle'],
+      message: `"${value.name}: ${value.seoTitle}${TITLE_SUFFIX}" is ${length} characters; the limit is ${TITLE_LIMIT}`
+    })
+  }
+}
+
 const creditSpec = z.object({
   /** Where the *concept* came from. Never the code. Every line here is ours. */
   what: z.string().min(1),
@@ -151,6 +172,16 @@ export const metaSchema = z
     tier: z.union([z.literal(1), z.literal(2)]),
     /** One sentence, sentence case, no full stop. Used on cards and in prompts. */
     description: z.string().min(10).max(160),
+    /**
+     * What a developer would type into a search engine to find this, in the
+     * words of the concept rather than the name: "typewriter text animation",
+     * not "TypewriterText". Lower case unless it carries an acronym. Optional:
+     * the site falls back to the first clause of the description, which is
+     * right for most items and flat for the twenty or so with a generic
+     * concept behind them. The page title is `Name: seoTitle | Beamish`, and
+     * the refinement below keeps that at or under 60 characters.
+     */
+    seoTitle: z.string().min(10).optional(),
     category: z.enum([
       'backdrops',
       'reveals',
@@ -280,6 +311,7 @@ export const metaSchema = z
       })
     }
   })
+  .superRefine(seoTitleFits)
 
 export type Meta = z.infer<typeof metaSchema>
 export type OptionSpec = z.infer<typeof optionSpec>
@@ -323,6 +355,16 @@ export const gridMetaSchema = z
     name: z.string().regex(/^[A-Z][A-Za-z]+$/, 'name must be a single CamelCase word'),
     slug,
     description: z.string().min(10).max(160),
+    /**
+     * What a developer would type into a search engine to find this, in the
+     * words of the concept rather than the name: "typewriter text animation",
+     * not "TypewriterText". Lower case unless it carries an acronym. Optional:
+     * the site falls back to the first clause of the description, which is
+     * right for most items and flat for the twenty or so with a generic
+     * concept behind them. The page title is `Name: seoTitle | Beamish`, and
+     * the refinement below keeps that at or under 60 characters.
+     */
+    seoTitle: z.string().min(10).optional(),
     category: z.enum([
       'editorial',
       'tiles',
@@ -367,6 +409,7 @@ export const gridMetaSchema = z
     })
   })
   .strict()
+  .superRefine(seoTitleFits)
 
 export type GridMeta = z.infer<typeof gridMetaSchema>
 
@@ -397,6 +440,16 @@ export const templateMetaSchema = z
     slug,
     /** One sentence for the card, sentence case, no full stop. */
     description: z.string().min(10).max(160),
+    /**
+     * What a developer would type into a search engine to find this, in the
+     * words of the concept rather than the name: "typewriter text animation",
+     * not "TypewriterText". Lower case unless it carries an acronym. Optional:
+     * the site falls back to the first clause of the description, which is
+     * right for most items and flat for the twenty or so with a generic
+     * concept behind them. The page title is `Name: seoTitle | Beamish`, and
+     * the refinement below keeps that at or under 60 characters.
+     */
+    seoTitle: z.string().min(10).optional(),
     /** What this page is for: which part of the library it puts under load. */
     intent: z.string().min(20),
     ground: z.enum(['paper', 'dark', 'either']),
@@ -463,5 +516,6 @@ export const templateMetaSchema = z
     message:
       'a template needs either `uses` (the library items it is built from) or `source` (the work it is adapted from)'
   })
+  .superRefine(seoTitleFits)
 
 export type TemplateMeta = z.infer<typeof templateMetaSchema>

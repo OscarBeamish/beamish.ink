@@ -3,6 +3,7 @@
   "slug": "tilt-card",
   "tier": 1,
   "description": "A panel that leans towards the cursor, with a sheen raking across it",
+  "seoTitle": "3D tilt card hover effect",
   "category": "surfaces",
   "tags": [
     "card",

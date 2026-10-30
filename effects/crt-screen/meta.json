@@ -3,6 +3,7 @@
   "slug": "crt-screen",
   "tier": 1,
   "description": "A picture shown on a tube rather than on a panel: the glass bows, the phosphors sit in columns and the beam overshoots",
+  "seoTitle": "CRT screen scanlines shader effect",
   "category": "surfaces",
   "ground": "dark",
   "tags": [

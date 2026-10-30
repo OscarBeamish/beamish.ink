@@ -3,6 +3,7 @@
   "slug": "decode-text",
   "tier": 1,
   "description": "Text resolving out of a run of cipher glyphs, one character at a time, without the line moving while it does",
+  "seoTitle": "text scramble and decode effect",
   "category": "type",
   "ground": "either",
   "tags": [

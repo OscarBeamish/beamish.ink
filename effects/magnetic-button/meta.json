@@ -3,6 +3,7 @@
   "slug": "magnetic-button",
   "tier": 1,
   "description": "An element that leans towards the cursor before the cursor arrives",
+  "seoTitle": "magnetic button hover effect",
   "category": "pointer",
   "tags": [
     "pointer",

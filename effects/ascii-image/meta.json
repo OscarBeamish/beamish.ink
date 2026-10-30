@@ -3,6 +3,7 @@
   "slug": "ascii-image",
   "tier": 1,
   "description": "A picture set in characters, where each cell takes the glyph whose shape fits the edge running through it rather than the one whose brightness matches",
+  "seoTitle": "ASCII art image effect in WebGL",
   "category": "surfaces",
   "ground": "paper",
   "tags": [
