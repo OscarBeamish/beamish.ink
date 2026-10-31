@@ -16,17 +16,15 @@ export default defineConfig({
    * most of them from outside, and the site had been live for weeks with
    * `site:beamish.ink` returning nothing.
    *
-   * Two pages are kept out of it. Playable Worlds is noindex (it is a mirror
-   * of somebody else's work, and it says so in its own head), and a URL that
-   * is in the sitemap and noindex at once is a contradiction a crawler
-   * resolves by trusting neither. The 404 is a page in the build but not an
-   * address anybody should be sent to.
+   * Two pages are kept out of it. The 404 is a page in the build but not an
+   * address anybody should be sent to, and pointer-trail is a demo surface
+   * rather than a destination.
    */
   integrations: [
     react(),
     sitemap({
       filter: page =>
-        !page.includes('/playable-worlds') && !page.includes('/404') && !page.includes('/pointer-trail')
+        !page.includes('/404') && !page.includes('/pointer-trail')
     })
   ],
   /*
