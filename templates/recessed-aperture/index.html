@@ -417,7 +417,14 @@ letter-spacing: -0.045em;
 text-shadow: 0 2px 24px rgba(30, 20, 2, 0.45);
 }
 /* each line rises out of its own mask, one after the other */
-.hero h1 .line { display: block; overflow: hidden; padding: 0.04em 0.06em 0.1em; margin: -0.04em -0.06em -0.1em; }
+/* The padding is what lets the rise animation's ascenders and descenders
+   out from under overflow: hidden, and the negative margin takes the
+   layout cost back. Horizontally it buys nothing: rise is translateY
+   only, and the tracking here is negative, so there is no side bearing
+   to protect. What it did buy was 0.06em of padded box past the h1 at
+   every width, which the negative margin hides from layout and not from
+   scrollWidth: 6px at 1440, and a headline that reports as overflowing. */
+.hero h1 .line { display: block; overflow: hidden; padding: 0.04em 0 0.1em; margin: -0.04em 0 -0.1em; }
 .hero h1 .line > span { display: inline-block; animation: rise 0.9s var(--ease) backwards; }
 .hero h1 .line:nth-child(1) > span { animation-delay: 0.35s; }
 .hero h1 .line:nth-child(2) > span { animation-delay: 0.47s; }
