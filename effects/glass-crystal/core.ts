@@ -19,9 +19,10 @@
  *
  * And refraction needs something to refract. Glass over a flat colour has
  * nothing to bend and reads as a smudge, which is the same thing that makes
- * glass in a flat interface fall flat, so there is a sheet behind the crystal
- * with a gradient and a rule on it. Put your own content behind it instead and
- * it will bend that.
+ * glass in a flat interface fall flat. So there is a ruled sheet behind the
+ * crystal: a bend is only visible as the displacement of something straight,
+ * and a rule is the cheapest straight thing there is. Put your own content
+ * behind it instead and it will bend that.
  *
  * Exactly periodic. One turn and one rise per `period`, so `renderAtTime` is
  * pure in `t` and the recorder gets a loop that closes.
@@ -53,6 +54,10 @@ export type GlassCrystalOptions = BaseOptions & {
   roughness: number
   /** Thin-film colour on the surface, the way oil on water goes. */
   iridescence: number
+  /** Rules across the sheet behind the glass. This is what the bending shows. */
+  rules: number
+  /** How dark those rules are. */
+  ruleWeight: number
   /** How far it rises and falls over a period. */
   drift: number
   /** Seconds for one turn. Exactly periodic over this. */
@@ -75,6 +80,8 @@ export const glassCrystalDefaults: GlassCrystalOptions = {
   dispersion: 1.6,
   roughness: 0.04,
   iridescence: 0.3,
+  rules: 16,
+  ruleWeight: 0.45,
   drift: 0.12,
   period: 44,
   reducedMotionTime: 7
@@ -124,16 +131,27 @@ class GlassCrystalSurface implements Surface<GlassCrystalOptions> {
     camera.position.set(0, 0, 9)
 
     /*
-     * The sheet behind. Refraction needs something to refract: over a flat
-     * colour the glass has nothing to bend and comes back as a smudge.
+     * The sheet behind. Refraction needs something to refract, and this is the
+     * part the effect lives or dies on.
      *
-     * A gradient and one rule, which is enough structure to read as bent
-     * without being a pattern anybody looks at.
+     * It used to be a wash and one hairline rule, and the result measured as a
+     * luminance range of 2 out of 255 inside the solid: a grey lump on a pale
+     * page. Not because the glass was wrong. Turning transmission off made the
+     * solid MORE varied, not less, which is the proof that it was refracting
+     * correctly and that what it was refracting had nothing in it. A bend is
+     * only visible as the displacement of something straight.
+     *
+     * So the sheet is ruled, like a page. Rules are the one pattern that makes
+     * refraction legible, because a straight line is where the eye can read a
+     * few pixels of displacement, and they are already the house vernacular
+     * rather than a texture borrowed to fill the gap.
      */
     const backdropMaterial = new THREE.ShaderMaterial({
       uniforms: {
         u_paper: { value: new THREE.Color('#fbfaf4') },
-        u_warm: { value: new THREE.Color('#ffd9a8') }
+        u_warm: { value: new THREE.Color('#ffd9a8') },
+        u_rules: { value: 16 },
+        u_weight: { value: 0.45 }
       },
       vertexShader: /* glsl */ `
         varying vec2 v_uv;
@@ -145,13 +163,33 @@ class GlassCrystalSurface implements Surface<GlassCrystalOptions> {
       fragmentShader: /* glsl */ `
         uniform vec3 u_paper;
         uniform vec3 u_warm;
+        uniform float u_rules;
+        uniform float u_weight;
         varying vec2 v_uv;
         void main() {
-          // A soft wash from one corner, and a single rule across the middle.
+          // A soft wash from one corner, so the sheet is not flat either.
           float wash = smoothstep(1.3, -0.2, v_uv.x + v_uv.y);
           vec3 col = mix(u_paper, mix(u_paper, u_warm, 0.55), wash * 0.5);
-          float rule = smoothstep(0.004, 0.0, abs(v_uv.y - 0.5));
-          col = mix(col, col * 0.88, rule * 0.5);
+
+          /*
+           * Ruled, and antialiased against the rule spacing rather than against
+           * a fixed width. The sheet is scaled to cover the frame at its own
+           * depth, so a width in UV is a different width in pixels on every
+           * viewport; fwidth is the only measure that holds. Without it the
+           * rules alias into a moire the moment the frame is not 16:9, and
+           * through a refracting solid that moire is what you would see.
+           */
+          float band = v_uv.y * u_rules;
+          float f = fract(band);
+          float d = min(f, 1.0 - f);
+          float aa = fwidth(band) * 1.5;
+          float rule = 1.0 - smoothstep(0.0, aa, d - 0.018);
+          col = mix(col, col * (1.0 - u_weight), rule);
+
+          // One heavier rule, so the sheet has a horizon as well as a rhythm.
+          float spine = smoothstep(0.0, fwidth(v_uv.y) * 2.5, 0.0015 - abs(v_uv.y - 0.5));
+          col = mix(col, col * (1.0 - u_weight * 2.2), spine);
+
           gl_FragColor = vec4(col, 1.0);
         }
       `,
@@ -299,6 +337,8 @@ class GlassCrystalSurface implements Surface<GlassCrystalOptions> {
     if (this.backdropMaterial) {
       ;(this.backdropMaterial.uniforms['u_paper']!.value as THREE.Color).set(opts.paper)
       ;(this.backdropMaterial.uniforms['u_warm']!.value as THREE.Color).set(opts.key)
+      this.backdropMaterial.uniforms['u_rules']!.value = Math.max(opts.rules, 0)
+      this.backdropMaterial.uniforms['u_weight']!.value = opts.ruleWeight
     }
 
     material.color.set('#ffffff')

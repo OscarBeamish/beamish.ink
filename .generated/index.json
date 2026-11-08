@@ -3376,6 +3376,232 @@
     "intro": "Contents is a full-viewport index: a small trigger, and an overlay that takes the\nwhole screen and lists everything in mono with hairline rules between the rows.\nThe rows cascade in on a 26ms stagger counted across every section, so the reveal\nreads as one movement down the page rather than several.\n\nThe overlay is a real `<dialog>` opened with `showModal()`. That is the whole\ndesign. The browser then provides the focus trap, Escape, the top layer,\ninerting the rest of the page, and returning focus to the trigger on close. Every\none of those is something hand-rolled menus get subtly wrong, and none of them is\nour code. There is no focus-trap library, no portal, and no scroll-lock package.\n\nWhat is left is layout, type, and one transition."
   },
   {
+    "name": "GlassCrystal",
+    "slug": "glass-crystal",
+    "tier": 1,
+    "description": "A cut solid of glass turning in front of the page, refracting what is behind it",
+    "category": "backdrops",
+    "tags": [
+      "three",
+      "webgl",
+      "backdrop",
+      "glass",
+      "refraction",
+      "dispersion",
+      "3d",
+      "hero"
+    ],
+    "ground": "paper",
+    "peerDependencies": {
+      "three": ">=0.163.0"
+    },
+    "browser": {
+      "webgl": "webgl2",
+      "notes": [
+        "Transmission renders the scene behind the object into a buffer and refracts that buffer, so what you see through the solid is really what is behind it. It is not a blur, a frosted overlay or a rainbow texture, and none of those three can be made to bend a straight line the way this does.",
+        "dispersion arrived in three 0.163. On an older copy the property is simply ignored: the glass still works and the colour at the edges disappears, with no error to tell you why, which is why the peer range starts there rather than at 0.160 like the rest of the three.js items.",
+        "The environment is built at runtime rather than loaded. Transmission has to have something to reflect or the glass returns a grey blob, and the usual answer is an HDR file, which is a megabyte of asset and a network request for an effect that is otherwise two files. Four emissive planes are rendered into a cube and prefiltered through PMREMGenerator instead: a key, a fill opposite it, a soft top and a dark floor, which is a lighting setup rather than a photograph of a room.",
+        "Tone mapping is on, which is unusual in this library. Transmission plus a specular off a bright environment goes well past 1 on the highlights, and without a curve those clip to flat white discs that read as holes punched in the glass rather than as light on it.",
+        "Flat shading at detail 0 is what makes it read as cut rather than blown, and it needs per-face normals, which three only computes on a non-indexed geometry."
+      ]
+    },
+    "perf": {
+      "frameBudgetMs": 2.4,
+      "contexts": 1,
+      "notes": [
+        "Transmission costs a second render of the scene into a buffer every frame, so this is about twice the price of an opaque object of the same size. It is one object against the twenty faces of an icosahedron, so the geometry is free and the cost is entirely the transmission pass.",
+        "The environment is rebuilt only when one of the three colours that define it changes, keyed on those colours rather than on a frame count. Rebuilding it per frame is the mistake that turns a cheap effect into an expensive one, and it is invisible until somebody profiles it.",
+        "detail above 2 is a smooth ball rather than a cut solid and costs more for a worse picture. The interesting range is 0 to 2."
+      ]
+    },
+    "files": [
+      {
+        "from": "effects/glass-crystal/core.ts",
+        "to": "src/beamish/effects/glass-crystal/core.ts",
+        "role": "core"
+      },
+      {
+        "from": "effects/glass-crystal/adapters/react.tsx",
+        "to": "src/beamish/effects/glass-crystal/react.tsx",
+        "role": "adapter"
+      },
+      {
+        "from": "effects/glass-crystal/adapters/vue.ts",
+        "to": "src/beamish/effects/glass-crystal/vue.ts",
+        "role": "adapter"
+      },
+      {
+        "from": "shared/runtime.ts",
+        "to": "src/beamish/shared/runtime.ts",
+        "role": "runtime"
+      }
+    ],
+    "options": {
+      "paper": {
+        "type": "color",
+        "default": "#fbfaf4",
+        "description": "The page behind the glass, and the colour the frame is cleared to. The sheet that gets refracted is built from this, so it sets what the solid is full of."
+      },
+      "glass": {
+        "type": "color",
+        "default": "#f4f7fb",
+        "description": "The tint the glass leaves on light that passes through it. This is an attenuation colour, not a surface colour: it is what a given thickness of the material takes out, so the tint deepens where the solid is thick and all but disappears at a thin edge. Setting the surface colour instead paints the object, which is what makes stage-prop glass look like coloured plastic."
+      },
+      "key": {
+        "type": "color",
+        "default": "#ffd9a8",
+        "description": "The warm light, one of the two the environment is built from, and the wash on the sheet behind. Warm against a cool fill is what gives the solid two different colours to catch on opposite faces, which is most of what stops it reading as a grey lump."
+      },
+      "fill": {
+        "type": "color",
+        "default": "#bcd4ff",
+        "description": "The cool light, opposite the key. Equal to the key in brightness and opposite it in hue is the safe setting; pushing them together flattens the solid."
+      },
+      "detail": {
+        "type": "number",
+        "default": 0,
+        "description": "Faces. 0 is a twenty-sided solid with flat shading, which is the cut gem. Each step up quadruples the faces and rounds it off, and by 3 it is a glass ball, which is a less interesting object and a more expensive one.",
+        "min": 0,
+        "max": 3,
+        "step": 1,
+        "sensible": [
+          0,
+          1
+        ]
+      },
+      "size": {
+        "type": "number",
+        "default": 1.5,
+        "description": "How large the solid is in the frame. Past about 2.2 it reaches the edges and stops being an object on a page.",
+        "min": 0.4,
+        "max": 3,
+        "step": 0.05,
+        "sensible": [
+          1.1,
+          2
+        ]
+      },
+      "thickness": {
+        "type": "number",
+        "default": 1.1,
+        "description": "How much glass the light is treated as travelling through, which is what the tint and the bending are scaled by. At 0 it is a soap bubble: a surface with nothing inside it.",
+        "min": 0,
+        "max": 5,
+        "step": 0.05,
+        "sensible": [
+          0.6,
+          2
+        ]
+      },
+      "ior": {
+        "type": "number",
+        "default": 1.46,
+        "description": "Refractive index, and the one number here that is a physical quantity rather than a taste. 1.0 is air and bends nothing, 1.5 is window glass, 2.4 is diamond. Above about 1.9 the solid stops transmitting the page and starts mirroring the environment, which is the right look for a gem and the wrong one for a backdrop.",
+        "min": 1,
+        "max": 2.4,
+        "step": 0.01,
+        "sensible": [
+          1.3,
+          1.8
+        ]
+      },
+      "dispersion": {
+        "type": "number",
+        "default": 1.6,
+        "description": "How far the colours separate at the edges, by refracting red, green and blue at slightly different indices. This is where the colour fringing comes from and there is no rainbow texture anywhere in the effect. At 0 the glass is colourless and noticeably duller.",
+        "min": 0,
+        "max": 5,
+        "step": 0.1,
+        "sensible": [
+          0.8,
+          2.5
+        ]
+      },
+      "roughness": {
+        "type": "number",
+        "default": 0.04,
+        "description": "Frosting. 0 is polished. Past about 0.2 what is behind the glass stops being legible, which is the whole point of putting it there.",
+        "min": 0,
+        "max": 0.6,
+        "step": 0.01,
+        "sensible": [
+          0,
+          0.15
+        ]
+      },
+      "iridescence": {
+        "type": "number",
+        "default": 0.3,
+        "description": "Thin-film colour on the surface, the way oil goes on water. A little reads as a coating on the glass; at 1 it reads as a soap bubble and fights the dispersion for the same job.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0,
+          0.5
+        ]
+      },
+      "rules": {
+        "type": "number",
+        "default": 16,
+        "description": "Rules across the sheet behind the glass, and the thing the bending is actually visible as. A bend can only be seen as the displacement of something straight, so with no rules the solid is a grey lump however correct the optics are: measured, the shipped version with one hairline rule had a luminance range of 2 out of 255 inside the solid against 26 with these. At 0 the sheet is a plain wash and you get that lump back, which is worth seeing once.",
+        "min": 0,
+        "max": 64,
+        "step": 1,
+        "sensible": [
+          10,
+          28
+        ]
+      },
+      "ruleWeight": {
+        "type": "number",
+        "default": 0.45,
+        "description": "How dark the rules are, as a fraction taken out of the paper. This is the one dial that changes how much glass you can see, because what reaches you through the solid is a dimmer, averaged copy of what is behind it: the contrast inside tracks this almost linearly and lands at about a fifteenth of the contrast on the open sheet. Past about 0.6 the sheet stops being a backdrop and starts being the subject.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.25,
+          0.6
+        ]
+      },
+      "drift": {
+        "type": "number",
+        "default": 0.12,
+        "description": "How far it rises and falls over a period, in scene units. One rise and fall per period, so it closes with the turn. At 0 it only turns.",
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "sensible": [
+          0.05,
+          0.3
+        ]
+      },
+      "period": {
+        "type": "number",
+        "default": 44,
+        "description": "Seconds for one turn, and the length of the loop. Both rotation axes and the rise are whole multiples of this same phase, which is what makes the take close exactly. Slow is the point: this is a thing in the corner of a page, not an animation anybody is meant to watch.",
+        "min": 4,
+        "max": 120,
+        "step": 1,
+        "sensible": [
+          24,
+          60
+        ]
+      }
+    },
+    "oneShot": false,
+    "record": {
+      "duration": 44,
+      "fps": 15,
+      "posterAt": 11,
+      "crf": 32,
+      "webmCrf": 46
+    },
+    "group": "effects",
+    "intro": "GlassCrystal is a cut solid of glass turning slowly in front of the page, with\nwhat is behind it genuinely bent through it rather than blurred."
+  },
+  {
     "name": "GlassNav",
     "slug": "glass-nav",
     "tier": 2,
