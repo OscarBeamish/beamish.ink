@@ -206,7 +206,7 @@ still gauge at its reading is a complete image: the needle is where it should
 be and the scale is lit to it. That is the correct outcome rather than a
 compromise, because the reading is the information and the hunt is not.
 
-## 12. The three mistakes most likely to be made here
+## 12. The six mistakes most likely to be made here
 
 1. **A scale starting at twelve o'clock.** That is a progress ring. The dead
    sector belongs at the bottom, where the movement is.

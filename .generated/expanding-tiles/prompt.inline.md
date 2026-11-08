@@ -1460,7 +1460,7 @@ Because the tiles are ordinary links, that is not a loss of function. A press
 goes straight to the page without the opening, which is exactly what someone who
 asked for less motion wants.
 
-## 11. The three mistakes most likely to be made here
+## 11. The six mistakes most likely to be made here
 
 1. **Growing the tile with a transform.** The type stretches and settles, and no
    amount of easing hides it. Put the tile at its final size and clip it.

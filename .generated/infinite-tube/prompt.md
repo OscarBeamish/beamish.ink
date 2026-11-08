@@ -226,7 +226,7 @@ context at a time is the budget, so call it.
 There is nothing to render on the server. The element is empty until the script
 runs, so give it a height and a dark background.
 
-## 13. The three mistakes most likely to be made here
+## 13. The six mistakes most likely to be made here
 
 1. **Scrolling a texture to fake the travel.** It works and it cannot be
    seeked, so it cannot be recorded cleanly and it never loops exactly.

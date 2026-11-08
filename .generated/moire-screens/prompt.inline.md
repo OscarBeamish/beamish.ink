@@ -1257,7 +1257,7 @@ of high-contrast, large-scale movement that triggers discomfort, and the still
 frame loses nothing: the fringes are the subject and they are all there in one
 frame.
 
-## 11. The three mistakes most likely to be made here
+## 11. The five mistakes most likely to be made here
 
 1. **Hard-edged screens.** They alias, the aliasing is its own moire against the
    display, and the effect ends up reporting on the monitor. The edge has to be

@@ -197,7 +197,7 @@ Handled in the runtime. Under reduced motion the loop never starts and one frame
 is drawn, which means the reader gets a still photograph with no warp at all.
 That is the correct outcome here and it needs no special case.
 
-## 10. The three mistakes most likely to be made here
+## 10. The four mistakes most likely to be made here
 
 1. **Turning `bend` up to see it better.** If you cannot see it, the reason is
    almost always that the host is too short, so the whole set crosses in one flick

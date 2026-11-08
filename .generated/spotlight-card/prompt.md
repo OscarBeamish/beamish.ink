@@ -191,7 +191,7 @@ is drawn.
 With no pointer the card is unlit, which is the correct resting state: an
 untouched card under no particular light. Nothing looks broken or half-finished.
 
-## 9. The three mistakes most likely to be made here
+## 9. The four mistakes most likely to be made here
 
 1. **Turning `sheen` up and leaving `shade` at zero.** On a pale card you will
    see almost nothing however far you push it, and then conclude the effect is

@@ -1379,7 +1379,7 @@ the loop never starts and one frame is drawn instead, the one at
 `reducedMotionTime`. A still of this is a photograph standing slightly off the
 page, which is most of the idea.
 
-## 13. The three mistakes most likely to be made here
+## 13. The five mistakes most likely to be made here
 
 1. **No `<img>` in the host.** It throws and tells you. The picture is an
    input, so it has to be in the DOM to be read.

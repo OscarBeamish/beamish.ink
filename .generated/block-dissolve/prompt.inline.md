@@ -1316,7 +1316,7 @@ context to release: this item never takes one.
 The content renders on the server exactly as written, which is the whole
 fallback. If the script never runs, the page is simply not clipped.
 
-## 13. The three mistakes most likely to be made here
+## 13. The six mistakes most likely to be made here
 
 1. **Shuffling.** The clumps are the whole reason this item has a `spread`
    option. A shuffled dissolve looks like a rendering fault.

@@ -1156,7 +1156,7 @@ the loop never starts and one frame is drawn, the one at `reducedMotionTime`,
 which is after the count has finished. The final figure is simply there. A
 counter is read, not watched.
 
-## 11. The three mistakes most likely to be made here
+## 11. The five mistakes most likely to be made here
 
 1. **No carry.** Every wheel turning at its own steady speed is a fruit machine.
    The carry is one line, and it is the entire difference.

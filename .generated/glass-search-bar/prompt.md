@@ -338,7 +338,7 @@ Handled in the runtime. Under reduced motion the loop never starts and one frame
 is drawn: the picture sits at its resting position with the glass on it, which
 is a finished composition rather than a broken one.
 
-## 15. The three mistakes most likely to be made here
+## 15. The four mistakes most likely to be made here
 
 1. **Expecting it to refract the page.** It refracts the picture it was given.
    Nothing in a browser lets WebGL sample arbitrary DOM, and the libraries that

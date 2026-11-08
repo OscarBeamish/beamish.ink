@@ -1213,7 +1213,7 @@ Handled in the runtime. Under reduced motion the loop never starts and one
 frame is drawn, which is the key at rest. The press is a response to an action
 rather than ambient movement, so there is nothing here that needs pausing.
 
-## 13. The three mistakes most likely to be made here
+## 13. The five mistakes most likely to be made here
 
 1. **Using it as a button.** It is a picture. Put a real `<button>` round it.
 

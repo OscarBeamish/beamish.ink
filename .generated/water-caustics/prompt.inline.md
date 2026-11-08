@@ -1426,7 +1426,7 @@ the loop never starts and one frame is drawn instead, the one at
 The still frame loses little here. The subject is the shape of the net, and a
 single frame has all of it.
 
-## 13. The three mistakes most likely to be made here
+## 13. The five mistakes most likely to be made here
 
 1. **Too few waves.** Under about ten the caustics sit on a visible lattice and
    the whole thing reads as a printed pattern. No other setting hides it.

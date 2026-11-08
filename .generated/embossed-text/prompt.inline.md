@@ -1152,7 +1152,7 @@ the loop never starts and one frame is drawn instead, the one at
 `reducedMotionTime`. For this item the still frame is the finished impression,
 which costs the viewer nothing.
 
-## 10. The three mistakes most likely to be made here
+## 10. The five mistakes most likely to be made here
 
 1. **The shadows the wrong way round.** The dark edge goes on the side the light
    comes from. The other way is embossing, which stands proud of the sheet, and

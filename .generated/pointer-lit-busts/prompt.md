@@ -181,7 +181,7 @@ frame is drawn, with the cursor wherever it last was or at the centre.
 Nothing is lost that matters: a still of three lit busts is the composition.
 What goes is the turning, which is the part that moves.
 
-## 11. The three mistakes most likely to be made here
+## 11. The six mistakes most likely to be made here
 
 1. **Lighting in screen space.** The shading never changes, so the forms never
    turn and the scene is a photograph with a torch on it.

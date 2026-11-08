@@ -1055,7 +1055,7 @@ reliably settled for those readers, mount with `chance: 0` when
 `matchMedia('(prefers-reduced-motion: reduce)')` matches: clean type is the
 correct outcome and it costs nothing.
 
-## 9. The three mistakes most likely to be made here
+## 9. The four mistakes most likely to be made here
 
 1. **Using it on a paragraph.** Three stacked copies of a block of body text is
    unreadable, and the offset is per-element rather than per-line so a wrapped

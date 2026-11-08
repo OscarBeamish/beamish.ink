@@ -1090,7 +1090,7 @@ the loop never starts and one frame is drawn instead, the one at
 `reducedMotionTime`, so the sheet is inked and still. The inking is the effect;
 the walk is only what a press does over a run.
 
-## 10. The three mistakes most likely to be made here
+## 10. The five mistakes most likely to be made here
 
 1. **Mounting it on the heading.** Then the gradient belongs to the heading, and
    you have gradient text: the same colours in the same places on every element.

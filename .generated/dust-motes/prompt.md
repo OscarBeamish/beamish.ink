@@ -207,7 +207,7 @@ the loop never starts and one frame is drawn instead, the one at
 `reducedMotionTime`. A still field of dust is a photograph of a room, which is a
 complete image: `drift: 0` gives the same thing permanently.
 
-## 11. The three mistakes most likely to be made here
+## 11. The five mistakes most likely to be made here
 
 1. **An array of particles.** It cannot be seeked, so it cannot be recorded; it
    drifts on a dropped frame; and it costs more as you add motes. A lattice has

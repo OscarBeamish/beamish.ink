@@ -1267,7 +1267,7 @@ For a one-shot reveal that default is 999, which is any time after the board has
 finished, so the text appears set in its cells and still. Do not set it to 0:
 that is a board of blanks.
 
-## 10. The three mistakes most likely to be made here
+## 10. The four mistakes most likely to be made here
 
 1. **Transparent leaves.** A leaf is a tile and it hides what is behind it. The
    first version of this left the four layers transparent, and every cell at

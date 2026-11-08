@@ -1059,7 +1059,7 @@ starts and one frame is drawn, which leaves the strip still and readable.
 Worth saying plainly: a marquee is exactly the kind of thing that setting exists
 for. Nothing here fights it.
 
-## 12. The three mistakes most likely to be made here
+## 12. The four mistakes most likely to be made here
 
 1. **Items that can wrap.** Without `white-space: nowrap` and `flex: 0 0 auto` a
    phrase breaks inside its own box, the measured width is wrong, and the strip

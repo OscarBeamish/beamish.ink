@@ -289,7 +289,7 @@ visibility back. One live context at a time is the budget, so call it.
 The photograph renders on the server as an ordinary `<img>`, which is the whole
 fallback: if the script never runs, the page shows the picture.
 
-## 13. The three mistakes most likely to be made here
+## 13. The seven mistakes most likely to be made here
 
 1. **A square lattice.** Random sites on a grid give a honeycomb. Glass breaks
    radially and circumferentially, and the lattice is the whole item.

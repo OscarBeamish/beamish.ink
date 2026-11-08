@@ -1431,7 +1431,7 @@ Also handled in the runtime. Under `prefers-reduced-motion: reduce` the loop
 never starts and one frame is drawn, at `reducedMotionTime`. With `sway` at 0
 there is nothing to reduce, because nothing was moving.
 
-## 13. The three mistakes most likely to be made here
+## 13. The four mistakes most likely to be made here
 
 1. **Turning the dispersion up to see it better.** Past about 0.02 the fan stops
    being a spectrum and becomes a set of separate coloured beams, because the

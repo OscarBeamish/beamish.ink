@@ -216,7 +216,7 @@ moves.
 Set it to 0 instead and you get the hollow outline, which is also a perfectly
 good still if the outline has the contrast for it.
 
-## 11. The three mistakes most likely to be made here
+## 11. The five mistakes most likely to be made here
 
 1. **One layer with a centred stroke.** Half the stroke lands inside the letter
    and closes the counters. Two layers, the back one at double width, costs

@@ -1737,7 +1737,7 @@ context at a time is the budget, so call it.
 There is nothing to render on the server. The element is empty until the script
 runs, so give it a height and, if it matters, a background.
 
-## 15. The three mistakes most likely to be made here
+## 15. The seven mistakes most likely to be made here
 
 1. **Keeping a move history.** It is the obvious way to write this and it makes
    the effect unrecordable, because no frame can be produced without producing

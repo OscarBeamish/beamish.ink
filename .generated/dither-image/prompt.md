@@ -300,7 +300,7 @@ because this item never takes one.
 The photograph renders on the server as an ordinary `<img>`, which is the whole
 fallback: if the script never runs, the page shows the picture.
 
-## 13. The three mistakes most likely to be made here
+## 13. The seven mistakes most likely to be made here
 
 1. **Converting to linear light first.** It is the physically principled thing
    to do and it is wrong, because the picture has already been tone-mapped. It

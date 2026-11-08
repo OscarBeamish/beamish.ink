@@ -1322,7 +1322,7 @@ For this item that frame is a complete image: the paper does not move, only the
 light does, so the still frame is the effect with its one moving part stopped.
 That is the rare case where reduced motion costs the viewer nothing.
 
-## 9. The three mistakes most likely to be made here
+## 9. The five mistakes most likely to be made here
 
 1. **Putting the cloud in the height.** It contributes almost nothing, because a
    broad field has almost no slope, and it leaves the fine fibre dominating the

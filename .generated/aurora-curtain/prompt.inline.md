@@ -1352,7 +1352,7 @@ never starts and one frame is drawn, at `reducedMotionTime`. That frame is
 chosen rather than defaulted to zero: at 7 seconds the curtains are folded and
 crossing, which is a composition rather than three parallel bands.
 
-## 12. The three mistakes most likely to be made here
+## 12. The four mistakes most likely to be made here
 
 1. **Making it fast.** An aurora moves slowly and it is behind your content. The
    first instinct with a shader like this is to shorten the period until the

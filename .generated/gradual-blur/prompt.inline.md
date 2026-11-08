@@ -1107,7 +1107,7 @@ The haze itself is not motion: it is a static band, and it stays. Only the
 `follow` fade would have moved, and under reduced motion it simply settles at
 its starting value.
 
-## 10. The three mistakes most likely to be made here
+## 10. The five mistakes most likely to be made here
 
 1. **One blurred element with a gradient mask.** It ramps the opacity, not the
    blur, and leaves a hard edge where the blur begins. This is the mistake the

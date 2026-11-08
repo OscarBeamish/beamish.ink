@@ -1367,7 +1367,7 @@ This effect needs no care here. Any frame of it is a finished sheet of marbled
 paper, which is a complete thing to look at, so the default is as good as any
 other number.
 
-## 10. The three mistakes most likely to be made here
+## 10. The four mistakes most likely to be made here
 
 1. **Raising `size` to cover more of the frame.** It works, and it also makes
    every shape bigger, so you end up with four enormous blobs. Coverage is the

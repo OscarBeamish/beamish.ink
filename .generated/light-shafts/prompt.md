@@ -199,7 +199,7 @@ the loop never starts and one frame is drawn instead, the one at
 `reducedMotionTime`. The still frame is the whole composition with the sun held
 in place, which costs the viewer nothing here.
 
-## 9. The three mistakes most likely to be made here
+## 9. The four mistakes most likely to be made here
 
 1. **A ground as pale as the light.** The light is added, so there is nothing
    above white for it to be. The frame clips and the beams vanish into it.

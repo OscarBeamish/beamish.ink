@@ -1063,7 +1063,7 @@ If you would rather it were perfectly clean for those readers, mount with
 `bleed: 0, floor: 0` when `matchMedia('(prefers-reduced-motion: reduce)')`
 matches.
 
-## 10. The three mistakes most likely to be made here
+## 10. The four mistakes most likely to be made here
 
 1. **Using it on body text.** It is a filter over the whole element, rasterised
    on the CPU in some browsers, and a paragraph of bled type is both expensive

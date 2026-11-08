@@ -1151,7 +1151,7 @@ Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts, so the text simply sits at `rest`. Nothing is lost: the
 resting state is the design.
 
-## 11. The three mistakes most likely to be made here
+## 11. The five mistakes most likely to be made here
 
 1. **Not pinning the boxes.** The line reflows under the cursor. It is the only
    reason you ever see this effect on one word in the middle of a page, and it

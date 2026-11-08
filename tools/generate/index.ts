@@ -714,6 +714,45 @@ function section(item: Item, heading: string): string | null {
   return body && body.length > 0 ? body : null
 }
 
+const COUNT_WORDS = [
+  'no',
+  'one',
+  'two',
+  'three',
+  'four',
+  'five',
+  'six',
+  'seven',
+  'eight',
+  'nine',
+  'ten',
+  'eleven',
+  'twelve'
+]
+
+/**
+ * The heading over a recipe's Common mistakes, counting what is under it.
+ *
+ * This said "The three mistakes most likely to be made here" for every item,
+ * and three was right for twelve of them. Twenty-five list five, twenty-two
+ * list four, fourteen list six and three list seven, so seventy-six prompts
+ * announced a number and then printed a different one. The prompt is the
+ * distribution and it is the one thing a stranger reads cold, so a sentence
+ * in it that disagrees with the list below it is the whole document's
+ * credibility spent on nothing.
+ *
+ * Counted rather than declared in the recipe, because a number an author has
+ * to remember to update is a number that goes stale the first time somebody
+ * adds a mistake.
+ */
+function mistakesHeading(body: string): string {
+  /* Top-level items only. An indented digit is inside one, not another one. */
+  const n = (body.match(/^\d+\.\s/gm) ?? []).length
+  if (n === 1) return 'The mistake most likely to be made here'
+  const word = COUNT_WORDS[n] ?? String(n)
+  return `The ${word} mistakes most likely to be made here`
+}
+
 function requiredFiles(meta: Meta) {
   return meta.files.filter(file => file.role !== 'adapter')
 }
@@ -852,7 +891,7 @@ ${optionTable(meta)}`)
   }
 
   const mistakes = section(item, 'Common mistakes')
-  if (mistakes) numbered('The three mistakes most likely to be made here', mistakes)
+  if (mistakes) numbered(mistakesHeading(mistakes), mistakes)
 
   const adapters = meta.files.filter(file => file.role === 'adapter')
   if (adapters.length > 0 && !inline) {

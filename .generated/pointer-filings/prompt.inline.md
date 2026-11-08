@@ -1262,7 +1262,7 @@ With no pointer the magnet sits in the middle of the element and the marks are
 drawn at reduced contrast, so what gets drawn is a settled tray rather than an
 empty rectangle. Nobody has to have moved anything for it to look finished.
 
-## 9. The three mistakes most likely to be made here
+## 9. The four mistakes most likely to be made here
 
 1. **Expecting it to point at the cursor.** It does not, and that is correct. If
    you want spokes you want a monopole, which means not using a dipole

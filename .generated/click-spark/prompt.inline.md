@@ -1197,7 +1197,7 @@ here: this is decoration on an interaction that already has its own feedback.
 
 If the click has no other visible result, give it one that is not motion.
 
-## 10. The three mistakes most likely to be made here
+## 10. The five mistakes most likely to be made here
 
 1. **Dots instead of streaks.** The whole thing then reads as confetti. The
    length of a streak is its current speed, which also means it gets shorter on

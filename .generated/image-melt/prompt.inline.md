@@ -1361,7 +1361,7 @@ visibility back. One live context at a time is the budget, so call it.
 Both photographs render on the server as ordinary `<img>` elements, which is
 the fallback: if the script never runs, the page shows them.
 
-## 12. The three mistakes most likely to be made here
+## 12. The five mistakes most likely to be made here
 
 1. **Easing a hover toward a target.** It is the obvious way to write this and
    it makes the effect unrecordable, because no frame can be produced without

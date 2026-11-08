@@ -232,7 +232,7 @@ never starts a loop, so there is nothing running to pick the pointer up. What
 you get is a finished stipple drawing, which is the right thing to be left
 with.
 
-## 10. The three mistakes most likely to be made here
+## 10. The four mistakes most likely to be made here
 
 1. **Turning `weight` up to make it darker.** It makes every mark fatter, which
    is what a halftone does and what this is deliberately not. Density is the

@@ -1341,7 +1341,7 @@ Any frame of this is a finished picture, so the default is as good as any other
 number. If you want a particular arrangement, scrub `renderAtTime` until you find
 one you like and set `reducedMotionTime` to it.
 
-## 8. The three mistakes most likely to be made here
+## 8. The four mistakes most likely to be made here
 
 1. **Raising `density` to make it more visible.** It compounds. One sheet at 0.3
    looks reasonable and fourteen of them produce a solid brown blot in the middle

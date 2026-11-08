@@ -213,7 +213,7 @@ the loop never starts and one frame is drawn, the one at `reducedMotionTime`,
 which is 0: the pile at rest with the first card on top. Nothing is lost except
 the dealing.
 
-## 11. The three mistakes most likely to be made here
+## 11. The five mistakes most likely to be made here
 
 1. **Changing the stacking order over the pile.** It flickers, and it reads as a
    dropped frame rather than as a mistake you made. Change it at the far point

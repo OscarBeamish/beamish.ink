@@ -1231,7 +1231,7 @@ context at a time is the budget, so call it.
 There is nothing to render on the server. The element is empty until the script
 runs, so give it a height and a dark background.
 
-## 12. The three mistakes most likely to be made here
+## 12. The five mistakes most likely to be made here
 
 1. **One colour, or one direction.** It stops being a road and becomes a field
    of stripes. The two opposing streams are the whole effect.

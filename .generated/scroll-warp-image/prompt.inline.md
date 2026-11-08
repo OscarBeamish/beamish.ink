@@ -1355,7 +1355,7 @@ This effect needs no special case. Velocity is zero when nothing is scrolling, s
 the frame that gets drawn is the undistorted photograph, which is exactly what
 somebody who has asked for less motion wants to see.
 
-## 10. The three mistakes most likely to be made here
+## 10. The four mistakes most likely to be made here
 
 1. **Leaving `paper` on the default when the page is not.** The drag pulls the
    sheet away from the frame and `paper` is what shows in the gap. If it does not

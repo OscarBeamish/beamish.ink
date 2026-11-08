@@ -210,7 +210,7 @@ the loop never starts and one frame is drawn instead, the one at
 `reducedMotionTime`, which here is 0: the ring at its starting angle. The ring
 is the thing, and the turn is only how it passes the time.
 
-## 11. The three mistakes most likely to be made here
+## 11. The five mistakes most likely to be made here
 
 1. **Placing the letters yourself.** It loses kerning and it never closes the
    ring. `textPath` and `textLength` do both properly, and they are in every

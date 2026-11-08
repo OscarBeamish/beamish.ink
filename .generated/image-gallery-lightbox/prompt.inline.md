@@ -1082,7 +1082,7 @@ function of the control and removing it would break the component rather than
 calm it. It appears instead of sliding in, and the thumbnail stops growing under
 the cursor.
 
-## 10. The three mistakes most likely to be made here
+## 10. The four mistakes most likely to be made here
 
 1. **Leaving `width` and `height` off the plates.** The sheet then has no shape
    to reserve, so every cell is zero-height until its file arrives and the grid

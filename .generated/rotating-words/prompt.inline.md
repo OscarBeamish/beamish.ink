@@ -1106,7 +1106,7 @@ which is 0: the first word, in place, with nothing moving.
 
 Nothing is lost. The sentence was always complete with one word in it.
 
-## 10. The three mistakes most likely to be made here
+## 10. The six mistakes most likely to be made here
 
 1. **Letting the box resize.** The sentence after it moves on every swap. Fix
    the width, or stack the words in one grid cell as this does.

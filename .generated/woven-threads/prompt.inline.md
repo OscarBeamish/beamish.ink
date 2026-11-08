@@ -1277,7 +1277,7 @@ the loop never starts and one frame is drawn instead, the one at
 `reducedMotionTime`. The cloth is the subject and the wander is only the air in
 the room, so the still frame loses nothing.
 
-## 10. The three mistakes most likely to be made here
+## 10. The five mistakes most likely to be made here
 
 1. **No interlacing.** Two sets of lines crossing is a grid. The threads pass
    through each other, the surface has no structure, and no amount of shading

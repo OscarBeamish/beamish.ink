@@ -202,7 +202,7 @@ which is 0: the line intact, before anything has gone.
 That is the right still for this one. The text is the content, and the fall is
 the decoration.
 
-## 11. The three mistakes most likely to be made here
+## 11. The six mistakes most likely to be made here
 
 1. **Using a physics step.** It cannot be seeked, cannot be recorded cleanly,
    and drifts between runs. The closed form is less code and does more.

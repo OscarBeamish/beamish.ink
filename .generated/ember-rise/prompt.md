@@ -226,7 +226,7 @@ still frame of this is a scatter of sparks at every stage of cooling, which is a
 complete image rather than an empty box, and 4 seconds into the default period
 is a full one.
 
-## 13. The three mistakes most likely to be made here
+## 13. The six mistakes most likely to be made here
 
 1. **An array of particles.** It cannot be seeked, so it cannot be recorded, and
    it drifts on a dropped frame.

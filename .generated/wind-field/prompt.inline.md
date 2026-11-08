@@ -1481,7 +1481,7 @@ still field of streaks is a chart, which is a complete image: `turns: 0` is not
 available, but `wander: 0` with the loop stopped gives the same thing
 permanently.
 
-## 12. The three mistakes most likely to be made here
+## 12. The six mistakes most likely to be made here
 
 1. **Advecting particles.** It cannot be seeked, so it cannot be recorded; it
    drifts on a dropped frame; and the trail is feedback, so a resize shows what

@@ -1375,7 +1375,7 @@ is drawn, which means the lamp never comes on and what you have is the
 photograph. That is the right resting state rather than a compromise: the
 picture is the content and the lamp was always an extra.
 
-## 11. The three mistakes most likely to be made here
+## 11. The four mistakes most likely to be made here
 
 1. **A cross-origin image.** `texImage2D` throws a SecurityError on an image
    from another origin without CORS headers, and it throws at upload rather than

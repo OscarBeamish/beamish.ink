@@ -228,7 +228,7 @@ which for a one shot means the finished state: every phrase marked, nothing
 moving. That is the correct outcome rather than a compromise, because the marks
 are information and withholding them would be withholding the point.
 
-## 15. The three mistakes most likely to be made here
+## 15. The six mistakes most likely to be made here
 
 1. **Leaving the default `<mark>` background on.** A rectangle under every
    stroke.

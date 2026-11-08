@@ -204,7 +204,7 @@ visibility back. One live context at a time is the budget, so call it.
 The photograph renders on the server as an ordinary `<img>`, which is the whole
 fallback: if the script never runs, the page shows the picture.
 
-## 13. The three mistakes most likely to be made here
+## 13. The six mistakes most likely to be made here
 
 1. **Stepping the block size.** Four or five visible lurches. Two sizes have to
    be in flight at once and crossfading.

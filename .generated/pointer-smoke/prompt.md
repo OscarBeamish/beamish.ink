@@ -221,7 +221,7 @@ With no pointer the smoke is not drawn at all, so what you get is a clean sheet.
 That is the right resting state: a trail with nothing having moved would be a
 picture of a gesture nobody made.
 
-## 10. The three mistakes most likely to be made here
+## 10. The four mistakes most likely to be made here
 
 1. **Setting `spread` to 0.** You get a row of identical discs. The widening is
    what makes it smoke; without it this is a cursor with a tail and there are

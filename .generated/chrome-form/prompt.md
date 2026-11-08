@@ -233,7 +233,7 @@ Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn instead, the one at
 `reducedMotionTime`. A still of a polished object is a perfectly good still.
 
-## 13. The three mistakes most likely to be made here
+## 13. The five mistakes most likely to be made here
 
 1. **Expecting chrome to look like chrome in an empty scene.** It cannot. With
    nothing to reflect it is grey plastic, and no amount of metalness fixes

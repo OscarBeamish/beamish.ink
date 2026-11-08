@@ -1401,7 +1401,7 @@ the loop never starts and one frame is drawn instead, the one at
 `reducedMotionTime`. A still frame of this is a perfectly good object, which is
 not true of every item here.
 
-## 12. The three mistakes most likely to be made here
+## 12. The five mistakes most likely to be made here
 
 1. **`blend` at or near 0.** The blobs interpenetrate with a visible crease and
    the whole point of doing this with distance fields is thrown away.

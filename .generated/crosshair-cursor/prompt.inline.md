@@ -1166,7 +1166,7 @@ the loop never starts, so the reticle is not drawn. That is the right answer:
 this is an ornament on a pointer that already works, and a crosshair that
 follows the hand is motion by definition.
 
-## 11. The three mistakes most likely to be made here
+## 11. The five mistakes most likely to be made here
 
 1. **Sniffing for what is clickable.** It misses handlers on plain elements and
    it catches every link in a paragraph. A selector you chose is better than a

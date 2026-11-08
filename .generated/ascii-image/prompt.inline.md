@@ -1428,7 +1428,7 @@ the loop never starts and one frame is drawn, the one at `reducedMotionTime`,
 which is after the arrival has finished. The picture is simply there. The
 picture is the point; the typing is only how it gets in.
 
-## 11. The three mistakes most likely to be made here
+## 11. The five mistakes most likely to be made here
 
 1. **Using the gradient angle directly.** It points across the edge. The glyph
    has to lie along it, which is a quarter turn away, and the version without

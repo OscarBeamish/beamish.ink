@@ -187,7 +187,7 @@ That default matters more here than on most items. Pick a time between strikes
 and somebody with reduced motion gets a blank rectangle and no idea what the
 item was.
 
-## 10. The three mistakes most likely to be made here
+## 10. The six mistakes most likely to be made here
 
 1. **Imitating the real flicker rate.** Lightning strobes; this deliberately
    does not. Raising the flash count or dropping `period` below about three

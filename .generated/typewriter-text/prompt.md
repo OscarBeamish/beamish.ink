@@ -219,7 +219,7 @@ For a one-shot reveal that default is 999, which is after the typing has
 finished. The strikes are still in that frame, which is the nice part: the page
 looks typed rather than set, with no motion at all.
 
-## 10. The three mistakes most likely to be made here
+## 10. The five mistakes most likely to be made here
 
 1. **An even rhythm.** `rhythm: 0` is a machine, and it is the single thing that
    gives away every version of this effect. A typist does not keep time.

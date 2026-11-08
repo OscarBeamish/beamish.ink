@@ -1281,7 +1281,7 @@ never starts and one frame is drawn, at `reducedMotionTime`. A still frame of
 this is a perfectly good hero background, which is not true of every effect in
 this library.
 
-## 13. The three mistakes most likely to be made here
+## 13. The four mistakes most likely to be made here
 
 1. **Four colours from all over the wheel.** It reads as one material lit
    unevenly or it reads as nothing.

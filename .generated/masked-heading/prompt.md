@@ -211,7 +211,7 @@ Handled in the runtime with a live `matchMedia` listener. Under reduced motion
 the loop never starts and one frame is drawn, the one at `reducedMotionTime`,
 which is after the sheet has gone. The heading is simply there, unclipped.
 
-## 11. The three mistakes most likely to be made here
+## 11. The five mistakes most likely to be made here
 
 1. **A straight edge.** `tear: 0` is a wipe, and a wipe is a television
    transition. The edge is the entire item.

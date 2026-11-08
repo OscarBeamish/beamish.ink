@@ -242,7 +242,7 @@ That is the right outcome and it is worth being deliberate about. Somebody who
 has asked for less motion still wants to see the image; what they do not want is
 to watch it assemble.
 
-## 12. The three mistakes most likely to be made here
+## 12. The four mistakes most likely to be made here
 
 1. **Starting it on mount for something below the fold.** The reveal is over
    before the reader has scrolled to it and they see a plain photograph. Tie it

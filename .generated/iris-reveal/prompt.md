@@ -195,7 +195,7 @@ which for a one shot means fully open: nothing clipped, nothing moving. That is
 the correct outcome rather than a compromise, because an iris that stays shut
 for somebody with a vestibular disorder is content they cannot read.
 
-## 12. The three mistakes most likely to be made here
+## 12. The six mistakes most likely to be made here
 
 1. **`swing: 0`.** A polygon being scaled. The turn is the mechanism.
 
