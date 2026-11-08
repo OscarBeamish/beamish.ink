@@ -27,6 +27,7 @@
     "sweep": "tsx tools/sweep/index.ts",
     "contrast": "tsx tools/contrast/index.ts",
     "tells": "tsx tools/tells/index.ts",
+    "cssdrop": "tsx tools/cssdrop/index.ts",
     "budget": "tsx tools/budget/index.ts",
     "drift": "tsx tools/drift.ts",
     "stagnation": "tsx tools/stagnation.ts",
@@ -35,7 +36,7 @@
     "frame": "tsx tools/frame/index.ts",
     "navcheck": "tsx tools/navcheck.ts",
     "shot": "tsx tools/shot/index.ts",
-    "check": "pnpm typecheck && pnpm generate:check && pnpm test && pnpm build && pnpm review",
+    "check": "pnpm typecheck && pnpm generate:check && pnpm cssdrop && pnpm test && pnpm build && pnpm review",
     "social": "tsx tools/social/index.ts",
     "verify:pin": "tsx tools/verify-pin/index.ts"
   },
