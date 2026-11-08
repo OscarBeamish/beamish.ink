@@ -350,7 +350,9 @@ main { position: relative; z-index: 1; }
 .numbers .label { color: rgba(233, 233, 231, 0.86); }
 .numbers .label span:first-child { color: var(--bg); }
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid rgba(233, 233, 231, 0.2); }
-.stat { padding: 28px 24px 0 0; }
+/* min-width: 0, or each column is held open by the width of its number:
+   a 1fr track still refuses to go below its content's min-content size. */
+.stat { min-width: 0; padding: 28px 24px 0 0; }
 .stat + .stat { padding-left: 24px; border-left: 1px solid rgba(233, 233, 231, 0.2); }
 .stat-num { display: block; font-size: clamp(52px, 6.4vw, 116px); font-weight: 900; line-height: 0.9; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
 .stat-label { display: block; margin-top: 14px; font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(233, 233, 231, 0.86); }

@@ -599,6 +599,10 @@ section[id], .quotes, .process { scroll-margin-top: 64px; }
 .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .gate-meta { display: flex; flex-wrap: wrap; gap: 6px 20px; padding: 12px 18px; color: var(--panel-dim); font-size: 12px; border-bottom: 1px solid var(--panel-rule); }
 .gate-meta b { color: var(--panel-fg); font-weight: 400; }
+/* The wrap scrolls, but it and everything between it and the frame have to
+   be allowed to shrink first, or the table's min-content width is carried
+   all the way out and the page scrolls instead of the table. */
+.gate-frame, .gate-ui, .gate-table-wrap { min-width: 0; }
 .gate-table-wrap { overflow-x: auto; }
 .gate-table { color: inherit; width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; min-width: 520px; }
 .gate-table th { text-align: right; font-weight: 500; color: var(--panel-dim); font-size: 13px; padding: 14px 18px 8px; }

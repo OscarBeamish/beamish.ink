@@ -693,7 +693,12 @@ footer { background: #2f2b33; padding: 2.25rem 0 3rem; }
   rotate: 0.6deg;
 }
 .listing-head { display: flex; justify-content: space-between; gap: 1rem; padding-bottom: 0.85rem; margin-bottom: 1rem; border-bottom: 1px dashed var(--ink-3); }
-.listing pre { font-family: var(--mono); font-size: var(--step--1); line-height: 1.9; overflow-x: auto; color: #2c2a28; padding-bottom: 0.25rem; }
+/* min-width: 0 on both, or the pre never shrinks. It already scrolls its own
+   overflow; what stopped that working is that a grid item defaults to
+   min-width: auto, which is its content's min-content width, so the listing
+   pushed the page wider instead of the code scrolling inside it. */
+.listing { min-width: 0; }
+.listing pre { min-width: 0; font-family: var(--mono); font-size: var(--step--1); line-height: 1.9; overflow-x: auto; color: #2c2a28; padding-bottom: 0.25rem; }
 .listing pre code { background: none; padding: 0; font-size: inherit; }
 .listing .k { color: var(--ink-2); }
 .listing pre .scrawl { margin-left: 1.25ch; font-size: 1.5em; vertical-align: -0.12em; }
