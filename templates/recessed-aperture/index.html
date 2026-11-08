@@ -103,21 +103,21 @@ ul { list-style: none; }
 .sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .wrap { width: min(1140px, 100% - 44px); margin: 0 auto; }
 
-/_ film grain over everything: a flat violet field reads as digital, a
-few percent of noise reads as material _/
+/* film grain over everything: a flat violet field reads as digital, a
+few percent of noise reads as material */
 body::after {
 content: ""; position: fixed; inset: 0; z-index: 50; pointer-events: none;
 opacity: 0.03; mix-blend-mode: overlay;
 background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-/_ a hairline of light on the top edge of every raised surface, the way a
-real bevel catches the lamp _/
+/* a hairline of light on the top edge of every raised surface, the way a
+real bevel catches the lamp */
 .nm--offset { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1); }
 
-/_ the nav is a floating pill: it holds the mark, the account actions and
-the burger, and the menu sheet drops out of it at every width _/
-/_ at the top of the page the nav is a full-width bar that sits on the hero;
-once the page scrolls it gathers into a floating pill _/
+/* the nav is a floating pill: it holds the mark, the account actions and
+the burger, and the menu sheet drops out of it at every width */
+/* at the top of the page the nav is a full-width bar that sits on the hero;
+once the page scrolls it gathers into a floating pill */
 nav { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0; z-index: 6; pointer-events: none; }
 .menu {
 position: relative; z-index: 2; pointer-events: auto;
@@ -145,8 +145,8 @@ nav.open .menu { background: rgba(88, 64, 21, 0.92);
 nav.scrolled .sheet { right: max(12px, calc(50% - 440px)); }
 @keyframes drop { 0% { opacity: 0; transform: translateY(-16px) scale(0.96); } }
 @keyframes fade { 0% { opacity: 0; } }
-/_ the mark: a recessed disc with a token pill passing through it — the
-aperture, at favicon scale _/
+/* the mark: a recessed disc with a token pill passing through it — the
+aperture, at favicon scale */
 .brand { display: inline-flex; align-items: center; gap: 10px; justify-self: start;
 font-size: 19px; font-weight: 700; letter-spacing: -0.02em; }
 .brand svg { flex: none; }
@@ -172,8 +172,8 @@ transition: transform 0.3s var(--cubic);
 .signup:hover { transform: translateY(-1px); }
 .signup:active { transform: translateY(1px) scale(0.98); }
 .signup:focus-visible, .menu-actions .signin:focus-visible { outline: 2px solid var(--cream); outline-offset: 3px; }
-/_ the burger is a raised disc like everything else; open, it presses in
-and its three bars fold into a cross _/
+/* the burger is a raised disc like everything else; open, it presses in
+and its three bars fold into a cross */
 .burger { display: block; width: 42px; height: 42px; border-radius: 50%; position: relative; z-index: 0;
 background: var(--bg-1); transition: transform 0.35s var(--cubic); }
 .burger::after { content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1;
@@ -195,7 +195,7 @@ border-radius: 2px; background: #fff;
 .burger[aria-expanded="true"] i::before { transform: rotate(45deg); background: var(--cream); }
 .burger[aria-expanded="true"] i::after { transform: rotate(-45deg); background: var(--cream); }
 
-/_ ---------- the menu: a sheet that drops out of the pill ---------- _/
+/* ---------- the menu: a sheet that drops out of the pill ---------- */
 @media all {
 .scrim {
 display: block; position: fixed; inset: 0; z-index: 0; pointer-events: auto;
@@ -244,8 +244,8 @@ transition: transform 0.35s var(--cubic), color 0.25s, box-shadow 0.3s var(--eas
 }
 .sheet-links a:hover .go-ic { transform: translateX(3px); color: #fff; }
 .sheet-links a:active .go-ic { box-shadow: inset -2px -2px 4px 0 rgba(168, 112, 16,0.45), inset 2px 2px 4px 0 var(--nm-dim); }
-/_ the section you are in is pressed into the sheet, with the token pill
-beside it, the same mark the aperture is made of _/
+/* the section you are in is pressed into the sheet, with the token pill
+beside it, the same mark the aperture is made of */
 .sheet-links a[aria-current="true"] {
 background: var(--bg-1);
 box-shadow: inset -4px -4px 8px 0 rgba(168, 112, 16,0.4), inset 4px 4px 8px 0 var(--nm-dim);
@@ -279,7 +279,7 @@ font-size: 13px; color: rgba(255, 255, 255, 0.86); }
 .sheet-foot i { width: 6px; height: 6px; border-radius: 50%; background: var(--coral);
 box-shadow: 0 0 0 4px rgba(255,107,125,0.18); }
 
-/_ the rows arrive one after another once the sheet has opened _/
+/* the rows arrive one after another once the sheet has opened */
 .sheet .stagger { opacity: 0; transform: translateY(-6px); transition: opacity 0.2s ease, transform 0.2s ease; }
 nav.open .sheet .stagger { opacity: 1; transform: none;
 transition: opacity 0.45s var(--ease), transform 0.55s var(--cubic);
@@ -301,12 +301,12 @@ pointer-events: none; z-index: 0;
 background: linear-gradient(transparent, var(--bg-1) 55%);
 }
 .scene { position: absolute; inset: 0 0 auto; height: 760px; opacity: 0.55; }
-/_ the tokens go out of focus behind the copy: the nearest layer stays
+/* the tokens go out of focus behind the copy: the nearest layer stays
 crisp, the two behind it soften, so the aperture reads as depth rather
-than as traffic crossing the headline _/
+than as traffic crossing the headline */
 .l-two .piece { filter: blur(2px); }
 .l-three .piece { filter: blur(6px); }
-/_ the light the input card sits in _/
+/* the light the input card sits in */
 .glow {
 position: absolute; z-index: 1; left: 50%; top: 380px;
 width: 980px; height: 560px; transform: translateX(-50%);
@@ -387,7 +387,7 @@ animation: punch 0.6s 1.2s cubic-bezier(0.3, 0.8, 1, 1.05) both;
 @keyframes breathe { 50% { opacity: 0.7; transform: translateX(-50%) scale(1.06); } }
 @keyframes lift { 0% { opacity: 0; transform: translateY(40px); } }
 
-/_ ---------- hero: badge, headline, sub, input card ---------- _/
+/* ---------- hero: badge, headline, sub, input card ---------- */
 .corner {
 position: absolute; z-index: 1;
 font-family: var(--cond); font-size: 13px; letter-spacing: 2px; color: rgba(255, 255, 255, 0.86);
@@ -416,7 +416,7 @@ font-size: clamp(40px, 6.6vw, 80px); font-weight: 800; line-height: 1.0;
 letter-spacing: -0.045em;
 text-shadow: 0 2px 24px rgba(30, 20, 2, 0.45);
 }
-/_ each line rises out of its own mask, one after the other _/
+/* each line rises out of its own mask, one after the other */
 .hero h1 .line { display: block; overflow: hidden; padding: 0.04em 0.06em 0.1em; margin: -0.04em -0.06em -0.1em; }
 .hero h1 .line > span { display: inline-block; animation: rise 0.9s var(--ease) backwards; }
 .hero h1 .line:nth-child(1) > span { animation-delay: 0.35s; }
@@ -441,8 +441,8 @@ transition: transform 0.4s var(--ease); }
 .ask:focus-within::before { box-shadow: -12px -12px 34px 0 var(--nm-lit), 14px 14px 36px 0 rgba(30, 20, 2, 0.6), 0 0 0 1px rgba(255, 232, 163, 0.18); }
 .ask::before { transition: box-shadow 0.4s var(--ease); }
 
-/_ the entrance, in order: nav, aperture, badge, headline lines, sub,
-the card, then the window — each step lands before the next starts _/
+/* the entrance, in order: nav, aperture, badge, headline lines, sub,
+the card, then the window — each step lands before the next starts */
 .hero > .pill { animation: lift 0.7s 0.2s var(--ease) backwards; }
 .hero > .sub { animation: lift 0.7s 0.62s var(--ease) backwards; }
 .hero > .ask { animation: land 0.9s 0.76s var(--ease) backwards; }
@@ -496,7 +496,7 @@ transition: transform 0.35s var(--cubic), box-shadow 0.25s;
 .go:active { transform: scale(0.93); }
 .go:focus-visible, .mode:focus-visible { outline: 2px solid var(--cream); outline-offset: 3px; }
 
-/_ ---------- hero: the preview window ---------- _/
+/* ---------- hero: the preview window ---------- */
 .preview { position: relative; z-index: 3; margin-top: 72px; animation: lift 1s 1s var(--ease) backwards; }
 .win { border-radius: 22px; }
 .win-bar { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.08); }
@@ -530,12 +530,12 @@ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size
 color: rgba(255, 255, 255, 0.86); transition: opacity 0.3s ease;
 }
 .code.dim { opacity: 0.3; }
-/_ the response writes itself in, a line at a time; --base is the wait
-before the first line (long on page load, short on a re-run) _/
+/* the response writes itself in, a line at a time; --base is the wait
+before the first line (long on page load, short on a re-run) */
 .code .ln { display: block; animation: type-in 0.4s var(--ease) backwards;
 animation-delay: calc(var(--base, 0ms) + var(--i, 0) _ 55ms); }
 @keyframes type-in { 0% { opacity: 0; transform: translateX(-6px); clip-path: inset(0 100% 0 0); } }
-/_ the block in the page the response came from lights up with it \*/
+/* the block in the page the response came from lights up with it */
 .sk-card { transition: border-color 0.5s ease, box-shadow 0.5s ease, background 0.5s ease; }
 .sk-card.hit { border-color: rgba(255, 232, 163, 0.86); background: rgba(255, 232, 163, 0.04);
 box-shadow: 0 0 0 4px rgba(255, 107, 125, 0.12), 0 0 32px rgba(255, 107, 125, 0.18); }
@@ -551,7 +551,7 @@ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px;
 .status.busy i { background: var(--coral); animation: blink 0.8s infinite; }
 @keyframes blink { 50% { opacity: 0.2; } }
 
-/_ ---------- hero: trusted-by strip ---------- _/
+/* ---------- hero: trusted-by strip ---------- */
 .trust {
 position: relative; z-index: 3; margin-top: 72px;
 display: grid; grid-template-columns: 1.2fr repeat(5, 1fr); align-items: stretch;
@@ -698,7 +698,7 @@ opacity: 0; cursor: pointer; margin: 0;
 font-family: var(--cond); font-size: 14px; letter-spacing: 1.6px; text-transform: uppercase;
 color: rgba(255, 255, 255, 0.86); }
 .readout b { color: var(--cream); font-weight: 600; }
-/_ ---------- the run model: ring + legend, span strip, sentence ---------- \*/
+/* ---------- the run model: ring + legend, span strip, sentence ---------- */
 .dial { display: flex; flex-direction: column; gap: 22px; padding: 30px 28px 28px; border-radius: 26px; }
 .dial-top { display: grid; grid-template-columns: auto 1fr; gap: 26px; align-items: center; }
 .dial-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
@@ -731,8 +731,8 @@ color: #fff; font-variant-numeric: tabular-nums; transition: color 0.3s; }
 .legend .k-stub i { background: repeating-linear-gradient(135deg, rgba(255,255,255,0.6) 0 2px, transparent 2px 4px); outline: 1px solid rgba(255,255,255,0.35); }
 .legend .k-gone i { border: 1px dashed rgba(255, 255, 255, 0.5); }
 
-/_ the run itself, oldest top-left to newest bottom-right; each span is as
-wide as it is heavy, and changes state in place when the policy does _/
+/* the run itself, oldest top-left to newest bottom-right; each span is as
+wide as it is heavy, and changes state in place when the policy does */
 .strip { padding: 14px; border-radius: 16px; display: grid; gap: 7px; }
 .strip.nm--inset::after { box-shadow: inset -5px -5px 9px 0 rgba(168, 112, 16,0.4), inset 5px 5px 9px 0 var(--nm-dim); }
 .strip-row { display: flex; gap: 5px; height: 16px; }
@@ -747,10 +747,10 @@ border: 1px solid transparent;
 .span[data-s="stub"] { flex-grow: 4; background: repeating-linear-gradient(135deg, rgba(255,255,255,0.55) 0 2px, transparent 2px 4px);
 border-color: rgba(255, 255, 255, 0.86); }
 .dial.over .span[data-s="pin"] { background: var(--coral); box-shadow: 0 0 10px rgba(255, 107, 125, 0.45); }
-/_ a cited span carries the coral dot whatever state it is in _/
+/* a cited span carries the coral dot whatever state it is in */
 .span[data-cited]::after { content: ""; position: absolute; top: -3px; right: -2px; width: 6px; height: 6px;
 border-radius: 50%; background: var(--coral); box-shadow: 0 0 0 2px var(--bg-1); }
-/_ tool results get a notch, so pinning them is visibly a different set _/
+/* tool results get a notch, so pinning them is visibly a different set */
 .span[data-type="tool"]::before { content: ""; position: absolute; left: 4px; top: 50%; width: 4px; height: 4px;
 margin-top: -2px; border-radius: 50%; background: rgba(30, 20, 2, 0.55); }
 .span.flash { animation: flash 0.7s var(--ease); }
@@ -873,14 +873,14 @@ transition-duration: 0.01ms !important;
 .piece { animation: none !important; }
 }
 
-/_ ---------- hero refresh: brighter aperture, vivid pills, glass cards ---------- _/
+/* ---------- hero refresh: brighter aperture, vivid pills, glass cards ---------- */
 .scene { opacity: 0.92; }
 .l-one .piece { filter: none; }
 .l-two .piece { filter: blur(10px); }
 .l-three .piece { filter: blur(16px); background: linear-gradient(90deg, #ff9468, #ffc45f); }
 .l-one .piece { background: linear-gradient(90deg, #5b5cff, #d48600); }
 .l-two .piece { background: linear-gradient(90deg, #ffc98a, #ff6f91); }
-/_ the aperture reads as a lit dome: a bright rim up top, falling into shade _/
+/* the aperture reads as a lit dome: a bright rim up top, falling into shade */
 .disc::before {
 background: radial-gradient(circle at 50% 30%, #805c1c 0%, #64491b 55%, #584015 100%);
 box-shadow: inset 0 2px 0 rgba(255, 166, 11, 0.35), inset 0 0 0 1px rgba(246, 155, 0, 0.18),
@@ -913,7 +913,7 @@ text-shadow: 0 2px 14px rgba(30, 20, 2, 0.4); }
 color: var(--cream); background: rgba(34, 23, 3, 0.55); border: 1px solid rgba(255, 255, 255, 0.12);
 animation: lift 0.7s 0.7s var(--ease) backwards; }
 
-/_ glass surfaces: the card and the window let the pills show through _/
+/* glass surfaces: the card and the window let the pills show through */
 .ask, .win { background: rgba(144, 98, 21, 0.26); border: 1px solid rgba(255, 255, 255, 0.2);
 -webkit-backdrop-filter: blur(16px) saturate(1.3); backdrop-filter: blur(16px) saturate(1.3); }
 .ask::before, .win::before, .ask:focus-within::before {
@@ -923,12 +923,12 @@ box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 24px 60px -18px rgba(30, 
 .go { width: 56px; height: 46px; border-radius: 14px; background: linear-gradient(135deg, #ffbf5c, #ff6f7d);
 box-shadow: 0 10px 24px -6px rgba(255, 110, 120, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.45); }
 
-/_ sign up gets the glowing outline from the reference _/
+/* sign up gets the glowing outline from the reference */
 .signup { border: 1px solid rgba(255, 255, 255, 0.28); background: rgba(67, 46, 11, 0.55); }
 .signup.nm--offset::before { box-shadow: 0 0 22px -2px rgba(198, 126, 0, 0.6); }
 
-/_ the pills keep to the edges of the aperture and sway outward, so the
-headline stays clear _/
+/* the pills keep to the edges of the aperture and sway outward, so the
+headline stays clear */
 .piece { left: auto; right: auto; animation: sway 13s cubic-bezier(1, 0.06, 0.25, 1) infinite both; }
 @keyframes sway { 50% { transform: translateX(calc(var(--dx, 1) _ 90px)) scaleX(0.82); } }
 .l-one .piece:nth-child(1) { right: 6%; left: auto; top: 12%; width: 260px; height: 56px; --dx: 1; transform-origin: left center; }
@@ -943,7 +943,7 @@ headline stays clear _/
 .l-three .piece:nth-child(2) { right: 13%; left: auto; top: 40%; width: 230px; height: 60px; --dx: 1; transform-origin: left center; }
 .l-three .piece:nth-child(3) { left: 4%; right: auto; top: 68%; width: 210px; height: 40px; --dx: -1; transform-origin: right center; }
 .l-three .piece:nth-child(4) { left: 1%; right: auto; top: 12%; width: 220px; height: 44px; --dx: -1; transform-origin: right center; }
-/_ wide screens show the section links in the pill; the burger stays \*/
+/* wide screens show the section links in the pill; the burger stays */
 @media (min-width: 900px) {
 .menu-links { display: flex; gap: 4px; }
 .menu { grid-template-columns: 1fr auto 1fr; }
@@ -956,7 +956,7 @@ headline stays clear _/
 .go { width: 48px; height: 42px; }
 }
 
-/_ ---------- finale: newsletter card under a dome, then the footer ---------- _/
+/* ---------- finale: newsletter card under a dome, then the footer ---------- */
 .finale { position: relative; overflow: hidden; padding: 0 0 28px;
 background:
 linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px) 0 0 / 96px 96px,

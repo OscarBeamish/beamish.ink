@@ -87,7 +87,7 @@
   overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   }
-  /_ film grain over everything — the cheapest way to make flat gradients feel printed _/
+  /* film grain over everything — the cheapest way to make flat gradients feel printed */
   body::after {
   content: ""; position: fixed; inset: 0; z-index: 100; pointer-events: none;
   opacity: 0.07; mix-blend-mode: overlay;
@@ -110,7 +110,7 @@
   -webkit-background-clip: text; background-clip: text; color: transparent;
   }
 
-/_ gradient hairline border, used on every surface below the hero _/
+/* gradient hairline border, used on every surface below the hero */
 .surface {
 border: 1px solid transparent;
 background:
@@ -118,7 +118,7 @@ linear-gradient(180deg, rgba(16, 40, 108, 0.55), rgba(5, 14, 46, 0.7)) padding-b
 linear-gradient(180deg, var(--edge-hi), var(--edge-lo) 70%) border-box;
 }
 
-/_ ============================================================ NAV _/
+/* ============================================================ NAV */
 .nav { position: absolute; inset: 0 0 auto; z-index: 40; }
 .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 92px; gap: 24px; }
 .brand { display: flex; align-items: center; gap: 11px; font-weight: 600; font-size: 19px; letter-spacing: -0.01em; }
@@ -158,7 +158,7 @@ box-shadow: 0 10px 26px -8px rgba(4, 92, 255, 0.85), inset 0 -8px 14px -6px rgba
 .btn--line:hover { box-shadow: inset 0 0 0 1px rgba(200, 228, 255, 0.6); background: rgba(123, 161, 244, 0.14); }
 .btn:focus-visible, .cta:focus-visible { outline: 2px solid var(--lit); outline-offset: 3px; }
 
-/_ ============================================================ HERO _/
+/* ============================================================ HERO */
 .hero {
 position: relative; isolation: isolate; overflow: hidden;
 padding: 0 0 clamp(3.5rem, 7vw, 6rem);
@@ -212,14 +212,14 @@ font-size: clamp(1rem, 0.94rem + 0.32vw, 1.16rem); font-weight: 300; line-height
 text-wrap: pretty;
 }
 
-/_ ---------- feature row ---------- _/
+/* ---------- feature row ---------- */
 .feats { display: flex; justify-content: center; width: fit-content; margin: 2.1rem auto 0; }
 .feats li { display: flex; align-items: center; gap: 11px; padding: 2px clamp(16px, 2.4vw, 30px); white-space: nowrap; }
 .feats li + li { border-left: 1px solid rgba(164, 216, 255, 0.18); }
 .feats svg { flex: none; width: 24px; height: 24px; color: var(--lit); }
 .feats b { font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: #e8f0ff; }
 
-/_ ---------- rings ---------- _/
+/* ---------- rings ---------- */
 .ringstack {
 position: relative; z-index: 2;
 margin: clamp(2.5rem, 5vw, 4rem) auto 0;
@@ -269,7 +269,7 @@ radial-gradient(17% 7% at 50% 43%, rgba(255, 255, 255, 0.62), transparent 74%);
 will-change: transform;
 }
 
-/_ floating readouts in the gaps between rings _/
+/* floating readouts in the gaps between rings */
 .readout {
 position: absolute; z-index: 6; text-align: left;
 padding: 11px 15px 12px; border-radius: 14px; min-width: 150px;
@@ -294,9 +294,9 @@ animation: bob 7s ease-in-out infinite;
 
 .cta-slot { position: absolute; z-index: 5; top: 50%; left: 50%; translate: -50% -50%; }
 
-/_ ---------- the button as the innermost ring ----------
+/* ---------- the button as the innermost ring ----------
 Same stadium, same 176deg gradient, the next step lighter than ring 5,
-with the gap to ring 5 matching the gap between the rings around it. _/
+with the gap to ring 5 matching the gap between the rings around it. */
 .ringstack .cta-slot { width: 42%; height: 26%; }
 .cta.cta--ring {
 position: relative; isolation: isolate;
@@ -311,7 +311,7 @@ inset 0 1px 0 rgba(255, 255, 255, 0.95),
 inset 0 -10px 22px -12px rgba(10, 40, 130, 0.45),
 0 0 40px -10px rgba(170, 215, 255, 0.75);
 }
-/_ the lit state, faded in like the rings around it _/
+/* the lit state, faded in like the rings around it */
 .cta.cta--ring::after {
 content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit;
 background: linear-gradient(176deg, #ffffff 0%, #c4e0ff 46%, #6aa3ef 100%);
@@ -336,7 +336,7 @@ transition: 0.26s var(--ease);
 .cta:hover { box-shadow: inset 0 1px 0 rgba(190, 220, 255, 0.45), 0 0 0 1px rgba(170, 205, 255, 0.6), 0 0 54px -10px rgba(120, 180, 255, 0.8); }
 .cta svg { width: 26px; height: 20px; }
 
-/_ ---------- logo strip ---------- _/
+/* ---------- logo strip ---------- */
 .logos { position: relative; z-index: 3; margin-top: clamp(3rem, 6vw, 4.5rem); text-align: center; }
 .logos p { font-family: var(--sans); font-size: 13px; color: var(--ink-3); }
 .logos ul {
@@ -349,7 +349,7 @@ margin-top: 1.4rem; color: #7f93bf;
 .logos li.serif { font-family: Georgia, serif; font-style: italic; font-weight: 400; }
 .logos li.caps { font-family: var(--sans); font-size: 0.9rem; }
 
-/_ ============================================================ SECTIONS _/
+/* ============================================================ SECTIONS */
 .sec { position: relative; padding: clamp(5rem, 9vw, 8rem) 0; }
 .sec + .sec::before {
 content: ""; position: absolute; top: 0; left: 50%; translate: -50% 0; width: min(1180px, 100% - 40px); height: 1px;
@@ -361,7 +361,7 @@ background: linear-gradient(90deg, transparent, rgba(123, 161, 244, 0.3), transp
 .sec-head p { color: var(--ink-2); line-height: 1.7; max-width: 54ch; font-weight: 300; font-size: 1.04rem; }
 .sec-head.center p { margin-inline: auto; }
 
-/_ ---------- bento ---------- _/
+/* ---------- bento ---------- */
 .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 18px; }
 .tile {
 position: relative; overflow: hidden; border-radius: 22px; padding: 28px 26px 30px;
@@ -404,7 +404,7 @@ background: rgba(39, 91, 187, 0.18); box-shadow: inset 0 0 0 1px rgba(164, 216, 
 }
 .chips span.hot { background: rgba(4, 92, 255, 0.4); box-shadow: inset 0 0 0 1px rgba(200, 228, 255, 0.5), 0 0 22px -6px rgba(4, 92, 255, 0.9); }
 
-/_ ---------- latency ---------- _/
+/* ---------- latency ---------- */
 .lat { border-radius: 24px; padding: clamp(22px, 3.5vw, 40px); }
 .lat-key { display: flex; gap: 22px; margin-bottom: 26px; font-family: var(--sans); font-size: 13px; color: var(--ink-3); }
 .lat-key span { display: inline-flex; align-items: center; gap: 8px; }
@@ -427,7 +427,7 @@ background: rgba(39, 91, 187, 0.18); box-shadow: inset 0 0 0 1px rgba(164, 216, 
 .lat-row:nth-of-type(5) .bar i { transition-delay: 0.32s; }
 .lat-row:nth-of-type(6) .bar i { transition-delay: 0.4s; }
 
-/_ ---------- how ---------- _/
+/* ---------- how ---------- */
 .how { display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(28px, 5vw, 64px); align-items: start; }
 .steps { display: grid; gap: 4px; counter-reset: s; }
 .step { counter-increment: s; display: grid; grid-template-columns: 52px 1fr; gap: 4px; padding: 22px 0; border-top: 1px solid var(--line); }
@@ -451,8 +451,8 @@ padding-top: 4px;
 .term .dim { color: var(--ink-3); }
 .term hr { border: 0; border-top: 1px dashed var(--line); margin: 0 22px; }
 
-/_ ---------- numbers ---------- _/
-/_ ---------- numbers: one instrument panel ---------- _/
+/* ---------- numbers ---------- */
+/* ---------- numbers: one instrument panel ---------- */
 .stats {
 position: relative; overflow: hidden; isolation: isolate;
 display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -488,7 +488,7 @@ background: linear-gradient(180deg, #ffffff 25%, #9cc6ff 100%);
 .stat .viz { height: 64px; margin: 26px 0 20px; display: flex; align-items: flex-end; }
 .stat p { margin-top: auto; font-size: 0.9rem; line-height: 1.6; color: var(--ink-2); font-weight: 300; }
 
-/_ latency: a distribution, the median bar lit _/
+/* latency: a distribution, the median bar lit */
 .hist { gap: 3px; width: 100%; position: relative; }
 .hist i {
 flex: 1; height: calc(var(--h) _ 100%); border-radius: 3px 3px 1px 1px;
@@ -499,7 +499,7 @@ transition: transform 0.9s var(--ease); transition-delay: calc(var(--i) _ 18ms);
 .hist i.p50 { background: linear-gradient(180deg, #ffffff, #8fc3ff 60%, #3f7bff); box-shadow: 0 0 14px rgba(160, 205, 255, 0.85); }
 .stats.in .hist i { transform: none; }
 
-/_ regions: the ring motif, small _/
+/* regions: the ring motif, small */
 .mini { position: relative; width: 100%; height: 100%; }
 .mini i { position: absolute; left: 50%; top: 50%; translate: -50% -50%; border-radius: 999px; border: 1px solid rgba(164, 216, 255, 0.28); }
 .mini i:nth-child(1) { width: 100%; height: 100%; background: rgba(39, 91, 187, 0.12); }
@@ -511,7 +511,7 @@ position: absolute; width: 5px; height: 5px; border-radius: 50%; translate: -50%
 background: var(--lit); box-shadow: 0 0 8px var(--lit); opacity: 0.3; animation: pulse 2.6s ease-in-out infinite;
 }
 
-/_ in region: a track nearly full, with the remainder named _/
+/* in region: a track nearly full, with the remainder named */
 .stat .viz.meter { flex-direction: column; align-items: stretch; justify-content: flex-end; gap: 10px; width: 100%; }
 .meter .track { position: relative; height: 10px; border-radius: 999px; background: rgba(123, 161, 244, 0.14); overflow: hidden; }
 .meter .track span {
@@ -524,7 +524,7 @@ transform-origin: left; transform: scaleX(0); transition: transform 1.3s var(--e
 .meter .ends { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; color: var(--ink-3); }
 .meter .ends b { font-weight: 400; color: var(--lit); }
 
-/_ hostname: the one thing your clients need _/
+/* hostname: the one thing your clients need */
 .host {
 display: flex; align-items: center; gap: 10px; width: 100%;
 padding: 12px 14px; border-radius: 12px;
@@ -537,7 +537,7 @@ background: rgba(2, 10, 36, 0.6); box-shadow: inset 0 0 0 1px rgba(164, 216, 255
 @keyframes blink { 50% { opacity: 0; } }
 .caveat { margin-top: 1.4rem; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; color: var(--ink-3); }
 
-/_ ---------- pricing ---------- _/
+/* ---------- pricing ---------- */
 .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: stretch; }
 .plan { position: relative; display: flex; flex-direction: column; border-radius: 24px; padding: 30px 28px 28px; }
 .plan h3 { font-size: 1.05rem; font-weight: 500; color: var(--ink-2); }
@@ -561,7 +561,7 @@ font-family: var(--sans); font-size: 12.5px;
 box-shadow: 0 8px 20px -6px rgba(4, 92, 255, 0.9);
 }
 
-/_ ---------- faq ---------- _/
+/* ---------- faq ---------- */
 .faq-wrap { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: clamp(28px, 5vw, 72px); }
 .faq details { border-top: 1px solid var(--line); }
 .faq details:last-child { border-bottom: 1px solid var(--line); }
@@ -579,8 +579,8 @@ transition: transform 0.3s var(--ease), background 0.3s;
 .faq details[open] summary::after { transform: rotate(45deg); background: rgba(4, 92, 255, 0.35); }
 .faq details p { padding: 0 48px 24px 0; color: var(--ink-2); line-height: 1.7; font-size: 0.97rem; }
 
-/_ ---------- close ---------- _/
-/_ the closing panel: a framed window onto the hero's ring stack, rising from below _/
+/* ---------- close ---------- */
+/* the closing panel: a framed window onto the hero's ring stack, rising from below */
 .close { padding: clamp(4rem, 8vw, 6.5rem) 0 clamp(5rem, 9vw, 7.5rem); }
 .portal {
 position: relative; overflow: hidden; isolation: isolate; text-align: center;
@@ -593,7 +593,7 @@ linear-gradient(180deg, #0b2266 0%, #061440 46%, #040d2a 100%) padding-box,
 linear-gradient(180deg, rgba(200, 228, 255, 0.55), rgba(123, 161, 244, 0.14) 45%, rgba(4, 92, 255, 0.4)) border-box;
 box-shadow: 0 60px 120px -50px rgba(4, 92, 255, 0.75), inset 0 1px 0 rgba(220, 238, 255, 0.25);
 }
-/_ fine grid, fading out toward the edges _/
+/* fine grid, fading out toward the edges */
 .portal::before {
 content: ""; position: absolute; inset: 0; z-index: -2; pointer-events: none;
 background-image:
@@ -603,7 +603,7 @@ background-size: 44px 44px; background-position: center top;
 -webkit-mask-image: radial-gradient(70% 70% at 50% 30%, #000 20%, transparent 75%);
 mask-image: radial-gradient(70% 70% at 50% 30%, #000 20%, transparent 75%);
 }
-/_ the stack, centred below the panel's bottom edge so only its upper half shows _/
+/* the stack, centred below the panel's bottom edge so only its upper half shows */
 .portal-rings {
 position: absolute; z-index: -1; left: 50%; bottom: 0; translate: -50% 52%;
 width: min(1100px, 170%); aspect-ratio: 1100 / 520; pointer-events: none;
@@ -618,7 +618,7 @@ box-shadow: inset 0 1px 0 rgba(214, 233, 255, 0.55), 0 0 40px -14px rgba(120, 17
 .portal-rings i:nth-child(3) { width: 64%; height: 64%; --c1: #5b93e6; --c2: #24509f; --c3: #0e2a6e; }
 .portal-rings i:nth-child(4) { width: 46%; height: 46%; --c1: #8dbcf6; --c2: #3468c8; --c3: #11337f; }
 .portal-rings i:nth-child(5) { width: 30%; height: 30%; --c1: #c6e2ff; --c2: #5a94e8; --c3: #1b4aab; }
-/_ the band of light where the stack meets the content _/
+/* the band of light where the stack meets the content */
 .portal-rings b {
 position: absolute; inset: 0; mix-blend-mode: screen;
 background: radial-gradient(42% 16% at 50% 2%, rgba(235, 245, 255, 0.75), rgba(160, 205, 255, 0.25) 50%, transparent 80%);
@@ -633,8 +633,8 @@ text-wrap: balance; text-shadow: 0 8px 40px rgba(4, 13, 42, 0.6);
 max-width: 44ch; margin: 1.3rem auto 2.4rem;
 color: #f2f6fc; line-height: 1.7; font-weight: 300; font-size: clamp(1rem, 0.94rem + 0.3vw, 1.14rem); text-wrap: pretty;
 }
-/_ the closing button is the same light ring as the hero's, sized to its content,
-with two faint outer bands echoing the rings rising below it _/
+/* the closing button is the same light ring as the hero's, sized to its content,
+with two faint outer bands echoing the rings rising below it */
 .portal .cta.cta--ring {
 width: auto; height: auto; padding: 20px clamp(34px, 4vw, 56px);
 font-size: clamp(1rem, 0.92rem + 0.4vw, 1.2rem);
@@ -654,8 +654,8 @@ inset 0 -10px 22px -12px rgba(10, 40, 130, 0.4),
 0 24px 70px -14px rgba(180, 220, 255, 0.9);
 }
 
-/_ ---------- footer ---------- _/
-/_ the footer: a glowing horizon, the link columns, a status bar, and the wordmark set huge and cropped _/
+/* ---------- footer ---------- */
+/* the footer: a glowing horizon, the link columns, a status bar, and the wordmark set huge and cropped */
 .ft {
 position: relative; overflow: hidden; isolation: isolate;
 padding: clamp(4.5rem, 8vw, 6.5rem) 0 0;
@@ -711,11 +711,11 @@ background: linear-gradient(180deg, rgba(164, 216, 255, 0.34) 0%, rgba(80, 140, 
 }
 .ft-note { padding: 0; margin-top: -0.2rem; max-width: 70ch; font-family: var(--mono); font-size: 10.5px; line-height: 1.8; letter-spacing: 0.04em; color: var(--ink-3); }
 
-/_ ---------- reveal ---------- _/
+/* ---------- reveal ---------- */
 .js .rv { opacity: 0; transform: translateY(22px); transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); transition-delay: var(--rd, 0s); }
 .js .rv.in { opacity: 1; transform: none; }
 
-/_ ============================================================ RESPONSIVE _/
+/* ============================================================ RESPONSIVE */
 @media (max-width: 1100px) {
 .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .stat:nth-child(3) { border-left: 0; }
@@ -745,7 +745,7 @@ background: linear-gradient(180deg, rgba(164, 216, 255, 0.34) 0%, rgba(80, 140, 
 @media (max-width: 560px) {
 .stats { grid-template-columns: minmax(0, 1fr); }
 .stat + .stat { border-left: 0; border-top: 1px solid rgba(123, 161, 244, 0.16); }
-/_ a taller stack on phones, so the inner ring is big enough to hold the label _/
+/* a taller stack on phones, so the inner ring is big enough to hold the label */
 .ringstack { aspect-ratio: 1 / 0.66; }
 .rings i:nth-child(1) { width: 100%; height: 100%; }
 .rings i:nth-child(2) { width: 91%; height: 84%; }

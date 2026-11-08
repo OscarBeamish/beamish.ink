@@ -608,6 +608,11 @@ body::after {
   .contact-grid { grid-template-columns: 1fr; gap: 56px; }
 }
 @media (max-width: 640px) {
+  /* The figures carry their own floor. clamp(52px, 6.4vw, 116px) pins to 52px
+     here, because 6.4vw is only 25px at this width, and 52px of a weight-900
+     number does not fit a column 113px wide: measured, 38px fits and 44px does
+     not. Nothing at 640px and above changes. */
+  .stat-num { font-size: clamp(32px, 9vw, 48px); }
   .nav__links { display: none; }
   .nav,
   .meta {
