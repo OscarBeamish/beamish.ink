@@ -5,6 +5,39 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.15.1, 9 November 2026
+
+### Fixed
+
+- The seven sideways-scrolling templates, down to none, and the bug underneath
+  two of them. recessed-aperture and radiating-rings had their CSS comments
+  written as `/_ ... _/` rather than `/* ... */`, markdown emphasis instead of a
+  comment. `/_` does not open a comment, so the parser discarded what followed:
+  418 rules parsed where 444 were written, and 248 where 277 were. Among the
+  casualties was the rule making `.finale` a clipping, positioned parent, which
+  is why its decoration escaped and the page scrolled. radiating-rings had the
+  same damage, was never flagged by anything, and renders differently now
+  because 29 rules came back.
+
+- The other two were ordinary. editorial-portfolio had an inline `display:flex`
+  footer row that could not wrap, and refracted-glass pinned `.stat-num` to the
+  52px floor of its clamp at 390px inside a column 113px wide.
+
+- recessed-aperture's hero headline, which the repair exposed. Reviving the CSS
+  restored its real size, and with it 0.06em of horizontal padding on `.line`
+  held against an equal negative margin: hidden from layout, not from
+  scrollWidth. The `rise` animation is vertical, so the horizontal half was
+  protecting nothing.
+
+### Added
+
+- `pnpm cssdrop`, for CSS the browser throws away. Nothing here checked that
+  the CSS in a file is the CSS that applies, which is how 55 dead rules sat in
+  two templates without a build, a type check or a test noticing. A text pass
+  names the line; a browser pass counts the blocks a file declares against the
+  rules the parser ended up with, so it catches damage nobody has thought of
+  yet. It runs in `pnpm check` ahead of the slow gates.
+
 ## v0.15.0, 8 November 2026
 
 ### Added
