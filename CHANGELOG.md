@@ -5,6 +5,50 @@ record of what a given prompt was written about.
 
 Published tags are never deleted or moved.
 
+## v0.15.0, 8 November 2026
+
+### Added
+
+- GlassCrystal (backdrops): a cut solid of glass turning in front of the page,
+  with what is behind it genuinely refracted through it rather than blurred. A
+  blur cannot displace a straight line, and displacement is the whole signal
+  that something is being looked through. `dispersion` splits the refraction by
+  wavelength, so the colour at the edges is computed rather than painted: there
+  is no rainbow texture in it. The environment it needs to reflect is built at
+  runtime from four emissive planes rather than loaded as an HDR, which keeps
+  the item to two files and no network request.
+
+  It had been sitting in the repo since the GlassPanel work as a core with no
+  meta, no recipe and no registry entry, and it looked like a grey lump. The
+  optics were right the whole time. The sheet behind it carried a wash and one
+  hairline rule, and the luminance range inside the solid measured 2 out of
+  255. Turning transmission off made the solid more varied, not less, which is
+  only possible if it was refracting faithfully and averaging a blank page. So
+  the sheet is ruled, and the same optics measure 26.
+
+### Changed
+
+- The heading over a prompt's Common mistakes counts them. It was hardcoded to
+  "The three mistakes most likely to be made here" and three was right for
+  twelve items: twenty-five list five, twenty-two list four, fourteen list six
+  and three list seven. Seventy-six prompts announced a number and printed a
+  different one.
+
+### Fixed
+
+- Three of the seven templates that scrolled sideways, and they were all the
+  same trap. The code block in highlighter-markup and the table in
+  editorial-portfolio already had `overflow-x: auto` and already scrolled; what
+  stopped it working is that a flex or grid item defaults to `min-width: auto`,
+  which is its content's min-content width, so the page widened instead of the
+  box scrolling. The four stat columns in refracted-glass are the same: a 1fr
+  track still will not go below the width of the number in it.
+
+- Playable Worlds is out of the site, along with the two mirror scripts and the
+  deploy tool. It was somebody else's work shown from here, and shown from a
+  public repo rather than a laptop, which is a different thing from the one it
+  was built to be.
+
 ## v0.14.0, 13 October 2026
 
 ### Added
